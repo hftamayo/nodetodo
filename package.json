@@ -1,0 +1,14 @@
+{
+  "name": "nodetodo",
+  "version": "1.0.0",
+  "description": "rest api for a todo application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Herbert Tamayo",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^5.6.0"
+  }
+}
