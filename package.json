@@ -2,9 +2,10 @@
   "name": "nodetodo",
   "version": "1.0.0",
   "description": "rest api for a todo application",
-  "main": "index.js"
+  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
     "start": "node index.js"
   },
   "author": "Herbert Tamayo",
