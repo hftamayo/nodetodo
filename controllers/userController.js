@@ -25,9 +25,10 @@ export const register = async (req, res) => {
         user: user._id,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET);
-
-
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 360000});
+    res.cookie("token", token, {httpOnly: true, expiresIn: 360000});
+    const {password: pass, ...rest} = user._doc;
+    res.status(201).json({msg: "User created successfully", user: rest});
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal Server Error" });
