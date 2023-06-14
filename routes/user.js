@@ -1,4 +1,5 @@
 import express from "express";
+import {register, login, logout, getMe, updateDetails, updatePassword, deleteUser} from "../controllers/userController.js";
 
 const router = express.Router();
 
