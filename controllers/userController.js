@@ -1,9 +1,38 @@
-import User from "../models/User";
+import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import Todo from "../models/Todo";
+import Todo from "../models/Todo.js";
 
-export const register = async (req, res) => {};
+export const register = async (req, res) => {
+  const { name, email, password, age } = req.body;
+
+  try {
+    let user = await User.findOne({email});
+    if(user){
+        return res.status(400).json({msg: "User already exists"});
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    user = new User({
+        name,
+        email,
+        password: hashedPassword,
+        age,
+    });
+    await user.save();
+
+    const payload = {
+        user: user._id,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET);
+
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 export const login = async (req, res) => {};
 export const logout = async (req, res) => {};
 export const getMe = async (req, res) => {};
