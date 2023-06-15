@@ -1,14 +1,23 @@
 import express from "express";
-import {register, login, logout, getMe, updateDetails, updatePassword, deleteUser} from "../controllers/userController.js";
+import {
+  register,
+  login,
+  logout,
+  getMe,
+  updateDetails,
+  updatePassword,
+  deleteUser,
+} from "../controllers/userController.js";
+import authorize from "../middleware/authorize.js";
 
 const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
-router.get("/logout", logout);
-router.get("/me", getMe);
-router.get("/updatedetais", updateDetails);
-router.get("/updatepassword", updatePassword);
-router.delete("/delete", deleteUser);
+router.get("/logout", authorize, logout);
+router.get("/me", authorize, getMe);
+router.get("/updatedetais", authorize, updateDetails);
+router.get("/updatepassword", authorize, updatePassword);
+router.delete("/delete", authorize, deleteUser);
 
 export default router;
