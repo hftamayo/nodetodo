@@ -105,5 +105,21 @@ export const updateDetails = async (req, res) => {
     res.status(500).json({ errors: "Internal Server Error" });
   }
 };
-export const updatePassword = async (req, res) => {};
-export const deleteUser = async (req, res) => {};
+export const updatePassword = async (req, res) => {
+  
+
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user);
+    if (!user) {
+      return res.status(404).json({ msg: "User Not Found" });
+    }
+    await user.remove();
+    res.status(200).json({ msg: "User deleted successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ errors: "Internal Server Error" });
+  }
+};
