@@ -95,6 +95,11 @@ export const updateDetails = async (req, res) => {
     user.age = age;
 
     await user.save();
+
+    const { password: pass, ...rest } = user._doc;
+    return res
+      .status(200)
+      .json({ msg: "User Updated Successfully", user: rest });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ errors: "Internal Server Error" });
