@@ -16,8 +16,8 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/logout", authorize, logout);
 router.get("/me", authorize, getMe);
-router.get("/updatedetais", authorize, updateDetails);
-router.get("/updatepassword", authorize, updatePassword);
+router.put("/updatedetais", authorize, updateDetails);
+router.put("/updatepassword", authorize, updatePassword);
 router.delete("/delete", authorize, deleteUser);
 
 export default router;
