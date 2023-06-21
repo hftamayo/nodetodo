@@ -2,6 +2,8 @@ import Todo from "../models/Todo.js";
 
 export const getTodos = async (req, res) => {
   try {
+    const todos = await Todo.find({ user: req.user });
+    res.status(200).json({ msg: "Todo Found", todos });
   } catch (error) {
     console.error(error.message);
     res.status(500).send({ errors: "Internal Server Error" });
@@ -9,33 +11,60 @@ export const getTodos = async (req, res) => {
 };
 
 export const getTodo = async (req, res) => {
-    try {
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send({ errors: "Internal Server Error" });
-    }    
+  const { id } = req.params;
+  try {
+    const todo = await Todo.findById(id);
+    if (!todo) {
+      return res.status(404).json({ msg: "Todo Not Found" });
+    }
+    if (todo.user.toString() !== req.user) {
+      return res.status(401).json({ msg: "Not Authorized" });
+    }
+    res.status(200).json({ msg: "Todo found", todo });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ errors: "Internal Server Error" });
+  }
 };
 
 export const createTodo = async (req, res) => {
-    try {
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send({ errors: "Internal Server Error" });
-    }    
+  const { title, description } = req.body;
+  try {
+    const todo = await Todo.create({
+      title,
+      description,
+      completed: false,
+      user: req.user,
+    });
+    res.status(201).json({ msg: "Todo created Successfully", todo });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ errors: "Internal Server Error" });
+  }
 };
 
 export const updateTodo = async (req, res) => {
-    try {
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send({ errors: "Internal Server Error" });
-    }    
+  try {
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ errors: "Internal Server Error" });
+  }
 };
 
 export const deleteTodo = async (req, res) => {
-    try {
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send({ errors: "Internal Server Error" });
-    }    
+  const { id } = req.params;
+  try {
+    const todo = await Todo.findById(id);
+    if (!todo) {
+      return res.status(404).json({ msg: "Todo Not Found" });
+    }
+    if (todo.user.toString() !== req.user) {
+      return res.status(401).json({ msg: "Not Authorized" });
+    }
+    await todo.remove();
+    res.status(200).json({ msg: "Todo Deleted Successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ errors: "Internal Server Error" });
+  }
 };
