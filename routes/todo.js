@@ -1,4 +1,6 @@
 import express from "express";
+import authorize from "../middleware/authorize";
+import { getTodo, getTodos, createTodo, updateTodo, deleteTodo } from "../controllers/todoController";
 
 const router = express.Router();
 router.get("/:id", authorize, getTodo);
