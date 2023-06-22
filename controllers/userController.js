@@ -140,6 +140,7 @@ export const deleteUser = async (req, res) => {
     if (todo) {
       await Todo.deleteMany({ user: req.user });
     }
+    res.clearCookie("token");
     await user.remove();
     res.status(200).json({ msg: "User deleted successfully" });
   } catch (error) {
