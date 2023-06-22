@@ -1,6 +1,12 @@
 import express from "express";
-import authorize from "../middleware/authorize";
-import { getTodo, getTodos, createTodo, updateTodo, deleteTodo } from "../controllers/todoController";
+import authorize from "../middleware/authorize.js";
+import {
+  getTodo,
+  getTodos,
+  createTodo,
+  updateTodo,
+  deleteTodo,
+} from "../controllers/todoController.js";
 
 const router = express.Router();
 router.get("/:id", authorize, getTodo);
