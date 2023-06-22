@@ -136,6 +136,10 @@ export const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "User Not Found" });
     }
+    const todo = await Todo.find({ user: req.user });
+    if (todo) {
+      await Todo.deleteMany({ user: req.user });
+    }
     await user.remove();
     res.status(200).json({ msg: "User deleted successfully" });
   } catch (error) {
