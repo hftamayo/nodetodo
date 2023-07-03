@@ -75,7 +75,7 @@ export const deleteTodo = async (req, res) => {
     if (todo.user.toString() !== req.user) {
       return res.status(401).json({ msg: "Not Authorized" });
     }
-    await todo.remove();
+    await todo.deleteOne();
     res.status(200).json({ msg: "Todo Deleted Successfully" });
   } catch (error) {
     console.error(error.message);
