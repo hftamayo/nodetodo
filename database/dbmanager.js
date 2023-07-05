@@ -1,11 +1,9 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { backend } from "../config/index.js";
 
 const dbConnection = () => {
   mongoose
-    .connect(process.env.MONGODB_URI)
+    .connect(backend)
     .then(() => console.log("Connected to the Remote Dataset"))
     .catch((error) =>
       console.log(
