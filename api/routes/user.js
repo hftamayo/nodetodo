@@ -7,15 +7,15 @@ import {
   updateDetails,
   updatePassword,
   deleteUser,
-} from "../controllers/userController.js";
-import authorize from "../middleware/authorize.js";
+} from "../../controllers/userController.js";
+import authorize from "../../middleware/authorize.js";
 import {
   loginRules,
   registerRules,
   updateDetailsRules,
   updatePasswordRules,
-} from "../middleware/validator.js";
-import { validateResult } from "../middleware/validationResults.js";
+} from "../../middleware/validator.js";
+import { validateResult } from "../../middleware/validationResults.js";
 
 const router = express.Router();
 
