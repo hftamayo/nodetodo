@@ -1,8 +1,8 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 
-import todosRoutes from ".api/routes/todo.js";
-import usersRoutes from ".api/routes/user.js";
+import todosRoutes from "./api/routes/todo.js";
+import usersRoutes from "./api/routes/user.js";
 import dbConnection from "./database/dbmanager.js";
 
 const app = express();
