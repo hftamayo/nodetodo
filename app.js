@@ -16,4 +16,5 @@ app.use("/nodetodo/users", usersRoutes);
 
 console.log("Application up and running");
 
-module.exports = app;
+//module.exports = app;
+export default app;
