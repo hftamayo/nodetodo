@@ -1,6 +1,6 @@
 import http from "http";
 import app from "./app.js";
-import { port } from "./config/index.js";
+import { port } from "./config/envvars.js";
 
 const PORT = port || 5001;
 

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { backend } from "../config/index.js";
+import { backend } from "../config/envvars.js";
 
 const dbConnection = () => {
   mongoose
