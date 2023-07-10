@@ -12,7 +12,7 @@ export const dbConnection = async () => {
     );
 };
 
-export const cors = async (req, res, next) => {
+export const setCorsEnviro = async (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
