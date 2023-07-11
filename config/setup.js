@@ -24,5 +24,3 @@ export const setCorsEnviro = async (req, res, next) => {
   }
   next();
 };
-
-export default init;
