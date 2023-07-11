@@ -1,14 +1,14 @@
 import express from "express";
-import authorize from "../../middleware/authorize.js";
+import authorize from "../middleware/authorize.js";
 import {
   getTodo,
   getTodos,
   createTodo,
   updateTodo,
   deleteTodo,
-} from "../../controllers/todoController.js";
-import { createTodoRules, updateTodoRules } from "../../middleware/validator.js";
-import { validateResult } from "../../middleware/validationResults.js";
+} from "../controllers/todoController.js";
+import { createTodoRules, updateTodoRules } from "../middleware/validator.js";
+import { validateResult } from "../middleware/validationResults.js";
 
 const router = express.Router();
 router.get("/:id", authorize, getTodo);

@@ -1,7 +1,7 @@
-import User from "../models/User.js";
+import User from "../../models/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import Todo from "../models/Todo.js";
+import Todo from "../../models/Todo.js";
 
 export const register = async (req, res) => {
   const { name, email, password, age } = req.body;
@@ -36,6 +36,7 @@ export const register = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -62,6 +63,7 @@ export const login = async (req, res) => {
     res.status(500).json({ errors: "Internal Server Error" });
   }
 };
+
 export const logout = async (req, res) => {
   res.clearCookie("token");
   res.status(200).json({ msg: "User logged out successfully" });
@@ -79,6 +81,7 @@ export const getMe = async (req, res) => {
     res.status(500).json({ errors: "Internal Server Error" });
   }
 };
+
 export const updateDetails = async (req, res) => {
   const { name, email, age } = req.body;
   try {
@@ -105,6 +108,7 @@ export const updateDetails = async (req, res) => {
     res.status(500).json({ errors: "Internal Server Error" });
   }
 };
+
 export const updatePassword = async (req, res) => {
   const { password, newPassword } = req.body;
   try {
