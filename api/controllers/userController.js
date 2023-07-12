@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Todo from "../../models/Todo.js";
 
+const UserService = require("../../services/userService.js");
+
 export const register = async (req, res) => {
   const { name, email, password, age } = req.body;
 
@@ -134,21 +136,31 @@ export const updatePassword = async (req, res) => {
   }
 };
 
-export const deleteUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.user);
-    if (!user) {
-      return res.status(404).json({ msg: "User Not Found" });
-    }
-    const todo = await Todo.find({ user: req.user });
-    if (todo) {
-      await Todo.deleteMany({ user: req.user });
-    }
+// export const deleteUser = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user);
+//     if (!user) {
+//       return res.status(404).json({ msg: "User Not Found" });
+//     }
+//     const todo = await Todo.find({ user: req.user });
+//     if (todo) {
+//       await Todo.deleteMany({ user: req.user });
+//     }
+//     res.clearCookie("token");
+//     await user.deleteOne();
+//     res.status(200).json({ msg: "User deleted successfully" });
+//   } catch (error) {
+//     console.error(error.message);
+//     res.status(500).json({ errors: "Internal Server Error" });
+//   }
+// };
+
+export const deleteUser = async(req, res) => {
+  const { id } = req.user;
+  const { type, message } = await UserService.deleteUserByID(id);
+  
+  if(type === 200){
     res.clearCookie("token");
-    await user.deleteOne();
-    res.status(200).json({ msg: "User deleted successfully" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ errors: "Internal Server Error" });
   }
-};
+  res.status(type).json({ msg: message})
+}

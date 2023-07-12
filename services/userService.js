@@ -3,7 +3,7 @@ import Todo from "../../models/Todo.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const deleteUserByID = async function (userId) {
+export const deleteUserByID = async function (userId) {
   try {
     const targetUser = await User.findById(userId);
     if (!targetUser) {
@@ -19,8 +19,4 @@ const deleteUserByID = async function (userId) {
     console.error("userService: " + error.message);
     return { type: 500, message: "Internal Server Error" };
   }
-};
-
-module.exports = {
-  deleteUserByID,
 };
