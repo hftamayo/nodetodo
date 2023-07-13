@@ -71,18 +71,29 @@ export const logout = async (req, res) => {
   res.status(200).json({ msg: "User logged out successfully" });
 };
 
+// export const getMe = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user);
+//     if (!user) {
+//       return res.status(404).json({ msg: "User Not Found" });
+//     }
+//     const { password: pass, ...rest } = user._doc;
+//     return res.status(200).json({ msg: "User found", user: rest });
+//   } catch (error) {
+//     console.error(error.message);
+//     res.status(500).json({ errors: "Internal Server Error" });
+//   }
+// };
+
 export const getMe = async (req, res) => {
-  try {
-    const user = await User.findById(req.user);
-    if (!user) {
-      return res.status(404).json({ msg: "User Not Found" });
-    }
-    const { password: pass, ...rest } = user._doc;
-    return res.status(200).json({ msg: "User found", user: rest });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ errors: "Internal Server Error" });
+  const { id } = req.user;
+  const { type, message } = await UserService.listItemByID(id);
+  if (type === 200) {
+    res
+      .status(type)
+      .json({ title: "User Found: ", msg: message });
   }
+  res.status(type).json({ msg: message });
 };
 
 // export const updateDetails = async (req, res) => {
@@ -120,6 +131,11 @@ export const updateDetails = async (req, res) => {
     email,
     age
   );
+  if (type === 200) {
+    res
+      .status(type)
+      .json({ title: "User Updated Successfully! ", msg: message });
+  }
   res.status(type).json({ msg: message });
 };
 
