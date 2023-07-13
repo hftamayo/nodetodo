@@ -70,6 +70,7 @@ export const logout = async (req, res) => {
   res.clearCookie("token");
   res.status(200).json({ msg: "User logged out successfully" });
 };
+
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user);
@@ -84,31 +85,42 @@ export const getMe = async (req, res) => {
   }
 };
 
+// export const updateDetails = async (req, res) => {
+//   const { name, email, age } = req.body;
+//   try {
+//     let user = await User.findById(req.user);
+//     if (!user) {
+//       return res.status(404).json({ msg: "User Not Found" });
+//     }
+//     let exists = await User.findOne({ email });
+//     if (exists && exists._id.toString() !== user._id.toString()) {
+//       return res.status(404).json({ msg: "Email already exists" });
+//     }
+//     user.name = name;
+//     user.email = email;
+//     user.age = age;
+
+//     await user.save();
+
+//     const { password: pass, ...rest } = user._doc;
+//     return res
+//       .status(200)
+//       .json({ msg: "User Updated Successfully", user: rest });
+//   } catch (error) {
+//     console.error(error.message);
+//     res.status(500).json({ errors: "Internal Server Error" });
+//   }
+// };
 export const updateDetails = async (req, res) => {
+  const { id } = req.user;
   const { name, email, age } = req.body;
-  try {
-    let user = await User.findById(req.user);
-    if (!user) {
-      return res.status(404).json({ msg: "User Not Found" });
-    }
-    let exists = await User.findOne({ email });
-    if (exists && exists._id.toString() !== user._id.toString()) {
-      return res.status(404).json({ msg: "Email already exists" });
-    }
-    user.name = name;
-    user.email = email;
-    user.age = age;
-
-    await user.save();
-
-    const { password: pass, ...rest } = user._doc;
-    return res
-      .status(200)
-      .json({ msg: "User Updated Successfully", user: rest });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ errors: "Internal Server Error" });
-  }
+  const { type, message } = await UserService.updateUserByID(
+    id,
+    name,
+    email,
+    age
+  );
+  res.status(type).json({ msg: message });
 };
 
 export const updatePassword = async (req, res) => {
@@ -155,12 +167,12 @@ export const updatePassword = async (req, res) => {
 //   }
 // };
 
-export const deleteUser = async(req, res) => {
+export const deleteUser = async (req, res) => {
   const { id } = req.user;
   const { type, message } = await UserService.deleteUserByID(id);
-  
-  if(type === 200){
+
+  if (type === 200) {
     res.clearCookie("token");
   }
-  res.status(type).json({ msg: message})
-}
+  res.status(type).json({ msg: message });
+};
