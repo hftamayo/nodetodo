@@ -3,9 +3,32 @@ import Todo from "../../models/Todo.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
+export const updateUserByID = async function (id, name, email, age) {
+  try {
+    let updateUser = await User.findById({ id });
+    if (!updateUser) {
+      return { type: 404, message: "User Not Found" };
+    }
+    let checkIfExists = await User.findOne({ email });
+    if (checkIfExists && checkIfExists._id.toString() !== user._id.toString()) {
+      return { type: 400, message: "User Not Found" };
+    }
+    updateUser.name = { name };
+    updateUser.email = { email };
+    updateUser.age = { age };
+
+    await updateUser.save();
+
+    return { type: 200, message: "User Updated Successfully" };
+  } catch (error) {
+    console.error("userService, updateuserByID: " + error.message);
+    return { type: 500, message: "Internal Server Error" };
+  }
+};
+
 export const deleteUserByID = async function (userId) {
   try {
-    const targetUser = await User.findById(userId);
+    const targetUser = await User.findById({ userId });
     if (!targetUser) {
       return { type: 404, message: "User not found" };
     }
@@ -16,7 +39,7 @@ export const deleteUserByID = async function (userId) {
     await targetUser.deleteOne();
     return { type: 200, message: "User deleted successfully" };
   } catch (error) {
-    console.error("userService: " + error.message);
+    console.error("userService, deleteUserByID: " + error.message);
     return { type: 500, message: "Internal Server Error" };
   }
 };
