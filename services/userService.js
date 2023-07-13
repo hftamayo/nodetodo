@@ -3,6 +3,19 @@ import Todo from "../../models/Todo.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
+export const listItemByID = async function (id) {
+  try {
+    let searchUser = await User.findById({ id });
+    if (!searchUser) {
+      return { type: 400, message: "User Not Found" };
+    }
+    return { type: 200, message: searchUser };
+  } catch (error) {
+    console.error("userService, listItemByID: " + error.message);
+    return { type: 500, message: "Internal Server Error" };
+  }
+};
+
 export const updateUserByID = async function (id, name, email, age) {
   try {
     let updateUser = await User.findById({ id });
@@ -19,7 +32,7 @@ export const updateUserByID = async function (id, name, email, age) {
 
     await updateUser.save();
 
-    return { type: 200, message: "User Updated Successfully" };
+    return { type: 200, message: updateUser };
   } catch (error) {
     console.error("userService, updateuserByID: " + error.message);
     return { type: 500, message: "Internal Server Error" };
