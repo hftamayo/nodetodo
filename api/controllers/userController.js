@@ -139,30 +139,42 @@ export const updateDetails = async (req, res) => {
   res.status(type).json({ msg: message });
 };
 
-export const updatePassword = async (req, res) => {
-  const { password, newPassword } = req.body;
-  try {
-    let user = await User.findById(req.user);
-    if (!user) {
-      return res.status(404).json({ msg: "User Not Found" });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: "Invalid Credentials" });
-    }
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
-    await user.save();
+// export const updatePassword = async (req, res) => {
+//   const { password, newPassword } = req.body;
+//   try {
+//     let user = await User.findById(req.user);
+//     if (!user) {
+//       return res.status(404).json({ msg: "User Not Found" });
+//     }
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ msg: "Invalid Credentials" });
+//     }
+//     const salt = await bcrypt.genSalt(10);
+//     user.password = await bcrypt.hash(newPassword, salt);
+//     await user.save();
 
-    const { password: pass, ...rest } = user._doc;
-    return res
-      .status(200)
-      .json({ msg: "Password updated successfully", user: rest });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ errors: "Internal Server Error" });
+//     const { password: pass, ...rest } = user._doc;
+//     return res
+//       .status(200)
+//       .json({ msg: "Password updated successfully", user: rest });
+//   } catch (error) {
+//     console.error(error.message);
+//     res.status(500).json({ errors: "Internal Server Error" });
+//   }
+// };
+export const updatePassword = async (req, res) => {
+  const {password, newPassword} = req.body;
+  const { type, message } = await UserService.updateUserPassword(password, newPassword);
+
+  if (type === 200) {
+    res
+      .status(type)
+      .json({ title: "Password updated successfully ", msg: message });
   }
-};
+  res.status(type).json({ msg: message });
+
+}
 
 // export const deleteUser = async (req, res) => {
 //   try {
