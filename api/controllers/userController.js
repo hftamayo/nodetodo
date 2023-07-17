@@ -5,38 +5,50 @@ import Todo from "../../models/Todo.js";
 
 const UserService = require("../../services/userService.js");
 
+// export const register = async (req, res) => {
+//   const { name, email, password, age } = req.body;
+
+//   try {
+//     let user = await User.findOne({ email });
+//     if (user) {
+//       return res.status(400).json({ msg: "User already exists" });
+//     }
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+//     user = new User({
+//       name,
+//       email,
+//       password: hashedPassword,
+//       age,
+//     });
+//     await user.save();
+
+//     const payload = {
+//       user: user._id,
+//     };
+
+//     const token = jwt.sign(payload, process.env.JWT_SECRET, {
+//       expiresIn: 360000, //expiresIn: "5h",
+//     });
+//     res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
+//     const { password: pass, ...rest } = user._doc;
+//     res.status(201).json({ msg: "User created successfully", user: rest });
+//   } catch (error) {
+//     console.log(error.message);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
 export const register = async (req, res) => {
-  const { name, email, password, age } = req.body;
+  const { type, message } = await UserService.signUpUser(req.body);
 
-  try {
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ msg: "User already exists" });
-    }
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    user = new User({
-      name,
-      email,
-      password: hashedPassword,
-      age,
-    });
-    await user.save();
-
-    const payload = {
-      user: user._id,
-    };
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: 360000, //expiresIn: "5h",
-    });
-    res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
-    const { password: pass, ...rest } = user._doc;
-    res.status(201).json({ msg: "User created successfully", user: rest });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+  if (type === 200) {
+    res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
+    res
+      .status(type)
+      .json({ title: "User created Successfully ", user: res });
   }
+  res.status(type).json({ msg: message });
 };
 
 export const login = async (req, res) => {
@@ -157,7 +169,10 @@ export const updateDetails = async (req, res) => {
 //   }
 // };
 export const updatePassword = async (req, res) => {
-  const { type, message } = await UserService.updateUserPassword(req.user, req.body);
+  const { type, message } = await UserService.updateUserPassword(
+    req.user,
+    req.body
+  );
 
   if (type === 200) {
     res

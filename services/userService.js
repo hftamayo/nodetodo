@@ -6,8 +6,37 @@ import bcrypt from "bcrypt";
 middlewares:
 1. la rutina del catch 500, es igual para todos los metodos
 2. buscar al User por el Id
-3. Saltear el password
+3. Saltear el password prviamente validado
 */
+
+export const signUpUser = async function (requestBody) {
+  const { name, email, password, age } = requestBody.body;
+  try {
+    let searchUser = await User.findOne({ email });
+    if (searchUser) {
+      return { type: 400, message: "Email already exists" };
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    searchUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      age,
+    });
+    await searchUser.save();
+
+    const payload = { searchUser: searchUser._id };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "5h",
+    });
+    return { type: 200, message: token };
+  } catch (error) {
+    console.error("userService, signUpUser: " + error.message);
+    return { type: 500, message: "Internal Server Error" };
+  }
+};
 
 export const updateUserPassword = async function (reqId, requestPword) {
   const userId = reqId;
@@ -45,9 +74,9 @@ export const listItemByID = async function (reqId) {
   }
 };
 
-export const updateUserByID = async function (reqId, reqBody) {
+export const updateUserByID = async function (reqId, requestBody) {
   const id = reqId;
-  const { name, email, age } = reqBody.body;
+  const { name, email, age } = requestBody.body;
 
   try {
     let updateUser = await User.findById({ id });
