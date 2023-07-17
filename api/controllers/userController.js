@@ -85,7 +85,7 @@ export const login = async (req, res) => {
     res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
     res
       .status(type)
-      .json({ title: "User created Successfully ", user: res });
+      .json({ title: "Logged in Successfully ", user: res });
   }
   res.status(type).json({ msg: message });
 };
