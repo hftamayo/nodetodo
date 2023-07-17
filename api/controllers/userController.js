@@ -157,7 +157,7 @@ export const updateDetails = async (req, res) => {
 //   }
 // };
 export const updatePassword = async (req, res) => {
-  const { type, message } = await UserService.updateUserPassword(req.body);
+  const { type, message } = await UserService.updateUserPassword(req.user, req.body);
 
   if (type === 200) {
     res

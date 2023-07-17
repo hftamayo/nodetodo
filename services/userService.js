@@ -2,17 +2,33 @@ import User from "../../models/User.js";
 import Todo from "../../models/Todo.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+/*
+middlewares:
+1. la rutina del catch 500, es igual para todos los metodos
+2. buscar al User por el Id
+3. Saltear el password
+*/
 
-export const updateUserPassword = async function (requestPword) {
+export const updateUserPassword = async function (reqId, requestPword) {
+  const userId = reqId;
   const { password, newPassword } = requestPword.body;
-  /*
-  password validation rules
-  buscar al usuario
-  comparar password
-  saltear
-  guardar
-
-  */
+  try {
+    let searchUser = await User.findById(userId);
+    if (!searchUser) {
+      return { type: 404, message: "User Not Found" };
+    }
+    const isMatch = await bcrypt.compare(password, searchUser.password);
+    if (!isMatch) {
+      return { type: 400, message: "Invalid Credentials entered" };
+    }
+    const salt = await bcrypt.genSalt(10);
+    searchUser.password = await bcrypt.hash(newPassword, salt);
+    await searchUser.save();
+    return { type: 200, message: updateUser };
+  } catch (error) {
+    console.error("userService, updateUserPassword: " + error.message);
+    return { type: 500, message: "Internal Server Error" };
+  }
 };
 
 export const listItemByID = async function (reqId) {
@@ -20,7 +36,7 @@ export const listItemByID = async function (reqId) {
   try {
     let searchUser = await User.findById({ id });
     if (!searchUser) {
-      return { type: 400, message: "User Not Found" };
+      return { type: 404, message: "User Not Found" };
     }
     return { type: 200, message: searchUser };
   } catch (error) {
