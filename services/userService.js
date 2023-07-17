@@ -61,29 +61,7 @@ export const loginUser = async function (requestBody) {
   }
 };
 
-export const updateUserPassword = async function (reqId, requestPword) {
-  const userId = reqId;
-  const { password, newPassword } = requestPword.body;
-  try {
-    let searchUser = await User.findById(userId);
-    if (!searchUser) {
-      return { type: 404, message: "User Not Found" };
-    }
-    const isMatch = await bcrypt.compare(password, searchUser.password);
-    if (!isMatch) {
-      return { type: 400, message: "Invalid Credentials entered" };
-    }
-    const salt = await bcrypt.genSalt(10);
-    searchUser.password = await bcrypt.hash(newPassword, salt);
-    await searchUser.save();
-    return { type: 200, message: updateUser };
-  } catch (error) {
-    console.error("userService, updateUserPassword: " + error.message);
-    return { type: 500, message: "Internal Server Error" };
-  }
-};
-
-export const listItemByID = async function (reqId) {
+export const listUserByID = async function (reqId) {
   const id = reqId;
   try {
     let searchUser = await User.findById({ id });
@@ -122,6 +100,29 @@ export const updateUserByID = async function (reqId, requestBody) {
     return { type: 500, message: "Internal Server Error" };
   }
 };
+
+export const updateUserPassword = async function (reqId, requestPword) {
+  const userId = reqId;
+  const { password, newPassword } = requestPword.body;
+  try {
+    let searchUser = await User.findById(userId);
+    if (!searchUser) {
+      return { type: 404, message: "User Not Found" };
+    }
+    const isMatch = await bcrypt.compare(password, searchUser.password);
+    if (!isMatch) {
+      return { type: 400, message: "Invalid Credentials entered" };
+    }
+    const salt = await bcrypt.genSalt(10);
+    searchUser.password = await bcrypt.hash(newPassword, salt);
+    await searchUser.save();
+    return { type: 200, message: updateUser };
+  } catch (error) {
+    console.error("userService, updateUserPassword: " + error.message);
+    return { type: 500, message: "Internal Server Error" };
+  }
+};
+
 
 export const deleteUserByID = async function (reqId) {
   const userId = reqId;
