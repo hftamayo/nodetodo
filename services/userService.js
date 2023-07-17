@@ -38,6 +38,29 @@ export const signUpUser = async function (requestBody) {
   }
 };
 
+export const loginUser = async function (requestBody) {
+  const { email, password } = requestBody.body;
+  try {
+    let searchUser = await User.findOne({ email });
+    if (!searchUser) {
+      return { type: 404, message: "User not found" };
+    }
+    const passwordMatch = await bcrypt.compare(password, searchUser.password);
+    if (!passwordMatch) {
+      return { type: 400, message: "Invalid Credentials" };
+    }
+    const payload = { searchUser: searchUser._id };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "5h",
+    });
+    return { type: 200, message: token };
+  } catch (error) {
+    console.error("userService, loginUser: " + error.message);
+    return { type: 500, message: "Internal Server Error" };
+  }
+};
+
 export const updateUserPassword = async function (reqId, requestPword) {
   const userId = reqId;
   const { password, newPassword } = requestPword.body;
