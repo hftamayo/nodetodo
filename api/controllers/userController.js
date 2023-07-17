@@ -51,31 +51,43 @@ export const register = async (req, res) => {
   res.status(type).json({ msg: message });
 };
 
-export const login = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: "Invalid Credentials" });
-    }
-    const payload = {
-      user: user._id,
-    };
+// export const login = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     let user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(404).json({ msg: "User not found" });
+//     }
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ msg: "Invalid Credentials" });
+//     }
+//     const payload = {
+//       user: user._id,
+//     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: 360000,
-    });
-    res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
-    const { password: pass, ...rest } = user._doc;
-    res.status(200).json({ msg: "User logged in successfully", user: rest });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ errors: "Internal Server Error" });
+//     const token = jwt.sign(payload, process.env.JWT_SECRET, {
+//       expiresIn: 360000,
+//     });
+//     res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
+//     const { password: pass, ...rest } = user._doc;
+//     res.status(200).json({ msg: "User logged in successfully", user: rest });
+//   } catch (error) {
+//     console.log(error.message);
+//     res.status(500).json({ errors: "Internal Server Error" });
+//   }
+// };
+
+export const login = async (req, res) => {
+  const { type, message } = await UserService.loginUser(req.body);
+
+  if (type === 200) {
+    res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
+    res
+      .status(type)
+      .json({ title: "User created Successfully ", user: res });
   }
+  res.status(type).json({ msg: message });
 };
 
 export const logout = async (req, res) => {
