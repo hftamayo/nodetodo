@@ -3,7 +3,19 @@ import Todo from "../../models/Todo.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-export const listItemByID = async function (id) {
+export const updateUserPassword = async function (password, npassword) {
+  /*
+  password validation rules
+  buscar al usuario
+  comparar password
+  saltear
+  guardar
+
+  */
+};
+
+export const listItemByID = async function (reqId) {
+  const id = reqId;
   try {
     let searchUser = await User.findById({ id });
     if (!searchUser) {
@@ -16,7 +28,10 @@ export const listItemByID = async function (id) {
   }
 };
 
-export const updateUserByID = async function (id, name, email, age) {
+export const updateUserByID = async function (reqId, reqBody) {
+  const id = reqId;
+  const { name, email, age } = reqBody;
+
   try {
     let updateUser = await User.findById({ id });
     if (!updateUser) {
@@ -39,7 +54,8 @@ export const updateUserByID = async function (id, name, email, age) {
   }
 };
 
-export const deleteUserByID = async function (userId) {
+export const deleteUserByID = async function (request) {
+  const userId = request;
   try {
     const targetUser = await User.findById({ userId });
     if (!targetUser) {

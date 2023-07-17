@@ -28,7 +28,7 @@ export const register = async (req, res) => {
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: 360000,
+      expiresIn: 360000, //expiresIn: "5h",
     });
     res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
     const { password: pass, ...rest } = user._doc;
@@ -86,12 +86,9 @@ export const logout = async (req, res) => {
 // };
 
 export const getMe = async (req, res) => {
-  const { id } = req.user;
-  const { type, message } = await UserService.listItemByID(id);
+  const { type, message } = await UserService.listItemByID(req.user);
   if (type === 200) {
-    res
-      .status(type)
-      .json({ title: "User Found: ", msg: message });
+    res.status(type).json({ title: "User Found: ", msg: message });
   }
   res.status(type).json({ msg: message });
 };
@@ -123,13 +120,9 @@ export const getMe = async (req, res) => {
 //   }
 // };
 export const updateDetails = async (req, res) => {
-  const { id } = req.user;
-  const { name, email, age } = req.body;
   const { type, message } = await UserService.updateUserByID(
-    id,
-    name,
-    email,
-    age
+    req.user,
+    req.body
   );
   if (type === 200) {
     res
@@ -164,8 +157,11 @@ export const updateDetails = async (req, res) => {
 //   }
 // };
 export const updatePassword = async (req, res) => {
-  const {password, newPassword} = req.body;
-  const { type, message } = await UserService.updateUserPassword(password, newPassword);
+  const { password, newPassword } = req.body;
+  const { type, message } = await UserService.updateUserPassword(
+    password,
+    newPassword
+  );
 
   if (type === 200) {
     res
@@ -173,8 +169,7 @@ export const updatePassword = async (req, res) => {
       .json({ title: "Password updated successfully ", msg: message });
   }
   res.status(type).json({ msg: message });
-
-}
+};
 
 // export const deleteUser = async (req, res) => {
 //   try {
@@ -196,8 +191,7 @@ export const updatePassword = async (req, res) => {
 // };
 
 export const deleteUser = async (req, res) => {
-  const { id } = req.user;
-  const { type, message } = await UserService.deleteUserByID(id);
+  const { type, message } = await UserService.deleteUserByID(req.user);
 
   if (type === 200) {
     res.clearCookie("token");
