@@ -7,7 +7,7 @@ import {
   updateDetails,
   updatePassword,
   deleteUser,
-} from "../controllers/userController.js";
+} from "../controllers/userController2.js";
 import authorize from "../middleware/authorize.js";
 import {
   loginRules,
