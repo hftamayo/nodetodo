@@ -27,7 +27,7 @@ puedo borrar el usuario
 */
 
 export const signUpUser = async function (requestBody) {
-  const { name, email, password, age } = requestBody.body;
+  const { name, email, password, age } = requestBody;
   try {
     let searchUser = await User.findOne({ email });
     if (searchUser) {
