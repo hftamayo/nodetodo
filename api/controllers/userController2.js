@@ -8,13 +8,17 @@ import {
 } from "../../services/userService.js";
 
 export const register = async (req, res) => {
-  const { type, message } = await signUpUser(req.body);
-
-  if (type === 200) {
-    res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
-    res.status(type).json({ title: "User created Successfully ", user: res });
+  try {
+    const { type, message } = await signUpUser(req.body);
+    if (type === 200) {
+      res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
+      res.status(type).json({ title: "User created Successfully ", user: res });
+    }
+    res.status(type).json(message);
+  } catch (error) {
+    console.error("userController, register: " + error.message);
+    return { type: 500, message: "Internal Server Error" };
   }
-  res.status(type).json({ msg: message });
 };
 
 export const login = async (req, res) => {
@@ -41,10 +45,7 @@ export const getMe = async (req, res) => {
 };
 
 export const updateDetails = async (req, res) => {
-  const { type, message } = await updateUserByID(
-    req.user,
-    req.body
-  );
+  const { type, message } = await updateUserByID(req.user, req.body);
   if (type === 200) {
     res
       .status(type)
@@ -54,10 +55,7 @@ export const updateDetails = async (req, res) => {
 };
 
 export const updatePassword = async (req, res) => {
-  const { type, message } = await updateUserPassword(
-    req.user,
-    req.body
-  );
+  const { type, message } = await updateUserPassword(req.user, req.body);
 
   if (type === 200) {
     res
