@@ -17,7 +17,7 @@ export const register = async (req, res) => {
     res.status(type).json(message);
   } catch (error) {
     console.error("userController, register: " + error.message);
-    return { type: 500, message: "Internal Server Error" };
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
