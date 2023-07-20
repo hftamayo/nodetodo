@@ -56,7 +56,7 @@ export const signUpUser = async function (requestBody) {
 };
 
 export const loginUser = async function (requestBody) {
-  const { email, password } = requestBody.body;
+  const { email, password } = requestBody;
   try {
     let searchUser = await User.findOne({ email });
     if (!searchUser) {
@@ -94,7 +94,7 @@ export const listUserByID = async function (reqId) {
 
 export const updateUserByID = async function (reqId, requestBody) {
   const id = reqId;
-  const { name, email, age } = requestBody.body;
+  const { name, email, age } = requestBody;
 
   try {
     let updateUser = await User.findById({ id });
@@ -120,7 +120,7 @@ export const updateUserByID = async function (reqId, requestBody) {
 
 export const updateUserPassword = async function (reqId, requestPword) {
   const userId = reqId;
-  const { password, newPassword } = requestPword.body;
+  const { password, newPassword } = requestPword;
   try {
     let searchUser = await User.findById(userId);
     if (!searchUser) {
