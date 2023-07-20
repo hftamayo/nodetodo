@@ -81,7 +81,7 @@ export const loginUser = async function (requestBody) {
 export const listUserByID = async function (reqId) {
   const id = reqId;
   try {
-    let searchUser = await User.findById({ id });
+    let searchUser = await User.findById(id);
     if (!searchUser) {
       return { type: 404, message: "User Not Found" };
     }
