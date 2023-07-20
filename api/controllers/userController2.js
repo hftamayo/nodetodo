@@ -8,17 +8,11 @@ import {
 } from "../../services/userService.js";
 
 export const register = async (req, res) => {
-  try {
-    const { type, message } = await signUpUser(req.body);
-    if (type === 200) {
-      res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
-      res.status(type).json({ title: "User created Successfully ", user: res });
-    }
-    res.status(type).json(message);
-  } catch (error) {
-    console.error("userController, register: " + error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+  const { type, message } = await signUpUser(req.body);
+  if (type === 200) {
+    res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
   }
+  res.status(type).json(message);
 };
 
 export const login = async (req, res) => {
