@@ -10,7 +10,7 @@ import {
 export const register = async (req, res) => {
   const { type, message } = await signUpUser(req.body);
   if (type === 200) {
-    res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
+    res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
   }
   res.status(type).json({ msg: message });
 };
@@ -19,7 +19,7 @@ export const login = async (req, res) => {
   const { type, message } = await loginUser(req.body);
 
   if (type === 200) {
-    res.cookie("token", message, { httpOnly: true, expiresIn: "5h" });
+    res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
   }
   res.status(type).json({ msg: message });
 };

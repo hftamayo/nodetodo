@@ -1,4 +1,4 @@
-import User from "../models/User.js"; 
+import User from "../models/User.js";
 import Todo from "../models/Todo.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -69,7 +69,7 @@ export const loginUser = async function (requestBody) {
     const payload = { searchUser: searchUser._id };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "5h",
+      expiresIn: 360000,
     });
     return { type: 200, message: token };
   } catch (error) {
@@ -81,7 +81,7 @@ export const loginUser = async function (requestBody) {
 export const listUserByID = async function (reqId) {
   const id = reqId;
   try {
-    let searchUser = await User.findById(id);
+    let searchUser = await User.findById({ id });
     if (!searchUser) {
       return { type: 404, message: "User Not Found" };
     }
@@ -139,7 +139,6 @@ export const updateUserPassword = async function (reqId, requestPword) {
     return { type: 500, message: "Internal Server Error" };
   }
 };
-
 
 export const deleteUserByID = async function (reqId) {
   const userId = reqId;
