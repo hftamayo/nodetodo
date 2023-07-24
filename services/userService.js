@@ -46,7 +46,7 @@ export const signUpUser = async function (requestBody) {
     const payload = { searchUser: searchUser._id };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "5h",
+      expiresIn: "360000",
     });
     return { type: 200, message: token };
   } catch (error) {
