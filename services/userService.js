@@ -64,6 +64,7 @@ export const loginUser = async function (requestBody) {
     }
     const passwordMatch = await bcrypt.compare(password, searchUser.password);
     if (!passwordMatch) {
+      //please evaluate if returning 400 instead of 404 won't be a secHole
       return { type: 400, message: "Invalid Credentials" };
     }
     const payload = { searchUser: searchUser._id };
