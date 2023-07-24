@@ -60,7 +60,7 @@ export const loginUser = async function (requestBody) {
   try {
     let searchUser = await User.findOne({ email });
     if (!searchUser) {
-      return { type: 404, message: "User not found" };
+      return { type: 404, message: "User or Password Not found" };
     }
     const passwordMatch = await bcrypt.compare(password, searchUser.password);
     if (!passwordMatch) {
