@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import Todo from "../models/Todo.js";
 import jwt from "jsonwebtoken";
-import { masterKey } from "./envvars.js";
+import { masterKey } from "../config/envvars.js";
 import bcrypt from "bcrypt";
 /*
 middlewares:

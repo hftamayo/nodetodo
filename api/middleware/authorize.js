@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { masterKey } from "./envvars.js";
+import { masterKey } from "../../config/envvars";
 
 const authorize = async (req, res, next) => {
   const token = req.cookies.token;
