@@ -29,6 +29,7 @@ export const register = async (req, res) => {
       expiresIn: 360000, //expiresIn: "5h",
     });
     res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
+    //storing the password separately, although it won't be used later in this file
     const { password: pass, ...rest } = user._doc;
     res.status(201).json({ msg: "User created successfully", user: rest });
   } catch (error) {
