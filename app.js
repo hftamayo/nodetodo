@@ -15,7 +15,7 @@ app.use(setCorsEnviro);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); //cuando false?
 app.use(cookieParser()); //parsea cookie headers y populate req.cookies
-app.use(bodyParse.json());
+app.use(bodyParser.json());
 
 app.use("/nodetodo/todos", todosRoutes);
 app.use("/nodetodo/users", usersRoutes);
