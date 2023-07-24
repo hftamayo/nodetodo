@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import Todo from "../models/Todo.js";
 import jwt from "jsonwebtoken";
+import { masterKey } from "./envvars.js";
 import bcrypt from "bcrypt";
 /*
 middlewares:
@@ -45,7 +46,7 @@ export const signUpUser = async function (requestBody) {
 
     const payload = { searchUser: searchUser._id };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    const token = jwt.sign(payload, masterKey, {
       expiresIn: "360000",
     });
     return { type: 200, message: token };
@@ -69,7 +70,7 @@ export const loginUser = async function (requestBody) {
     }
     const payload = { searchUser: searchUser._id };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    const token = jwt.sign(payload, masterKey, {
       expiresIn: 360000,
     });
     return { type: 200, message: token };
