@@ -61,12 +61,12 @@ export const loginUser = async function (requestBody) {
   try {
     let searchUser = await User.findOne({ email });
     if (!searchUser) {
-      return { type: 404, message: "User or Password Not found" };
+      return { type: 404, message: "User or Password does not match" };
     }
     const passwordMatch = await bcrypt.compare(password, searchUser.password);
     if (!passwordMatch) {
       //please evaluate if returning 400 instead of 404 won't be a secHole
-      return { type: 400, message: "Invalid Credentials" };
+      return { type: 400, message: "User or Password does not match" };
     }
     const payload = { searchUser: searchUser._id };
 
@@ -107,9 +107,9 @@ export const updateUserByID = async function (requestUserId, requestBody) {
     if (checkIfExists && checkIfExists._id.toString() !== searchUser._id.toString()) {
       return { type: 400, message: "User Not Found" };
     }
-    searchUser.name = { name };
-    searchUser.email = { email };
-    searchUser.age = { age };
+    searchUser.name = name;
+    searchUser.email = email;
+    searchUser.age = age;
 
     await searchUser.save();
 
@@ -135,7 +135,7 @@ export const updateUserPassword = async function (requestUserId, requestPword) {
     const salt = await bcrypt.genSalt(10);
     searchUser.password = await bcrypt.hash(newPassword, salt);
     await searchUser.save();
-    return { type: 200, message: updateUser };
+    return { type: 200, message: searchUser };
   } catch (error) {
     console.error("userService, updateUserPassword: " + error.message);
     return { type: 500, message: "Internal Server Error" };
