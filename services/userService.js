@@ -73,7 +73,7 @@ export const loginUser = async function (requestBody) {
     const token = jwt.sign(payload, masterKey, {
       expiresIn: 360000,
     });
-    return { type: 200, message: token };
+    return { type: 200, message: "User logged in successfully" };
   } catch (error) {
     console.error("userService, loginUser: " + error.message);
     return { type: 500, message: "Internal Server Error" };
