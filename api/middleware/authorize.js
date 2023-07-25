@@ -9,7 +9,8 @@ const authorize = async (req, res, next) => {
   try {
     //const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const decoded = jwt.verify(token, masterKey);
-    req.user = decoded.user;
+    //req.user = decoded.user;
+    req.user = decoded.searchUser;
     next();
   } catch (error) {
     console.error(error.message);
