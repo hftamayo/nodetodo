@@ -80,10 +80,10 @@ export const loginUser = async function (requestBody) {
   }
 };
 
-export const listUserByID = async function (reqId) {
-  const id = reqId;
+export const listUserByID = async function (requestUserId) {
+  const userId = requestUserId;
   try {
-    let searchUser = await User.findById({ id });
+    let searchUser = await User.findById(userId);
     if (!searchUser) {
       return { type: 404, message: "User Not Found" };
     }
@@ -94,34 +94,34 @@ export const listUserByID = async function (reqId) {
   }
 };
 
-export const updateUserByID = async function (reqId, requestBody) {
-  const id = reqId;
+export const updateUserByID = async function (requestUserId, requestBody) {
+  const userId = requestUserId;
   const { name, email, age } = requestBody;
 
   try {
-    let updateUser = await User.findById({ id });
-    if (!updateUser) {
+    let searchUser = await User.findById(userId);
+    if (!searchUser) {
       return { type: 404, message: "User Not Found" };
     }
     let checkIfExists = await User.findOne({ email });
-    if (checkIfExists && checkIfExists._id.toString() !== user._id.toString()) {
+    if (checkIfExists && checkIfExists._id.toString() !== searchUser._id.toString()) {
       return { type: 400, message: "User Not Found" };
     }
-    updateUser.name = { name };
-    updateUser.email = { email };
-    updateUser.age = { age };
+    searchUser.name = { name };
+    searchUser.email = { email };
+    searchUser.age = { age };
 
-    await updateUser.save();
+    await searchUser.save();
 
-    return { type: 200, message: updateUser };
+    return { type: 200, message: searchUser };
   } catch (error) {
-    console.error("userService, updateuserByID: " + error.message);
+    console.error("userService, updateUserByID: " + error.message);
     return { type: 500, message: "Internal Server Error" };
   }
 };
 
-export const updateUserPassword = async function (reqId, requestPword) {
-  const userId = reqId;
+export const updateUserPassword = async function (requestUserId, requestPword) {
+  const userId = requestUserId;
   const { password, newPassword } = requestPword;
   try {
     let searchUser = await User.findById(userId);
@@ -142,18 +142,18 @@ export const updateUserPassword = async function (reqId, requestPword) {
   }
 };
 
-export const deleteUserByID = async function (reqId) {
-  const userId = reqId;
+export const deleteUserByID = async function (requestUserId) {
+  const userId = requestUserId;
   try {
-    const targetUser = await User.findById({ userId });
-    if (!targetUser) {
+    const searchUser = await User.findById(userId);
+    if (!searchUser) {
       return { type: 404, message: "User not found" };
     }
-    const todo = await Todo.find({ user: targetUser });
+    const todo = await Todo.find({ user: searchUser });
     if (todo) {
-      await Todo.deleteMany({ user: targetUser });
+      await Todo.deleteMany({ user: searchUser });
     }
-    await targetUser.deleteOne();
+    await searchUser.deleteOne();
     return { type: 200, message: "User deleted successfully" };
   } catch (error) {
     console.error("userService, deleteUserByID: " + error.message);
