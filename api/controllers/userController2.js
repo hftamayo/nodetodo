@@ -35,8 +35,12 @@ export const logout = async (req, res) => {
 
 export const getMe = async (req, res) => {
   const { type, message } = await listUserByID(req.user);
-  const { password: pass, ...rest } = message._doc;
-  res.status(type).json({ msg: rest });
+  if (type === 200) {
+    const { password: pass, ...rest } = message._doc;
+    res.status(type).json({ msg: rest });
+  } else {
+    res.status(type).json({ msg: message });
+  }
 };
 
 export const updateDetails = async (req, res) => {
