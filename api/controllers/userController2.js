@@ -21,7 +21,9 @@ export const login = async (req, res) => {
   if (type === 200) {
     res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
   }
-  res.status(type).json({ msg: message });
+      //filtering password for not showing during the output
+      const { password: pass, ...rest } = message._doc;
+  res.status(type).json({ msg: rest });
 };
 
 export const logout = async (req, res) => {
