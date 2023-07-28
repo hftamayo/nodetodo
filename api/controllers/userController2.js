@@ -16,14 +16,16 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { type, message } = await loginUser(req.body);
+  const { type, message, user } = await loginUser(req.body);
 
   if (type === 200) {
     res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
+    //filtering password for not showing during the output
+    const { password: pass, ...rest } = user._doc;
+    res.status(type).json({ msg: rest });
+  } else {
+    res.status(type).json({ msg: message });
   }
-  //filtering password for not showing during the output
-  const { password: pass, ...rest } = message._doc;
-  res.status(type).json({ msg: rest });
 };
 
 export const logout = async (req, res) => {
@@ -39,7 +41,7 @@ export const getMe = async (req, res) => {
 
 export const updateDetails = async (req, res) => {
   const { type, message } = await updateUserByID(req.user, req.body);
-  const { password: pass, ...rest } = message._doc;  
+  const { password: pass, ...rest } = message._doc;
   res.status(type).json({ msg: rest });
 };
 
