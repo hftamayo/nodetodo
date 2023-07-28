@@ -12,7 +12,7 @@ export const register = async (req, res) => {
   if (type === 200) {
     res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
   }
-  res.status(type).json({ msg: message });
+  res.status(type).json({ msg: "User created successfully. Please log in" });
 };
 
 export const login = async (req, res) => {
@@ -21,8 +21,8 @@ export const login = async (req, res) => {
   if (type === 200) {
     res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
   }
-      //filtering password for not showing during the output
-      const { password: pass, ...rest } = message._doc;
+  //filtering password for not showing during the output
+  const { password: pass, ...rest } = message._doc;
   res.status(type).json({ msg: rest });
 };
 
@@ -33,17 +33,20 @@ export const logout = async (req, res) => {
 
 export const getMe = async (req, res) => {
   const { type, message } = await listUserByID(req.user);
-  res.status(type).json({ msg: message });
+  const { password: pass, ...rest } = message._doc;
+  res.status(type).json({ msg: rest });
 };
 
 export const updateDetails = async (req, res) => {
   const { type, message } = await updateUserByID(req.user, req.body);
-  res.status(type).json({ msg: message });
+  const { password: pass, ...rest } = message._doc;  
+  res.status(type).json({ msg: rest });
 };
 
 export const updatePassword = async (req, res) => {
   const { type, message } = await updateUserPassword(req.user, req.body);
-  res.status(type).json({ msg: message });
+  const { password: pass, ...rest } = message._doc;
+  res.status(type).json({ msg: rest });
 };
 
 export const deleteUser = async (req, res) => {
