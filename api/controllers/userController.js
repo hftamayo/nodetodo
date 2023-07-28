@@ -57,6 +57,7 @@ export const login = async (req, res) => {
       expiresIn: 360000,
     });
     res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
+    //filtering password for not showing during the output
     const { password: pass, ...rest } = user._doc;
     res.status(200).json({ msg: "User logged in successfully", user: rest });
   } catch (error) {
