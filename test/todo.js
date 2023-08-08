@@ -10,7 +10,7 @@ let should = chai.should();
 
 chai.use(chaiHttp);
 
-describe("Setting the enviro for Users", () => {
+describe("cleaning dataset", () => {
   //before each test empty the database
   beforeEach((done) => {
     Task.remove({}, (err) => {
@@ -18,7 +18,7 @@ describe("Setting the enviro for Users", () => {
     });
   });
 
-  describe("Get all Tasks", () => {
+  describe("GET /tasks", () => {
     it("it should GET all tasks", (done) => {
       chai
         .request(server)
@@ -27,8 +27,32 @@ describe("Setting the enviro for Users", () => {
           res.should.have.status(200);
           res.body.should.be.a("array");
           res.body.length.should.be.eql(0);
-        done();
+          done();
         });
     });
   });
+});
+
+describe("POST /savetask", () => {
+  it("it shouldn't add a task without required fields", (done) => {
+    let task = {
+      title: "Go to the drugstore",
+      completed: false,
+    };
+    chai
+      .request(server)
+      .post("/savetask")
+      .send(task)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a("object");
+        res.body.should.have.property("errors");
+        res.body.errors.should.have.property("description");
+        res.body.errors.description.should.have
+          .property("kind")
+          .eql("required");
+        done();
+      });
+  });
+
 });
