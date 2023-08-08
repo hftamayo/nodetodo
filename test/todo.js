@@ -74,4 +74,29 @@ describe("POST /savetask", () => {
         done();
       });
   });
+
+  describe("GET /task/:id", () => {
+    it("it should get a task by given a valid id", (done) => {
+      let task = new Task({
+        title: "Pay the bills",
+        description: "electricity, phone, water",
+        completed: false,
+      });
+      task.save((err, task) => {
+        chai
+          .request(server)
+          .get("/task" + task.id)
+          .send(task)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a(object);
+            res.body.should.have.property(title);
+            res.body.should.have.property(description);
+            res.body.should.have.property(completed);
+            res.body.should.have.property(_id).eql(book.id);
+            done();
+          });
+      });
+    });
+  });
 });
