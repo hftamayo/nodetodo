@@ -54,5 +54,24 @@ describe("POST /savetask", () => {
         done();
       });
   });
-
+  it("it should add a task", (done) => {
+    let task = {
+      title: "Go to the gym",
+      description: "don't forget warming up",
+      completed: false,
+    };
+    chai
+      .request(server)
+      .post("/savetask")
+      .send(task)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a("object");
+        res.body.shoud.have.property("message").eql("New Task Added");
+        res.body.task.should.have.property("title").eql(task.title);
+        res.body.task.should.have.property("description").eql(task.description);
+        res.body.task.should.have.property("completed").eql(task.completed);
+        done();
+      });
+  });
 });
