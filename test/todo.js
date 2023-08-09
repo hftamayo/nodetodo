@@ -128,4 +128,25 @@ describe("POST /savetask", () => {
       });
     });
   });
+
+  describe("DELETE deletetask/:id", () => {
+    it("it should delete a task given the id", (done) => {
+      let task = new Task({
+        title: "go to the supermarket",
+        description: "please dont forget the list",
+        completed: false,
+      });
+      task.save((err, task) => {
+        chai
+          .request(server)
+          .delete("/deletetask/" + task.id)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a(object);
+            res.body.should.have.property("message").eql("Task deleted");
+            res.body.result.should.have.property("ok").eql(1);
+          });
+      });
+    });
+  });
 });
