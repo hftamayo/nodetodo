@@ -99,4 +99,33 @@ describe("POST /savetask", () => {
       });
     });
   });
+
+  describe("PUT /updatetask/:id", () => {
+    it("it should update a task given the id", (done) => {
+      let task = new Task({
+        title: "buy fruits",
+        description: "we need them for break times",
+        completed: false,
+      });
+      task.save((err, task) => {
+        chai
+          .request(server)
+          .put("/updatetask" + task.id)
+          .send({
+            title: "buy fruits and veggies",
+            description: "we need them for break times",
+            completed: false,
+          })
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a("object");
+            res.body.should.have.property("message").eql("Task updated");
+            res.body.task.should.have
+              .property("title")
+              .eql("buy fruits and veggies");
+            done();
+          });
+      });
+    });
+  });
 });
