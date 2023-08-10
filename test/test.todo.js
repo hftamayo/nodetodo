@@ -10,12 +10,29 @@ let should = chai.should();
 
 chai.use(chaiHttp);
 
-describe("cleaning dataset", () => {
+describe("setting up / cleaning the environment", () => {
   //before each test empty the database
   beforeEach((done) => {
-    Task.remove({}, (err) => {
+    let newTask = new Task({
+      title: "take the dog to the vet",
+      description: "set the appointment to this sunday",
+      completed: false,
+    });
+    newTask.save((error, task) => {
       done();
     });
+  });
+
+  afterEach((done) => {
+    Task.collection
+      .drop()
+      .then(() => {
+        console.log("test data dropped successfully");
+      })
+      .catch(() => {
+        console.log("data collection may not exists");
+      });
+    done();
   });
 
   describe("GET /tasks", () => {
