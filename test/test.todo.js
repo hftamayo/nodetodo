@@ -6,6 +6,7 @@ let Task = require("../models/Todo");
 let chai = require("chai");
 let chaiHttp = require("chai-http");
 let server = require("../app");
+const { token } = require("morgan");
 let should = chai.should();
 
 chai.use(chaiHttp);
@@ -45,7 +46,7 @@ describe("setting up / cleaning the environment", () => {
       .end((error, res) => {
         res.should.have.status(201);
         res.body.should.have.property("token");
-        const token = res.body.token;
+        const authenticatedToken = res.body.token;
       });
   });
 
@@ -66,6 +67,7 @@ describe("setting up / cleaning the environment", () => {
       chai
         .request(server)
         .get("/tasks")
+        .set("Authorization", "JWT" + authenticatedToken)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a("array");
@@ -89,6 +91,7 @@ describe("POST /savetask", () => {
       .request(server)
       .post("/savetask")
       .send(task)
+      .set("Authorization", "JWT" + authenticatedToken)      
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a("object");
@@ -110,6 +113,7 @@ describe("POST /savetask", () => {
       .request(server)
       .post("/savetask")
       .send(task)
+      .set("Authorization", "JWT" + authenticatedToken)      
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a("object");
@@ -133,6 +137,7 @@ describe("POST /savetask", () => {
           .request(server)
           .get("/task" + task.id)
           .send(task)
+          .set("Authorization", "JWT" + authenticatedToken)
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a(object);
@@ -162,6 +167,7 @@ describe("POST /savetask", () => {
             description: "we need them for break times",
             completed: false,
           })
+          .set("Authorization", "JWT" + authenticatedToken)
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a("object");
@@ -186,6 +192,7 @@ describe("POST /savetask", () => {
         chai
           .request(server)
           .delete("/deletetask/" + task.id)
+          .set("Authorization", "JWT" + authenticatedToken)
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a(object);
