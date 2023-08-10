@@ -43,7 +43,10 @@ describe("setting up / cleaning the environment", () => {
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a("array");
-          res.body.length.should.be.eql(0);
+          res.body.length.should.be.eql(1);
+          res.body[0].should.have.property("title");
+          res.body[0].should.have.property("description");
+          res.body[0].should.have.property("completed");
           done();
         });
     });
