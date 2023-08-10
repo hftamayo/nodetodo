@@ -21,6 +21,32 @@ describe("setting up / cleaning the environment", () => {
     newTask.save((error, task) => {
       done();
     });
+
+    chai
+      .request(server)
+      .post("/users/register")
+      .send({
+        name: "tester",
+        email: "tester@tamayo.com",
+        password: "123456",
+        age: 40,
+      })
+      .end((error, res) => {
+        res.should.have.status(201);
+      });
+
+    chai
+      .request(server)
+      .post("/users/login")
+      .send({
+        email: "tester@tamayo.com",
+        password: "123456",
+      })
+      .end((error, res) => {
+        res.should.have.status(201);
+        res.body.should.have.property("token");
+        const token = res.body.token;
+      });
   });
 
   afterEach((done) => {
