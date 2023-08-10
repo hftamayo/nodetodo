@@ -110,10 +110,10 @@ describe("POST /savetask", () => {
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a(object);
-            res.body.should.have.property(title);
-            res.body.should.have.property(description);
-            res.body.should.have.property(completed);
-            res.body.should.have.property(_id).eql(book.id);
+            res.body.should.have.property("title");
+            res.body.should.have.property("description");
+            res.body.should.have.property("completed");
+            res.body.should.have.property("_id").eql(book.id);
             done();
           });
       });
