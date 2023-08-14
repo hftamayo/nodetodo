@@ -1,12 +1,19 @@
 process.env.NODE_ENV = "test";
 
-let mongoose = require("mongoose");
-let User = require("../models/User");
+// let mongoose = require("mongoose");
+// let User = require("../models/User");
 
-let chai = require("chai");
-let chaiHttp = require("chai-http");
-let server = require("../app");
-const { token } = require("morgan");
+// let chai = require("chai");
+// let chaiHttp = require("chai-http");
+// let server = require("../app");
+// const { token } = require("morgan");
+import mongoose from "mongoose";
+import User from "../models/User.js";
+import chai from "chai";
+import chaiHttp from "chai-http";
+import server from "../app.js";
+
+
 let should = chai.should();
 
 chai.use(chaiHttp);
