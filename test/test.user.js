@@ -6,7 +6,7 @@ import User from "../models/User.js";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import server from "../app.js";
-import { should } from "chai";
+import should from "should";
 
 chai.use(chaiHttp);
 
@@ -23,8 +23,10 @@ describe("Add an account for testing", () => {
       .post("/users/register")
       .send(testUser)
       .end((err, res) => {
-        res.should.have.status(200);
-        res.body.should.be.a("object");
+        should(res).have.status(200);
+        should(res.body).be.a("object");
+        //res.should.have.status(200);
+        //res.body.should.be.a("object");
         //res.body.should.have.property("message").eql("User Added");
         res.body.testUser.should.have.property("name").eql(testUser.name);
         res.body.testUser.should.have.property("email").eql(testUser.email);
