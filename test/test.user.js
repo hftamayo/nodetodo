@@ -6,9 +6,7 @@ import User from "../models/User.js";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import server from "../app.js";
-
-
-let should = chai.should();
+import { should } from "chai";
 
 chai.use(chaiHttp);
 
