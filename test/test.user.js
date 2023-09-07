@@ -10,6 +10,11 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe("Add an account for testing", () => {
+  before(function() {
+    proxy = process.env.CSJ_PROXY;
+  });
+
+
   it("POST /nodetodo/users/register", (done) => {
     // let testUser = new User({
     //   name: "tester",
