@@ -7,8 +7,7 @@ import User from "../models/User.js";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import server from "../server.js";
-const expect = chai.expect;
-const should = chai.should;
+const should = chai.should();
 
 chai.use(chaiHttp);
 
@@ -17,8 +16,8 @@ describe("Adding a New User", () => {
 
   it("POST /nodetodo/users/register", (done) => {
     let testUser = {
-      name: "tester7",
-      email: "tester7@tamayo.com",
+      name: "tester17",
+      email: "tester17  @tamayo.com",
       password: "123456",
       age: 40,
     };
@@ -27,11 +26,13 @@ describe("Adding a New User", () => {
       .post("/nodetodo/users/register")
       .send(testUser)
        .end((err, res) => {
-        //expect(res).to.have.status(200);
         res.should.have.status(200);
+        should.exist(res.body);
         res.body.should.be.a("object");
+        res.body.testUser.should.have.property('name');
+        //res.body.testUser.should.have.property('name');
         //res.body.should.have.property("message").eql("User Added");
-        // res.body.testUser.should.have.property("name").eql(testUser.name);
+        //res.body.testUser.should.have.property("name").eql(testUser.name);
         // res.body.testUser.should.have.property("email").eql(testUser.email);
         // res.body.testUser.should.have
         //   .property("password")
