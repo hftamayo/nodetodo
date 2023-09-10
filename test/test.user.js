@@ -11,7 +11,7 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-describe("Adding a New User", () => {
+describe("Adding a New User Successfully", () => {
   before(function () {});
 
   it("POST /nodetodo/users/register", (done) => {
