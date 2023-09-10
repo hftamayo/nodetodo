@@ -16,8 +16,8 @@ describe("Adding a New User", () => {
 
   it("POST /nodetodo/users/register", (done) => {
     let testUser = {
-      name: "tester17",
-      email: "tester17  @tamayo.com",
+      name: "tester24",
+      email: "tester24@tamayo.com",
       password: "123456",
       age: 40,
     };
@@ -29,9 +29,9 @@ describe("Adding a New User", () => {
         res.should.have.status(200);
         should.exist(res.body);
         res.body.should.be.a("object");
-        res.body.testUser.should.have.property('name');
+        res.body.should.have.property("msg").eql("User created successfully. Please log in");
+        // assets en caso que el metodo devuelva el registro:        
         //res.body.testUser.should.have.property('name');
-        //res.body.should.have.property("message").eql("User Added");
         //res.body.testUser.should.have.property("name").eql(testUser.name);
         // res.body.testUser.should.have.property("email").eql(testUser.email);
         // res.body.testUser.should.have
