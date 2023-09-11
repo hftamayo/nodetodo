@@ -161,4 +161,8 @@ describe("GET /nodetodo/users/me", () => {
   it("it shouldn't get info of a non existing user");
 });
 
+describe("DELETE /nodetodo/users/deleteuser", () => {});
 
+describe("PUT /nodetodo/users/updatedetails", () => {});
+
+describe("PUT /nodetodo/users/updatepassword", () => {});
