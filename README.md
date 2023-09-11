@@ -39,3 +39,5 @@ Application which help the user to manage tasks and reminders. This repo belongs
 ## Bugs ##
 Please refer to the Issues section in this repository
 
+## References ##
+* Testing [Test a Restful API with Mocha and Chai](https://www.digitalocean.com/community/tutorials/test-a-node-restful-api-with-mocha-and-chai)
