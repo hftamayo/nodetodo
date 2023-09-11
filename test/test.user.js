@@ -11,6 +11,11 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
+/*
+beforeEach and afterEach related to specs
+before and after related to cases
+*/
+
 describe("POST /nodetodo/users/register", () => {
   before(function () {});
 
