@@ -16,8 +16,8 @@ describe("Adding a New User Successfully", () => {
 
   it("POST /nodetodo/users/register", (done) => {
     let testUser = {
-      name: "tester24",
-      email: "tester24@tamayo.com",
+      name: "tester28",
+      email: "tester28@tamayo.com",
       password: "123456",
       age: 40,
     };
@@ -25,12 +25,14 @@ describe("Adding a New User Successfully", () => {
       .request(server)
       .post("/nodetodo/users/register")
       .send(testUser)
-       .end((err, res) => {
+      .end((err, res) => {
         res.should.have.status(200);
         should.exist(res.body);
         res.body.should.be.a("object");
-        res.body.should.have.property("msg").eql("User created successfully. Please log in");
-        // assets en caso que el metodo devuelva el registro:        
+        res.body.should.have
+          .property("msg")
+          .eql("User created successfully. Please log in");
+        // assets en caso que el metodo devuelva el registro:
         //res.body.testUser.should.have.property('name');
         //res.body.testUser.should.have.property("name").eql(testUser.name);
         // res.body.testUser.should.have.property("email").eql(testUser.email);
@@ -38,6 +40,25 @@ describe("Adding a New User Successfully", () => {
         //   .property("password")
         //   .eql(testUser.password);
         // res.body.testUser.should.have.property("age").eql(testUser.age);
+        done();
+      });
+  });
+});
+
+describe.only("trying to login with valid credentials", () => {
+  it("POST /nodetodo/users/login", (done) => {
+    let validUser = {
+      email: "tester23@tamayo.com",
+      password: "123456",
+    };
+    chai
+      .request(server)
+      .post("/nodetodo/users/login")
+      .send(validUser)
+      .end((err, res) => {
+        res.should.have.status(200);
+        should.exist(res.body);
+        res.body.should.be.a("object");
         done();
       });
   });
