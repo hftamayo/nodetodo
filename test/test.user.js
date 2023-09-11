@@ -11,10 +11,10 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-describe("Adding a New User Successfully", () => {
+describe("POST /nodetodo/users/register", () => {
   before(function () {});
 
-  it("POST /nodetodo/users/register", (done) => {
+  it("it should add a valid new user", (done) => {
     let testUser = {
       name: "tester28",
       email: "tester28@tamayo.com",
@@ -43,6 +43,30 @@ describe("Adding a New User Successfully", () => {
         done();
       });
   });
+
+  it("it shouldn't add an existing user", (done) => {
+    let testUser = {
+      name: "tester100",
+      email: "tester23@tamayo.com",
+      password: "123456",
+      age: 40,
+    };
+    chai
+      .request(server)
+      .post("/nodetodo/users/register")
+      .send(testUser)
+      .end((err, res) => {
+        res.should.have.status(400);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have.property("msg");
+        res.body.msg.should.have.property("message");
+        res.body.msgshould.have.property("message").eql("Email already exists");
+        done();
+      });
+  });
+
+  it("it shouldn't add a user without required fields");
 });
 
 describe("POST /nodetodo/users/login", () => {
@@ -80,7 +104,9 @@ describe("POST /nodetodo/users/login", () => {
         res.body.should.be.a("object");
         res.body.should.have.property("msg");
         res.body.msg.should.have.property("message");
-        res.body.msgshould.have.property("message").eql("User or Password does not match");
+        res.body.msgshould.have
+          .property("message")
+          .eql("User or Password does not match");
         done();
       });
   });
@@ -100,10 +126,12 @@ describe("POST /nodetodo/users/login", () => {
         res.body.should.be.a("object");
         res.body.should.have.property("msg");
         res.body.msg.should.have.property("message");
-        res.body.msgshould.have.property("message").eql("User or Password does not match");
+        res.body.msgshould.have
+          .property("message")
+          .eql("User or Password does not match");
         done();
       });
-  });  
+  });
 
   it("trying to login with invalid email and password", (done) => {
     let validUser = {
@@ -120,9 +148,10 @@ describe("POST /nodetodo/users/login", () => {
         res.body.should.be.a("object");
         res.body.should.have.property("msg");
         res.body.msg.should.have.property("message");
-        res.body.msgshould.have.property("message").eql("User or Password does not match");
+        res.body.msgshould.have
+          .property("message")
+          .eql("User or Password does not match");
         done();
       });
-  });    
-
+  });
 });
