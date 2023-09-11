@@ -155,3 +155,10 @@ describe("POST /nodetodo/users/login", () => {
       });
   });
 });
+
+describe("GET /nodetodo/users/me", () => {
+  it("it should get info of user with active session");
+  it("it shouldn't get info of a non existing user");
+});
+
+
