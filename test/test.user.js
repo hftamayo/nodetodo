@@ -46,7 +46,7 @@ describe("Adding a New User Successfully", () => {
 });
 
 describe("POST /nodetodo/users/login", () => {
-  it.only("trying to login with valid credentials", (done) => {
+  it("trying to login with valid credentials", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "123456",
@@ -65,7 +65,7 @@ describe("POST /nodetodo/users/login", () => {
       });
   });
 
-  it.only("trying to login with invalid email", (done) => {
+  it("trying to login with invalid email", (done) => {
     let validUser = {
       email: "tester99@tamayo.com",
       password: "123456",
@@ -85,7 +85,7 @@ describe("POST /nodetodo/users/login", () => {
       });
   });
 
-  it.only("trying to login with invalid password", (done) => {
+  it("trying to login with invalid password", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "12345600",
@@ -105,7 +105,7 @@ describe("POST /nodetodo/users/login", () => {
       });
   });  
 
-  it.only("trying to login with invalid email and password", (done) => {
+  it("trying to login with invalid email and password", (done) => {
     let validUser = {
       email: "tester233@tamayo.com",
       password: "12345600",
