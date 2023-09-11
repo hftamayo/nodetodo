@@ -45,8 +45,8 @@ describe("Adding a New User Successfully", () => {
   });
 });
 
-describe.only("trying to login with valid credentials", () => {
-  it("POST /nodetodo/users/login", (done) => {
+describe("POST /nodetodo/users/login", () => {
+  it.only("trying to login with valid credentials", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "123456",
@@ -59,7 +59,70 @@ describe.only("trying to login with valid credentials", () => {
         res.should.have.status(200);
         should.exist(res.body);
         res.body.should.be.a("object");
+        res.body.validUser.should.have.property("email");
+        res.body.validUser.should.have.property("password");
         done();
       });
   });
+
+  it.only("trying to login with invalid email", (done) => {
+    let validUser = {
+      email: "tester99@tamayo.com",
+      password: "123456",
+    };
+    chai
+      .request(server)
+      .post("/nodetodo/users/login")
+      .send(validUser)
+      .end((err, res) => {
+        res.should.have.status(404);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have.property("msg");
+        res.body.msg.should.have.property("message");
+        res.body.msgshould.have.property("message").eql("User or Password does not match");
+        done();
+      });
+  });
+
+  it.only("trying to login with invalid password", (done) => {
+    let validUser = {
+      email: "tester23@tamayo.com",
+      password: "12345600",
+    };
+    chai
+      .request(server)
+      .post("/nodetodo/users/login")
+      .send(validUser)
+      .end((err, res) => {
+        res.should.have.status(404);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have.property("msg");
+        res.body.msg.should.have.property("message");
+        res.body.msgshould.have.property("message").eql("User or Password does not match");
+        done();
+      });
+  });  
+
+  it.only("trying to login with invalid email and password", (done) => {
+    let validUser = {
+      email: "tester233@tamayo.com",
+      password: "12345600",
+    };
+    chai
+      .request(server)
+      .post("/nodetodo/users/login")
+      .send(validUser)
+      .end((err, res) => {
+        res.should.have.status(404);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have.property("msg");
+        res.body.msg.should.have.property("message");
+        res.body.msgshould.have.property("message").eql("User or Password does not match");
+        done();
+      });
+  });    
+
 });
