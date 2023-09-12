@@ -8,23 +8,25 @@ import {
 } from "../../services/userService.js";
 
 export const register = async (req, res) => {
-  const { type, message } = await signUpUser(req.body);
-  if (type === 200) {
-    res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
+  const { httpStatusCode, message, user } = await signUpUser(req.body);
+  if (httpStatusCode === 200) {
+    res.status(httpStatusCode).json({ resultMessage: message, newUser : user });
+  } else {
+    res.status(httpStatusCode).json({ resultMessage: message });
   }
-  res.status(type).json({ msg: "User created successfully. Please log in" });
+
 };
 
 export const login = async (req, res) => {
-  const { type, message, user } = await loginUser(req.body);
+  const { httpStatusCode, tokenCreated, user, message } = await loginUser(req.body);
 
-  if (type === 200) {
-    res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
+  if (httpStatusCode === 200) {
+    res.cookie("token", tokenCreated, { httpOnly: true, expiresIn: 360000 });
     //filtering password for not showing during the output
     const { password: pass, ...rest } = user._doc;
-    res.status(type).json({ msg: rest });
+    res.status(httpStatusCode).json({ resultMessage: rest });
   } else {
-    res.status(type).json({ msg: message });
+    res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
