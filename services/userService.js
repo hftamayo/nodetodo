@@ -9,7 +9,7 @@ export const signUpUser = async function (requestBody) {
   try {
     let searchUser = await User.findOne({ email });
     if (searchUser) {
-      return { type: 400, message: "Email already exists" };
+      return { httpStatusCode: 400, message: "Email already exists" };
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -20,16 +20,10 @@ export const signUpUser = async function (requestBody) {
       age,
     });
     await searchUser.save();
-
-    const payload = { searchUser: searchUser._id };
-
-    const token = jwt.sign(payload, masterKey, {
-      expiresIn: "360000",
-    });
-    return { type: 200, message: token };
+    return { httpStatusCode: 200, message: "User created successfully", user: searchUser };
   } catch (error) {
     console.error("userService, signUpUser: " + error.message);
-    return { type: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
