@@ -32,22 +32,22 @@ export const loginUser = async function (requestBody) {
   try {
     let searchUser = await User.findOne({ email });
     if (!searchUser) {
-      return { type: 404, message: "User or Password does not match" };
+      return { httpStatusCode: 404, message: "User or Password does not match" };
     }
     const passwordMatch = await bcrypt.compare(password, searchUser.password);
     if (!passwordMatch) {
       //update in global log the password did not match
-      return { type: 404, message: "User or Password does not match" };
+      return { httpStatusCode: 404, message: "User or Password does not match" };
     }
     const payload = { searchUser: searchUser._id };
 
     const token = jwt.sign(payload, masterKey, {
       expiresIn: 360000,
     });
-    return { type: 200, message: token, user: searchUser };
+    return { httpStatusCode: 200, tokenCreated: token, message: "User login successfully", user: searchUser };
   } catch (error) {
     console.error("userService, loginUser: " + error.message);
-    return { type: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 

@@ -19,13 +19,13 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { httpStatusCode, tokenCreated, user, message } = await loginUser(req.body);
+  const { httpStatusCode, tokenCreated, message, user } = await loginUser(req.body);
 
   if (httpStatusCode === 200) {
     res.cookie("token", tokenCreated, { httpOnly: true, expiresIn: 360000 });
     //filtering password for not showing during the output
-    const { password: pass, ...rest } = user._doc;
-    res.status(httpStatusCode).json({ resultMessage: rest });
+    const { password: pass, ...filteredUser } = user._doc;
+    res.status(httpStatusCode).json({ resultMessage: message, loggedUser: filteredUser });
   } else {
     res.status(httpStatusCode).json({ resultMessage: message });
   }
