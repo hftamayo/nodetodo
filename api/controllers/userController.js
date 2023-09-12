@@ -10,7 +10,8 @@ import {
 export const register = async (req, res) => {
   const { httpStatusCode, message, user } = await signUpUser(req.body);
   if (httpStatusCode === 200) {
-    res.status(httpStatusCode).json({ resultMessage: message, newUser : user });
+    const { password: pass, ...filteredUser } = user._doc;
+    res.status(httpStatusCode).json({ resultMessage: message, newUser : filteredUser });
   } else {
     res.status(httpStatusCode).json({ resultMessage: message });
   }
