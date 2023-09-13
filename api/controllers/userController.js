@@ -59,10 +59,10 @@ export const updatePassword = async (req, res) => {
 };
 
 export const deleteUser = async (req, res) => {
-  const { type, message } = await deleteUserByID(req.user);
+  const { httpStatusCode, message } = await deleteUserByID(req.user);
 
-  if (type === 200) {
-    res.clearCookie("token");
+  if (httpStatusCode === 200) {
+    res.clearCookie("nodetodo");
   }
-  res.status(type).json({ msg: message });
+  res.status(httpStatusCode).json({ resultMessage: message });
 };
