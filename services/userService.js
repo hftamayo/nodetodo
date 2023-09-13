@@ -56,12 +56,12 @@ export const listUserByID = async function (requestUserId) {
   try {
     let searchUser = await User.findById(userId);
     if (!searchUser) {
-      return { type: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "User Not Found" };
     }
-    return { type: 200, message: "User Found", user: searchUser };
+    return { httpStatusCode: 200, message: "User Found", user: searchUser };
   } catch (error) {
     console.error("userService, listItemByID: " + error.message);
-    return { type: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
@@ -97,16 +97,16 @@ export const updateUserPassword = async function (requestUserId, requestPword) {
   try {
     let searchUser = await User.findById(userId);
     if (!searchUser) {
-      return { type: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "User Not Found" };
     }
     const isMatch = await bcrypt.compare(password, searchUser.password);
     if (!isMatch) {
-      return { type: 400, message: "Invalid Credentials entered" };
+      return { httpStatusCode: 400, message: "Invalid Credentials entered" };
     }
     const salt = await bcrypt.genSalt(10);
     searchUser.password = await bcrypt.hash(newPassword, salt);
     await searchUser.save();
-    return { type: 200, message: searchUser };
+    return { httpStatusCode: 200, message: "Password update successfully" , user: searchUser };
   } catch (error) {
     console.error("userService, updateUserPassword: " + error.message);
     return { type: 500, message: "Internal Server Error" };
@@ -118,16 +118,16 @@ export const deleteUserByID = async function (requestUserId) {
   try {
     const searchUser = await User.findById(userId);
     if (!searchUser) {
-      return { type: 404, message: "User not found" };
+      return { httpStatusCode: 404, message: "User not found" };
     }
     const todo = await Todo.find({ user: searchUser });
     if (todo) {
       await Todo.deleteMany({ user: searchUser });
     }
     await searchUser.deleteOne();
-    return { type: 200, message: "User deleted successfully" };
+    return { httpStatusCode: 200, message: "User deleted successfully" };
   } catch (error) {
     console.error("userService, deleteUserByID: " + error.message);
-    return { type: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
