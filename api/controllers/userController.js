@@ -53,9 +53,9 @@ export const updateDetails = async (req, res) => {
 };
 
 export const updatePassword = async (req, res) => {
-  const { type, message } = await updateUserPassword(req.user, req.body);
-  const { password: pass, ...rest } = message._doc;
-  res.status(type).json({ msg: rest });
+  const { httpStatusCode, message, user } = await updateUserPassword(req.user, req.body);
+  const { password: pass, ...filteredUser } = user._doc;
+  res.status(httpStatusCode).json({ resultMessage: message, deletedUser: filteredUser });
 };
 
 export const deleteUser = async (req, res) => {
