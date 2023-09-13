@@ -58,7 +58,7 @@ export const listUserByID = async function (requestUserId) {
     if (!searchUser) {
       return { type: 404, message: "User Not Found" };
     }
-    return { type: 200, message: searchUser };
+    return { type: 200, message: "User Found", user: searchUser };
   } catch (error) {
     console.error("userService, listItemByID: " + error.message);
     return { type: 500, message: "Internal Server Error" };

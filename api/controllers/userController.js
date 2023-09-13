@@ -22,7 +22,7 @@ export const login = async (req, res) => {
   const { httpStatusCode, tokenCreated, message, user } = await loginUser(req.body);
 
   if (httpStatusCode === 200) {
-    res.cookie("token", tokenCreated, { httpOnly: true, expiresIn: 360000 });
+    res.cookie("nodetodo", tokenCreated, { httpOnly: true, expiresIn: 360000 });
     //filtering password for not showing during the output
     const { password: pass, ...filteredUser } = user._doc;
     res.status(httpStatusCode).json({ resultMessage: message, loggedUser: filteredUser });
@@ -32,17 +32,17 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("nodetodo");
   res.status(200).json({ msg: "User logged out successfully" });
 };
 
 export const getMe = async (req, res) => {
-  const { type, message } = await listUserByID(req.user);
-  if (type === 200) {
-    const { password: pass, ...rest } = message._doc;
-    res.status(type).json({ msg: rest });
+  const { httpStatusCode, message, user } = await listUserByID(req.user);
+  if (httpStatusCode === 200) {
+    const { password: pass, ...filteredUser } = user._doc;
+    res.status(httpStatusCode).json({ resultMessage: message, searchUser: filteredUser });
   } else {
-    res.status(type).json({ msg: message });
+    res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
