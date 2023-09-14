@@ -72,11 +72,11 @@ export const updateUserByID = async function (requestUserId, requestBody) {
   try {
     let searchUser = await User.findById(userId);
     if (!searchUser) {
-      return { type: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "User Not Found" };
     }
     let checkIfExists = await User.findOne({ email });
     if (checkIfExists && checkIfExists._id.toString() !== searchUser._id.toString()) {
-      return { type: 400, message: "User Not Found" };
+      return { httpStatusCode: 400, message: "User Not Found" };
     }
     searchUser.name = name;
     searchUser.email = email;
@@ -84,10 +84,10 @@ export const updateUserByID = async function (requestUserId, requestBody) {
 
     await searchUser.save();
 
-    return { type: 200, message: searchUser };
+    return { httpStatusCode: 200, message: "Data updated successfully", user: searchUser };
   } catch (error) {
     console.error("userService, updateUserByID: " + error.message);
-    return { type: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
@@ -109,7 +109,7 @@ export const updateUserPassword = async function (requestUserId, requestPword) {
     return { httpStatusCode: 200, message: "Password update successfully" , user: searchUser };
   } catch (error) {
     console.error("userService, updateUserPassword: " + error.message);
-    return { type: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
