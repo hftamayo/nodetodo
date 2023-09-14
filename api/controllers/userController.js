@@ -8,58 +8,61 @@ import {
 } from "../../services/userService.js";
 
 export const register = async (req, res) => {
-  const { type, message } = await signUpUser(req.body);
-  if (type === 200) {
-    res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
+  const { httpStatusCode, message, user } = await signUpUser(req.body);
+  if (httpStatusCode === 200) {
+    const { password: pass, ...filteredUser } = user._doc;
+    res.status(httpStatusCode).json({ resultMessage: message, newUser : filteredUser });
+  } else {
+    res.status(httpStatusCode).json({ resultMessage: message });
   }
-  res.status(type).json({ msg: "User created successfully. Please log in" });
+
 };
 
 export const login = async (req, res) => {
-  const { type, message, user } = await loginUser(req.body);
+  const { httpStatusCode, tokenCreated, message, user } = await loginUser(req.body);
 
-  if (type === 200) {
-    res.cookie("token", message, { httpOnly: true, expiresIn: 360000 });
+  if (httpStatusCode === 200) {
+    res.cookie("nodetodo", tokenCreated, { httpOnly: true, expiresIn: 360000 });
     //filtering password for not showing during the output
-    const { password: pass, ...rest } = user._doc;
-    res.status(type).json({ msg: rest });
+    const { password: pass, ...filteredUser } = user._doc;
+    res.status(httpStatusCode).json({ resultMessage: message, loggedUser: filteredUser });
   } else {
-    res.status(type).json({ msg: message });
+    res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("nodetodo");
   res.status(200).json({ msg: "User logged out successfully" });
 };
 
 export const getMe = async (req, res) => {
-  const { type, message } = await listUserByID(req.user);
-  if (type === 200) {
-    const { password: pass, ...rest } = message._doc;
-    res.status(type).json({ msg: rest });
+  const { httpStatusCode, message, user } = await listUserByID(req.user);
+  if (httpStatusCode === 200) {
+    const { password: pass, ...filteredUser } = user._doc;
+    res.status(httpStatusCode).json({ resultMessage: message, searchUser: filteredUser });
   } else {
-    res.status(type).json({ msg: message });
+    res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
 export const updateDetails = async (req, res) => {
-  const { type, message } = await updateUserByID(req.user, req.body);
-  const { password: pass, ...rest } = message._doc;
-  res.status(type).json({ msg: rest });
+  const { httpStatusCode, message, user } = await updateUserByID(req.user, req.body);
+  const { password: pass, ...filteredUSer } = user._doc;
+  res.status(httpStatusCode).json({ resultMessage: message, updatedUser: filteredUSer });
 };
 
 export const updatePassword = async (req, res) => {
-  const { type, message } = await updateUserPassword(req.user, req.body);
-  const { password: pass, ...rest } = message._doc;
-  res.status(type).json({ msg: rest });
+  const { httpStatusCode, message, user } = await updateUserPassword(req.user, req.body);
+  const { password: pass, ...filteredUser } = user._doc;
+  res.status(httpStatusCode).json({ resultMessage: message, deletedUser: filteredUser });
 };
 
 export const deleteUser = async (req, res) => {
-  const { type, message } = await deleteUserByID(req.user);
+  const { httpStatusCode, message } = await deleteUserByID(req.user);
 
-  if (type === 200) {
-    res.clearCookie("token");
+  if (httpStatusCode === 200) {
+    res.clearCookie("nodetodo");
   }
-  res.status(type).json({ msg: message });
+  res.status(httpStatusCode).json({ resultMessage: message });
 };
