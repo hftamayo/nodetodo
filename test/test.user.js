@@ -19,10 +19,10 @@ before and after related to cases
 describe("POST /nodetodo/users/register", () => {
   before(function () {});
 
-  it("it should add a valid new user", (done) => {
+  it.only("it should add a valid new user", (done) => {
     let testUser = {
-      name: "tester28",
-      email: "tester28@tamayo.com",
+      name: "tester99",
+      email: "tester99@tamayo.com",
       password: "123456",
       age: 40,
     };
@@ -35,8 +35,14 @@ describe("POST /nodetodo/users/register", () => {
         should.exist(res.body);
         res.body.should.be.a("object");
         res.body.should.have
-          .property("msg")
-          .eql("User created successfully. Please log in");
+          .property("resultMessage")
+          .eql("User created successfully");
+        res.body.should.have.property("newUser");
+        res.body.newUser.should.have.property("name").eql(testUser.name);
+        res.body.newUser.should.have.property("email").eql(testUser.email);
+        res.body.newUser.should.have.property("age").eql(testUser.age);
+        done();
+
         // assets en caso que el metodo devuelva el registro:
         //res.body.testUser.should.have.property('name');
         //res.body.testUser.should.have.property("name").eql(testUser.name);
@@ -45,7 +51,6 @@ describe("POST /nodetodo/users/register", () => {
         //   .property("password")
         //   .eql(testUser.password);
         // res.body.testUser.should.have.property("age").eql(testUser.age);
-        done();
       });
   });
 
