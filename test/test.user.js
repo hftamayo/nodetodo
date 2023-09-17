@@ -71,7 +71,7 @@ describe("POST /nodetodo/users/register", () => {
 });
 
 describe("POST /nodetodo/users/login", () => {
-  it.only("trying to login with valid credentials", (done) => {
+  it("trying to login with valid credentials", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "123456",
@@ -134,7 +134,7 @@ describe("POST /nodetodo/users/login", () => {
       });
   });
 
-  it("trying to login with invalid email and password", (done) => {
+  it.only("trying to login with invalid email and password", (done) => {
     let inValidUser = {
       email: "tester233@tamayo.com",
       password: "12345600",
