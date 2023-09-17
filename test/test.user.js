@@ -156,12 +156,19 @@ describe("POST /nodetodo/users/login", () => {
 });
 
 describe("GET /nodetodo/users/me", () => {
+  it("it shouldn't send request without authorization");
   it("it should get info of user with active session");
   it("it shouldn't get info of a non existing user");
 });
 
-describe("DELETE /nodetodo/users/deleteuser", () => {});
+describe("DELETE /nodetodo/users/deleteuser", () => {
+  it("it shouldn't send request without authorization");
+});
 
-describe("PUT /nodetodo/users/updatedetails", () => {});
+describe("PUT /nodetodo/users/updatedetails", () => {
+  it("it shouldn't send request without authorization");
+});
 
-describe("PUT /nodetodo/users/updatepassword", () => {});
+describe("PUT /nodetodo/users/updatepassword", () => {
+  it("it shouldn't send request without authorization");
+});
