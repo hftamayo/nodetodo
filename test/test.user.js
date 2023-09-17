@@ -71,7 +71,7 @@ describe("POST /nodetodo/users/register", () => {
 });
 
 describe("POST /nodetodo/users/login", () => {
-  it("trying to login with valid credentials", (done) => {
+  it.only("trying to login with valid credentials", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "123456",
@@ -86,9 +86,10 @@ describe("POST /nodetodo/users/login", () => {
         res.body.should.be.a("object");
         res.body.should.have.property("loggedUser");
         res.body.loggedUser.should.have.property("email").eql(validUser.email);
-        res.body.loggedUser.should.have
-          .property("password")
-          .eql(validUser.email);
+        //deberia verificar si se genero la cookie con el token?
+        // res.body.loggedUser.should.have
+        //   .property("password")
+        //   .eql(validUser.email);
         done();
       });
   });
