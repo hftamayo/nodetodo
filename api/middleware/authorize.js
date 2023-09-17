@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { masterKey } from "../../config/envvars.js";
 
 const authorize = async (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.cookies.nodetodo;
   if (!token) {
     return res.status(401).json({ msg: "Not authorized, please login first" });
   }
