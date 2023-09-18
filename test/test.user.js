@@ -134,7 +134,7 @@ describe("POST /nodetodo/users/login", () => {
       });
   });
 
-  it.only("trying to login with invalid email and password", (done) => {
+  it("trying to login with invalid email and password", (done) => {
     let inValidUser = {
       email: "tester233@tamayo.com",
       password: "12345600",
@@ -156,39 +156,67 @@ describe("POST /nodetodo/users/login", () => {
 });
 
 describe("GET /nodetodo/users/me", () => {
-  it("it shouldn't send request without authorization");
-  chai
-    .request(server)
-    .get("nodetodo/users/me")
-    .end((err, res) => {
-      res.should.have.status(401);
-      should.exist(res.body);
-      res.body.should.be.a("object");
-      res.body.should.have.property("msg").eql("Not authorized, please login first");
-      done();
-    });
-  it("it should get info of user with active session");
-  it("it shouldn't get info of a non existing user");
-  chai
-    .request(server)
-    .get("nodetodo/users/me")
-    .end((err, res) => {
-      res.should.have.status(404);
-      should.exist(res.body);
-      res.body.should.be.a("object");
-      res.body.should.have.property("resultMessage").eql("User Not Found");
-      done();
-    });  
+  it("it shouldn't send request without authorization", (done) => {
+    chai
+      .request(server)
+      .get("nodetodo/users/me")
+      .end((err, res) => {
+        res.should.have.status(401);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have
+          .property("msg")
+          .eql("Not authorized, please login first");
+        done();
+      });
+  });
+
+  it("it should get info of user with active session", (done) => {
+    let validUser = {
+      email: "tester23@tamayo.com",
+      password: "123456",
+    };
+    const agent = chai.request.agent(server);
+    agent
+      .post("/nodetodo/users/login")
+      .send(validUser)
+      .end((err, res) => {
+        res.should.have.status(200);
+        agent.get("nodetodo/users/me").end((err, res) => {
+          res.should.have.status(200);
+          should.exist(res.body);
+          res.body.should.be.a("object");
+          res.body.should.have.property("loggedUser");
+          res.body.loggedUser.should.have.property("name");
+          res.body.loggedUser.should.have.property("email");
+          res.body.loggedUser.should.have.property("age");
+          done();
+        });
+      });
+  });
+
+  it("it shouldn't get info of a non existing user", (done) => {
+    chai
+      .request(server)
+      .get("nodetodo/users/me")
+      .end((err, res) => {
+        res.should.have.status(404);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have.property("resultMessage").eql("User Not Found");
+        done();
+      });
+  });
 });
 
 describe("DELETE /nodetodo/users/deleteuser", () => {
-  it("it shouldn't send request without authorization");
+  it("it shouldn't send request without authorization", (done) => {});
 });
 
 describe("PUT /nodetodo/users/updatedetails", () => {
-  it("it shouldn't send request without authorization");
+  it("it shouldn't send request without authorization", (done) => {});
 });
 
 describe("PUT /nodetodo/users/updatepassword", () => {
-  it("it shouldn't send request without authorization");
+  it("it shouldn't send request without authorization", (done) => {});
 });
