@@ -157,8 +157,28 @@ describe("POST /nodetodo/users/login", () => {
 
 describe("GET /nodetodo/users/me", () => {
   it("it shouldn't send request without authorization");
+  chai
+    .request(server)
+    .get("nodetodo/users/me")
+    .end((err, res) => {
+      res.should.have.status(401);
+      should.exist(res.body);
+      res.body.should.be.a("object");
+      res.body.should.have.property("msg").eql("Not authorized, please login first");
+      done();
+    });
   it("it should get info of user with active session");
   it("it shouldn't get info of a non existing user");
+  chai
+    .request(server)
+    .get("nodetodo/users/me")
+    .end((err, res) => {
+      res.should.have.status(404);
+      should.exist(res.body);
+      res.body.should.be.a("object");
+      res.body.should.have.property("resultMessage").eql("User Not Found");
+      done();
+    });  
 });
 
 describe("DELETE /nodetodo/users/deleteuser", () => {
