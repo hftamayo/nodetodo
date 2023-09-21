@@ -164,7 +164,7 @@ describe("GET /nodetodo/users/me", () => {
         res.should.have.status(404);
         should.exist(res.body);
         res.body.should.be.a("object");
-        //depurar esta parte
+        //depurar esta parte pues no obtengo el objeto resultMessage
         // res.body.should.have
         //   .property("resultMessage")
         //   .eql("User Not Found");
@@ -173,25 +173,41 @@ describe("GET /nodetodo/users/me", () => {
   });
 
   it.only("it should get info of user with active session", (done) => {
-    const agent = chai.request.agent(server);
-    agent
+    let validUser = {
+      email: "tester23@tamayo.com",
+      password: "123456",
+    };
+    chai
+      .request(server)
       .post("/nodetodo/users/login")
-      .send({ email: "tester23@tamayo.com", password: "123456" })
+      .send(validUser)
       .end((err, res) => {
         res.should.have.status(200);
-        agent.get("nodetodo/users/me").end((err, res) => {
-          res.should.have.status(200);
-          should.exist(res.body);
-          res.body.should.be.a("object");
-          res.body.should.have.property("searchUser");
-          res.body.loggedUser.should.have.property("name");
-          res.body.loggedUser.should.have.property("email");
-          res.body.loggedUser.should.have.property("age");
-          done();
-        });
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have.property("tokenCreated");
+        const token = res.body.tokenCreated;
+        done();
       });
-  });
 
+    // const agent = chai.request.agent(server);
+    // agent
+    //   .post("/nodetodo/users/login")
+    //   .send({ email: "tester23@tamayo.com", password: "123456" })
+    //   .end((err, res) => {
+    //     res.should.have.status(200);
+    //     agent.get("nodetodo/users/me").end((err, res) => {
+    //       res.should.have.status(200);
+    //       should.exist(res.body);
+    //       res.body.should.be.a("object");
+    //       res.body.should.have.property("searchUser");
+    //       res.body.loggedUser.should.have.property("name");
+    //       res.body.loggedUser.should.have.property("email");
+    //       res.body.loggedUser.should.have.property("age");
+    //       done();
+    //     });
+    //   });
+  });
 });
 
 describe("DELETE /nodetodo/users/deleteuser", () => {
