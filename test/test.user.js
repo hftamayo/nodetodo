@@ -218,14 +218,12 @@ describe("DELETE /nodetodo/users/deleteuser", () => {
         should.exist(res.body);
         res.body.should.be.a("object");
         //depurar esta parte pues no obtengo el objeto resultMessage
-        // res.body.should.have
-        //   .property("resultMessage")
-        //   .eql("User Not Found");
+        //res.body.should.have.property("resultMessage").eql("User Not found");
       });
 
     done();
   });
-  it.only("it should delete a user with active session ", (done) => {
+  it("it should delete a user with active session ", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "123456",
