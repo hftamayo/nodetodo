@@ -209,7 +209,7 @@ describe("GET /nodetodo/users/me", () => {
 });
 
 describe("DELETE /nodetodo/users/deleteuser", () => {
-  it.only("it shouldn't delete a user without authorization", (done) => {
+  it("it shouldn't delete a user without authorization", (done) => {
     chai
       .request(server)
       .get("nodetodo/users/deleteuser")
@@ -225,7 +225,7 @@ describe("DELETE /nodetodo/users/deleteuser", () => {
 
     done();
   });
-  it("it should delete a user with active session ", (done) => {
+  it.only("it should delete a user with active session ", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "123456",
