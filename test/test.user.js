@@ -172,7 +172,7 @@ describe("GET /nodetodo/users/me", () => {
       });
   });
 
-  it.only("it should get info of user with active session", (done) => {
+  it("it should get info of user with active session", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "123456",
@@ -210,6 +210,39 @@ describe("GET /nodetodo/users/me", () => {
 
 describe("DELETE /nodetodo/users/deleteuser", () => {
   it("it shouldn't send request without authorization", (done) => {});
+  it.only("it should delete user with active session ", (done) => {
+    let validUser = {
+      email: "tester23@tamayo.com",
+      password: "123456",
+    };
+    chai
+      .request(server)
+      .post("/nodetodo/users/login")
+      .send(validUser)
+      .end((err, res) => {
+        res.should.have.status(200);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have.property("loggedUser");
+        res.body.loggedUser.should.have.property("email").eql(validUser.email);
+        res.should.have.cookie("nodetodo");
+        const token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+        //console.log(`active session's token: ${token}`);
+        chai
+          .request(server)
+          .delete("/nodetodo/users/deleteuser")
+          .set("Cookie", `nodetodo=${token}`)
+          .end((err, res) => {
+            res.should.have.status(200);
+            should.exist(res.body);
+            res.body.should.be.a("object");
+            res.body.should.have
+              .property("resultMessage")
+              .eql("User deleted successfully");
+          });
+        done();
+      });
+  });
 });
 
 describe("PUT /nodetodo/users/updatedetails", () => {
