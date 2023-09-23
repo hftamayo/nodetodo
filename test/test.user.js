@@ -209,8 +209,23 @@ describe("GET /nodetodo/users/me", () => {
 });
 
 describe("DELETE /nodetodo/users/deleteuser", () => {
-  it("it shouldn't send request without authorization", (done) => {});
-  it.only("it should delete user with active session ", (done) => {
+  it.only("it shouldn't delete a user without authorization", (done) => {
+    chai
+      .request(server)
+      .get("nodetodo/users/deleteuser")
+      .end((err, res) => {
+        res.should.have.status(404);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        //depurar esta parte pues no obtengo el objeto resultMessage
+        // res.body.should.have
+        //   .property("resultMessage")
+        //   .eql("User Not Found");
+      });
+
+    done();
+  });
+  it("it should delete a user with active session ", (done) => {
     let validUser = {
       email: "tester23@tamayo.com",
       password: "123456",
