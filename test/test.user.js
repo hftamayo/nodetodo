@@ -189,44 +189,22 @@ describe("GET /nodetodo/users/me", () => {
         res.body.loggedUser.should.have.property("email").eql(validUser.email);
         res.should.have.cookie("nodetodo");
         const token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
-        console.log(`active session's token: ${token}`);
+        //console.log(`active session's token: ${token}`);
+        chai
+          .request(server)
+          .get("/nodetodo/users/me")
+          .set("Cookie", `nodetodo=${token}`)
+          .end((err, res) => {
+            res.should.have.status(200);
+            should.exist(res.body);
+            res.body.should.be.a("object");
+            res.body.should.have.property("searchUser");
+            res.body.searchUser.should.have.property("name");
+            res.body.searchUser.should.have.property("email");
+            res.body.searchUser.should.have.property("age");
+          });
         done();
       });
-
-    // let validUser = {
-    //   email: "tester23@tamayo.com",
-    //   password: "123456",
-    // };
-    // chai
-    //   .request(server)
-    //   .post("/nodetodo/users/login")
-    //   .send(validUser)
-    //   .end((err, res) => {
-    //     res.should.have.status(200);
-    //     should.exist(res.body);
-    //     res.body.should.be.a("object");
-    //     res.body.should.have.property("tokenCreated");
-    //     const token = res.body.tokenCreated;
-    //     done();
-    //   });
-
-    // const agent = chai.request.agent(server);
-    // agent
-    //   .post("/nodetodo/users/login")
-    //   .send({ email: "tester23@tamayo.com", password: "123456" })
-    //   .end((err, res) => {
-    //     res.should.have.status(200);
-    //     agent.get("nodetodo/users/me").end((err, res) => {
-    //       res.should.have.status(200);
-    //       should.exist(res.body);
-    //       res.body.should.be.a("object");
-    //       res.body.should.have.property("searchUser");
-    //       res.body.loggedUser.should.have.property("name");
-    //       res.body.loggedUser.should.have.property("email");
-    //       res.body.loggedUser.should.have.property("age");
-    //       done();
-    //     });
-    //   });
   });
 });
 
