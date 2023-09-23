@@ -259,9 +259,11 @@ describe("DELETE /nodetodo/users/deleteuser", () => {
 });
 
 describe("PUT /nodetodo/users/updatedetails", () => {
-  it("it shouldn't send request without authorization", (done) => {});
+  it("it shouldn't update user's details without authorization", (done) => {});
+  it("it should update user's details with active session", (done) => {});  
 });
 
 describe("PUT /nodetodo/users/updatepassword", () => {
-  it("it shouldn't send request without authorization", (done) => {});
+  it("it shouldn't update user's password without authorization", (done) => {});
+  it("it should update user's password with active session", (done) => {});    
 });
