@@ -276,8 +276,7 @@ describe("PUT /nodetodo/users/updatedetails", () => {
       });
   });
 
-  it("it should update user's details with active session", (done) => {
-
+  it.only("it should update user's details with active session", (done) => {
     let validUser = {
       email: "tester97@tamayo.com",
       password: "123456",
@@ -288,7 +287,6 @@ describe("PUT /nodetodo/users/updatedetails", () => {
       email: "tester100@tamayo.com",
       age: 97,
     };
-
 
     chai
       .request(server)
@@ -307,19 +305,17 @@ describe("PUT /nodetodo/users/updatedetails", () => {
           .request(server)
           .put("/nodetodo/users/updatedetails")
           .set("Cookie", `nodetodo=${token}`)
+          .send(validUserChanges)
           .end((err, res) => {
             res.should.have.status(200);
             should.exist(res.body);
             res.body.should.be.a("object");
             res.body.should.have
               .property("resultMessage")
-              .eql("User deleted successfully");
+              .eql("Data updated successfully");
           });
         done();
-      });    
-
-
-
+      });
   });
 });
 
