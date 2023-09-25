@@ -212,7 +212,7 @@ describe("DELETE /nodetodo/users/deleteuser", () => {
   it("it shouldn't delete a user without authorization", (done) => {
     chai
       .request(server)
-      .get("nodetodo/users/deleteuser")
+      .delete("nodetodo/users/deleteuser")
       .end((err, res) => {
         res.should.have.status(404);
         should.exist(res.body);
@@ -259,11 +259,71 @@ describe("DELETE /nodetodo/users/deleteuser", () => {
 });
 
 describe("PUT /nodetodo/users/updatedetails", () => {
-  it("it shouldn't update user's details without authorization", (done) => {});
-  it("it should update user's details with active session", (done) => {});  
+  it("it shouldn't update user's details without authorization", (done) => {
+    let validUser = {
+      name: "Adina Howard",
+      email: "tester99@tamayo.com",
+      age: 40,
+    };
+    chai
+      .request(server)
+      .put("nodetodo/users/updatedetails")
+      .send(validUser)
+      .end((err, res) => {
+        res.should.have.status(404);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+      });
+  });
+
+  it("it should update user's details with active session", (done) => {
+
+    let validUser = {
+      email: "tester97@tamayo.com",
+      password: "123456",
+    };
+
+    let validUserChanges = {
+      name: "Adina Howard",
+      email: "tester100@tamayo.com",
+      age: 97,
+    };
+
+
+    chai
+      .request(server)
+      .post("/nodetodo/users/login")
+      .send(validUser)
+      .end((err, res) => {
+        res.should.have.status(200);
+        should.exist(res.body);
+        res.body.should.be.a("object");
+        res.body.should.have.property("loggedUser");
+        res.body.loggedUser.should.have.property("email").eql(validUser.email);
+        res.should.have.cookie("nodetodo");
+        const token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+        //console.log(`active session's token: ${token}`);
+        chai
+          .request(server)
+          .put("/nodetodo/users/updatedetails")
+          .set("Cookie", `nodetodo=${token}`)
+          .end((err, res) => {
+            res.should.have.status(200);
+            should.exist(res.body);
+            res.body.should.be.a("object");
+            res.body.should.have
+              .property("resultMessage")
+              .eql("User deleted successfully");
+          });
+        done();
+      });    
+
+
+
+  });
 });
 
 describe("PUT /nodetodo/users/updatepassword", () => {
   it("it shouldn't update user's password without authorization", (done) => {});
-  it("it should update user's password with active session", (done) => {});    
+  it("it should update user's password with active session", (done) => {});
 });
