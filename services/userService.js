@@ -74,9 +74,9 @@ export const updateUserByID = async function (requestUserId, requestBody) {
     if (!searchUser) {
       return { httpStatusCode: 404, message: "User Not Found" };
     }
-    let checkIfExists = await User.findOne({ email }).exec();
-    if (checkIfExists && checkIfExists._id.toString() !== searchUser._id.toString()) {
-      return { httpStatusCode: 400, message: "User Not Found" };
+    let checkIfUpdateEmailExists = await User.findOne({ email }).exec();
+    if (checkIfUpdateEmailExists && checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()) {
+      return { httpStatusCode: 400, message: "Email already taken" };
     }
     searchUser.name = name;
     searchUser.email = email;
