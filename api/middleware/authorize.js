@@ -12,7 +12,7 @@ const authorize = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ errors: "Internal Server Error" });
+    res.status(500).json({ resultMessage: "Internal Server Error" });
   }
 };
 
