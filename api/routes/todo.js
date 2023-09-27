@@ -12,7 +12,7 @@ import { validateResult } from "../middleware/validationResults.js";
 
 const router = express.Router();
 router.get("/:id", authorize, getTodo);
-router.get("/", authorize, getTodos);
+router.get("/list", authorize, getTodos);
 router.post("/create", authorize, createTodoRules, validateResult, createTodo);
 router.put("/update/:id", authorize, updateTodoRules, validateResult,  updateTodo);
 router.delete("/delete/:id", authorize, deleteTodo);
