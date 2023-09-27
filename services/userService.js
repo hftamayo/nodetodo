@@ -101,7 +101,7 @@ export const updateUserPassword = async function (requestUserId, requestPword) {
     }
     const isMatch = await bcrypt.compare(password, searchUser.password);
     if (!isMatch) {
-      return { httpStatusCode: 400, message: "Invalid Credentials entered" };
+      return { httpStatusCode: 400, message: "The entered credentials are not valid" };
     }
     const salt = await bcrypt.genSalt(10);
     searchUser.password = await bcrypt.hash(newPassword, salt);
