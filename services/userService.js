@@ -106,7 +106,7 @@ export const updateUserPassword = async function (requestUserId, requestPword) {
     const salt = await bcrypt.genSalt(10);
     searchUser.password = await bcrypt.hash(newPassword, salt);
     await searchUser.save();
-    return { httpStatusCode: 200, message: "Password update successfully" , user: searchUser };
+    return { httpStatusCode: 200, message: "Password updated successfully" , user: searchUser };
   } catch (error) {
     console.error("userService, updateUserPassword: " + error.message);
     return { httpStatusCode: 500, message: "Internal Server Error" };
