@@ -17,9 +17,10 @@ export const listActiveTodos = async function (requestUserId) {
   }
 };
 
-export const listTodoByID = async function (requestTodoId, requestBody) {
+export const listTodoByID = async function (requestUserId, requestTodoId) {
+  const userId = requestUserId;
   const todoId = requestTodoId;
-  const { userId } = requestBody;
+
   try {
     const searchTodo = await Todo.findById(todoId).exec();
     if (!searchTodo) {
