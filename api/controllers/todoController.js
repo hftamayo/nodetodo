@@ -1,12 +1,19 @@
-import Todo from "../../models/Todo.js";
+import {
+  listActiveTodos,
+  listTodoByID,
+  createTodo,
+  updateTodo,
+  deleteTodo,
+} from "../../services/todoService";
 
 export const getTodos = async (req, res) => {
-  try {
-    const todos = await Todo.find({ user: req.user });
-    res.status(200).json({ msg: "Todo Found", todos });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
+  const { httpStatusCode, message, todos } = await listActiveTodos(req.user);
+  if (httpStatusCode === 200) {
+    res
+      .status(httpStatusCode)
+      .json({ resultMessage: message, activeTodos: todos });
+  } else {
+    res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
