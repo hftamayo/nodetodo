@@ -38,41 +38,58 @@ export const listTodoByID = async function (requestTodoId, requestBody) {
   }
 };
 
-export const createTodo = async (req, res) => {
-  const { title, description } = req.body;
+export const createTodo = async function (requestBody) {
+  const { title, description } = requestBody;
   try {
-    const todo = await Todo.create({
+    let newTodo = await Todo.findOne({ title }).exec();
+    if (newTodo) {
+      return { httpStatusCode: 400, message: "Title already taken" };
+    }
+    newTodo = new Todo({
       title,
       description,
       completed: false,
       user: req.user,
     });
-    res.status(201).json({ msg: "Todo created Successfully", todo });
+    await newTodo.save();
+    return {
+      httpStatusCode: 200,
+      message: "Todo created successfully",
+      todo: newTodo,
+    };
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
+    console.error("todoService, createTodo: " + error.message);
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
-export const updateTodo = async (req, res) => {
-  const { id } = req.params;
-  const { title, description, completed } = req.body;
+export const updateTodo = async function (
+  requestTodoId,
+  requestUserId,
+  requestBody
+) {
+  const todoId = requestTodoId;
+  const owner = requestUserId;
+  const { title, description, completed } = requestBody;
   try {
-    const todo = await Todo.findById(id);
-    if (!todo) {
-      return res.status(404).json({ msg: "Todo Not Found" });
+    const updateTodo = await Todo.findById(todoId);
+    if (!updateTodo) {
+      return { httpStatusCode: 404, message: "Todo Not Found" };
     }
-    if (todo.user.toString() !== req.user) {
-      return res.status(401).json({ msg: "Not Authorized" });
+    if (updateTodo.user.toString() !== owner) {
+      return {
+        httpStatusCode: 401,
+        message: "You're not the owner of this Todo",
+      };
     }
-    todo.title = title;
-    todo.description = description;
-    todo.completed = completed;
-    await todo.save();
-    res.status(200).json({ msg: "Todo updated successfully" });
+    updateTodo.title = title;
+    updateTodo.description = description;
+    updateTodo.completed = completed;
+    await updateTodo.save();
+    return { httpStatusCode: 200, message: "Todo updated successfully" };
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
+    console.error("todoService, updateTodo: " + error.message);
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
