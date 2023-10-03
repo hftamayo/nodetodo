@@ -93,20 +93,24 @@ export const updateTodo = async function (
   }
 };
 
-export const deleteTodo = async (req, res) => {
-  const { id } = req.params;
+export const deleteTodo = async function (requestTodoId, requestUserId) {
+  const todoId = requestTodoId;
+  const owner = requestUserId;
   try {
-    const todo = await Todo.findById(id);
-    if (!todo) {
-      return res.status(404).json({ msg: "Todo Not Found" });
+    const deleteTodo = await Todo.findById(todoId);
+    if (!deleteTodo) {
+      return { httpStatusCode: 404, message: "Todo not found" };
     }
-    if (todo.user.toString() !== req.user) {
-      return res.status(401).json({ msg: "Not Authorized" });
+    if (deleteTodo.user.toString() !== owner) {
+      return {
+        httpStatusCode: 401,
+        message: "You're not the owner of this Todo",
+      };
     }
-    await todo.deleteOne();
-    res.status(200).json({ msg: "Todo Deleted Successfully" });
+    await deleteTodo.deleteOne();
+    return { httpStatusCode: 200, message: "Todo Deleted Successfully" };
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
+    console.error("todoService, deleteTodo: " + error.message);
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
