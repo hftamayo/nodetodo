@@ -7,12 +7,12 @@ export const listActiveTodos = async function (requestUserId) {
     if (!activeTodos) {
       return {
         httpStatusCode: 404,
-        message: "No active tasks found for this user",
+        message: "No active tasks found for active user",
       };
     }
     return { httpStatusCode: 200, message: "Tasks found", todos: activeTodos };
   } catch (error) {
-    console.error("todoService, getTodos: " + error.message);
+    console.error("todoService, listActiveTodos: " + error.message);
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
@@ -39,7 +39,8 @@ export const listTodoByID = async function (requestUserId, requestTodoId) {
   }
 };
 
-export const createTodo = async function (requestBody) {
+export const createTodo = async function (requestUser, requestBody) {
+  const owner = request.user;
   const { title, description } = requestBody;
   try {
     let newTodo = await Todo.findOne({ title }).exec();
@@ -50,7 +51,7 @@ export const createTodo = async function (requestBody) {
       title,
       description,
       completed: false,
-      user: req.user,
+      user: owner,
     });
     await newTodo.save();
     return {
@@ -65,8 +66,8 @@ export const createTodo = async function (requestBody) {
 };
 
 export const updateTodoByID = async function (
-  requestTodoId,
   requestUserId,
+  requestTodoId,
   requestBody
 ) {
   const todoId = requestTodoId;
@@ -94,7 +95,7 @@ export const updateTodoByID = async function (
   }
 };
 
-export const deleteTodoByID = async function (requestTodoId, requestUserId) {
+export const deleteTodoByID = async function (requestUserId, requestTodoId) {
   const todoId = requestTodoId;
   const owner = requestUserId;
   try {
