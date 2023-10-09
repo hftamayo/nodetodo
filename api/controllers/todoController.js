@@ -31,19 +31,12 @@ export const getTodo = async (req, res) => {
   }
 };
 
-export const createTodo = async (req, res) => {
-  const { title, description } = req.body;
-  try {
-    const todo = await Todo.create({
-      title,
-      description,
-      completed: false,
-      user: req.user,
-    });
-    res.status(201).json({ msg: "Todo created Successfully", todo });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
+export const newTodo = async (req, res) => {
+  const { httpStatusCode, message, todo } = await createTodo(req.body);
+  if (httpStatusCode === 200) {
+    res.status(httpStatusCode).json({ resultMessage: message, newTodo: todo });
+  } else {
+    res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
