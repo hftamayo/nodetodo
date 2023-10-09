@@ -40,28 +40,9 @@ export const newTodo = async (req, res) => {
   }
 };
 
-export const updateTodo
-
 export const updateTodo = async (req, res) => {
-  const { id } = req.params;
-  const { title, description, completed } = req.body;
-  try {
-    const todo = await Todo.findById(id);
-    if (!todo) {
-      return res.status(404).json({ msg: "Todo Not Found" });
-    }
-    if (todo.user.toString() !== req.user) {
-      return res.status(401).json({ msg: "Not Authorized" });
-    }
-    todo.title = title;
-    todo.description = description;
-    todo.completed = completed;
-    await todo.save();
-    res.status(200).json({ msg: "Todo updated successfully" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
-  }
+const {httpStatusCode, message, todo} = await updateTodoByID(req.todo, req.body)
+res.status(httpStatusCode).json({resultMessage: message, updateTodo: todo})
 };
 
 export const deleteTodo = async (req, res) => {
