@@ -3,7 +3,7 @@ import {
   listTodoByID,
   createTodo,
   updateTodo,
-  deleteTodo,
+  deleteTodoByID,
 } from "../../services/todoService";
 
 export const getTodos = async (req, res) => {
@@ -62,20 +62,8 @@ export const updateTodo = async (req, res) => {
   }
 };
 
-export const deleteTodo = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const todo = await Todo.findById(id);
-    if (!todo) {
-      return res.status(404).json({ msg: "Todo Not Found" });
-    }
-    if (todo.user.toString() !== req.user) {
-      return res.status(401).json({ msg: "Not Authorized" });
-    }
-    await todo.deleteOne();
-    res.status(200).json({ msg: "Todo Deleted Successfully" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
-  }
+export const removeTodo = async (req, res) => {
+  const { httpStatusCode, message } = await deleteTodoByID(req.todo);
+  res.status(httpStatusCode).json({ resultMessage: message });
 };
+
