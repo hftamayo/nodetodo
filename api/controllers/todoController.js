@@ -2,7 +2,7 @@ import {
   listActiveTodos,
   listTodoByID,
   createTodo,
-  updateTodo,
+  updateTodoByID,
   deleteTodoByID,
 } from "../../services/todoService";
 
@@ -40,6 +40,8 @@ export const newTodo = async (req, res) => {
   }
 };
 
+export const updateTodo
+
 export const updateTodo = async (req, res) => {
   const { id } = req.params;
   const { title, description, completed } = req.body;
@@ -62,7 +64,7 @@ export const updateTodo = async (req, res) => {
   }
 };
 
-export const removeTodo = async (req, res) => {
+export const deleteTodo = async (req, res) => {
   const { httpStatusCode, message } = await deleteTodoByID(req.todo);
   res.status(httpStatusCode).json({ resultMessage: message });
 };

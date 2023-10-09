@@ -64,7 +64,7 @@ export const createTodo = async function (requestBody) {
   }
 };
 
-export const updateTodo = async function (
+export const updateTodoByID = async function (
   requestTodoId,
   requestUserId,
   requestBody
