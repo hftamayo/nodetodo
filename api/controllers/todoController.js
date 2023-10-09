@@ -20,7 +20,7 @@ export const getTodos = async (req, res) => {
 export const getTodo = async (req, res) => {
   const { httpStatusCode, message, todo } = await listTodoByID(
     req.user,
-    req.todo
+    req.todoId
   );
   if (httpStatusCode === 200) {
     res
@@ -46,7 +46,7 @@ export const newTodo = async (req, res) => {
 export const updateTodo = async (req, res) => {
   const { httpStatusCode, message, todo } = await updateTodoByID(
     req.user,
-    req.todo,
+    req.todoId,
     req.body
   );
   res.status(httpStatusCode).json({ resultMessage: message, updateTodo: todo });

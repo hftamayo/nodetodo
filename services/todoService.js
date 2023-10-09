@@ -39,8 +39,8 @@ export const listTodoByID = async function (requestUserId, requestTodoId) {
   }
 };
 
-export const createTodo = async function (requestUser, requestBody) {
-  const owner = request.user;
+export const createTodo = async function (requestUserId, requestBody) {
+  const owner = requestUserId;
   const { title, description } = requestBody;
   try {
     let newTodo = await Todo.findOne({ title }).exec();
@@ -96,8 +96,9 @@ export const updateTodoByID = async function (
 };
 
 export const deleteTodoByID = async function (requestUserId, requestTodoId) {
-  const todoId = requestTodoId;
   const owner = requestUserId;
+  const todoId = requestTodoId;
+
   try {
     const deleteTodo = await Todo.findById(todoId);
     if (!deleteTodo) {
