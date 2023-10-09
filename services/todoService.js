@@ -94,7 +94,7 @@ export const updateTodo = async function (
   }
 };
 
-export const deleteTodo = async function (requestTodoId, requestUserId) {
+export const deleteTodoByID = async function (requestTodoId, requestUserId) {
   const todoId = requestTodoId;
   const owner = requestUserId;
   try {
