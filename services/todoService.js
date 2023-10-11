@@ -67,14 +67,12 @@ export const createTodo = async function (requestUserId, requestBody) {
 
 export const updateTodoByID = async function (
   requestUserId,
-  requestTodoId,
   requestBody
 ) {
-  const todoId = requestTodoId;
   const owner = requestUserId;
-  const { title, description, completed } = requestBody;
+  const { id, title, description, completed } = requestBody;
   try {
-    const updateTodo = await Todo.findById(todoId);
+    const updateTodo = await Todo.findById(id);
     if (!updateTodo) {
       return { httpStatusCode: 404, message: "Todo Not Found" };
     }
@@ -95,9 +93,9 @@ export const updateTodoByID = async function (
   }
 };
 
-export const deleteTodoByID = async function (requestUserId, requestTodoId) {
+export const deleteTodoByID = async function (requestUserId, requestBody) {
   const owner = requestUserId;
-  const todoId = requestTodoId;
+  const todoId = requestBody;
 
   try {
     const deleteTodo = await Todo.findById(todoId);
