@@ -1,4 +1,4 @@
-import Todo from "../../models/Todo.js";
+import Todo from "../models/Todo.js";
 
 export const listActiveTodos = async function (requestUserId) {
   const userId = requestUserId;
@@ -17,9 +17,9 @@ export const listActiveTodos = async function (requestUserId) {
   }
 };
 
-export const listTodoByID = async function (requestUserId, requestTodoId) {
+export const listTodoByID = async function (requestUserId, requestBody) {
   const userId = requestUserId;
-  const todoId = requestTodoId;
+  const todoId = requestBody;
 
   try {
     const searchTodo = await Todo.findById(todoId).exec();

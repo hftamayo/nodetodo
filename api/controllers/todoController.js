@@ -4,7 +4,7 @@ import {
   createTodo,
   updateTodoByID,
   deleteTodoByID,
-} from "../../services/todoService";
+} from "../../services/todoService.js";
 
 export const getTodos = async (req, res) => {
   const { httpStatusCode, message, todos } = await listActiveTodos(req.user);
@@ -20,7 +20,7 @@ export const getTodos = async (req, res) => {
 export const getTodo = async (req, res) => {
   const { httpStatusCode, message, todo } = await listTodoByID(
     req.user,
-    req.todoId
+    req.body
   );
   if (httpStatusCode === 200) {
     res
