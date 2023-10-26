@@ -8,20 +8,20 @@ import {
 
 export const getTodos = async (req, res) => {
   const { httpStatusCode, message, todos } = await listActiveTodos(req.user);
-  if (httpStatusCode === 200) {
-    res
-      .status(httpStatusCode)
-      .json({ resultMessage: message, activeTodos: todos });
-  } else {
-    res.status(httpStatusCode).json({ resultMessage: message });
-  }
+
+  res
+    .status(httpStatusCode)
+    .json(
+      httpStatusCode === 200
+        ? { resultMessage: message, activeTodos: todos }
+        : { resultMessage: message }
+    );
 };
 
 export const getTodo = async (req, res) => {
-  
   const { httpStatusCode, message, todo } = await listTodoByID(
     req.user,
-    req.params.id,
+    req.params.id
   );
   if (httpStatusCode === 200) {
     res
