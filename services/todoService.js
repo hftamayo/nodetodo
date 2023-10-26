@@ -17,10 +17,9 @@ export const listActiveTodos = async function (requestUserId) {
   }
 };
 
-export const listTodoByID = async function (requestUserId, requestBody) {
+export const listTodoByID = async function (requestUserId, requestTodoId) {
   const userId = requestUserId;
-  const todoId = requestBody;
-
+  const todoId = requestTodoId;
   try {
     const searchTodo = await Todo.findById(todoId).exec();
     if (!searchTodo) {
@@ -32,7 +31,7 @@ export const listTodoByID = async function (requestUserId, requestBody) {
         message: "There's a problem with your credentials",
       };
     }
-    return { httpStatusCode: 200, msg: "Todo found", searchTodo };
+    return { httpStatusCode: 200, message: "Todo found", todo: searchTodo };
   } catch (error) {
     console.error(error.message);
     return { httpStatusCode: 500, message: "Internal Server Error" };
