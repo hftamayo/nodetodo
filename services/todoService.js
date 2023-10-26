@@ -35,7 +35,7 @@ export const listTodoByID = async function (requestUserId, requestBody) {
     return { httpStatusCode: 200, msg: "Todo found", searchTodo };
   } catch (error) {
     console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
@@ -65,10 +65,7 @@ export const createTodo = async function (requestUserId, requestBody) {
   }
 };
 
-export const updateTodoByID = async function (
-  requestUserId,
-  requestBody
-) {
+export const updateTodoByID = async function (requestUserId, requestBody) {
   const owner = requestUserId;
   const { id, title, description, completed } = requestBody;
   try {

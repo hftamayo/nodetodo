@@ -11,8 +11,8 @@ import { createTodoRules, updateTodoRules } from "../middleware/validator.js";
 import { validateResult } from "../middleware/validationResults.js";
 
 const router = express.Router();
-router.get("/:id", authorize, getTodo);
 router.get("/list", authorize, getTodos);
+router.get("/task/:id", authorize, getTodo);
 router.post("/create", authorize, createTodoRules, validateResult, newTodo);
 router.put(
   "/update/:id",

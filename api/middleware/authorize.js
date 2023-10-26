@@ -4,7 +4,9 @@ import { masterKey } from "../../config/envvars.js";
 const authorize = async (req, res, next) => {
   const token = req.cookies.nodetodo;
   if (!token) {
-    return res.status(401).json({ resultMessage: "Not authorized, please login first" });
+    return res
+      .status(401)
+      .json({ resultMessage: "Not authorized, please login first" });
   }
   try {
     const decoded = jwt.verify(token, masterKey);
