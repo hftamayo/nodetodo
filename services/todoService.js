@@ -89,9 +89,9 @@ export const updateTodoByID = async function (requestUserId, requestBody) {
   }
 };
 
-export const deleteTodoByID = async function (requestUserId, requestBody) {
+export const deleteTodoByID = async function (requestUserId, requestTodoId) {
   const owner = requestUserId;
-  const todoId = requestBody;
+  const todoId = requestTodoId;
 
   try {
     const deleteTodo = await Todo.findById(todoId);

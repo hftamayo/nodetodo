@@ -49,7 +49,7 @@ export const newTodo = async (req, res) => {
 export const updateTodo = async (req, res) => {
   const { httpStatusCode, message, todo } = await updateTodoByID(
     req.user,
-    req.params.id
+    req.body
   );
   res.status(httpStatusCode).json({ resultMessage: message, updateTodo: todo });
 };
