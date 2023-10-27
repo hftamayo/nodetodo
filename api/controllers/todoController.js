@@ -49,12 +49,12 @@ export const newTodo = async (req, res) => {
 export const updateTodo = async (req, res) => {
   const { httpStatusCode, message, todo } = await updateTodoByID(
     req.user,
-    req.body
+    req.params.id
   );
   res.status(httpStatusCode).json({ resultMessage: message, updateTodo: todo });
 };
 
 export const deleteTodo = async (req, res) => {
-  const { httpStatusCode, message } = await deleteTodoByID(req.user, req.body);
+  const { httpStatusCode, message } = await deleteTodoByID(req.user, req.params.id);
   res.status(httpStatusCode).json({ resultMessage: message });
 };
