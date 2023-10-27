@@ -1,84 +1,61 @@
-import Todo from "../../models/Todo.js";
+import {
+  listActiveTodos,
+  listTodoByID,
+  createTodo,
+  updateTodoByID,
+  deleteTodoByID,
+} from "../../services/todoService.js";
 
 export const getTodos = async (req, res) => {
-  try {
-    const todos = await Todo.find({ user: req.user });
-    res.status(200).json({ msg: "Todo Found", todos });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
-  }
+  const { httpStatusCode, message, todos } = await listActiveTodos(req.user);
+
+  res
+    .status(httpStatusCode)
+    .json(
+      httpStatusCode === 200
+        ? { resultMessage: message, activeTodos: todos }
+        : { resultMessage: message }
+    );
 };
 
 export const getTodo = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const todo = await Todo.findById(id);
-    if (!todo) {
-      return res.status(404).json({ msg: "Todo Not Found" });
-    }
-    if (todo.user.toString() !== req.user) {
-      return res.status(401).json({ msg: "Not Authorized" });
-    }
-    res.status(200).json({ msg: "Todo found", todo });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
-  }
+  const { httpStatusCode, message, todo } = await listTodoByID(
+    req.user,
+    req.params.id
+  );
+  res
+    .status(httpStatusCode)
+    .json(
+      httpStatusCode === 200
+        ? { resultMessage: message, searchTodo: todo }
+        : { resultMessage: message }
+    );
 };
 
-export const createTodo = async (req, res) => {
-  const { title, description } = req.body;
-  try {
-    const todo = await Todo.create({
-      title,
-      description,
-      completed: false,
-      user: req.user,
-    });
-    res.status(201).json({ msg: "Todo created Successfully", todo });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
-  }
+export const newTodo = async (req, res) => {
+  const { httpStatusCode, message, todo } = await createTodo(
+    req.user,
+    req.body
+  );
+  res
+    .status(httpStatusCode)
+    .json(
+      httpStatusCode === 200
+        ? { resultMessage: message, newTodo: todo }
+        : { resultMessage: message }
+    );
 };
 
 export const updateTodo = async (req, res) => {
-  const { id } = req.params;
-  const { title, description, completed } = req.body;
-  try {
-    const todo = await Todo.findById(id);
-    if (!todo) {
-      return res.status(404).json({ msg: "Todo Not Found" });
-    }
-    if (todo.user.toString() !== req.user) {
-      return res.status(401).json({ msg: "Not Authorized" });
-    }
-    todo.title = title;
-    todo.description = description;
-    todo.completed = completed;
-    await todo.save();
-    res.status(200).json({ msg: "Todo updated successfully" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
-  }
+  const { httpStatusCode, message, todo } = await updateTodoByID(
+    req.user,
+    req.params.id,
+    req.body
+  );
+  res.status(httpStatusCode).json({ resultMessage: message, updateTodo: todo });
 };
 
 export const deleteTodo = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const todo = await Todo.findById(id);
-    if (!todo) {
-      return res.status(404).json({ msg: "Todo Not Found" });
-    }
-    if (todo.user.toString() !== req.user) {
-      return res.status(401).json({ msg: "Not Authorized" });
-    }
-    await todo.deleteOne();
-    res.status(200).json({ msg: "Todo Deleted Successfully" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ errors: "Internal Server Error" });
-  }
+  const { httpStatusCode, message } = await deleteTodoByID(req.user, req.params.id);
+  res.status(httpStatusCode).json({ resultMessage: message });
 };

@@ -15,7 +15,6 @@ export const register = async (req, res) => {
   } else {
     res.status(httpStatusCode).json({ resultMessage: message });
   }
-
 };
 
 export const login = async (req, res) => {
