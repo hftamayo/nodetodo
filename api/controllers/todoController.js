@@ -23,13 +23,13 @@ export const getTodo = async (req, res) => {
     req.user,
     req.params.id
   );
-  if (httpStatusCode === 200) {
-    res
-      .status(httpStatusCode)
-      .json({ resultMessage: message, searchTodo: todo });
-  } else {
-    res.status(httpStatusCode).json({ resultMessage: message });
-  }
+  res
+    .status(httpStatusCode)
+    .json(
+      httpStatusCode === 200
+        ? { resultMessage: message, searchTodo: todo }
+        : { resultMessage: message }
+    );
 };
 
 export const newTodo = async (req, res) => {
@@ -37,11 +37,13 @@ export const newTodo = async (req, res) => {
     req.user,
     req.body
   );
-  if (httpStatusCode === 200) {
-    res.status(httpStatusCode).json({ resultMessage: message, newTodo: todo });
-  } else {
-    res.status(httpStatusCode).json({ resultMessage: message });
-  }
+  res
+    .status(httpStatusCode)
+    .json(
+      httpStatusCode === 200
+        ? { resultMessage: message, newTodo: todo }
+        : { resultMessage: message }
+    );
 };
 
 export const updateTodo = async (req, res) => {
