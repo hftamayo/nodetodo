@@ -64,11 +64,13 @@ export const createTodo = async function (requestUserId, requestBody) {
   }
 };
 
-export const updateTodoByID = async function (requestUserId, requestBody) {
+export const updateTodoByID = async function (requestUserId, requestTodoId, requestBody) {
   const owner = requestUserId;
-  const { id, title, description, completed } = requestBody;
+  const todoId = requestTodoId;
+  const { title, description, completed } = requestBody;
+
   try {
-    const updateTodo = await Todo.findById(id);
+    const updateTodo = await Todo.findById(todoId);
     if (!updateTodo) {
       return { httpStatusCode: 404, message: "Todo Not Found" };
     }
