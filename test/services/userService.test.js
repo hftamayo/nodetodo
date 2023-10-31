@@ -50,5 +50,42 @@ describe("UserService Unit Tests", () => {
       expect(response.message).to.equal("User login successfully");
       expect(response.user).to.exist;
     });
+
+    it("should not login if user does not exist", async () => {
+      const requestBody = {
+        email: "hftamayo2@gmail.com",
+        password: "milucito",
+      };
+      const response = await loginUser(requestBody);
+      expect(response.httpStatusCode).to.equal(404);
+      expect(response.message).to.equal("User or Password does not match");
+    });
+
+    it("should return an error if the password is incorrect", async () => {
+      const requestBody = {
+        email: "hftamayo@gmail.com",
+        password: "incorrect",
+      };
+      const response = await loginUser(requestBody);
+      expect(response.httpStatusCode).to.equal(404);
+      expect(response.message).to.equal("User or Password does not match");
+    });
+  });
+
+  describe("listUserByID()", () => {
+    it("should return a user with a valid ID", async () => {
+      const requestUserId = "1234567890";
+      const response = await listUserByID(requestUserId);
+      expect(response.httpStatusCode).to.equal(200);
+      expect(response.message).to.equal("User Found");
+      expect(response.user).to.exist;
+    });
+
+    it("should return an error if the user ID is invalid", async () => {
+      const requestUserId = "123123132AAA";
+      const response = await listUserByID(requestUserId);
+      expect(response.httpStatusCode).to.equal(404);
+      expect(response.message).to.equal("User Not Found");
+    });
   });
 });
