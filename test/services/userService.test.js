@@ -37,4 +37,18 @@ describe("UserService Unit Tests", () => {
       expect(response.message).to.equal("Email already exists");
     });
   });
+
+  describe("loginUser()", () => {
+    it("should login a user with valid credentials", async () => {
+      const requestBody = {
+        email: "hftamayo@gmail.com",
+        password: "milucito",
+      };
+      const response = await loginUser(requestBody);
+      expect(response.httpStatusCode).to.equal(200);
+      expect(response.tokenCreated).to.exist;
+      expect(response.message).to.equal("User login successfully");
+      expect(response.user).to.exist;
+    });
+  });
 });
