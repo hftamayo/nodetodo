@@ -7,8 +7,9 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "mocha --timeout 100000",
-    "testrpt": "mocha 'test/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
+    "test": "mocha test/**/*.js",
+    "smoketest": "mocha smoketest/**/*.js",
+    "testrpt": "mocha 'test/**/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
   },
   "author": "Herbert Tamayo",
   "license": "ISC",
