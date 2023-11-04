@@ -88,4 +88,19 @@ describe("UserService Unit Tests", () => {
       expect(response.message).to.equal("User Not Found");
     });
   });
+
+  describe("updateUserByID()", () => {
+    it("should update a user with valid data", async () => {
+      const requestUserId = "12346579";
+      const requestBody = {
+        name: "Sebastian Fernandez",
+        email: "sebas@gmail.com",
+        age: 20,
+      };
+      const response = await updateUserByID(requestUserId, requestBody);
+      expect(response.httpStatusCode).to.equal(200);
+      expect(response.message).to.equal("Data updated successfully");
+      expect(response.user).to.exist;
+    });
+  });
 });
