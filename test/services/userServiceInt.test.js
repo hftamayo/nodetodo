@@ -99,3 +99,7 @@ describe("updateUserByID()", () => {
     expect(response.user).to.exist;
   });
 });
+
+describe("updateUserPassWord()", () => {});
+
+describe("deleteUser()", () => {});
