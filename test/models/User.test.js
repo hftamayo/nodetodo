@@ -1,27 +1,29 @@
 import { expect } from "chai";
 import User from "../../models/User";
+import { mockUser } from "../mocks/user.mock";
 
 describe("User Model", () => {
   it("should create a new user with valid data", async () => {
     const user = new User({
-      name: "Herbert Fernandez Tamayo",
-      email: "hftamayo@gmail.com",
-      password: "milucito",
-      age: 40,
+      name: mockUser.name,
+      email: mockUser.email,
+      password: mockUser.password,
+      age: mockUser.age,
     });
     await user.save();
 
     expect(user).to.exist;
     expect(user.name).to.equal("Herbert Fernandez Tamayo");
     expect(user.email).to.equal("hftamayo@gmail.com");
-    expect(user.age).to.equal(40);
+    expect(user.age).to.equal(30);
   });
 
   it("should throw an error if the user's name is missing", async () => {
     const user = new User({
-      email: "hftamayo@gmail.com",
-      password: "milucito",
-      age: 30,
+      name: "",
+      email: mockUser.email,
+      password: mockUser.password,
+      age: mockUser.age,
     });
 
     try {
@@ -36,9 +38,10 @@ describe("User Model", () => {
 
   it("should throw an error if the user's email is missing", async () => {
     const user = new User({
-      name: "Herbert Fernandez Tamayo",
-      password: "milucito",
-      age: 30,
+      name: mockUser.name,
+      email: "",
+      password: mockUser.password,
+      age: mockUser.age,
     });
 
     try {
@@ -53,9 +56,10 @@ describe("User Model", () => {
 
   it("should throw an error if the user's password is missing", async () => {
     const user = new User({
-      name: "Herbert Fernandez Tamayo",
-      email: "hftamayo@gmail.com",
-      age: 30,
+      name: mockUser.name,
+      email: mockUser.email,
+      password: "",
+      age: mockUser.age,
     });
 
     try {
@@ -70,9 +74,10 @@ describe("User Model", () => {
 
   it("should throw an error if the user's age is missing", async () => {
     const user = new User({
-      name: "Herbert Fernandez Tamayo",
-      email: "hftamayo@gmail.com",
-      password: "milucito",
+      name: mockUser.name,
+      email: mockUser.email,
+      password: mockUser.password,
+      age: "",
     });
 
     try {
