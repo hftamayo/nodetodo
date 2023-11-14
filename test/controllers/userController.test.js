@@ -1,6 +1,11 @@
 import { expect } from "chai";
 import Sinon from "sinon";
-import { register, login } from "../../api/controllers/userController";
+import {
+  register,
+  login,
+  logout,
+  getMe,
+} from "../../api/controllers/userController";
 import {
   mockUser,
   mockUserInvalid,
@@ -86,7 +91,7 @@ describe("User Controller Unit Test", () => {
 
   describe("login method", () => {
     afterEach(() => {
-      sinon.restore();
+      Sinon.restore();
     });
 
     it("should successfully login a user with valid credentials", async () => {
@@ -103,7 +108,7 @@ describe("User Controller Unit Test", () => {
         json: sinon.stub(),
       };
 
-      sinon.stub(userService, "loginUser").resolves({
+      Sinon.stub(userService, loginUser).resolves({
         httpStatusCode: 200,
         tokenCreated: "mockToken",
         message: "User login successfully",
@@ -142,7 +147,7 @@ describe("User Controller Unit Test", () => {
 
       const mockError = new Error("User or Password does not match");
 
-      sinon.stub(userService, "loginUser").rejects(mockError);
+      Sinon.stub(userService, loginUser).rejects(mockError);
 
       await login(mockReq, mockRes);
 
@@ -157,7 +162,7 @@ describe("User Controller Unit Test", () => {
 
   describe("logout method", () => {
     afterEach(() => {
-      sinon.restore();
+      Sinon.restore();
     });
 
     it("should clear the nodetodo cookie and send a logout", async () => {
@@ -174,6 +179,133 @@ describe("User Controller Unit Test", () => {
       expect(mockRes.status.calledWith(200)).to.be.true;
       expect(mockRes.json.calledWith({ msg: "User logged out successfully" }))
         .to.be.true;
+    });
+  });
+
+  describe("getme method", () => {
+    afterEach(() => {
+      Sinon.restore();
+    });
+
+    it("should return user details when listUserByID is valid", async () => {
+      const validUser = {
+        name: mockUser.name,
+        email: mockUser.email,
+        age: mockUser.age,
+      };
+      const mockListUserByID = sinon.stub(userService, listUserByID).resolves({
+        httpStatusCode: 200,
+        message: "User found",
+        user: validUser,
+      });
+
+      const mockReq = { user: { _id: "123" } };
+      const mockRes = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.stub(),
+      };
+
+      await getMe(mockReq, mockRes);
+
+      expect(mockListUserByID.calledWith(mockReq.user)).to.be.true;
+      expect(mockRes.status.calledWith(200)).to.be.true;
+      expect(
+        mockRes.json.calledWith({
+          resultMessage: "User found",
+          searchUser: {
+            name: user.name,
+            email: user.email,
+            age: user.age,
+          },
+        })
+      ).to.be.true;
+    });
+
+    it("should return error message when listUserByID returns non-200 status", async () => {
+      const mockListUserByID = sinon.stub(userService, listUserByID).resolves({
+        httpStatusCode: 404,
+        message: "User not found",
+      });
+
+      const mockReq = { user: { _id: "123" } };
+      const mockRes = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.stub(),
+      };
+
+      await getMe(mockReq, mockRes);
+
+      expect(mockListUserByID.calledWith(mockReq.user)).to.be.true;
+      expect(mockRes.status.calledWith(404)).to.be.true;
+      expect(mockRes.json.calledWith({ resultMessage: "User not found" })).to.be
+        .true;
+    });
+  });
+
+  describe("updateDetails method", () => {});
+
+  describe("updatePassword method", () => {});
+
+  describe("deleteUser method", () => {
+    const mockDeleteUserByID = sinon.stub(
+      require("../../services/userService"),
+      "deleteUserByID"
+    );
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it("should successfully delete the user and clear the cookie", async () => {
+      mockDeleteUserByID.resolves({
+        httpStatusCode: 200,
+        message: "User deleted successfully",
+      });
+
+      const mockReq = {
+        user: {
+          id: mockUserDelete.id,
+        },
+      };
+
+      const mockRes = {
+        clearCookie: sinon.stub(),
+        status: sinon.stub(),
+        json: sinon.stub(),
+      };
+
+      await deleteUserByID(mockReq, mockRes);
+
+      expect(mockDeleteUserByID.calledOnceWithExactly(mockReq.user.id)).to.be
+        .true;
+      expect(mockRes.clearCookie.calledWith("nodetodo")).to.be.true;
+      expect(mockRes.status.calledWith(200)).to.be.true;
+      expect(
+        mockRes.json.calledWith({ resultMessage: "User deleted successfully" })
+      ).to.be.true;
+    });
+
+    it("should return an error if the user does not exist", async () => {
+      mockDeleteUserByID.rejects(new Error("User not found"));
+
+      const mockReq = {
+        user: {
+          id: mockUserDelete.id,
+        },
+      };
+
+      const mockRes = {
+        status: sinon.stub(),
+        json: sinon.stub(),
+      };
+
+      await deleteUserByID(mockReq, mockRes);
+
+      expect(mockDeleteUserByID.calledOnceWithExactly(mockReq.user.id)).to.be
+        .true;
+      expect(mockRes.clearCookie.notCalled).to.be.true;
+      expect(mockRes.status.calledWith(404)).to.be.true;
+      expect(mockRes.json.calledWith({ resultMessage: "User not found" })).to.be
+        .true;
     });
   });
 });
