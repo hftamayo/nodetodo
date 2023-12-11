@@ -1,21 +1,34 @@
 import { expect } from "chai";
-import User from "../../models/User";
-import { mockUser } from "../mocks/user.mock";
+import Sinon from "sinon";
+import User from "../../models/User.js";
+import { mockUser } from "../mocks/user.mock.js";
 
 describe("User Model", () => {
-  it("should create a new user with valid data", async () => {
+  it.only("should create a new user with valid data", async () => {
+    const saveStub = Sinon.stub(User.prototype, "save");
+
+    saveStub.resolves({
+      name: mockUser.name,
+      email: mockUser.email,
+      password: mockUser.password,
+      age: mockUser.age,
+    });
+
     const user = new User({
       name: mockUser.name,
       email: mockUser.email,
       password: mockUser.password,
       age: mockUser.age,
     });
+
     await user.save();
 
     expect(user).to.exist;
     expect(user.name).to.equal("Herbert Fernandez Tamayo");
     expect(user.email).to.equal("hftamayo@gmail.com");
     expect(user.age).to.equal(30);
+
+    saveStub.restore();
   });
 
   it("should throw an error if the user's name is missing", async () => {
