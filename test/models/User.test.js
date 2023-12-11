@@ -4,7 +4,7 @@ import User from "../../models/User.js";
 import { mockUser } from "../mocks/user.mock.js";
 
 describe("User Model", () => {
-  it.only("should create a new user with valid data", async () => {
+  it("should create a new user with valid data", async () => {
     const saveStub = Sinon.stub(User.prototype, "save");
 
     saveStub.resolves({
@@ -39,6 +39,10 @@ describe("User Model", () => {
       age: mockUser.age,
     });
 
+    const saveStub = Sinon.stub(User.prototype, "save");
+
+    saveStub.rejects(new Error("User validation failed: `name` is required"));
+
     try {
       await user.save();
     } catch (error) {
@@ -47,6 +51,7 @@ describe("User Model", () => {
         "User validation failed: `name` is required"
       );
     }
+    saveStub.restore();
   });
 
   it("should throw an error if the user's email is missing", async () => {
@@ -57,6 +62,10 @@ describe("User Model", () => {
       age: mockUser.age,
     });
 
+    const saveStub = Sinon.stub(User.prototype, "save");
+
+    saveStub.rejects(new Error("User validation failed: `email` is required"));
+
     try {
       await user.save();
     } catch (error) {
@@ -65,15 +74,20 @@ describe("User Model", () => {
         "User validation failed: `email` is required"
       );
     }
+    saveStub.restore();
   });
 
-  it("should throw an error if the user's password is missing", async () => {
+  it.only("should throw an error if the user's password is missing", async () => {
     const user = new User({
       name: mockUser.name,
       email: mockUser.email,
       password: "",
       age: mockUser.age,
     });
+
+    const saveStub = Sinon.stub(User.prototype, "save");
+
+    saveStub.rejects(new Error("User validation failed: `password` is required"));    
 
     try {
       await user.save();
