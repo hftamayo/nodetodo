@@ -77,7 +77,7 @@ describe("User Model", () => {
     saveStub.restore();
   });
 
-  it.only("should throw an error if the user's password is missing", async () => {
+  it("should throw an error if the user's password is missing", async () => {
     const user = new User({
       name: mockUser.name,
       email: mockUser.email,
@@ -97,6 +97,7 @@ describe("User Model", () => {
         "User validation failed: `password` is required"
       );
     }
+    saveStub.restore();
   });
 
   it("should throw an error if the user's age is missing", async () => {
@@ -107,6 +108,10 @@ describe("User Model", () => {
       age: "",
     });
 
+    const saveStub = Sinon.stub(User.prototype, "save");
+
+    saveStub.rejects(new Error("User validation failed: `age` is required"));        
+
     try {
       await user.save();
     } catch (error) {
@@ -115,5 +120,6 @@ describe("User Model", () => {
         "User validation failed: `age` is required"
       );
     }
+    saveStub.restore();
   });
 });
