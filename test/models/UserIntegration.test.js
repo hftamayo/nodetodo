@@ -2,23 +2,34 @@ import { expect } from "chai";
 import User from "../../models/User.js";
 import express from "express";
 import request from "supertest";
+import app from "../../app.js";
 
 describe("User Integration Tests", () => {
-  it.only("should create a new user when a POST request is sent to /register endpoint", async () => {
-    const app = express();
+  let server;
+
+  before(async () => {
+    server = app.listen(8003);
 
     app.post("/nodetodo/users/register", async (req, res) => {
       const user = new User(req.body);
       await user.save();
       res.status(201).json(user);
     });
+  });
 
-    const response = await request(app).post("/nodetodo/users/register").send({
-      name: "Herbert Fernandez Tamayo",
-      email: "hftamayo@gmail.com",
-      password: "milucito",
-      age: 40,
-    });
+  after(async () => {
+    await server.close();
+  });
+
+  it.only("should create a new user when a POST request is sent to /register endpoint", async () => {
+    const response = await request(server)
+      .post("/nodetodo/users/register")
+      .send({
+        name: "Herbert Fernandez Tamayo",
+        email: "hftamayo@gmail.com",
+        password: "milucito",
+        age: 40,
+      });
 
     expect(response.status).to.equal(201);
     expect(response.body).to.exist;
