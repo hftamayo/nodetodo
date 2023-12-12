@@ -9,6 +9,7 @@
     "start": "node server.js",
     "test": "mocha test/**/*.js",
     "smoketest": "mocha smoketest/**/*.js",
+    "singletest": "mocha 'test/models/UserIntegration.test.js'",    
     "testrpt": "mocha 'test/**/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
   },
   "author": "Herbert Tamayo",
