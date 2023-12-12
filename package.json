@@ -9,6 +9,7 @@
     "start": "node server.js",
     "test": "mocha test/**/*.js",
     "smoketest": "mocha smoketest/**/*.js",
+    "singletest": "mocha 'test/models/UserIntegration.test.js'",
     "testrpt": "mocha 'test/**/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
   },
   "author": "Herbert Tamayo",
@@ -33,6 +34,7 @@
     "mocha-junit-reporter": "^2.2.1",
     "nodemon": "^2.0.22",
     "should": "^13.2.3",
-    "sinon": "^17.0.1"
+    "sinon": "^17.0.1",
+    "supertest": "^6.3.3"
   }
 }
