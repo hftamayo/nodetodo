@@ -1,10 +1,10 @@
 import { expect } from "chai";
-import User from "../../models/User";
+import User from "../../models/User.js";
 import express from "express";
 import request from "supertest";
 
 describe("User Integration Tests", () => {
-  it("should create a new user when a POST request is sent to /register endpoint", async () => {
+  it.only("should create a new user when a POST request is sent to /register endpoint", async () => {
     const app = express();
 
     app.post("/nodetodo/users/register", async (req, res) => {
