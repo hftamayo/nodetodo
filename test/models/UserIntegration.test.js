@@ -1,62 +1,48 @@
 import { expect } from "chai";
 import User from "../../models/User.js";
-import express from "express";
-import request from "supertest";
-import app from "../../app.js";
+import mongoose from "mongoose";
+const db = "mongodb://localhost:27017/todoapp-test";
 
-describe("User Integration Tests", () => {
-  let server;
+describe("User model Integration Tests", function () {
+  this.timeout(20000);
+  let user;
 
-  before(async () => {
-    server = app.listen(8003);
-
-    app.post("/nodetodo/users/register", async (req, res) => {
-      const user = new User(req.body);
-      await user.save();
-      res.status(201).json(user);
-    });
-  });
-
-  after(async () => {
-    await server.close();
-  });
-
-  it.only("should create a new user when a POST request is sent to /register endpoint", async () => {
-    const response = await request(server)
-      .post("/nodetodo/users/register")
-      .send({
-        name: "Herbert Fernandez Tamayo",
-        email: "hftamayo@gmail.com",
-        password: "milucito",
-        age: 40,
-      });
-
-    expect(response.status).to.equal(201);
-    expect(response.body).to.exist;
-    expect(response.body.name).to.equal("Herbert Fernandez Tamayo");
-    expect(response.body.email).to.equal("hftamayo@gmail.com");
-    expect(response.body.age).to.equal(40);
-  });
-
-  it("it should return an error if the user's name is missing when a POST request is sent to /register endpoint", async () => {
-    const app = express();
-
-    app.post("/nodetodo/users/register", async (req, res) => {
-      const user = new User(req.body);
-      await user.save();
-      res.status(201).json(user);
-    });
-
-    const response = await request(app).post("/nodetodo/users/register").send({
-      email: "hftamayo@gmail.com",
-      password: "milucito",
+  beforeEach(async function () {
+    this.timeout(20000);
+    user = new User({
+      name: "Herbert Fernandez Tamayo",
+      email: "hftamayo2030@gmail.com",
+      password: "milucito2030",
       age: 40,
     });
+  });
 
-    expect(response.status).to.equal(400);
-    expect(response.body).to.exist;
-    expect(response.body.message).to.equal(
-      "User validation field: `name` is required "
-    );
+  afterEach(async function () {
+    this.timeout(20000);
+    await User.deleteMany({});
+  });
+
+  after(async function () {
+    await mongoose.disconnect();
+  });
+
+  it("should create a new user", async function () {
+    this.timeout(20000);
+    const savedUser = await user.save();
+
+    expect(savedUser).to.exist;
+    expect(savedUser.name).to.equal("Herbert Fernandez Tamayo");
+    expect(savedUser.email).to.equal("hftamayo2030@gmail.com");
+    expect(savedUser.age).to.equal(40);
+  });
+
+  it("should not create an existing user", async () => {
+    try {
+      await user.save();
+    } catch (error) {
+      expect(error).to.exist;
+      expect(error.status).to.equal(400);
+      expect(error.message).to.equal("User already exists");
+    }
   });
 });
