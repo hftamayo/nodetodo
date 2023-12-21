@@ -78,7 +78,7 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it.only("should logout a user", async function () {
+    it("should logout a user", async function () {
       this.timeout(10000);
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
@@ -110,6 +110,32 @@ describe("User Controller Integration Test", function () {
     //   expect(response.body.resultMessage).to.equal("Unauthorized");
     // });
 
-    
+    it.only("should get the info of the logged user", async function () {
+      this.timeout(10000);
+      const loginResponse = await request(server)
+        .post("/nodetodo/users/login")
+        .send({
+          email: mockUser.email,
+          password: mockUser.password,
+        });
+      expect(loginResponse.status).to.equal(200);
+      expect(loginResponse.body.resultMessage).to.equal(
+        "User login successfully"
+      );
+
+      const response = await request(server)
+        .get("/nodetodo/users/me")
+        .set("Cookie", `nodetodo=${loginResponse.body.token}`);
+
+      expect(response.status).to.equal(200);
+      expect(response.body.resultMessage).to.equal("User Found");
+      expect(response.body.searchUser).to.be.an("object");
+      expect(response.body.searchUser).to.have.property("name", mockUser.name);
+      expect(response.body.searchUser).to.have.property(
+        "email",
+        mockUser.email
+      );
+      expect(response.body.searchUser).to.have.property("age", mockUser.age);
+    });
   });
 });
