@@ -45,7 +45,7 @@ describe("User Controller Integration Test", function () {
       expect(response.body.resultMessage).to.equal("Email already exists");
     });
 
-    it.only("should login a user with valid credentials", async function () {
+    it("should login a user with valid credentials", async function () {
       this.timeout(10000);
       const response = await request(server)
         .post("/nodetodo/users/login")
@@ -63,5 +63,18 @@ describe("User Controller Integration Test", function () {
       );
       expect(response.body.loggedUser).to.have.property("age", mockUser.age);
     });
+
+    it.only("should not login with invalid credentials", async function () {
+      this.timeout(10000);
+      const response = await request(server)
+        .post("/nodetodo/users/login")
+        .send({
+          email: mockUserInvalid.email,
+          password: mockUserInvalid.password,
+        });
+      expect(response.status).to.equal(404);
+      expect(response.body.resultMessage).to.equal("User or Password does not match");
+
+    });    
   });
 });
