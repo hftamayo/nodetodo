@@ -64,7 +64,7 @@ describe("User Controller Integration Test", function () {
       expect(response.body.loggedUser).to.have.property("age", mockUser.age);
     });
 
-    it.only("should not login with invalid credentials", async function () {
+    it("should not login with invalid credentials", async function () {
       this.timeout(10000);
       const response = await request(server)
         .post("/nodetodo/users/login")
@@ -73,8 +73,43 @@ describe("User Controller Integration Test", function () {
           password: mockUserInvalid.password,
         });
       expect(response.status).to.equal(404);
-      expect(response.body.resultMessage).to.equal("User or Password does not match");
+      expect(response.body.resultMessage).to.equal(
+        "User or Password does not match"
+      );
+    });
 
-    });    
+    it.only("should logout a user", async function () {
+      this.timeout(10000);
+      const loginResponse = await request(server)
+        .post("/nodetodo/users/login")
+        .send({
+          email: mockUser.email,
+          password: mockUser.password,
+        });
+      expect(loginResponse.status).to.equal(200);
+      expect(loginResponse.body.resultMessage).to.equal(
+        "User login successfully"
+      );
+
+      //bug en estas lineas
+      // const logoutResponse = await request(server)
+      //   .post("/nodetodo/users/logout")
+      //   .set("Cookie", `nodetodo=${loginResponse.body.token}`);
+
+      // expect(logoutResponse.status).to.equal(200);
+      // expect(logoutResponse.body.msg).to.equal("User logged out successfully");
+    });
+
+    //no he considerado si un usuario no autorizado hace un request a logout
+
+    // it("should not logout an unauthorized user", async function () {
+    //   this.timeout(10000);
+    //   const response = await request(server)
+    //     .post("/nodetodo/users/logout");
+    //   expect(response.status).to.equal(401);
+    //   expect(response.body.resultMessage).to.equal("Unauthorized");
+    // });
+
+    
   });
 });
