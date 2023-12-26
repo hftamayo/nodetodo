@@ -91,13 +91,25 @@ describe("User Controller Integration Test", function () {
         "User login successfully"
       );
 
-      //bug en estas lineas
-      // const logoutResponse = await request(server)
-      //   .post("/nodetodo/users/logout")
-      //   .set("Cookie", `nodetodo=${loginResponse.body.token}`);
+      const cookies = loginResponse.headers["set-cookie"];
+      const nodetodoCookie = cookies.find((item) =>
+        item.startsWith("nodetodo=")
+      );
+      expect(nodetodoCookie).to.exist;
 
-      // expect(logoutResponse.status).to.equal(200);
-      // expect(logoutResponse.body.msg).to.equal("User logged out successfully");
+      //bug en estas lineas
+      const logoutResponse = await request(server)
+        .post("/nodetodo/users/logout")
+        .set("Cookie", nodetodoCookie);
+
+      expect(logoutResponse.status).to.equal(200);
+      expect(logoutResponse.body.msg).to.equal("User logged out successfully");
+
+      const logoutCookies = logoutResponse.headers["set-cookie"];
+      const clearedNodetodoCookie = logoutCookies.find((cookie) =>
+        cookie.startsWith("nodetodo=")
+      );
+      expect(clearedNodetodoCookie).to.include("Expires="); // The cookie should have an 'Expires' attribute set to a past date
     });
 
     //no he considerado si un usuario no autorizado hace un request a logout
@@ -110,7 +122,7 @@ describe("User Controller Integration Test", function () {
     //   expect(response.body.resultMessage).to.equal("Unauthorized");
     // });
 
-    it.only("should get the info of the logged user", async function () {
+    it("should get the info of the logged user", async function () {
       this.timeout(10000);
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
@@ -122,20 +134,25 @@ describe("User Controller Integration Test", function () {
       expect(loginResponse.body.resultMessage).to.equal(
         "User login successfully"
       );
+      const cookies = loginResponse.headers["set-cookie"];
+      const nodetodoCookie = cookies.find((item) =>
+        item.startsWith("nodetodo=")
+      );
+      expect(nodetodoCookie).to.exist;
 
       const response = await request(server)
         .get("/nodetodo/users/me")
-        .set("Cookie", `nodetodo=${loginResponse.body.tokenCreated}`);
+        .set("Cookie", nodetodoCookie);
 
-      // expect(response.status).to.equal(200);
-      // expect(response.body.resultMessage).to.equal("User Found");
-      // expect(response.body.searchUser).to.be.an("object");
-      // expect(response.body.searchUser).to.have.property("name", mockUser.name);
-      // expect(response.body.searchUser).to.have.property(
-      //   "email",
-      //   mockUser.email
-      // );
-      // expect(response.body.searchUser).to.have.property("age", mockUser.age);
+      expect(response.status).to.equal(200);
+      expect(response.body.resultMessage).to.equal("User Found");
+      expect(response.body.searchUser).to.be.an("object");
+      expect(response.body.searchUser).to.have.property("name", mockUser.name);
+      expect(response.body.searchUser).to.have.property(
+        "email",
+        mockUser.email
+      );
+      expect(response.body.searchUser).to.have.property("age", mockUser.age);
     });
   });
 });
