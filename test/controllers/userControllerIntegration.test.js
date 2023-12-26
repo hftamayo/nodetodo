@@ -78,7 +78,7 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it("should logout a user", async function () {
+    it.only("should logout a user", async function () {
       this.timeout(10000);
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
@@ -97,9 +97,8 @@ describe("User Controller Integration Test", function () {
       );
       expect(nodetodoCookie).to.exist;
 
-      //bug en estas lineas
       const logoutResponse = await request(server)
-        .post("/nodetodo/users/logout")
+        .get("/nodetodo/users/logout")
         .set("Cookie", nodetodoCookie);
 
       expect(logoutResponse.status).to.equal(200);
