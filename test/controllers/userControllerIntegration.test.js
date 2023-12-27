@@ -111,12 +111,13 @@ describe("User Controller Integration Test", function () {
       expect(clearedNodetodoCookie).to.include("Expires="); // The cookie should have an 'Expires' attribute set to a past date
     });
 
-    it.only("should not logout an unauthorized user", async function () {
+    it("should not logout an unauthorized user", async function () {
       this.timeout(10000);
-      const response = await request(server)
-        .get("/nodetodo/users/logout");
+      const response = await request(server).get("/nodetodo/users/logout");
       expect(response.status).to.equal(401);
-      expect(response.body.resultMessage).to.equal("Not authorized, please login first");
+      expect(response.body.resultMessage).to.equal(
+        "Not authorized, please login first"
+      );
     });
 
     it("should get the info of the logged user", async function () {
@@ -150,6 +151,40 @@ describe("User Controller Integration Test", function () {
         mockUser.email
       );
       expect(response.body.searchUser).to.have.property("age", mockUser.age);
+    });
+
+
+    
+
+
+
+
+    it("should delete an existing user", async function () {
+      this.timeout(10000);
+      const loginResponse = await request(server)
+        .post("/nodetodo/users/login")
+        .send({
+          email: mockUser.email,
+          password: mockUser.password,
+        });
+      expect(loginResponse.status).to.equal(200);
+      expect(loginResponse.body.resultMessage).to.equal(
+        "User login successfully"
+      );
+      const cookies = loginResponse.headers["set-cookie"];
+      const nodetodoCookie = cookies.find((item) =>
+        item.startsWith("nodetodo=")
+      );
+      expect(nodetodoCookie).to.exist;
+
+      const deleteResponse = await request(server)
+        .delete("/nodetodo/users/deleteuser")
+        .set("Cookie", nodetodoCookie);
+
+      expect(deleteResponse.status).to.equal(200);
+      expect(deleteResponse.body.resultMessage).to.equal(
+        "User deleted successfully"
+      );
     });
   });
 });
