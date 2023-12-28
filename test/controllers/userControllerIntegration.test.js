@@ -11,7 +11,7 @@ import {
 
 describe("User Controller Integration Test", function () {
   this.timeout(10000);
-  describe("POST /nodetodo/users/register", function () {
+  describe("Register and Login methods", function () {
     this.timeout(10000);
     it("should register a new user", async function () {
       this.timeout(10000);
@@ -199,8 +199,37 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    
+    it.only("should update the password of an existing user", async function () {
+      this.timeout(10000);
+      const loginResponse = await request(server)
+        .post("/nodetodo/users/login")
+        .send({
+          email: mockUserUpdate.email,
+          password: mockUserUpdate.oldPassword,
+        });
+      expect(loginResponse.status).to.equal(200);
+      expect(loginResponse.body.resultMessage).to.equal(
+        "User login successfully"
+      );
+      const cookies = loginResponse.headers["set-cookie"];
+      const nodetodoCookie = cookies.find((item) =>
+        item.startsWith("nodetodo=")
+      );
+      expect(nodetodoCookie).to.exist;
 
+      const updatePasswordResponse = await request(server)
+        .put("/nodetodo/users/updatepassword")
+        .set("Cookie", nodetodoCookie)
+        .send({
+          password: mockUserUpdate.oldPassword,
+          newPassword: mockUserUpdate.newPassword,
+        });
+
+      expect(updatePasswordResponse.status).to.equal(200);
+      expect(updatePasswordResponse.body.resultMessage).to.equal(
+        "Password updated successfully"
+      );
+    });
 
     it("should delete an existing user", async function () {
       this.timeout(10000);
