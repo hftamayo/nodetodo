@@ -1,7 +1,7 @@
 import request from "supertest";
 import { expect } from "chai";
 import server from "../../server.js";
-//import app from "../../app";
+
 import {
   mockUser,
   mockUserInvalid,
@@ -153,10 +153,53 @@ describe("User Controller Integration Test", function () {
       expect(response.body.searchUser).to.have.property("age", mockUser.age);
     });
 
+    it("should update an existing user", async function () {
+      this.timeout(10000);
+      const loginResponse = await request(server)
+        .post("/nodetodo/users/login")
+        .send({
+          email: mockUser.email,
+          password: mockUser.password,
+        });
+      expect(loginResponse.status).to.equal(200);
+      expect(loginResponse.body.resultMessage).to.equal(
+        "User login successfully"
+      );
+      const cookies = loginResponse.headers["set-cookie"];
+      const nodetodoCookie = cookies.find((item) =>
+        item.startsWith("nodetodo=")
+      );
+      expect(nodetodoCookie).to.exist;
+
+      const updateResponse = await request(server)
+        .put("/nodetodo/users/updatedetails")
+        .set("Cookie", nodetodoCookie)
+        .send({
+          name: mockUserUpdate.name,
+          email: mockUserUpdate.email,
+          age: mockUserUpdate.age,
+        });
+
+      expect(updateResponse.status).to.equal(200);
+      expect(updateResponse.body.resultMessage).to.equal(
+        "Data updated successfully"
+      );
+      expect(updateResponse.body.updatedUser).to.be.an("object");
+      expect(updateResponse.body.updatedUser).to.have.property(
+        "name",
+        mockUserUpdate.name
+      );
+      expect(updateResponse.body.updatedUser).to.have.property(
+        "email",
+        mockUserUpdate.email
+      );
+      expect(updateResponse.body.updatedUser).to.have.property(
+        "age",
+        mockUserUpdate.age
+      );
+    });
 
     
-
-
 
 
     it("should delete an existing user", async function () {
