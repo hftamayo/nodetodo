@@ -199,7 +199,7 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it.only("should update the password of an existing user", async function () {
+    it("should update the password of an existing user", async function () {
       this.timeout(10000);
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
