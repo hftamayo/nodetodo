@@ -1,6 +1,6 @@
-import Todo from "../models/Todo.js";
+const Todo = require("../models/Todo.js");
 
-export const listActiveTodos = async function (requestUserId) {
+const listActiveTodos = async function (requestUserId) {
   const userId = requestUserId;
   try {
     let activeTodos = await Todo.find({ user: userId }).exec();
@@ -17,7 +17,7 @@ export const listActiveTodos = async function (requestUserId) {
   }
 };
 
-export const listTodoByID = async function (requestUserId, requestTodoId) {
+const listTodoByID = async function (requestUserId, requestTodoId) {
   const userId = requestUserId;
   const todoId = requestTodoId;
   try {
@@ -38,7 +38,7 @@ export const listTodoByID = async function (requestUserId, requestTodoId) {
   }
 };
 
-export const createTodo = async function (requestUserId, requestBody) {
+const createTodo = async function (requestUserId, requestBody) {
   const owner = requestUserId;
   const { title, description } = requestBody;
   try {
@@ -64,7 +64,11 @@ export const createTodo = async function (requestUserId, requestBody) {
   }
 };
 
-export const updateTodoByID = async function (requestUserId, requestTodoId, requestBody) {
+const updateTodoByID = async function (
+  requestUserId,
+  requestTodoId,
+  requestBody
+) {
   const owner = requestUserId;
   const todoId = requestTodoId;
   const { title, description, completed } = requestBody;
@@ -91,7 +95,7 @@ export const updateTodoByID = async function (requestUserId, requestTodoId, requ
   }
 };
 
-export const deleteTodoByID = async function (requestUserId, requestTodoId) {
+const deleteTodoByID = async function (requestUserId, requestTodoId) {
   const owner = requestUserId;
   const todoId = requestTodoId;
 
@@ -112,4 +116,12 @@ export const deleteTodoByID = async function (requestUserId, requestTodoId) {
     console.error("todoService, deleteTodo: " + error.message);
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
+};
+
+module.exports = {
+  listActiveTodos,
+  listTodoByID,
+  createTodo,
+  updateTodoByID,
+  deleteTodoByID,
 };

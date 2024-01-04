@@ -1,12 +1,12 @@
-import {
+const {
   listActiveTodos,
   listTodoByID,
   createTodo,
   updateTodoByID,
   deleteTodoByID,
-} from "../../services/todoService.js";
+} = require("../../services/todoService.js");
 
-export const getTodos = async (req, res) => {
+const getTodos = async (req, res) => {
   const { httpStatusCode, message, todos } = await listActiveTodos(req.user);
 
   res
@@ -18,7 +18,7 @@ export const getTodos = async (req, res) => {
     );
 };
 
-export const getTodo = async (req, res) => {
+const getTodo = async (req, res) => {
   const { httpStatusCode, message, todo } = await listTodoByID(
     req.user,
     req.params.id
@@ -32,7 +32,7 @@ export const getTodo = async (req, res) => {
     );
 };
 
-export const newTodo = async (req, res) => {
+const newTodo = async (req, res) => {
   const { httpStatusCode, message, todo } = await createTodo(
     req.user,
     req.body
@@ -46,7 +46,7 @@ export const newTodo = async (req, res) => {
     );
 };
 
-export const updateTodo = async (req, res) => {
+const updateTodo = async (req, res) => {
   const { httpStatusCode, message, todo } = await updateTodoByID(
     req.user,
     req.params.id,
@@ -55,7 +55,18 @@ export const updateTodo = async (req, res) => {
   res.status(httpStatusCode).json({ resultMessage: message, updateTodo: todo });
 };
 
-export const deleteTodo = async (req, res) => {
-  const { httpStatusCode, message } = await deleteTodoByID(req.user, req.params.id);
+const deleteTodo = async (req, res) => {
+  const { httpStatusCode, message } = await deleteTodoByID(
+    req.user,
+    req.params.id
+  );
   res.status(httpStatusCode).json({ resultMessage: message });
+};
+
+module.exports = {
+  getTodos,
+  getTodo,
+  newTodo,
+  updateTodo,
+  deleteTodo,
 };

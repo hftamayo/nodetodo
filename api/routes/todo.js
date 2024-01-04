@@ -1,14 +1,14 @@
-import express from "express";
-import authorize from "../middleware/authorize.js";
-import {
+const express = require("express");
+const authorize = require("../middleware/authorize.js");
+const {
   getTodo,
   getTodos,
   newTodo,
   updateTodo,
   deleteTodo,
-} from "../controllers/todoController.js";
-import { createTodoRules, updateTodoRules } from "../middleware/validator.js";
-import { validateResult } from "../middleware/validationResults.js";
+} = require("../controllers/todoController.js");
+const { createTodoRules, updateTodoRules } = require("../middleware/validator.js");
+const { validateResult } = require("../middleware/validationResults.js");
 
 const router = express.Router();
 router.get("/list", authorize, getTodos);
@@ -23,4 +23,4 @@ router.put(
 );
 router.delete("/delete/:id", authorize, deleteTodo);
 
-export default router;
+module.exports = router;
