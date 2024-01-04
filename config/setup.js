@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { backend } = require("./envvars.js");
+const { backend } = require("./envvars");
 
 const dbConnection = async () => {
   mongoose

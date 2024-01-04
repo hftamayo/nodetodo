@@ -4,7 +4,7 @@ const {
   createTodo,
   updateTodoByID,
   deleteTodoByID,
-} = require("../../services/todoService.js");
+} = require("../../services/todoService");
 
 const getTodos = async (req, res) => {
   const { httpStatusCode, message, todos } = await listActiveTodos(req.user);

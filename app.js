@@ -1,10 +1,10 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const { dbConnection, setCorsEnviro } = require("./config/setup.js");
+const { dbConnection, setCorsEnviro } = require("./config/setup");
 
-const todosRoutes = require("./api/routes/todo.js");
-const usersRoutes = require("./api/routes/user.js");
+const todosRoutes = require("./api/routes/todo");
+const usersRoutes = require("./api/routes/user");
 
 const app = express();
 

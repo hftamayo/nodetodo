@@ -1,4 +1,4 @@
-const Todo = require("../models/Todo.js");
+const Todo = require("../models/Todo");
 
 const listActiveTodos = async function (requestUserId) {
   const userId = requestUserId;

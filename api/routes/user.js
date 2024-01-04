@@ -7,15 +7,15 @@ const {
   updateDetails,
   updatePassword,
   deleteUser,
-} = require( "../controllers/userController.js");
-const authorize = require( "../middleware/authorize.js");
+} = require( "../controllers/userController");
+const authorize = require( "../middleware/authorize");
 const {
   loginRules,
   registerRules,
   updateDetailsRules,
   updatePasswordRules,
-} = require( "../middleware/validator.js");
-const { validateResult } = require( "../middleware/validationResults.js");
+} = require( "../middleware/validator");
+const { validateResult } = require( "../middleware/validationResults");
 
 const router = express.Router();
 

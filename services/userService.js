@@ -1,7 +1,7 @@
-const User = require("../models/User.js");
-const Todo = require("../models/Todo.js");
+const User = require("../models/User");
+const Todo = require("../models/Todo");
 const jwt = require("jsonwebtoken");
-const { masterKey } = require("../config/envvars.js");
+const { masterKey } = require("../config/envvars");
 const bcrypt = require("bcrypt");
 
 const signUpUser = async function (requestBody) {

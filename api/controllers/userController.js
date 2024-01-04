@@ -5,7 +5,7 @@ const {
   updateUserByID,
   updateUserPassword,
   deleteUserByID,
-} = require("../../services/userService.js");
+} = require("../../services/userService");
 
 const register = async (req, res) => {
   const { httpStatusCode, message, user } = await signUpUser(req.body);

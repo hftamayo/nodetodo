@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { masterKey } = require("../../config/envvars.js");
+const { masterKey } = require("../../config/envvars");
 
 const authorize = async (req, res, next) => {
   const token = req.cookies.nodetodo;
