@@ -1,10 +1,10 @@
-import express from "express";
-import cookieParser from "cookie-parser";
-import bodyParser from "body-parser";
-import { dbConnection, setCorsEnviro } from "./config/setup.js";
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const { dbConnection, setCorsEnviro } = require("./config/setup.js");
 
-import todosRoutes from "./api/routes/todo.js";
-import usersRoutes from "./api/routes/user.js";
+const todosRoutes = require("./api/routes/todo.js");
+const usersRoutes = require("./api/routes/user.js");
 
 const app = express();
 
@@ -30,4 +30,4 @@ async function startApp() {
 
 startApp();
 
-export default app;
+module.exports = app;

@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import { backend } from "./envvars.js";
+const mongoose = require("mongoose");
+const { backend } = require("./envvars.js");
 
-export const dbConnection = async () => {
+const dbConnection = async () => {
   mongoose
     .connect(backend)
     .then(() => console.log("Connected to the Remote Dataset"))
@@ -12,7 +12,7 @@ export const dbConnection = async () => {
     );
 };
 
-export const setCorsEnviro = async (req, res, next) => {
+const setCorsEnviro = async (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
@@ -24,3 +24,5 @@ export const setCorsEnviro = async (req, res, next) => {
   }
   next();
 };
+
+module.exports = { dbConnection, setCorsEnviro };
