@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
-import { masterKey } from "../../config/envvars.js";
+const jwt = require("jsonwebtoken");
+const { masterKey } = require("../../config/envvars.js");
 
 const authorize = async (req, res, next) => {
   const token = req.cookies.nodetodo;
@@ -18,4 +18,4 @@ const authorize = async (req, res, next) => {
   }
 };
 
-export default authorize;
+module.exports = authorize;
