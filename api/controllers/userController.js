@@ -1,67 +1,95 @@
-import {
+const {
   signUpUser,
   loginUser,
   listUserByID,
   updateUserByID,
   updateUserPassword,
   deleteUserByID,
-} from "../../services/userService.js";
+} = require("../../services/userService.js");
 
-export const register = async (req, res) => {
+const register = async (req, res) => {
   const { httpStatusCode, message, user } = await signUpUser(req.body);
   if (httpStatusCode === 200) {
     const { password: pass, ...filteredUser } = user._doc;
-    res.status(httpStatusCode).json({ resultMessage: message, newUser : filteredUser });
+    res
+      .status(httpStatusCode)
+      .json({ resultMessage: message, newUser: filteredUser });
   } else {
     res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
-export const login = async (req, res) => {
-  const { httpStatusCode, tokenCreated, message, user } = await loginUser(req.body);
+const login = async (req, res) => {
+  const { httpStatusCode, tokenCreated, message, user } = await loginUser(
+    req.body
+  );
 
   if (httpStatusCode === 200) {
     res.cookie("nodetodo", tokenCreated, { httpOnly: true, expiresIn: 360000 });
     //filtering password for not showing during the output
     const { password: pass, ...filteredUser } = user._doc;
-    res.status(httpStatusCode).json({ resultMessage: message, loggedUser: filteredUser });
+    res
+      .status(httpStatusCode)
+      .json({ resultMessage: message, loggedUser: filteredUser });
   } else {
     res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
-export const logout = async (req, res) => {
+const logout = async (req, res) => {
   res.clearCookie("nodetodo");
   res.status(200).json({ msg: "User logged out successfully" });
 };
 
-export const getMe = async (req, res) => {
+const getMe = async (req, res) => {
   const { httpStatusCode, message, user } = await listUserByID(req.user);
   if (httpStatusCode === 200) {
     const { password: pass, ...filteredUser } = user._doc;
-    res.status(httpStatusCode).json({ resultMessage: message, searchUser: filteredUser });
+    res
+      .status(httpStatusCode)
+      .json({ resultMessage: message, searchUser: filteredUser });
   } else {
     res.status(httpStatusCode).json({ resultMessage: message });
   }
 };
 
-export const updateDetails = async (req, res) => {
-  const { httpStatusCode, message, user } = await updateUserByID(req.user, req.body);
+const updateDetails = async (req, res) => {
+  const { httpStatusCode, message, user } = await updateUserByID(
+    req.user,
+    req.body
+  );
   const { password: pass, ...filteredUSer } = user._doc;
-  res.status(httpStatusCode).json({ resultMessage: message, updatedUser: filteredUSer });
+  res
+    .status(httpStatusCode)
+    .json({ resultMessage: message, updatedUser: filteredUSer });
 };
 
-export const updatePassword = async (req, res) => {
-  const { httpStatusCode, message, user } = await updateUserPassword(req.user, req.body);
+const updatePassword = async (req, res) => {
+  const { httpStatusCode, message, user } = await updateUserPassword(
+    req.user,
+    req.body
+  );
   const { password: pass, ...filteredUser } = user._doc;
-  res.status(httpStatusCode).json({ resultMessage: message, deletedUser: filteredUser });
+  res
+    .status(httpStatusCode)
+    .json({ resultMessage: message, deletedUser: filteredUser });
 };
 
-export const deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   const { httpStatusCode, message } = await deleteUserByID(req.user);
 
   if (httpStatusCode === 200) {
     res.clearCookie("nodetodo");
   }
   res.status(httpStatusCode).json({ resultMessage: message });
+};
+
+module.exports = {
+  register,
+  login,
+  logout,
+  getMe,
+  updateDetails,
+  updatePassword,
+  deleteUser,
 };

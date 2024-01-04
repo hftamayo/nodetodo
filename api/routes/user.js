@@ -1,5 +1,5 @@
-import express from "express";
-import {
+const express = require( "express");
+const {
   register,
   login,
   logout,
@@ -7,15 +7,15 @@ import {
   updateDetails,
   updatePassword,
   deleteUser,
-} from "../controllers/userController.js";
-import authorize from "../middleware/authorize.js";
-import {
+} = require( "../controllers/userController.js");
+const authorize = require( "../middleware/authorize.js");
+const {
   loginRules,
   registerRules,
   updateDetailsRules,
   updatePasswordRules,
-} from "../middleware/validator.js";
-import { validateResult } from "../middleware/validationResults.js";
+} = require( "../middleware/validator.js");
+const { validateResult } = require( "../middleware/validationResults.js");
 
 const router = express.Router();
 
@@ -39,4 +39,4 @@ router.put(
 );
 router.delete("/deleteuser", authorize, deleteUser);
 
-export default router;
+module.exports = router;
