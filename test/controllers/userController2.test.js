@@ -1,4 +1,4 @@
-import Sinon  from "sinon";
+import Sinon from "sinon";
 import { expect } from "chai";
 import { register } from "../../api/controllers/userController.js";
 import * as userService from "../../services/userService.js";
@@ -26,7 +26,7 @@ describe("userController", () => {
       };
       const res = { status: Sinon.stub(), json: Sinon.stub() };
 
-      Sinon.stub(userService, 'signUpUser').resolves({
+      Sinon.stub(userService, "signUpUser").resolves({
         httpStatusCode: 200,
         message: "User created successfully",
         user: mockUser,
@@ -34,7 +34,6 @@ describe("userController", () => {
 
       await register(req, res);
 
-      // Assert
       expect(res.status.calledWith(200)).to.be.true;
       expect(
         mockRes.json.calledWith({
