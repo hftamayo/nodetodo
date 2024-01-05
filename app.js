@@ -5,6 +5,7 @@ const { dbConnection, setCorsEnviro } = require("./config/setup");
 
 const todosRoutes = require("./api/routes/todo");
 const usersRoutes = require("./api/routes/user");
+const healthCheckRoutes = require("./api/routes/healthCheck");
 
 const app = express();
 
@@ -20,10 +21,11 @@ async function startApp() {
 
     app.use("/nodetodo/todos", todosRoutes);
     app.use("/nodetodo/users", usersRoutes);
+    app.use("/nodetodo/healthcheck", healthCheckRoutes);
 
-    console.log("Application up and running");
+    console.log("the backend is ready");
   } catch (error) {
-    console.error("Connection to the data layer failed: ", error.message);
+    console.error("the backend is down: ", error.message);
     process.exit(1);
   }
 }
