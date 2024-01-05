@@ -1,6 +1,6 @@
-import User from "../../models/User.js";
+const User = require("../../models/User");
 
-export const mockUser = new User({
+const mockUser = new User({
   id: "1234567890",
   name: "Herbert Fernandez Tamayo",
   email: "hftamayo@gmail.com",
@@ -8,7 +8,7 @@ export const mockUser = new User({
   age: 30,
 });
 
-export const mockUserInvalid = {
+const mockUserInvalid = {
   id: "123123123AAA",
   name: "Herbert Fernandez",
   email: "hftamayo2@gmail.com",
@@ -16,7 +16,7 @@ export const mockUserInvalid = {
   age: 50,
 };
 
-export const mockUserUpdate = {
+const mockUserUpdate = {
   id: "11111111111",
   name: "Sebastian Fernandez",
   email: "sebas@gmail.com",
@@ -27,6 +27,13 @@ export const mockUserUpdate = {
   age: 20,
 };
 
-export const mockUserDelete = {
+const mockUserDelete = {
   id: "222222222",
+};
+
+module.exports = {
+  mockUser,
+  mockUserInvalid,
+  mockUserUpdate,
+  mockUserDelete,
 };
