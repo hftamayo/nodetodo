@@ -1,6 +1,6 @@
-import http from "http";
-import app from "./app.js";
-import { port } from "./config/envvars.js";
+const http = require("http");
+const app = require("./app");
+const { port } = require("./config/envvars");
 
 const PORT = port || 5001;
 
@@ -8,4 +8,4 @@ const server = http.createServer(app);
 
 server.listen(PORT, () => console.log("Server running on Port: " + PORT));
 
-export default server;
+module.exports = server;

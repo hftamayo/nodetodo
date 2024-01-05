@@ -1,10 +1,11 @@
-import express from "express";
-import cookieParser from "cookie-parser";
-import bodyParser from "body-parser";
-import { dbConnection, setCorsEnviro } from "./config/setup.js";
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const { dbConnection, setCorsEnviro } = require("./config/setup");
 
-import todosRoutes from "./api/routes/todo.js";
-import usersRoutes from "./api/routes/user.js";
+const todosRoutes = require("./api/routes/todo");
+const usersRoutes = require("./api/routes/user");
+const healthCheckRoutes = require("./api/routes/healthCheck");
 
 const app = express();
 
@@ -20,14 +21,15 @@ async function startApp() {
 
     app.use("/nodetodo/todos", todosRoutes);
     app.use("/nodetodo/users", usersRoutes);
+    app.use("/nodetodo/healthcheck", healthCheckRoutes);
 
-    console.log("Application up and running");
+    console.log("the backend is ready");
   } catch (error) {
-    console.error("Connection to the data layer failed: ", error.message);
+    console.error("the backend is down: ", error.message);
     process.exit(1);
   }
 }
 
 startApp();
 
-export default app;
+module.exports = app;
