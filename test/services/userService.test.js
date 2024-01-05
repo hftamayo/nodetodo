@@ -1,17 +1,22 @@
-import { expect } from "chai";
-import { mockUser, mockUserInvalid, mockUserUpdate, mockUserDelete } from "../mocks/user.mock";
-import {
+const expect = require("chai").expect;
+const {
+  mockUser,
+  mockUserInvalid,
+  mockUserUpdate,
+  mockUserDelete,
+} = require("../mocks/user.mock");
+const {
   signUpUser,
   loginUser,
   listUserByID,
   updateUserByID,
   updateUserPassword,
   deleteUserByID,
-} from "../../services/userService";
+} = require("../../services/userService");
 
 describe("UserService Unit Tests", () => {
   describe("signupUser()", () => {
-    it("should create a new user with valid data", async () => {
+    it.only("should create a new user with valid data", async () => {
       const requestBody = {
         name: mockUser.name,
         email: mockUser.email,
@@ -153,8 +158,10 @@ describe("UserService Unit Tests", () => {
       };
       const response = await updateUserPassword(requestUserId, requestPword);
       expect(response.httpStatusCode).to.equal(400);
-      expect(response.message).to.equal("The entered credentials are not valid");
-    });    
+      expect(response.message).to.equal(
+        "The entered credentials are not valid"
+      );
+    });
   });
 
   describe("deleteUserByID()", () => {
