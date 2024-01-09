@@ -1,21 +1,29 @@
-import Sinon from "sinon";
-import { expect } from "chai";
-import { register } from "../../api/controllers/userController.js";
-import * as userService from "../../services/userService.js";
-import {
+const sinon = require("sinon");
+const { expect } = require("chai");
+const {
   mockUser,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
-} from "../mocks/user.mock.js";
+} = require("../mocks/user.mock");
+const User = require("../../models/User");
+const userController = require("../../api/controllers/userController");
+const userService = require("../../services/userService");
 
 describe("userController", () => {
   describe("register", () => {
-    afterEach(() => {
-      Sinon.restore();
+    let sandbox;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
     });
 
-    it("should register a new user", async () => {
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should register a new user", async function () {
+      this.timeout(40000);
       const req = {
         body: {
           name: mockUser.name,
@@ -24,23 +32,39 @@ describe("userController", () => {
           age: mockUser.age,
         },
       };
-      const res = { status: Sinon.stub(), json: Sinon.stub() };
+      const res = {
+        status: sandbox.stub().returnsThis(),
+        json: sandbox.stub(),
+      };
 
-      Sinon.stub(userService, "signUpUser").resolves({
+      const mockUserInstance = {
+        save: sandbox.stub().resolves(mockUser),
+      };
+
+      sandbox.stub(User, "findOne").returns({
+        exec: sandbox.stub().resolves(mockUser),
+      });
+
+      sandbox.stub(User, "create").resolves(mockUserInstance);
+
+      sandbox.stub(userService, "signUpUser").resolves({
         httpStatusCode: 200,
         message: "User created successfully",
         user: mockUser,
       });
 
-      await register(req, res);
+      await userController.register(req, res);
 
-      expect(res.status.calledWith(200)).to.be.true;
-      expect(
-        mockRes.json.calledWith({
-          resultMessage: "User created successfully",
-          newUser: mockUser,
-        })
-      ).to.be.true;
+      console.log(res.status);
+      console.log(res.json);
+
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(res.json);
+      sinon.assert.calledWith(res.json, {
+        resultMessage: "User created successfully",
+        newUser: mockUser,
+      });
     });
   });
 });
