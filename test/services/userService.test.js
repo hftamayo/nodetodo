@@ -218,5 +218,90 @@ describe("UserService Unit Tests", () => {
       expect(response.httpStatusCode).to.equal(400);
       expect(response.message).to.equal("Email already taken");
     });
+
+    it("should not update if current passwod did not match", async () => {
+      const requestBody = {
+        id: mockUserUpdate.id,
+        name: mockUserUpdate.name,
+        email: mockUserUpdate.email,
+        oldPassword: mockUserUpdate.notMatchPassword,
+        newPassword: mockUserUpdate.newPassword,
+        age: mockUserUpdate.age,
+      };
+
+      const mockResponse = {
+        httpStatusCode: 400,
+        message: "Password does not match",
+      };
+
+      sinon.stub(userService, "updateUserByID").resolves(mockResponse);
+
+      const response = await userService.updateUserByID(requestBody);
+
+      expect(response.httpStatusCode).to.equal(400);
+      expect(response.message).to.equal("Password does not match");
+    });
+
+    it("should update the password of a valid user", async () => {
+      const requestBody = {
+        id: mockUserUpdate.id,
+        name: mockUserUpdate.name,
+        email: mockUserUpdate.email,
+        oldPassword: mockUserUpdate.oldPassword,
+        newPassword: mockUserUpdate.newPassword,
+        age: mockUserUpdate.age,
+      };
+
+      const mockResponse = {
+        httpStatusCode: 200,
+        message: "Password updated successfully",
+        user: mockUserUpdate,
+      };
+
+      sinon.stub(userService, "updateUserPassword").resolves(mockResponse);
+
+      const response = await userService.updateUserPassword(requestBody);
+
+      expect(response.httpStatusCode).to.equal(200);
+      expect(response.message).to.equal("Password updated successfully");
+      expect(response.user).to.exist;
+      expect(response.user.name).to.equal(mockUserUpdate.name);
+      expect(response.user.email).to.equal(mockUserUpdate.email);
+      expect(response.user.age).to.equal(mockUserUpdate.age);
+    });
+  });
+
+  describe("deleteUser()", () => {
+    it("should delete a user with valid id", async () => {
+      const requestUserId = mockUserDelete.id;
+
+      const mockResponse = {
+        httpStatusCode: 200,
+        message: "User deleted successfully",
+      };
+
+      sinon.stub(userService, "deleteUserByID").resolves(mockResponse);
+
+      const response = await userService.deleteUserByID(requestUserId);
+
+      expect(response.httpStatusCode).to.equal(200);
+      expect(response.message).to.equal("User deleted successfully");
+    });
+
+    it("should return an error if the user id is invalid", async () => {
+      const requestUserId = mockUserInvalid.id;
+
+      const mockResponse = {
+        httpStatusCode: 404,
+        message: "User Not Found",
+      };
+
+      sinon.stub(userService, "deleteUserByID").resolves(mockResponse);
+
+      const response = await userService.deleteUserByID(requestUserId);
+
+      expect(response.httpStatusCode).to.equal(404);
+      expect(response.message).to.equal("User Not Found");
+    });
   });
 });
