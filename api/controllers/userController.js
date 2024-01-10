@@ -7,15 +7,20 @@ const {
   deleteUserByID,
 } = require("../../services/userService");
 
-const register = async (req, res) => {
-  const { httpStatusCode, message, user } = await signUpUser(req.body);
-  if (httpStatusCode === 200) {
-    const { password: pass, ...filteredUser } = user._doc;
-    res
-      .status(httpStatusCode)
-      .json({ resultMessage: message, newUser: filteredUser });
-  } else {
-    res.status(httpStatusCode).json({ resultMessage: message });
+const register = async (req, res, signUpUser) => {
+  try {
+    const { httpStatusCode, message, user } = await signUpUser(req.body);
+    if (httpStatusCode === 200) {
+      const { password: pass, ...filteredUser } = user._doc;
+      res
+        .status(httpStatusCode)
+        .json({ resultMessage: message, newUser: filteredUser });
+    } else {
+      res.status(httpStatusCode).json({ resultMessage: message });
+    }
+  } catch (error) {
+    console.error("userController, register: " + error.message);
+    res.status(500).json({ resultMessage: "Internal Server Error" });
   }
 };
 
