@@ -1,5 +1,4 @@
 const sinon = require("sinon");
-const proxyquire = require("proxyquire");
 const {
   mockUser,
   mockUserInvalid,
@@ -7,11 +6,10 @@ const {
   mockUserDelete,
 } = require("../mocks/user.mock");
 const userController = require("../../api/controllers/userController");
-const userService = require("../../services/userService");
 
 describe("userController Unit Test", () => {
   describe("register method", () => {
-    let req, res, json, sandbox, userServiceStub, userController;
+    let req, res, json, sandbox, signUpUserStub;
 
     beforeEach(() => {
       sandbox = sinon.createSandbox();
@@ -28,16 +26,10 @@ describe("userController Unit Test", () => {
       json = sandbox.spy();
       res.status = sandbox.stub().returns({ json });
 
-      userServiceStub = {
-        signUpUser: sandbox.stub().resolves({
-          httpStatusCode: 200,
-          message: "User created successfully",
-          user: mockUser,
-        }),
-      };
-
-      userController = proxyquire("../../api/controllers/userController", {
-        "../../services/userService": userServiceStub,
+      signUpUserStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "User created successfully",
+        user: mockUser,
       });
     });
 
@@ -47,10 +39,10 @@ describe("userController Unit Test", () => {
 
     it("should register a new user", async function () {
       this.timeout(40000);
-      await userController.register(req, res);
+      await userController.register(req, res, signUpUserStub);
 
-      sinon.assert.calledOnce(userService.signUpUser);
-      sinon.assert.calledWith(userService.signUpUser, req.body);
+      sinon.assert.calledOnce(signUpUserStub);
+      sinon.assert.calledWith(signUpUserStub, req.body);
       sinon.assert.calledOnce(res.status);
       sinon.assert.calledWith(res.status, 200);
       sinon.assert.calledOnce(json);
