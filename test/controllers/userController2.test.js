@@ -37,9 +37,10 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it("should register a new user", async function () {
-      this.timeout(40000);
+    it("should register a new user", async () => {
       await userController.register(req, res, signUpUserStub);
+
+      const { password, ...filteredMockUser } = mockUser._doc;
 
       sinon.assert.calledOnce(signUpUserStub);
       sinon.assert.calledWith(signUpUserStub, req.body);
@@ -48,7 +49,7 @@ describe("userController Unit Test", () => {
       sinon.assert.calledOnce(json);
       sinon.assert.calledWith(json, {
         resultMessage: "User created successfully",
-        newUser: mockUser,
+        newUser: filteredMockUser,
       });
     });
   });
