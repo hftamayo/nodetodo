@@ -95,7 +95,7 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it("should login a user", async () => {
+    it("should login a valid user", async () => {
       req = {
         body: {
           email: mockUser.email,
@@ -136,6 +136,39 @@ describe("userController Unit Test", () => {
       });
     });
 
+    it("should restrict login an invalid user", async () => {
+      req = {
+        body: {
+          email: mockUserInvalid.email,
+          password: mockUserInvalid.password,
+        },
+      };
+      res = {};
+      json = sandbox.spy();
+      cookie = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      loginStub = sandbox.stub().resolves({
+        httpStatusCode: 404,
+        message: "User or Password does not match",
+      });
+
+      await userController.login(req, res, loginStub);
+
+
+      sinon.assert.calledOnce(loginStub);
+      sinon.assert.calledWith(loginStub, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User or Password does not match",
+      });
+
+
+    });
+    
 
 
   });
