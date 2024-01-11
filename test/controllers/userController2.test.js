@@ -156,7 +156,6 @@ describe("userController Unit Test", () => {
 
       await userController.login(req, res, loginStub);
 
-
       sinon.assert.calledOnce(loginStub);
       sinon.assert.calledWith(loginStub, req.body);
       sinon.assert.calledOnce(res.status);
@@ -165,11 +164,33 @@ describe("userController Unit Test", () => {
       sinon.assert.calledWith(json, {
         resultMessage: "User or Password does not match",
       });
-
-
     });
-    
+  });
 
+  describe("logout method", () => {
+    let req, res, clearCookie, sandbox;
 
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it.only("should logout a user", async () => {
+      req = {};
+      res = {};
+      clearCookie = sandbox.spy();
+      res.status = sandbox.stub().returns({ json: sandbox.spy() });
+      res.clearCookie = clearCookie;
+
+      await userController.logout(req, res);
+
+      sinon.assert.calledOnce(res.clearCookie);
+      sinon.assert.calledWith(res.clearCookie, "nodetodo");
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+    });
   });
 });
