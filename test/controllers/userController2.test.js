@@ -83,4 +83,60 @@ describe("userController Unit Test", () => {
       });
     });
   });
+
+  describe("login method", () => {
+    let req, res, json, cookie, sandbox, loginStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should login a user", async () => {
+      req = {
+        body: {
+          email: mockUser.email,
+          password: mockUser.password,
+        },
+      };
+      res = {};
+      json = sandbox.spy();
+      cookie = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      loginStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        tokenCreated: "token",
+        message: "User login successfully",
+        user: mockUser,
+        token: "token",
+      });
+
+      await userController.login(req, res, loginStub);
+
+      const { password, ...filteredMockUser } = mockUser._doc;
+
+      sinon.assert.calledOnce(loginStub);
+      sinon.assert.calledWith(loginStub, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User login successfully",
+        loggedUser: filteredMockUser,
+      });
+      sinon.assert.calledOnce(cookie);
+      sinon.assert.calledWith(cookie, "nodetodo", "token", {
+        httpOnly: true,
+        expiresIn: 360000,
+      });
+    });
+
+
+
+  });
 });
