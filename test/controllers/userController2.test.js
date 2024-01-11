@@ -262,7 +262,81 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe("updateDetails method", () => {});
+  describe("updateDetails method", () => {
+    let req, res, json, cookie, sandbox, updateDetailsStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it.only("should update details of a valid user", async () => {
+      req = {
+        user: mockUser,
+        body: mockUserUpdate,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      updateDetailsStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "Data updated successfully",
+        user: {
+          _doc: {
+            ...mockUserUpdate,
+            password: mockUserUpdate.oldPassword,
+          },
+        }
+      });
+
+      await userController.updateDetails(req, res, updateDetailsStub);
+
+      const { password, ...filteredMockUser } = mockUserUpdate._doc;
+
+      sinon.assert.calledOnce(updateDetailsStub);
+      sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Data updated successfully",
+        updatedUser: filteredMockUser,
+      });
+    });
+
+    it("should restrict to update details of an invalid user", async () => {
+      req = {
+        user: mockUserInvalid,
+        body: mockUserUpdate,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      updateDetailsStub = sandbox.stub().resolves({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+
+      await userController.updateDetails(req, res, updateDetailsStub);
+
+      sinon.assert.calledOnce(updateDetailsStub);
+      sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User Not Found",
+      });
+    });
+
+  });
 
   describe("updatePassword method", () => {});
 
