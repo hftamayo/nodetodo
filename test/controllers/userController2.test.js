@@ -178,7 +178,7 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it.only("should logout a user", async () => {
+    it("should logout a user", async () => {
       req = {};
       res = {};
       clearCookie = sandbox.spy();
@@ -193,4 +193,78 @@ describe("userController Unit Test", () => {
       sinon.assert.calledWith(res.status, 200);
     });
   });
+
+  describe("getMe method", () => {
+    let req, res, json, cookie, sandbox, getMeStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should get details of a valid user", async () => {
+      req = {
+        user: mockUser,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      getMeStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "User Found",
+        user: mockUser,
+      });
+
+      await userController.getMe(req, res, getMeStub);
+
+      const { password, ...filteredMockUser } = mockUser._doc;
+
+      sinon.assert.calledOnce(getMeStub);
+      sinon.assert.calledWith(getMeStub, req.user);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User Found",
+        searchUser: filteredMockUser,
+      });
+    });
+
+    it("should restrict to get details of an invalid user", async () => {
+      req = {
+        user: mockUserInvalid,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      getMeStub = sandbox.stub().resolves({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+
+      await userController.getMe(req, res, getMeStub);
+
+      sinon.assert.calledOnce(getMeStub);
+      sinon.assert.calledWith(getMeStub, req.user);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User Not Found",
+      });
+    });
+  });
+
+  describe("updateDetails method", () => {});
+
+  describe("updatePassword method", () => {});
+
+  describe("deleteUser method", () => {});
 });
