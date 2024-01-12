@@ -82,6 +82,11 @@ const updateDetails = async (req, res, updateUserByID) => {
       req.user,
       req.body
     );
+
+    if (!user){
+      return res.status(httpStatusCode).json({ resultMessage: message });
+    }
+
     const { password: pass, ...filteredUSer } = user._doc;
     res
       .status(httpStatusCode)
