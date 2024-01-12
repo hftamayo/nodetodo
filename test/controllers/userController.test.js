@@ -359,7 +359,7 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it.only("should update password of a valid user", async () => {
+    it("should update password of a valid user", async () => {
       const expectedUpdateProperties = {
         password: mockUserUpdate.oldPassword,
         newPassword: mockUserUpdate.newPassword,
@@ -380,10 +380,9 @@ describe("userController Unit Test", () => {
         user: mockUser,
       });
 
-      try{
+      try {
         await userController.updatePassword(req, res, updatePasswordStub);
-      }
-      catch(err){
+      } catch (err) {
         console.log(err);
       }
 
@@ -397,6 +396,70 @@ describe("userController Unit Test", () => {
       sinon.assert.calledWith(json, {
         resultMessage: "Password updated successfully",
         updatedUser: filteredMockUser,
+      });
+    });
+
+    it("should restrict to update password of an invalid user", async () => {
+      const expectedUpdateProperties = {
+        password: mockUserUpdate.oldPassword,
+        newPassword: mockUserUpdate.newPassword,
+      };
+
+      req = {
+        user: mockUserInvalid,
+        body: expectedUpdateProperties,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      updatePasswordStub = sandbox.stub().resolves({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+
+      await userController.updatePassword(req, res, updatePasswordStub);
+
+      sinon.assert.calledOnce(updatePasswordStub);
+      sinon.assert.calledWith(updatePasswordStub, req.user, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User Not Found",
+      });
+    });
+
+    it("should restrict to update password of a valid user with incorrect password", async () => {
+      const expectedUpdateProperties = {
+        password: mockUserUpdate.notMatchPassword,
+        newPassword: mockUserUpdate.newPassword,
+      };
+
+      req = {
+        user: mockUser,
+        body: expectedUpdateProperties,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      updatePasswordStub = sandbox.stub().resolves({
+        httpStatusCode: 400,
+        message: "The entered credentials are not valid",
+      });
+
+      await userController.updatePassword(req, res, updatePasswordStub);
+
+      sinon.assert.calledOnce(updatePasswordStub);
+      sinon.assert.calledWith(updatePasswordStub, req.user, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 400);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "The entered credentials are not valid",
       });
     });
   });
