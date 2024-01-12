@@ -273,7 +273,7 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it.only("should update details of a valid user", async () => {
+    it("should update details of a valid user", async () => {
       req = {
         user: mockUser,
         body: mockUserUpdate,
@@ -291,7 +291,7 @@ describe("userController Unit Test", () => {
             ...mockUserUpdate,
             password: mockUserUpdate.oldPassword,
           },
-        }
+        },
       });
 
       await userController.updateDetails(req, res, updateDetailsStub);
@@ -335,10 +335,50 @@ describe("userController Unit Test", () => {
         resultMessage: "User Not Found",
       });
     });
-
   });
 
   describe("updatePassword method", () => {});
 
-  describe("deleteUser method", () => {});
+  describe("deleteUser method", () => {
+    let req, res, json, sandbox, cookie, clearCookie, deleteUserStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it.only("should delete a valid user", async () => {
+      req = {
+        user: {
+          id: mockUserDelete._id,
+        },
+      };
+      res = {
+        status: sandbox.stub().returns({ json: sandbox.spy() }),
+        cookie: cookie,
+        clearCookie: sandbox.spy(),
+      };
+
+      deleteUserStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "User deleted successfully",
+      });
+
+      await userController.deleteUser(req, res, deleteUserStub);
+
+      sinon.assert.calledOnce(deleteUserStub);
+      sinon.assert.calledWith(deleteUserStub, req.user);
+      sinon.assert.calledOnce(res.clearCookie);
+      sinon.assert.calledWith(res.clearCookie, "nodetodo");
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(res.status().json);
+      sinon.assert.calledWith(res.status().json, {
+        resultMessage: "User deleted successfully",
+      });
+    });
+  });
 });
