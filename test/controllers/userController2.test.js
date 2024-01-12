@@ -340,7 +340,7 @@ describe("userController Unit Test", () => {
   describe("updatePassword method", () => {});
 
   describe("deleteUser method", () => {
-    let req, res, json, sandbox, cookie, clearCookie, deleteUserStub;
+    let req, res, sandbox, cookie, deleteUserStub;
 
     beforeEach(() => {
       sandbox = sinon.createSandbox();
@@ -350,7 +350,7 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it.only("should delete a valid user", async () => {
+    it("should delete a valid user", async () => {
       req = {
         user: {
           id: mockUserDelete._id,
@@ -378,6 +378,36 @@ describe("userController Unit Test", () => {
       sinon.assert.calledOnce(res.status().json);
       sinon.assert.calledWith(res.status().json, {
         resultMessage: "User deleted successfully",
+      });
+    });
+
+    it("should restrict to delete an invalid user", async () => {
+      req = {
+        user: {
+          id: mockUserInvalid._id,
+        },
+      };
+      res = {
+        status: sandbox.stub().returns({ json: sandbox.spy() }),
+        cookie: cookie,
+        clearCookie: sandbox.spy(),
+      };
+
+      deleteUserStub = sandbox.stub().resolves({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+
+      await userController.deleteUser(req, res, deleteUserStub);
+
+      sinon.assert.calledOnce(deleteUserStub);
+      sinon.assert.calledWith(deleteUserStub, req.user);
+      sinon.assert.notCalled(res.clearCookie);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(res.status().json);
+      sinon.assert.calledWith(res.status().json, {
+        resultMessage: "User Not Found",
       });
     });
   });
