@@ -111,7 +111,7 @@ const updatePassword = async (req, res, updateUserPassword) => {
     const { password, ...filteredUser } = user._doc;
     res
       .status(httpStatusCode)
-      .json({ resultMessage: message, deletedUser: filteredUser });
+      .json({ resultMessage: message, updatedUser: filteredUser });
   } catch (error) {
     console.error("userController, updatePassword: " + error.message);
     res.status(500).json({ resultMessage: "Internal Server Error" });
