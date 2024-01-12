@@ -348,7 +348,58 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe("updatePassword method", () => {});
+  describe("updatePassword method", () => {
+    let req, res, json, cookie, sandbox, updatePasswordStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it.only("should update password of a valid user", async () => {
+      const expectedUpdateProperties = {
+        password: mockUserUpdate.oldPassword,
+        newPassword: mockUserUpdate.newPassword,
+      };
+
+      req = {
+        user: mockUser,
+        body: expectedUpdateProperties,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      updatePasswordStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "Password updated successfully",
+        user: mockUser,
+      });
+
+      try{
+        await userController.updatePassword(req, res, updatePasswordStub);
+      }
+      catch(err){
+        console.log(err);
+      }
+
+      const { password, ...filteredMockUser } = mockUser._doc;
+
+      sinon.assert.calledOnce(updatePasswordStub);
+      sinon.assert.calledWith(updatePasswordStub, req.user, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Password updated successfully",
+        updatedUser: filteredMockUser,
+      });
+    });
+  });
 
   describe("deleteUser method", () => {
     let req, res, sandbox, cookie, deleteUserStub;
