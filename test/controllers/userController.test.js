@@ -1,34 +1,26 @@
-import { expect } from "chai";
-import Sinon from "sinon";
-import {
-  register,
-  login,
-  logout,
-  getMe,
-} from "../../api/controllers/userController";
-import {
+const sinon = require("sinon");
+const {
   mockUser,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
-} from "../mocks/user.mock";
-import {
-  signUpUser,
-  loginUser,
-  listUserByID,
-  updateUserByID,
-  updateUserPassword,
-  deleteUserByID,
-} from "../../services/userService";
+} = require("../mocks/user.mock");
+const userController = require("../../api/controllers/userController");
 
-describe("User Controller Unit Test", () => {
+describe("userController Unit Test", () => {
   describe("register method", () => {
-    afterEach(() => {
-      Sinon.restore();
+    let req, res, json, sandbox, signUpUserStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
     });
 
-    it("should register successfully a new user", async () => {
-      const mockReq = {
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should register a new user", async () => {
+      req = {
         body: {
           name: mockUser.name,
           email: mockUser.email,
@@ -36,276 +28,398 @@ describe("User Controller Unit Test", () => {
           age: mockUser.age,
         },
       };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
 
-      const mockRes = {
-        status: Sinon.stub(),
-        json: Sinon.stub(),
-      };
-
-      Sinon.stub(signUpUser).resolves({
+      signUpUserStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         message: "User created successfully",
         user: mockUser,
       });
 
-      await register(mockReq, mockRes);
+      await userController.register(req, res, signUpUserStub);
 
-      expect(mockRes.status.calledWith(200)).to.be.true;
-      expect(
-        mockRes.json.calledWith({
-          resultMessage: "User created successfully",
-          newUser: mockUser,
-        })
-      ).to.be.true;
+      const { password, ...filteredMockUser } = mockUser._doc;
+
+      sinon.assert.calledOnce(signUpUserStub);
+      sinon.assert.calledWith(signUpUserStub, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User created successfully",
+        newUser: filteredMockUser,
+      });
     });
 
     it("should restrict to register an existing user", async () => {
-      const mockReq = {
+      req = {
         body: {
-          name: mockUser.name,
-          email: mockUser.email,
-          password: mockUser.password,
-          age: mockUser.age,
+          name: mockUserInvalid.name,
+          email: mockUserInvalid.email,
+          password: mockUserInvalid.password,
+          age: mockUserInvalid.age,
         },
       };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
 
-      const mockRes = {
-        status: Sinon.stub(),
-        json: Sinon.stub(),
-      };
+      signUpUserStub = sandbox.stub().resolves({
+        httpStatusCode: 400,
+        message: "Email already exists",
+      });
 
-      const mockError = new Error("User already exists");
+      await userController.register(req, res, signUpUserStub);
 
-      Sinon.stub(signUpUser).rejects(mockError);
-
-      await register(mockReq, mockRes);
-
-      expect(mockRes.status.calledWith(400)).to.be.true;
-      expect(
-        mockRes.json.calledWith({
-          resultMessage: "User already exists",
-        })
-      ).to.be.true;
+      sinon.assert.calledOnce(signUpUserStub);
+      sinon.assert.calledWith(signUpUserStub, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 400);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Email already exists",
+      });
     });
   });
 
   describe("login method", () => {
-    afterEach(() => {
-      Sinon.restore();
+    let req, res, json, cookie, sandbox, loginStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
     });
 
-    it("should successfully login a user with valid credentials", async () => {
-      const mockReq = {
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should login a valid user", async () => {
+      req = {
         body: {
           email: mockUser.email,
           password: mockUser.password,
         },
       };
+      res = {};
+      json = sandbox.spy();
+      cookie = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
 
-      const mockRes = {
-        cookie: sinon.stub(),
-        status: sinon.stub(),
-        json: sinon.stub(),
-      };
-
-      Sinon.stub(userService, loginUser).resolves({
+      loginStub = sandbox.stub().resolves({
         httpStatusCode: 200,
-        tokenCreated: "mockToken",
+        tokenCreated: "token",
         message: "User login successfully",
         user: mockUser,
+        token: "token",
       });
 
-      await login(mockReq, mockRes);
+      await userController.login(req, res, loginStub);
 
-      expect(
-        mockRes.cookie.calledWith("nodetodo", "mockToken", {
-          httpOnly: true,
-          expiresIn: 360000,
-        })
-      ).to.be.true;
-      expect(mockRes.status.calledWith(200)).to.be.true;
-      expect(
-        mockRes.json.calledWith({
-          resultMessage: "User login successfully",
-          loggedUser: mockUser,
-        })
-      ).to.be.true;
+      const { password, ...filteredMockUser } = mockUser._doc;
+
+      sinon.assert.calledOnce(loginStub);
+      sinon.assert.calledWith(loginStub, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User login successfully",
+        loggedUser: filteredMockUser,
+      });
+      sinon.assert.calledOnce(cookie);
+      sinon.assert.calledWith(cookie, "nodetodo", "token", {
+        httpOnly: true,
+        expiresIn: 360000,
+      });
     });
 
-    it("should handle errors when logging in a user with invalid credentials", async () => {
-      const mockReq = {
+    it("should restrict login an invalid user", async () => {
+      req = {
         body: {
           email: mockUserInvalid.email,
           password: mockUserInvalid.password,
         },
       };
+      res = {};
+      json = sandbox.spy();
+      cookie = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
 
-      const mockRes = {
-        status: sinon.stub(),
-        json: sinon.stub(),
-      };
+      loginStub = sandbox.stub().resolves({
+        httpStatusCode: 404,
+        message: "User or Password does not match",
+      });
 
-      const mockError = new Error("User or Password does not match");
+      await userController.login(req, res, loginStub);
 
-      Sinon.stub(userService, loginUser).rejects(mockError);
-
-      await login(mockReq, mockRes);
-
-      expect(mockRes.status.calledWith(404)).to.be.true;
-      expect(
-        mockRes.json.calledWith({
-          resultMessage: "User or Password does not match",
-        })
-      ).to.be.true;
+      sinon.assert.calledOnce(loginStub);
+      sinon.assert.calledWith(loginStub, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User or Password does not match",
+      });
     });
   });
 
   describe("logout method", () => {
-    afterEach(() => {
-      Sinon.restore();
+    let req, res, clearCookie, sandbox;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
     });
 
-    it("should clear the nodetodo cookie and send a logout", async () => {
-      const mockReq = {};
-      const mockRes = {
-        clearCookie: sinon.stub(),
-        status: sinon.stub(),
-        json: sinon.stub(),
-      };
+    afterEach(() => {
+      sandbox.restore();
+    });
 
-      await logout(mockReq, mockRes);
+    it("should logout a user", async () => {
+      req = {};
+      res = {};
+      clearCookie = sandbox.spy();
+      res.status = sandbox.stub().returns({ json: sandbox.spy() });
+      res.clearCookie = clearCookie;
 
-      expect(mockRes.clearCookie.calledWith("nodetodo")).to.be.true;
-      expect(mockRes.status.calledWith(200)).to.be.true;
-      expect(mockRes.json.calledWith({ msg: "User logged out successfully" }))
-        .to.be.true;
+      await userController.logout(req, res);
+
+      sinon.assert.calledOnce(res.clearCookie);
+      sinon.assert.calledWith(res.clearCookie, "nodetodo");
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
     });
   });
 
-  describe("getme method", () => {
-    afterEach(() => {
-      Sinon.restore();
+  describe("getMe method", () => {
+    let req, res, json, cookie, sandbox, getMeStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
     });
 
-    it("should return user details when listUserByID is valid", async () => {
-      const validUser = {
-        name: mockUser.name,
-        email: mockUser.email,
-        age: mockUser.age,
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should get details of a valid user", async () => {
+      req = {
+        user: mockUser,
       };
-      const mockListUserByID = sinon.stub(userService, listUserByID).resolves({
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      getMeStub = sandbox.stub().resolves({
         httpStatusCode: 200,
-        message: "User found",
-        user: validUser,
+        message: "User Found",
+        user: mockUser,
       });
 
-      const mockReq = { user: { _id: "123" } };
-      const mockRes = {
-        status: sinon.stub().returnsThis(),
-        json: sinon.stub(),
-      };
+      await userController.getMe(req, res, getMeStub);
 
-      await getMe(mockReq, mockRes);
+      const { password, ...filteredMockUser } = mockUser._doc;
 
-      expect(mockListUserByID.calledWith(mockReq.user)).to.be.true;
-      expect(mockRes.status.calledWith(200)).to.be.true;
-      expect(
-        mockRes.json.calledWith({
-          resultMessage: "User found",
-          searchUser: {
-            name: user.name,
-            email: user.email,
-            age: user.age,
-          },
-        })
-      ).to.be.true;
+      sinon.assert.calledOnce(getMeStub);
+      sinon.assert.calledWith(getMeStub, req.user);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User Found",
+        searchUser: filteredMockUser,
+      });
     });
 
-    it("should return error message when listUserByID returns non-200 status", async () => {
-      const mockListUserByID = sinon.stub(userService, listUserByID).resolves({
+    it("should restrict to get details of an invalid user", async () => {
+      req = {
+        user: mockUserInvalid,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      getMeStub = sandbox.stub().resolves({
         httpStatusCode: 404,
-        message: "User not found",
+        message: "User Not Found",
       });
 
-      const mockReq = { user: { _id: "123" } };
-      const mockRes = {
-        status: sinon.stub().returnsThis(),
-        json: sinon.stub(),
-      };
+      await userController.getMe(req, res, getMeStub);
 
-      await getMe(mockReq, mockRes);
-
-      expect(mockListUserByID.calledWith(mockReq.user)).to.be.true;
-      expect(mockRes.status.calledWith(404)).to.be.true;
-      expect(mockRes.json.calledWith({ resultMessage: "User not found" })).to.be
-        .true;
+      sinon.assert.calledOnce(getMeStub);
+      sinon.assert.calledWith(getMeStub, req.user);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User Not Found",
+      });
     });
   });
 
-  describe("updateDetails method", () => {});
+  describe("updateDetails method", () => {
+    let req, res, json, cookie, sandbox, updateDetailsStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should update details of a valid user", async () => {
+      const expectedUpdateProperties = {
+        name: mockUserUpdate.name,
+        email: mockUserUpdate.email,
+        age: mockUserUpdate.age,
+      };
+
+      req = {
+        user: mockUser,
+        body: expectedUpdateProperties,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      updateDetailsStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "Data updated successfully",
+        user: mockUser,
+      });
+
+      await userController.updateDetails(req, res, updateDetailsStub);
+
+      const { password, ...filteredMockUser } = mockUser._doc;
+
+      sinon.assert.calledOnce(updateDetailsStub);
+      sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Data updated successfully",
+        updatedUser: filteredMockUser,
+      });
+    });
+
+    it("should restrict to update details of an invalid user", async () => {
+      const expectedUpdateProperties = {
+        name: mockUserUpdate.name,
+        email: mockUserUpdate.email,
+        age: mockUserUpdate.age,
+      };
+
+      req = {
+        user: mockUserInvalid,
+        body: expectedUpdateProperties,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+      res.cookie = cookie;
+
+      updateDetailsStub = sandbox.stub().resolves({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+
+      try {
+        await userController.updateDetails(req, res, updateDetailsStub);
+      } catch (err) {
+        console.log(err);
+      }
+
+      sinon.assert.calledOnce(updateDetailsStub);
+      sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "User Not Found",
+      });
+    });
+  });
 
   describe("updatePassword method", () => {});
 
   describe("deleteUser method", () => {
-    const mockDeleteUserByID = sinon.stub(
-      require("../../services/userService"),
-      "deleteUserByID"
-    );
-    afterEach(() => {
-      sinon.restore();
+    let req, res, sandbox, cookie, deleteUserStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
     });
 
-    it("should successfully delete the user and clear the cookie", async () => {
-      mockDeleteUserByID.resolves({
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should delete a valid user", async () => {
+      req = {
+        user: {
+          id: mockUserDelete._id,
+        },
+      };
+      res = {
+        status: sandbox.stub().returns({ json: sandbox.spy() }),
+        cookie: cookie,
+        clearCookie: sandbox.spy(),
+      };
+
+      deleteUserStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         message: "User deleted successfully",
       });
 
-      const mockReq = {
-        user: {
-          id: mockUserDelete.id,
-        },
-      };
+      await userController.deleteUser(req, res, deleteUserStub);
 
-      const mockRes = {
-        clearCookie: sinon.stub(),
-        status: sinon.stub(),
-        json: sinon.stub(),
-      };
-
-      await deleteUserByID(mockReq, mockRes);
-
-      expect(mockDeleteUserByID.calledOnceWithExactly(mockReq.user.id)).to.be
-        .true;
-      expect(mockRes.clearCookie.calledWith("nodetodo")).to.be.true;
-      expect(mockRes.status.calledWith(200)).to.be.true;
-      expect(
-        mockRes.json.calledWith({ resultMessage: "User deleted successfully" })
-      ).to.be.true;
+      sinon.assert.calledOnce(deleteUserStub);
+      sinon.assert.calledWith(deleteUserStub, req.user);
+      sinon.assert.calledOnce(res.clearCookie);
+      sinon.assert.calledWith(res.clearCookie, "nodetodo");
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(res.status().json);
+      sinon.assert.calledWith(res.status().json, {
+        resultMessage: "User deleted successfully",
+      });
     });
 
-    it("should return an error if the user does not exist", async () => {
-      mockDeleteUserByID.rejects(new Error("User not found"));
-
-      const mockReq = {
+    it("should restrict to delete an invalid user", async () => {
+      req = {
         user: {
-          id: mockUserDelete.id,
+          id: mockUserInvalid._id,
         },
       };
-
-      const mockRes = {
-        status: sinon.stub(),
-        json: sinon.stub(),
+      res = {
+        status: sandbox.stub().returns({ json: sandbox.spy() }),
+        cookie: cookie,
+        clearCookie: sandbox.spy(),
       };
 
-      await deleteUserByID(mockReq, mockRes);
+      deleteUserStub = sandbox.stub().resolves({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
 
-      expect(mockDeleteUserByID.calledOnceWithExactly(mockReq.user.id)).to.be
-        .true;
-      expect(mockRes.clearCookie.notCalled).to.be.true;
-      expect(mockRes.status.calledWith(404)).to.be.true;
-      expect(mockRes.json.calledWith({ resultMessage: "User not found" })).to.be
-        .true;
+      await userController.deleteUser(req, res, deleteUserStub);
+
+      sinon.assert.calledOnce(deleteUserStub);
+      sinon.assert.calledWith(deleteUserStub, req.user);
+      sinon.assert.notCalled(res.clearCookie);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 404);
+      sinon.assert.calledOnce(res.status().json);
+      sinon.assert.calledWith(res.status().json, {
+        resultMessage: "User Not Found",
+      });
     });
   });
 });
