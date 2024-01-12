@@ -83,7 +83,7 @@ const updateDetails = async (req, res, updateUserByID) => {
       req.body
     );
 
-    if (!user){
+    if (!user) {
       return res.status(httpStatusCode).json({ resultMessage: message });
     }
 
@@ -103,7 +103,12 @@ const updatePassword = async (req, res, updateUserPassword) => {
       req.user,
       req.body
     );
-    const { password: pass, ...filteredUser } = user._doc;
+
+    if (!user) {
+      return res.status(httpStatusCode).json({ resultMessage: message });
+    }
+
+    const { password, ...filteredUser } = user._doc;
     res
       .status(httpStatusCode)
       .json({ resultMessage: message, deletedUser: filteredUser });
