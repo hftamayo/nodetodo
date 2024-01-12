@@ -14,8 +14,8 @@ const {
   deleteUserByID,
 } = require("../../services/userService");
 
-describe("UserService Unit Tests", () => {
-  describe("signupUser()", () => {
+describe("UserService Integration Test", () => {
+  describe("signupUser() method", () => {
     it("should create a new user with valid data", async () => {
       const requestBody = {
         name: mockUser.name,
@@ -47,7 +47,7 @@ describe("UserService Unit Tests", () => {
     });
   });
 
-  describe("loginUser()", () => {
+  describe("loginUser() method", () => {
     it("should login a user with valid credentials", async () => {
       const requestBody = {
         email: mockUser.email,
@@ -84,7 +84,7 @@ describe("UserService Unit Tests", () => {
     });
   });
 
-  describe("listUserByID()", () => {
+  describe("listUserByID() method", () => {
     it("should return a user with a valid ID", async () => {
       const requestUserId = mockUser.id;
       const response = await listUserByID(requestUserId);
@@ -104,7 +104,7 @@ describe("UserService Unit Tests", () => {
     });
   });
 
-  describe("updateUserByID()", () => {
+  describe("updateUserByID() method", () => {
     it("should update a user with valid data", async () => {
       const requestUserId = mockUserUpdate.id;
       const requestBody = {
@@ -134,7 +134,7 @@ describe("UserService Unit Tests", () => {
     });
   });
 
-  describe("updateUserPassword()", () => {
+  describe("updateUserPassword() method", () => {
     it("should update the password of a valid user", async () => {
       const requestUserId = mockUserUpdate.id;
       const requestPword = {
@@ -164,7 +164,7 @@ describe("UserService Unit Tests", () => {
     });
   });
 
-  describe("deleteUserByID()", () => {
+  describe("deleteUserByID() method", () => {
     it("should delete an existing user", async () => {
       const requestUserId = mockUserDelete.id;
       const response = await deleteUserByID(requestUserId);

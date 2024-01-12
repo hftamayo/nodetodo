@@ -11,7 +11,7 @@ import {
 
 describe("User Controller Integration Test", function () {
   this.timeout(10000);
-  describe("Register and Login methods", function () {
+  describe("Register method", function () {
     this.timeout(10000);
     it("should register a new user", async function () {
       this.timeout(10000);
