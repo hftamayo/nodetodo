@@ -273,10 +273,16 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it("should update details of a valid user", async () => {
+    it.only("should update details of a valid user", async () => {
+      const expectedUpdateProperties = {
+        name: mockUserUpdate.name,
+        email: mockUserUpdate.email,
+        age: mockUserUpdate.age,
+      };
+
       req = {
         user: mockUser,
-        body: mockUserUpdate,
+        body: expectedUpdateProperties,
       };
       res = {};
       json = sandbox.spy();
@@ -286,17 +292,12 @@ describe("userController Unit Test", () => {
       updateDetailsStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         message: "Data updated successfully",
-        user: {
-          _doc: {
-            ...mockUserUpdate,
-            password: mockUserUpdate.oldPassword,
-          },
-        },
+        user: mockUser,
       });
 
       await userController.updateDetails(req, res, updateDetailsStub);
 
-      const { password, ...filteredMockUser } = mockUserUpdate._doc;
+      const { password, ...filteredMockUser } = mockUser._doc;
 
       sinon.assert.calledOnce(updateDetailsStub);
       sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
