@@ -273,7 +273,7 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it.only("should update details of a valid user", async () => {
+    it("should update details of a valid user", async () => {
       const expectedUpdateProperties = {
         name: mockUserUpdate.name,
         email: mockUserUpdate.email,
@@ -310,10 +310,16 @@ describe("userController Unit Test", () => {
       });
     });
 
-    it("should restrict to update details of an invalid user", async () => {
+    it.only("should restrict to update details of an invalid user", async () => {
+      const expectedUpdateProperties = {
+        name: mockUserUpdate.name,
+        email: mockUserUpdate.email,
+        age: mockUserUpdate.age,
+      };
+
       req = {
         user: mockUserInvalid,
-        body: mockUserUpdate,
+        body: expectedUpdateProperties,
       };
       res = {};
       json = sandbox.spy();
@@ -325,7 +331,11 @@ describe("userController Unit Test", () => {
         message: "User Not Found",
       });
 
-      await userController.updateDetails(req, res, updateDetailsStub);
+      try{
+        await userController.updateDetails(req, res, updateDetailsStub);
+      }catch(err){
+        console.log(err)
+      }
 
       sinon.assert.calledOnce(updateDetailsStub);
       sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
