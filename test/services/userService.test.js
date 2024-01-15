@@ -184,9 +184,9 @@ describe("UserService Unit Tests", () => {
         user: mockUserUpdate,
       };
 
-      sinon.stub(userService, "updateUser").resolves(mockResponse);
+      sinon.stub(userService, "updateUserByID").resolves(mockResponse);
 
-      const response = await userService.updateUser(requestBody);
+      const response = await userService.updateUserByID(requestBody);
 
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User updated successfully");
