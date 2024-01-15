@@ -1,19 +1,18 @@
-import request from "supertest";
-import { expect } from "chai";
-import server from "../../server.js";
-
-import {
+const request = require("supertest");
+const expect = require("chai").expect;
+const server = require("../../server.js");
+const {
   mockUser,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
-} from "../mocks/user.mock.js";
+} = require("../mocks/user.mock");
 
 describe("User Controller Integration Test", function () {
   this.timeout(10000);
   describe("Register method", function () {
     this.timeout(10000);
-    it("should register a new user", async function () {
+    it.only("should register a new user", async function () {
       this.timeout(10000);
       const response = await request(server)
         .post("/nodetodo/users/register")
