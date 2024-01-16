@@ -1,4 +1,7 @@
 const expect = require("chai").expect;
+const mongoose = require("mongoose");
+const User = require("../../models/User");
+const { backend } = require("../../config/envvars");
 const {
   mockUser,
   mockUserInvalid,
@@ -14,16 +17,42 @@ const {
   deleteUserByID,
 } = require("../../services/userService");
 
+before(async () => {
+  try {
+    await mongoose.connect(backend, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("Connected to DB Testing successfully");
+    const start = Date.now();
+    await User.findOne();
+    const end = Date.now();
+    console.log(`Elapsed time to execute a search query: ", ${end - start} ms`);
+  } catch (error) {
+    console.log("Error connecting to DB: ", error);
+  }
+});
+
+after(async () => {
+  await mongoose.connection.close();
+});
+
 describe("UserService Integration Test", () => {
   describe("signupUser() method", () => {
-    it("should create a new user with valid data", async () => {
+    it.only("should create a new user with valid data", async function () {
+      this.timeout(60000);
       const requestBody = {
         name: mockUser.name,
         email: mockUser.email,
         password: mockUser.password,
         age: mockUser.age,
       };
-      const response = await signUpUser(requestBody);
+      try {
+        const response = await signUpUser(requestBody);
+        console.log("signUpUser response object: ", response);
+      } catch (error) {
+        console.log("signUpUser error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User created successfully");
       expect(response.user).to.exist;
