@@ -24,10 +24,10 @@ before(async () => {
       useUnifiedTopology: true,
     });
     console.log("Connected to DB Testing successfully");
-    const start = Date.now();
-    await User.findOne();
-    const end = Date.now();
-    console.log(`Elapsed time to execute a search query: ", ${end - start} ms`);
+    // const start = Date.now();
+    // await User.findOne();
+    // const end = Date.now();
+    // console.log(`Elapsed time to execute a search query: ", ${end - start} ms`);
   } catch (error) {
     console.log("Error connecting to DB: ", error);
   }
@@ -47,18 +47,19 @@ describe("UserService Integration Test", () => {
         password: mockUser.password,
         age: mockUser.age,
       };
+      let response;
       try {
-        const response = await signUpUser(requestBody);
-        console.log("signUpUser response object: ", response);
+        response = await signUpUser(requestBody);
+        console.log("signUpUser Service method response object: ", response);
       } catch (error) {
-        console.log("signUpUser error: ", error);
+        console.log("signUpUser Service method error: ", error);
       }
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User created successfully");
       expect(response.user).to.exist;
-      expect(user.name).to.equal(mockUser.name);
-      expect(user.email).to.equal(mockUser.email);
-      expect(user.age).to.equal(mockUser.age);
+      expect(response.user.name).to.equal(mockUser.name);
+      expect(response.user.email).to.equal(mockUser.email);
+      expect(response.user.age).to.equal(mockUser.age);
     });
 
     it("should return an error if the user's email is already in use", async () => {
