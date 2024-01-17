@@ -4,6 +4,7 @@ const User = require("../../models/User");
 const { backend } = require("../../config/envvars");
 const {
   mockUser,
+  mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
@@ -39,7 +40,7 @@ after(async () => {
 
 describe("UserService Integration Test", () => {
   describe("signupUser() method", () => {
-    it.only("should create a new user with valid data", async function () {
+    it("should create a new user with valid data", async function () {
       this.timeout(60000);
       const requestBody = {
         name: mockUser.name,
@@ -78,19 +79,26 @@ describe("UserService Integration Test", () => {
   });
 
   describe("loginUser() method", () => {
-    it("should login a user with valid credentials", async () => {
+    it.only("should login a user with valid credentials", async function () {
+      this.timeout(60000);
       const requestBody = {
-        email: mockUser.email,
-        password: mockUser.password,
+        email: mockUserLogin.email,
+        password: mockUserLogin.password,
       };
-      const response = await loginUser(requestBody);
+      let response;
+      try {
+        response = await loginUser(requestBody);
+        console.log("loginUser Service method response object: ", response);
+      } catch (error) {
+        console.log("loginUser Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(200);
       expect(response.tokenCreated).to.exist;
       expect(response.message).to.equal("User login successfully");
       expect(response.user).to.exist;
-      expect(user.name).to.equal(mockUser.name);
-      expect(user.email).to.equal(mockUser.email);
-      expect(user.age).to.equal(mockUser.age);
+      expect(response.user.name).to.equal(mockUserLogin.name);
+      expect(response.user.email).to.equal(mockUserLogin.email);
+      expect(response.user.age).to.equal(mockUserLogin.age);
     });
 
     it("should not login if user does not exist", async () => {
