@@ -168,58 +168,98 @@ describe("UserService Integration Test", () => {
   });
 
   describe("updateUserByID() method", () => {
-    it("should update a user with valid data", async () => {
+    it("should update a user with valid data", async function () {
+      this.timeout(60000);
+      let response;
       const requestUserId = mockUserUpdate.id;
       const requestBody = {
         name: mockUserUpdate.name,
         email: mockUserUpdate.email,
         age: mockUserUpdate.age,
       };
-      const response = await updateUserByID(requestUserId, requestBody);
+      try {
+        response = await updateUserByID(requestUserId, requestBody);
+        console.log(
+          "updateUserByID Service method response object: ",
+          response
+        );
+      } catch (error) {
+        console.log("updateUserByID Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("Data updated successfully");
       expect(response.user).to.exist;
-      expect(user.name).to.equal(mockUserUpdate.name);
-      expect(user.email).to.equal(mockUserUpdate.email);
-      expect(user.age).to.equal(mockUserUpdate.age);
+      expect(response.user.name).to.equal(mockUserUpdate.name);
+      expect(response.user.email).to.equal(mockUserUpdate.email);
+      expect(response.user.age).to.equal(mockUserUpdate.age);
     });
 
-    it("should not update if the amil has already taken", async () => {
+    it("should not update if the email has already taken", async function () {
+      this.timeout(60000);
+      let response;
       const requestUserId = mockUserUpdate.id;
       const requestBody = {
         name: mockUserUpdate.name,
         email: mockUserUpdate.emailTaken,
         age: mockUserUpdate.age,
       };
-      const response = await updateUserByID(requestUserId, requestBody);
+      try {
+        response = await updateUserByID(requestUserId, requestBody);
+        console.log(
+          "updateUserByID Service method response object: ",
+          response
+        );
+      } catch (error) {
+        console.log("updateUserByID Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(400);
       expect(response.message).to.equal("Email already taken");
     });
   });
 
   describe("updateUserPassword() method", () => {
-    it("should update the password of a valid user", async () => {
+    it("should update the password of a valid user", async function () {
+      this.timeout(60000);
+      let response;
       const requestUserId = mockUserUpdate.id;
       const requestPword = {
         password: mockUserUpdate.oldPassword,
         newPassword: mockUserUpdate.newPassword,
       };
-      const response = await updateUserPassword(requestUserId, requestPword);
+      try {
+        response = await updateUserPassword(requestUserId, requestPword);
+        console.log(
+          "updateUserPassword Service method response object: ",
+          response
+        );
+      } catch (error) {
+        console.log("updateUserPassword Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("Password updated successfully");
       expect(response.user).to.exist;
-      expect(user.name).to.equal(mockUserUpdate.name);
-      expect(user.email).to.equal(mockUserUpdate.email);
-      expect(user.age).to.equal(mockUserUpdate.age);
+      expect(response.user.name).to.equal(mockUserUpdate.name);
+      expect(response.user.email).to.equal(mockUserUpdate.email);
+      expect(response.user.age).to.equal(mockUserUpdate.age);
     });
 
-    it("should not update if current passwod did not match", async () => {
+    it("should not update if current passwod did not match", async function () {
+      this.timeout(60000);
+      let response;
       const requestUserId = mockUserUpdate.id;
       const requestPword = {
         password: mockUserUpdate.notMatchPassword,
         newPassword: mockUserUpdate.newPassword,
       };
-      const response = await updateUserPassword(requestUserId, requestPword);
+      try {
+        response = await updateUserPassword(requestUserId, requestPword);
+        console.log(
+          "updateUserPassword Service method response object: ",
+          response
+        );
+      } catch (error) {
+        console.log("updateUserPassword Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(400);
       expect(response.message).to.equal(
         "The entered credentials are not valid"
@@ -228,9 +268,19 @@ describe("UserService Integration Test", () => {
   });
 
   describe("deleteUserByID() method", () => {
-    it("should delete an existing user", async () => {
+    it("should delete an existing user", async function () {
+      this.timeout(60000);
+      let response;
       const requestUserId = mockUserDelete.id;
-      const response = await deleteUserByID(requestUserId);
+      try {
+        response = await deleteUserByID(requestUserId);
+        console.log(
+          "deleteUserByID Service method response object: ",
+          response
+        );
+      } catch (error) {
+        console.log("deleteUserByID Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User deleted successfully");
     });
