@@ -63,23 +63,28 @@ describe("UserService Integration Test", () => {
       expect(response.user.age).to.equal(mockUser.age);
     });
 
-    it("should return an error if the user's email is already in use", async () => {
+    it.only("should return an error if the user's email is already in use", async function () {
+      this.timeout(60000);
       const requestBody = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        age: mockUser.age,
+        name: mockUserLogin.name,
+        email: mockUserLogin.email,
+        password: mockUserLogin.password,
+        age: mockUserLogin.age,
       };
-      await signUpUser(requestBody);
-
-      const response = await signUpUser(requestBody);
+      let response;
+      try {
+        response = await signUpUser(requestBody);
+        console.log("signUpUser Service method response object: ", response);
+      } catch (error) {
+        console.log("signUpUser Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(400);
       expect(response.message).to.equal("Email already exists");
     });
   });
 
   describe("loginUser() method", () => {
-    it.only("should login a user with valid credentials", async function () {
+    it("should login a user with valid credentials", async function () {
       this.timeout(60000);
       const requestBody = {
         email: mockUserLogin.email,
