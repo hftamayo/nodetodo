@@ -63,7 +63,7 @@ describe("UserService Integration Test", () => {
       expect(response.user.age).to.equal(mockUser.age);
     });
 
-    it.only("should return an error if the user's email is already in use", async function () {
+    it("should return an error if the user's email is already in use", async function () {
       this.timeout(60000);
       const requestBody = {
         name: mockUserLogin.name,
@@ -106,12 +106,18 @@ describe("UserService Integration Test", () => {
       expect(response.user.age).to.equal(mockUserLogin.age);
     });
 
-    it("should not login if user does not exist", async () => {
+    it("should not login if user does not exist", async function () {
       const requestBody = {
         email: mockUserInvalid.email,
         password: mockUser.password,
       };
-      const response = await loginUser(requestBody);
+      let response;
+      try {
+        response = await loginUser(requestBody);
+        console.log("loginUser Service method response object: ", response);
+      } catch (error) {
+        console.log("loginUser Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(404);
       expect(response.message).to.equal("User or Password does not match");
     });
