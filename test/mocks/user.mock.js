@@ -1,9 +1,13 @@
 const User = require("../../models/User");
 
+const getRandomInt = (max) => {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
 const mockUser = new User({
   id: "1234567890",
   name: "Herbert Fernandez Tamayo",
-  email: "hftamayo@gmail.com",
+  email: `hftamayo${getRandomInt(1000000)}@gmail.com`,
   password: "password",
   age: 30,
 });
