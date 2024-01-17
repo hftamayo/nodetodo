@@ -5,8 +5,10 @@ const getRandomInt = (max) => {
 };
 
 const mockUserLogin = {
+  name: "Sebastian Fernandez",
   email: "sebas@gmail.com",
   password: "milucito",
+  age: 20,
 };
 
 const mockUser = new User({
@@ -42,6 +44,7 @@ const mockUserDelete = {
 
 module.exports = {
   mockUser,
+  mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
