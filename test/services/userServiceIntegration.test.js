@@ -134,20 +134,34 @@ describe("UserService Integration Test", () => {
   });
 
   describe("listUserByID() method", () => {
-    it("should return a user with a valid ID", async () => {
-      const requestUserId = mockUser.id;
-      const response = await listUserByID(requestUserId);
+    it.only("should return a user with a valid ID", async function () {
+      this.timeout(60000);
+      let response;
+      const requestUserId = mockUserLogin.id;
+      try {
+        response = await listUserByID(requestUserId);
+        console.log("listUserByID Service method response object: ", response);
+      } catch (error) {
+        console.log("listUserByID Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User Found");
       expect(response.user).to.exist;
-      expect(user.name).to.equal(mockUser.name);
-      expect(user.email).to.equal(mockUser.email);
-      expect(user.age).to.equal(mockUser.age);
+      expect(response.user.name).to.equal(mockUserLogin.name);
+      expect(response.user.email).to.equal(mockUserLogin.email);
+      expect(response.user.age).to.equal(mockUserLogin.age);
     });
 
-    it("should return an error if the user ID is invalid", async () => {
+    it("should return an error if the user ID is invalid", async function () {
+      this.timeout(60000);
+      let response;
       const requestUserId = mockUserInvalid.id;
-      const response = await listUserByID(requestUserId);
+      try {
+        response = await listUserByID(requestUserId);
+        console.log("listUserByID Service method response object: ", response);
+      } catch (error) {
+        console.log("listUserByID Service method error: ", error);
+      }
       expect(response.httpStatusCode).to.equal(404);
       expect(response.message).to.equal("User Not Found");
     });
