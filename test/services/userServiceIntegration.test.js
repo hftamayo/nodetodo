@@ -1,9 +1,9 @@
 const expect = require("chai").expect;
 const mongoose = require("mongoose");
-const User = require("../../models/User");
 const { backend } = require("../../config/envvars");
 const {
   mockUser,
+  newUser,
   mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
@@ -56,10 +56,10 @@ describe("UserService Integration Test", () => {
     it("should create a new user with valid data", async function () {
       this.timeout(60000);
       const requestBody = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        age: mockUser.age,
+        name: newUser.name,
+        email: newUser.email,
+        password: newUser.password,
+        age: newUser.age,
       };
       let response;
       try {
@@ -71,9 +71,9 @@ describe("UserService Integration Test", () => {
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User created successfully");
       expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUser.name);
-      expect(response.user.email).to.equal(mockUser.email);
-      expect(response.user.age).to.equal(mockUser.age);
+      expect(response.user.name).to.equal(newUser.name);
+      expect(response.user.email).to.equal(newUser.email);
+      expect(response.user.age).to.equal(newUser.age);
     });
 
     it("should return an error if the user's email is already in use", async function () {
@@ -265,9 +265,9 @@ describe("UserService Integration Test", () => {
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("Password updated successfully");
       expect(response.user).to.exist;
-      expect(response.user.name).to.equal(availableUser.user.name);
-      expect(response.user.email).to.equal(availableUser.user.email);
-      expect(response.user.age).to.equal(availableUser.user.age);
+      expect(response.user.name).to.equal(mockUserUpdate.name);
+      expect(response.user.email).to.equal(mockUserUpdate.email);
+      expect(response.user.age).to.equal(mockUserUpdate.age);
     });
 
     it("should not update if current passwod did not match", async function () {
