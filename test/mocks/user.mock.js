@@ -4,6 +4,7 @@ const getRandomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(max));
 };
 
+//this user is already created in the database
 const mockUserLogin = {
   id: "658cb60218796c6f55f54fc4",
   name: "Sebastian Fernandez",
@@ -12,6 +13,14 @@ const mockUserLogin = {
   age: 20,
 };
 
+const newUser = {
+  name: "Guadalupe Martinez Fernandez",
+  email: `guadalupe${getRandomInt(1000000)}@gmail.com`,
+  password: "password",
+  age: 30,
+}
+
+//user for unit tests and update/delete operations
 const mockUser = new User({
   id: "1234567890",
   name: "Herbert Fernandez Tamayo",
@@ -38,12 +47,14 @@ const mockUserUpdate = {
   age: 20,
 };
 
+//used just in unit testing
 const mockUserDelete = {
   id: "222222222",
 };
 
 module.exports = {
   mockUser,
+  newUser,
   mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
