@@ -303,18 +303,8 @@ describe("UserService Integration Test", () => {
       this.timeout(60000);
       let response;
 
-      const userToDelete = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        age: mockUser.age,
-      };
-
       try {
-        const newUser = await signUpUser(userToDelete);
-        console.log("signUpUser Service method response object: ", newUser);
-
-        const requestUserId = newUser.user._id;
+        const requestUserId = availableUser.user._id;
 
         response = await deleteUserByID(requestUserId);
         console.log(
