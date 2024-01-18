@@ -7,7 +7,6 @@ const {
   mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
-  mockUserDelete,
 } = require("../mocks/user.mock");
 const {
   signUpUser,
@@ -18,7 +17,8 @@ const {
   deleteUserByID,
 } = require("../../services/userService");
 
-before(async () => {
+before(async function () {
+  this.timeout(60000);
   try {
     await mongoose.connect(backend, {
       useNewUrlParser: true,
@@ -34,7 +34,8 @@ before(async () => {
   }
 });
 
-after(async () => {
+after(async function () {
+  this.timeout(60000);
   await mongoose.connection.close();
 });
 
@@ -134,7 +135,7 @@ describe("UserService Integration Test", () => {
   });
 
   describe("listUserByID() method", () => {
-    it.only("should return a user with a valid ID", async function () {
+    it("should return a user with a valid ID", async function () {
       this.timeout(60000);
       let response;
       const requestUserId = mockUserLogin.id;
@@ -268,11 +269,23 @@ describe("UserService Integration Test", () => {
   });
 
   describe("deleteUserByID() method", () => {
-    it("should delete an existing user", async function () {
+    it.only("should delete an existing user", async function () {
       this.timeout(60000);
       let response;
-      const requestUserId = mockUserDelete.id;
+
+      const userToDelete = {
+        name: mockUser.name,
+        email: mockUser.email,
+        password: mockUser.password,
+        age: mockUser.age,
+      };
+
       try {
+        const newUser = await signUpUser(userToDelete);
+        console.log("signUpUser Service method response object: ", newUser);
+
+        const requestUserId = newUser.user._id;
+
         response = await deleteUserByID(requestUserId);
         console.log(
           "deleteUserByID Service method response object: ",
