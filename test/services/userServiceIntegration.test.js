@@ -184,13 +184,6 @@ describe("UserService Integration Test", () => {
     it("should update a user with valid data", async function () {
       this.timeout(60000);
 
-      const userToUpdate = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        age: mockUser.age,
-      };
-
       let response;
 
       const requestBody = {
@@ -199,9 +192,7 @@ describe("UserService Integration Test", () => {
         age: mockUserUpdate.age,
       };
       try {
-        const newUser = await signUpUser(userToUpdate);
-        console.log("signUpUser Service method response object: ", newUser);
-        const requestUserId = newUser.user._id;
+        const requestUserId = availableUser.user._id;
 
         response = await updateUserByID(requestUserId, requestBody);
         console.log(
@@ -223,18 +214,9 @@ describe("UserService Integration Test", () => {
       this.timeout(60000);
       let response;
 
-      const userToUpdate = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        age: mockUser.age,
-      };
-
       try {
-        const newUser = await signUpUser(userToUpdate);
-        console.log("signUpUser Service method response object: ", newUser);
 
-        const requestUserId = newUser.user._id;
+        const requestUserId = availableUser.user._id;
 
         const requestBody = {
           name: mockUserUpdate.name,
