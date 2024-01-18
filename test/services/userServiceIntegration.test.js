@@ -171,14 +171,26 @@ describe("UserService Integration Test", () => {
   describe("updateUserByID() method", () => {
     it("should update a user with valid data", async function () {
       this.timeout(60000);
+
+      const userToUpdate = {
+        name: mockUser.name,
+        email: mockUser.email,
+        password: mockUser.password,
+        age: mockUser.age,
+      };
+
       let response;
-      const requestUserId = mockUserUpdate.id;
+
       const requestBody = {
         name: mockUserUpdate.name,
         email: mockUserUpdate.email,
         age: mockUserUpdate.age,
       };
       try {
+        const newUser = await signUpUser(userToUpdate);
+        console.log("signUpUser Service method response object: ", newUser);
+        const requestUserId = newUser.user._id;
+
         response = await updateUserByID(requestUserId, requestBody);
         console.log(
           "updateUserByID Service method response object: ",
@@ -198,13 +210,28 @@ describe("UserService Integration Test", () => {
     it("should not update if the email has already taken", async function () {
       this.timeout(60000);
       let response;
-      const requestUserId = mockUserUpdate.id;
-      const requestBody = {
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.emailTaken,
-        age: mockUserUpdate.age,
+
+      const userToUpdate = {
+        name: mockUser.name,
+        email: mockUser.email,
+        password: mockUser.password,
+        age: mockUser.age,
       };
+
       try {
+        const newUser = await signUpUser(userToUpdate);
+        console.log("signUpUser Service method response object: ", newUser);
+
+        const requestUserId = newUser.user._id;
+
+        const requestBody = {
+          name: mockUserUpdate.name,
+          email: mockUserLogin.email,
+          age: mockUserUpdate.age,
+        };
+
+        console.log("Data to be updated: ", requestBody);
+
         response = await updateUserByID(requestUserId, requestBody);
         console.log(
           "updateUserByID Service method response object: ",
@@ -269,7 +296,7 @@ describe("UserService Integration Test", () => {
   });
 
   describe("deleteUserByID() method", () => {
-    it.only("should delete an existing user", async function () {
+    it("should delete an existing user", async function () {
       this.timeout(60000);
       let response;
 
