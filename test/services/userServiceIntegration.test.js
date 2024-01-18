@@ -17,6 +17,8 @@ const {
   deleteUserByID,
 } = require("../../services/userService");
 
+let availableUser;
+
 before(async function () {
   this.timeout(60000);
   try {
@@ -25,10 +27,20 @@ before(async function () {
       useUnifiedTopology: true,
     });
     console.log("Connected to DB Testing successfully");
-    // const start = Date.now();
-    // await User.findOne();
-    // const end = Date.now();
-    // console.log(`Elapsed time to execute a search query: ", ${end - start} ms`);
+
+    const userToUpdate = {
+      name: mockUser.name,
+      email: mockUser.email,
+      password: mockUser.password,
+      age: mockUser.age,
+    };
+
+    const newUser = await signUpUser(userToUpdate);
+    const start = Date.now();
+    availableUser = await listUserByID(newUser.user._id);
+    const end = Date.now();
+    console.log("user available for update/delete methods: ", availableUser);
+    console.log(`Elapsed time to execute a search query: ", ${end - start} ms`);
   } catch (error) {
     console.log("Error connecting to DB: ", error);
   }
@@ -249,12 +261,17 @@ describe("UserService Integration Test", () => {
     it("should update the password of a valid user", async function () {
       this.timeout(60000);
       let response;
-      const requestUserId = mockUserUpdate.id;
-      const requestPword = {
-        password: mockUserUpdate.oldPassword,
-        newPassword: mockUserUpdate.newPassword,
-      };
       try {
+        const requestUserId = availableUser.user._id;
+        const oldPassword = mockUser.password;
+
+        const requestPword = {
+          password: oldPassword,
+          newPassword: mockUserUpdate.newPassword,
+        };
+
+        console.log("Data to be updated: ", requestPword);
+
         response = await updateUserPassword(requestUserId, requestPword);
         console.log(
           "updateUserPassword Service method response object: ",
@@ -266,19 +283,23 @@ describe("UserService Integration Test", () => {
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("Password updated successfully");
       expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUserUpdate.name);
-      expect(response.user.email).to.equal(mockUserUpdate.email);
-      expect(response.user.age).to.equal(mockUserUpdate.age);
+      expect(response.user.name).to.equal(availableUser.user.name);
+      expect(response.user.email).to.equal(availableUser.user.email);
+      expect(response.user.age).to.equal(availableUser.user.age);
     });
 
     it("should not update if current passwod did not match", async function () {
       this.timeout(60000);
       let response;
-      const requestUserId = mockUserUpdate.id;
+      const requestUserId = availableUser.user._id;
+
       const requestPword = {
         password: mockUserUpdate.notMatchPassword,
         newPassword: mockUserUpdate.newPassword,
       };
+
+      console.log("Data to be updated: ", requestPword);
+
       try {
         response = await updateUserPassword(requestUserId, requestPword);
         console.log(
