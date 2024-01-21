@@ -3,9 +3,10 @@ const expect = require("chai").expect;
 const server = require("../../server.js");
 const {
   mockUser,
+  newUser,
+  mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
-  mockUserDelete,
 } = require("../mocks/user.mock");
 
 describe("User Controller Integration Test", function () {
@@ -17,17 +18,18 @@ describe("User Controller Integration Test", function () {
       const response = await request(server)
         .post("/nodetodo/users/register")
         .send({
-          name: mockUser.name,
-          email: mockUser.email,
-          password: mockUser.password,
-          age: mockUser.age,
+          name: newUser.name,
+          email: newUser.email,
+          password: newUser.password,
+          age: newUser.age,
         });
+      console.log("estado del response: ", response);
       expect(response.status).to.equal(200);
       expect(response.body.resultMessage).to.equal("User created successfully");
       expect(response.body.newUser).to.be.an("object");
-      expect(response.body.newUser).to.have.property("name", mockUser.name);
-      expect(response.body.newUser).to.have.property("email", mockUser.email);
-      expect(response.body.newUser).to.have.property("age", mockUser.age);
+      expect(response.body.newUser).to.have.property("name", newUser.name);
+      expect(response.body.newUser).to.have.property("email", newUser.email);
+      expect(response.body.newUser).to.have.property("age", newUser.age);
     });
 
     it("should not register an existing user", async function () {
