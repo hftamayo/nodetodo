@@ -9,7 +9,9 @@
     "start": "node server.js",
     "test": "mocha test/**/*.js",
     "smoketest": "mocha smoketest/**/*.js",
-    "singletest": "mocha 'test/controllers/userController.test.js'",
+    "unittest": "mocha 'test/controllers/userController.test.js'",
+    "integrationcontroller": "mocha 'test/controllers/userControllerIntegration.test.js'",
+    "integrationservice": "mocha 'test/services/userServiceIntegration.test.js'",
     "testrpt": "mocha 'test/**/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
   },
   "author": "Herbert Tamayo",
