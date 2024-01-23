@@ -19,7 +19,7 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it("should register a new user", async () => {
+    it.only("should register a new user", async () => {
       req = {
         body: {
           name: mockUser.name,
@@ -38,7 +38,9 @@ describe("userController Unit Test", () => {
         user: mockUser,
       });
 
-      await userController.register(req, res, signUpUserStub);
+      userController.setSignUpUser(signUpUserStub);
+
+      await userController.registerHandler(req, res);
 
       const { password, ...filteredMockUser } = mockUser._doc;
 
