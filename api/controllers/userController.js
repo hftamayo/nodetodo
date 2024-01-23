@@ -1,5 +1,6 @@
 let signUpUser;
 let loginUser;
+let logoutUser;
 let listUserByID;
 let updateUserDetailsByID;
 let updateUserPasswordByID;
@@ -11,6 +12,9 @@ const userController = {
   },
   setLoginUser: function (newLoginUser) {
     loginUser = newLoginUser;
+  },
+  setLogoutUser: function (newLogoutUser) {
+    logoutUser = newLogoutUser;
   },
   setListUser: function (newListUser) {
     listUserByID = newListUser;
