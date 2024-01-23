@@ -1,11 +1,10 @@
-const http = require("http");
-const app = require("./app");
-const { port } = require("./config/envvars");
+const {startApp} = require('./app');
 
-const PORT = port || 5001;
-
-const server = http.createServer(app);
-
-server.listen(PORT, () => console.log("Server running on Port: " + PORT));
-
-module.exports = server;
+startApp()
+.then(() => {
+    console.log("Nodetodo backend is up and ready")
+})
+.catch((error) => {
+    console.error("Error starting Nodetodo backend: ", error);
+    process.exit(1);
+});
