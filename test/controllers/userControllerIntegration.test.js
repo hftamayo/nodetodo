@@ -1,6 +1,6 @@
 const request = require("supertest");
 const expect = require("chai").expect;
-const server = require("../../server.js");
+const { app, startApp } = require("../../app");
 const {
   mockUser,
   newUser,
@@ -9,10 +9,28 @@ const {
   mockUserUpdate,
 } = require("../mocks/user.mock");
 
+let server;
+
+before(async function () {
+  this.timeout(60000);
+  try {
+    server = await startApp();
+  } catch (error) {
+    console.log("Error connecting to the server: ", error);
+  }
+});
+
+after(async function () {
+  this.timeout(60000);
+  try {
+    await server.close();
+  } catch (error) {
+    console.log("Error closing the server: ", error);
+  }
+});
+
 describe("User Controller Integration Test", function () {
-  this.timeout(10000);
   describe("Register method", function () {
-    this.timeout(10000);
     it.only("should register a new user", async function () {
       this.timeout(10000);
       const response = await request(server)
@@ -23,7 +41,6 @@ describe("User Controller Integration Test", function () {
           password: newUser.password,
           age: newUser.age,
         });
-      console.log("estado del response: ", response);
       expect(response.status).to.equal(200);
       expect(response.body.resultMessage).to.equal("User created successfully");
       expect(response.body.newUser).to.be.an("object");
