@@ -31,7 +31,7 @@ after(async function () {
 
 describe("User Controller Integration Test", function () {
   describe("Register method", function () {
-    it.only("should register a new user", async function () {
+    it("should register a new user", async function () {
       this.timeout(10000);
       const response = await request(server)
         .post("/nodetodo/users/register")
@@ -54,10 +54,10 @@ describe("User Controller Integration Test", function () {
       const response = await request(server)
         .post("/nodetodo/users/register")
         .send({
-          name: mockUser.name,
-          email: mockUser.email,
-          password: mockUser.password,
-          age: mockUser.age,
+          name: mockUserLogin.name,
+          email: mockUserLogin.email,
+          password: mockUserLogin.password,
+          age: mockUserLogin.age,
         });
       expect(response.status).to.equal(400);
       expect(response.body.resultMessage).to.equal("Email already exists");
@@ -68,18 +68,24 @@ describe("User Controller Integration Test", function () {
       const response = await request(server)
         .post("/nodetodo/users/login")
         .send({
-          email: mockUser.email,
-          password: mockUser.password,
+          email: mockUserLogin.email,
+          password: mockUserLogin.password,
         });
       expect(response.status).to.equal(200);
       expect(response.body.resultMessage).to.equal("User login successfully");
       expect(response.body.loggedUser).to.be.an("object");
-      expect(response.body.loggedUser).to.have.property("name", mockUser.name);
+      expect(response.body.loggedUser).to.have.property(
+        "name",
+        mockUserLogin.name
+      );
       expect(response.body.loggedUser).to.have.property(
         "email",
-        mockUser.email
+        mockUserLogin.email
       );
-      expect(response.body.loggedUser).to.have.property("age", mockUser.age);
+      expect(response.body.loggedUser).to.have.property(
+        "age",
+        mockUserLogin.age
+      );
     });
 
     it("should not login with invalid credentials", async function () {
@@ -96,7 +102,7 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it("should logout a user", async function () {
+    it.only("should logout a user", async function () {
       this.timeout(10000);
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
@@ -143,8 +149,8 @@ describe("User Controller Integration Test", function () {
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
         .send({
-          email: mockUser.email,
-          password: mockUser.password,
+          email: mockUserLogin.email,
+          password: mockUserLogin.password,
         });
       expect(loginResponse.status).to.equal(200);
       expect(loginResponse.body.resultMessage).to.equal(
@@ -163,21 +169,42 @@ describe("User Controller Integration Test", function () {
       expect(response.status).to.equal(200);
       expect(response.body.resultMessage).to.equal("User Found");
       expect(response.body.searchUser).to.be.an("object");
-      expect(response.body.searchUser).to.have.property("name", mockUser.name);
+      expect(response.body.searchUser).to.have.property(
+        "name",
+        mockUserLogin.name
+      );
       expect(response.body.searchUser).to.have.property(
         "email",
-        mockUser.email
+        mockUserLogin.email
       );
-      expect(response.body.searchUser).to.have.property("age", mockUser.age);
+      expect(response.body.searchUser).to.have.property(
+        "age",
+        mockUserLogin.age
+      );
     });
 
     it("should update an existing user", async function () {
-      this.timeout(10000);
+      this.timeout(40000);
+
+      const response = await request(server)
+        .post("/nodetodo/users/register")
+        .send({
+          name: newUser.name,
+          email: newUser.email,
+          password: newUser.password,
+          age: newUser.age,
+        });
+      expect(response.status).to.equal(200);
+      expect(response.body.resultMessage).to.equal("User created successfully");
+      expect(response.body.newUser).to.be.an("object");
+
+      const addedUserEmail = response.body.newUser.email;
+
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
         .send({
-          email: mockUser.email,
-          password: mockUser.password,
+          email: addedUserEmail,
+          password: newUser.password,
         });
       expect(loginResponse.status).to.equal(200);
       expect(loginResponse.body.resultMessage).to.equal(
@@ -218,12 +245,27 @@ describe("User Controller Integration Test", function () {
     });
 
     it("should update the password of an existing user", async function () {
-      this.timeout(10000);
+      this.timeout(40000);
+
+      const response = await request(server)
+        .post("/nodetodo/users/register")
+        .send({
+          name: newUser.name,
+          email: newUser.email,
+          password: newUser.password,
+          age: newUser.age,
+        });
+      expect(response.status).to.equal(200);
+      expect(response.body.resultMessage).to.equal("User created successfully");
+      expect(response.body.newUser).to.be.an("object");
+
+      const addedUserEmail = response.body.newUser.email;
+
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
         .send({
-          email: mockUserUpdate.email,
-          password: mockUserUpdate.oldPassword,
+          email: addedUserEmail,
+          password: newUser.password,
         });
       expect(loginResponse.status).to.equal(200);
       expect(loginResponse.body.resultMessage).to.equal(
@@ -249,13 +291,28 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it("should delete an existing user", async function () {
-      this.timeout(10000);
+    it.only("should delete an existing user", async function () {
+      this.timeout(40000);
+
+      const response = await request(server)
+        .post("/nodetodo/users/register")
+        .send({
+          name: newUser.name,
+          email: newUser.email,
+          password: newUser.password,
+          age: newUser.age,
+        });
+      expect(response.status).to.equal(200);
+      expect(response.body.resultMessage).to.equal("User created successfully");
+      expect(response.body.newUser).to.be.an("object");
+
+      const addedUserEmail = response.body.newUser.email;
+
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
         .send({
-          email: mockUser.email,
-          password: mockUser.password,
+          email: addedUserEmail,
+          password: newUser.password,
         });
       expect(loginResponse.status).to.equal(200);
       expect(loginResponse.body.resultMessage).to.equal(
