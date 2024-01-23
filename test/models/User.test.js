@@ -24,9 +24,9 @@ describe("User Model", () => {
     await user.save();
 
     expect(user).to.exist;
-    expect(user.name).to.equal("Herbert Fernandez Tamayo");
-    expect(user.email).to.equal("hftamayo@gmail.com");
-    expect(user.age).to.equal(30);
+    expect(user.name).to.equal(mockUser.name);
+    expect(user.email).to.equal(mockUser.email);
+    expect(user.age).to.equal(mockUser.age);
 
     saveStub.restore();
   });
