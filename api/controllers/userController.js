@@ -1,8 +1,32 @@
 let signUpUser;
+let loginUser;
+let logoutUser;
+let listUserByID;
+let updateUserDetailsByID;
+let updateUserPasswordByID;
+let deleteUserByID;
 
 const userController = {
   setSignUpUser: function (newSignUpUser) {
     signUpUser = newSignUpUser;
+  },
+  setLoginUser: function (newLoginUser) {
+    loginUser = newLoginUser;
+  },
+  setLogoutUser: function (newLogoutUser) {
+    logoutUser = newLogoutUser;
+  },
+  setListUser: function (newListUser) {
+    listUserByID = newListUser;
+  },
+  setUpdateUserDetails: function (newUpdateUserDetails) {
+    updateUserDetailsByID = newUpdateUserDetails;
+  },
+  setUpdateUserPassword: function (newUpdateUserPassword) {
+    updateUserPasswordByID = newUpdateUserPassword;
+  },
+  setDeleteUser: function (newDeleteUser) {
+    deleteUserByID = newDeleteUser;
   },
 
   registerHandler: async function (req, res) {
@@ -57,7 +81,7 @@ const userController = {
     }
   },
 
-  getUserHandler: async function (req, res) {
+  listUserHandler: async function (req, res) {
     try {
       const { httpStatusCode, message, user } = await listUserByID(req.user);
       if (httpStatusCode === 200) {
@@ -76,7 +100,7 @@ const userController = {
 
   updateUserDetailsHandler: async function (req, res) {
     try {
-      const { httpStatusCode, message, user } = await updateUserByID(
+      const { httpStatusCode, message, user } = await updateUserDetailsByID(
         req.user,
         req.body
       );
@@ -97,7 +121,7 @@ const userController = {
 
   updateUserPasswordHandler: async function (req, res) {
     try {
-      const { httpStatusCode, message, user } = await updateUserPassword(
+      const { httpStatusCode, message, user } = await updateUserPasswordByID(
         req.user,
         req.body
       );
