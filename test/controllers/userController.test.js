@@ -19,7 +19,7 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it.only("should register a new user", async () => {
+    it("should register a new user", async () => {
       req = {
         body: {
           name: mockUser.name,
@@ -73,7 +73,9 @@ describe("userController Unit Test", () => {
         message: "Email already exists",
       });
 
-      await userController.register(req, res, signUpUserStub);
+      userController.setSignUpUser(signUpUserStub);
+
+      await userController.registerHandler(req, res);
 
       sinon.assert.calledOnce(signUpUserStub);
       sinon.assert.calledWith(signUpUserStub, req.body);
@@ -118,7 +120,9 @@ describe("userController Unit Test", () => {
         token: "token",
       });
 
-      await userController.login(req, res, loginStub);
+      userController.setLoginUser(loginStub);
+
+      await userController.loginHandler(req, res);
 
       const { password, ...filteredMockUser } = mockUser._doc;
 
@@ -156,7 +160,9 @@ describe("userController Unit Test", () => {
         message: "User or Password does not match",
       });
 
-      await userController.login(req, res, loginStub);
+      userController.setLoginUser(loginStub);
+
+      await userController.loginHandler(req, res);
 
       sinon.assert.calledOnce(loginStub);
       sinon.assert.calledWith(loginStub, req.body);
@@ -187,7 +193,7 @@ describe("userController Unit Test", () => {
       res.status = sandbox.stub().returns({ json: sandbox.spy() });
       res.clearCookie = clearCookie;
 
-      await userController.logout(req, res);
+      await userController.logoutHandler(req, res);
 
       sinon.assert.calledOnce(res.clearCookie);
       sinon.assert.calledWith(res.clearCookie, "nodetodo");
@@ -196,7 +202,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe("getMe method", () => {
+  describe("listUser method", () => {
     let req, res, json, cookie, sandbox, getMeStub;
 
     beforeEach(() => {
@@ -222,7 +228,9 @@ describe("userController Unit Test", () => {
         user: mockUser,
       });
 
-      await userController.getMe(req, res, getMeStub);
+      userController.setListUser(getMeStub);
+
+      await userController.listUserHandler(req, res);
 
       const { password, ...filteredMockUser } = mockUser._doc;
 
@@ -251,7 +259,9 @@ describe("userController Unit Test", () => {
         message: "User Not Found",
       });
 
-      await userController.getMe(req, res, getMeStub);
+      userController.setListUser(getMeStub);
+
+      await userController.listUserHandler(req, res);
 
       sinon.assert.calledOnce(getMeStub);
       sinon.assert.calledWith(getMeStub, req.user);
@@ -297,7 +307,9 @@ describe("userController Unit Test", () => {
         user: mockUser,
       });
 
-      await userController.updateDetails(req, res, updateDetailsStub);
+      userController.setUpdateUserDetails(updateDetailsStub);
+
+      await userController.updateUserDetailsHandler(req, res);
 
       const { password, ...filteredMockUser } = mockUser._doc;
 
@@ -333,11 +345,9 @@ describe("userController Unit Test", () => {
         message: "User Not Found",
       });
 
-      try {
-        await userController.updateDetails(req, res, updateDetailsStub);
-      } catch (err) {
-        console.log(err);
-      }
+      userController.setUpdateUserDetails(updateDetailsStub);
+
+      await userController.updateUserDetailsHandler(req, res);
 
       sinon.assert.calledOnce(updateDetailsStub);
       sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
@@ -382,11 +392,9 @@ describe("userController Unit Test", () => {
         user: mockUser,
       });
 
-      try {
-        await userController.updatePassword(req, res, updatePasswordStub);
-      } catch (err) {
-        console.log(err);
-      }
+      userController.setUpdateUserPassword(updatePasswordStub);
+
+      await userController.updateUserPasswordHandler(req, res);
 
       const { password, ...filteredMockUser } = mockUser._doc;
 
@@ -421,7 +429,9 @@ describe("userController Unit Test", () => {
         message: "User Not Found",
       });
 
-      await userController.updatePassword(req, res, updatePasswordStub);
+      userController.setUpdateUserPassword(updatePasswordStub);
+
+      await userController.updateUserPasswordHandler(req, res);
 
       sinon.assert.calledOnce(updatePasswordStub);
       sinon.assert.calledWith(updatePasswordStub, req.user, req.body);
@@ -453,7 +463,9 @@ describe("userController Unit Test", () => {
         message: "The entered credentials are not valid",
       });
 
-      await userController.updatePassword(req, res, updatePasswordStub);
+      userController.setUpdateUserPassword(updatePasswordStub);
+
+      await userController.updateUserPasswordHandler(req, res);
 
       sinon.assert.calledOnce(updatePasswordStub);
       sinon.assert.calledWith(updatePasswordStub, req.user, req.body);
@@ -494,7 +506,9 @@ describe("userController Unit Test", () => {
         message: "User deleted successfully",
       });
 
-      await userController.deleteUser(req, res, deleteUserStub);
+      userController.setDeleteUser(deleteUserStub);
+
+      await userController.deleteUserHandler(req, res);
 
       sinon.assert.calledOnce(deleteUserStub);
       sinon.assert.calledWith(deleteUserStub, req.user);
@@ -525,7 +539,9 @@ describe("userController Unit Test", () => {
         message: "User Not Found",
       });
 
-      await userController.deleteUser(req, res, deleteUserStub);
+      userController.setDeleteUser(deleteUserStub);
+
+      await userController.deleteUserHandler(req, res);
 
       sinon.assert.calledOnce(deleteUserStub);
       sinon.assert.calledWith(deleteUserStub, req.user);
