@@ -2,7 +2,6 @@ const request = require("supertest");
 const expect = require("chai").expect;
 const { app, startApp } = require("../../app");
 const {
-  mockUser,
   newUser,
   mockUserLogin,
   mockUserInvalid,
@@ -86,6 +85,25 @@ describe("User Controller Integration Test", function () {
         "age",
         mockUserLogin.age
       );
+
+      const cookies = response.headers["set-cookie"];
+      const nodetodoCookie = cookies.find((item) =>
+        item.startsWith("nodetodo=")
+      );
+      expect(nodetodoCookie).to.exist;
+
+      const logoutResponse = await request(server)
+        .get("/nodetodo/users/logout")
+        .set("Cookie", nodetodoCookie);
+
+      expect(logoutResponse.status).to.equal(200);
+      expect(logoutResponse.body.msg).to.equal("User logged out successfully");
+
+      const logoutCookies = logoutResponse.headers["set-cookie"];
+      const clearedNodetodoCookie = logoutCookies.find((cookie) =>
+        cookie.startsWith("nodetodo=")
+      );
+      expect(clearedNodetodoCookie).to.include("Expires="); // The cookie should have an 'Expires' attribute set to a past date
     });
 
     it("should not login with invalid credentials", async function () {
@@ -144,7 +162,7 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it.only("should get the info of the logged user", async function () {
+    it("should get the info of the logged user", async function () {
       this.timeout(10000);
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
@@ -254,6 +272,19 @@ describe("User Controller Integration Test", function () {
         "age",
         mockUserUpdate.age
       );
+
+      const logoutResponse = await request(server)
+        .get("/nodetodo/users/logout")
+        .set("Cookie", nodetodoCookie);
+
+      expect(logoutResponse.status).to.equal(200);
+      expect(logoutResponse.body.msg).to.equal("User logged out successfully");
+
+      const logoutCookies = logoutResponse.headers["set-cookie"];
+      const clearedNodetodoCookie = logoutCookies.find((cookie) =>
+        cookie.startsWith("nodetodo=")
+      );
+      expect(clearedNodetodoCookie).to.include("Expires="); // The cookie should have an 'Expires' attribute set to a past date
     });
 
     it("should update the password of an existing user", async function () {
@@ -301,6 +332,19 @@ describe("User Controller Integration Test", function () {
       expect(updatePasswordResponse.body.resultMessage).to.equal(
         "Password updated successfully"
       );
+
+      const logoutResponse = await request(server)
+        .get("/nodetodo/users/logout")
+        .set("Cookie", nodetodoCookie);
+
+      expect(logoutResponse.status).to.equal(200);
+      expect(logoutResponse.body.msg).to.equal("User logged out successfully");
+
+      const logoutCookies = logoutResponse.headers["set-cookie"];
+      const clearedNodetodoCookie = logoutCookies.find((cookie) =>
+        cookie.startsWith("nodetodo=")
+      );
+      expect(clearedNodetodoCookie).to.include("Expires="); // The cookie should have an 'Expires' attribute set to a past date
     });
 
     it("should delete an existing user", async function () {
@@ -344,6 +388,19 @@ describe("User Controller Integration Test", function () {
       expect(deleteResponse.body.resultMessage).to.equal(
         "User deleted successfully"
       );
+
+      const logoutResponse = await request(server)
+        .get("/nodetodo/users/logout")
+        .set("Cookie", nodetodoCookie);
+
+      expect(logoutResponse.status).to.equal(200);
+      expect(logoutResponse.body.msg).to.equal("User logged out successfully");
+
+      const logoutCookies = logoutResponse.headers["set-cookie"];
+      const clearedNodetodoCookie = logoutCookies.find((cookie) =>
+        cookie.startsWith("nodetodo=")
+      );
+      expect(clearedNodetodoCookie).to.include("Expires="); // The cookie should have an 'Expires' attribute set to a past date
     });
   });
 });
