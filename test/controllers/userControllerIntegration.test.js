@@ -2,7 +2,7 @@ const request = require("supertest");
 const expect = require("chai").expect;
 const { app, startApp } = require("../../app");
 const {
-  newUser,
+  getNewUser,
   mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
@@ -32,6 +32,7 @@ describe("User Controller Integration Test", function () {
   describe("Register method", function () {
     it("should register a new user", async function () {
       this.timeout(10000);
+      const newUser = getNewUser();
       const response = await request(server)
         .post("/nodetodo/users/register")
         .send({
@@ -216,6 +217,7 @@ describe("User Controller Integration Test", function () {
     it("should update an existing user", async function () {
       this.timeout(40000);
 
+      const newUser = getNewUser();
       const response = await request(server)
         .post("/nodetodo/users/register")
         .send({
@@ -290,6 +292,7 @@ describe("User Controller Integration Test", function () {
     it("should update the password of an existing user", async function () {
       this.timeout(40000);
 
+      const newUser = getNewUser();
       const response = await request(server)
         .post("/nodetodo/users/register")
         .send({
@@ -350,6 +353,7 @@ describe("User Controller Integration Test", function () {
     it("should delete an existing user", async function () {
       this.timeout(40000);
 
+      const newUser = getNewUser();
       const response = await request(server)
         .post("/nodetodo/users/register")
         .send({
