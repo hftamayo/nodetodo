@@ -102,13 +102,13 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it.only("should logout a user", async function () {
+    it("should logout a user", async function () {
       this.timeout(10000);
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
         .send({
-          email: mockUser.email,
-          password: mockUser.password,
+          email: mockUserLogin.email,
+          password: mockUserLogin.password,
         });
       expect(loginResponse.status).to.equal(200);
       expect(loginResponse.body.resultMessage).to.equal(
@@ -144,7 +144,7 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it("should get the info of the logged user", async function () {
+    it.only("should get the info of the logged user", async function () {
       this.timeout(10000);
       const loginResponse = await request(server)
         .post("/nodetodo/users/login")
@@ -181,6 +181,18 @@ describe("User Controller Integration Test", function () {
         "age",
         mockUserLogin.age
       );
+      const logoutResponse = await request(server)
+        .get("/nodetodo/users/logout")
+        .set("Cookie", nodetodoCookie);
+
+      expect(logoutResponse.status).to.equal(200);
+      expect(logoutResponse.body.msg).to.equal("User logged out successfully");
+
+      const logoutCookies = logoutResponse.headers["set-cookie"];
+      const clearedNodetodoCookie = logoutCookies.find((cookie) =>
+        cookie.startsWith("nodetodo=")
+      );
+      expect(clearedNodetodoCookie).to.include("Expires="); // The cookie should have an 'Expires' attribute set to a past date
     });
 
     it("should update an existing user", async function () {
@@ -291,7 +303,7 @@ describe("User Controller Integration Test", function () {
       );
     });
 
-    it.only("should delete an existing user", async function () {
+    it("should delete an existing user", async function () {
       this.timeout(40000);
 
       const response = await request(server)
