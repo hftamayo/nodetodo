@@ -13,12 +13,12 @@ const mockUserLogin = {
   age: 20,
 };
 
-const newUser = {
+const getNewUser = () => ({
   name: "Guadalupe Martinez Fernandez",
   email: `guadalupe${getRandomInt(1000000)}@gmail.com`,
   password: "password",
   age: 30,
-}
+})
 
 //user for unit tests and update/delete operations
 const mockUser = new User({
@@ -54,7 +54,7 @@ const mockUserDelete = {
 
 module.exports = {
   mockUser,
-  newUser,
+  getNewUser,
   mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
