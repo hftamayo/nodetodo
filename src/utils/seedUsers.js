@@ -1,6 +1,6 @@
 const User = require("../models/User");
 
-async function seedUsers() {
+const seedUsers = async function () {
   const users = [
     {
       name: "Administrator",
@@ -10,26 +10,28 @@ async function seedUsers() {
       role: "admin",
     },
     {
-        name: "Sebastian Fernandez",
-        email: "sebas@gmail.com",
-        password: "password",
-        age: 20,
-        role: "supervisor",
-      },    
-      {
-        name: "Lupita Martinez",
-        email: "lupita@fundamuvi.com",
-        password: "password",
-        age: 25,
-        role: "user",        
-      }
+      name: "Sebastian Fernandez",
+      email: "sebas@gmail.com",
+      password: "password",
+      age: 20,
+      role: "supervisor",
+    },
+    {
+      name: "Lupita Martinez",
+      email: "lupita@fundamuvi.com",
+      password: "password",
+      age: 25,
+      role: "user",
+    },
   ];
 
-    try {
-        await User.deleteMany({});
-        const usersCreated = await User.create(users);
-        console.log("Users created: ", usersCreated);
-    } catch (error) {
-        console.error("seedUsers: ", error.message);
-    }
-}
+  try {
+    await User.deleteMany({});
+    const usersCreated = await User.create(users);
+    console.log("Users created: ", usersCreated);
+  } catch (error) {
+    console.error("seedUsers: ", error.message);
+  }
+};
+
+module.exports = seedUsers;

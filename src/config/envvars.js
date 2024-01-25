@@ -12,4 +12,14 @@ const backend =
     ? process.env.MONGODB_URI_PROD
     : process.env.MONGODB_URI_DEV;
 
-module.exports = { port, masterKey, refreshKey, backend };
+const dataseeddev = process.env.SEED_DEVELOPER;
+const dataseedprod = process.env.SEED_PRODUCTION;
+
+module.exports = {
+  port,
+  masterKey,
+  refreshKey,
+  backend,
+  dataseeddev,
+  dataseedprod,
+};
