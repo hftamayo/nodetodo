@@ -1,4 +1,4 @@
-const {startApp} = require('./app');
+const {startApp} = require('./src/app');
 
 startApp()
 .then(() => {

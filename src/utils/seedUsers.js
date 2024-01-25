@@ -1,4 +1,4 @@
-const User = require("../src/models/User");
+const User = require("../models/User");
 
 async function seedUsers() {
   const users = [
