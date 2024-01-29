@@ -16,7 +16,7 @@ const {
   updatePasswordRules,
 } = require("../middleware/validator");
 const { validateResult } = require("../middleware/validationResults");
-
+const { signUpLimiter, loginLimiter } = require("../middleware/rateLimiter");
 const router = express.Router();
 
 userController.setSignUpUser(signUpUser);
@@ -54,8 +54,8 @@ const deleteUserHandler = (req, res) => {
   userController.deleteUserHandler(req, res);
 };
 
-router.post("/register", registerRules, validateResult, registerHandler);
-router.post("/login", loginRules, validateResult, loginHandler);
+router.post("/register", signUpLimiter, registerRules, validateResult, registerHandler);
+router.post("/login", loginLimiter, loginRules, validateResult, loginHandler);
 router.get("/logout", authorize, logoutHandler);
 router.get("/me", authorize, listUserHandler);
 router.put(
