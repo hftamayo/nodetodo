@@ -4,7 +4,7 @@ const seedUsers = require("./seedUsers");
 
 async function seedDatabase() {
   try {
-    if (mode === "developer" || dataseeddev === "true") {
+    if (mode === "development" || dataseeddev === "true") {
       console.log("Seeding the database in development environment...");
       await seedUsers();
     } else if (mode === "production" || dataseedprod === "true") {
