@@ -10,8 +10,9 @@ async function seedDatabase() {
     } else if (mode === "production" || dataseedprod === "true") {
       console.log("Seeding the database in production environment...");
       await seedUsers();
+    } else {
+      console.log("No seeding required");
     }
-    console.log(`data seeding completed on ${mode} environment`);
   } catch (error) {
     console.error(
       "error in seeding database, impossible to continue: ",
