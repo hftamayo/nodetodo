@@ -17,6 +17,7 @@ Application which help the user to manage tasks and reminders. This repo belongs
 * BackEnd: NodeJS
 * Render Framework: Express
 * Architecture: To be defined 
+* Rate Limiting: express-rate-limit (for enterprise project please check "rate-limiter-flexible")
 
 ### Available Functions ###
 * Add a new task
