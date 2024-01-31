@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../../src/models/User");
 
 const getRandomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(max));

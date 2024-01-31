@@ -1,5 +1,6 @@
-const Todo  = require("../models/Todo");
-const User = require("../models/User");
+const Todo  = require("../../src/models/Todo");
+const User = require("../../src/models/User");
+const mongoose = require("mongoose");
 
 const newTodo = (userId = new mongoose.Types.ObjectId()) => ({
     title: "New Todo",
@@ -14,3 +15,7 @@ const updateTodo = {
     completed: true,
 };
 
+module.exports = {
+    newTodo,
+    updateTodo,
+};
