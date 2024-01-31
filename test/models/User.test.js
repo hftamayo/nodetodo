@@ -1,6 +1,6 @@
 const expect = require("chai").expect;
 const sinon = require("sinon");
-const User = require("../../models/User");
+const User = require("../../src/models/User");
 const { mockUser } = require("../mocks/user.mock");
 
 describe("User Model", () => {

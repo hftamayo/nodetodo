@@ -9,7 +9,7 @@
     "start": "node server.js",
     "test": "mocha test/**/*.js",
     "smoketest": "mocha smoketest/**/*.js",
-    "unittest": "mocha 'test/subruta/unit.test.js'",
+    "unittest": "mocha 'test/models/Todo.test.js'",
     "integrationcontroller": "mocha 'test/controllers/intcontroller.test.js'",
     "integrationservice": "mocha 'test/services/intservice.test.js'",
     "testrpt": "mocha 'test/**/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
