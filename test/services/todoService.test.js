@@ -49,4 +49,28 @@ describe("TodoService Unit Tests", () => {
       expect(response.message).to.equal("Title already taken");
     });
   });
+
+  describe("updateTodoByID()", () => {
+    it("should update a todo with valid data", async () => {
+        const requestUserId = existingTodo.user;
+        const requestTodoId = existingTodo._id;
+        const requestBody = updateTodo;
+    
+        const mockResponse = {
+            httpStatusCode: 200,
+            message: "Todo updated successfully",
+        };
+    
+        sinon.stub(todoService, "updateTodoByID").resolves(mockResponse);
+    
+        const response = await todoService.updateTodoByID(
+            requestUserId,
+            requestTodoId,
+            requestBody
+        );
+    
+        expect(response.httpStatusCode).to.equal(200);
+        expect(response.message).to.equal("Todo updated successfully");
+        });
+  });
 });
