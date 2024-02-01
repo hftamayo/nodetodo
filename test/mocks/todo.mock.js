@@ -15,9 +15,9 @@ const newTodo = (userId = new mongoose.Types.ObjectId()) => ({
 
 const existingTodo = {
     _id: new mongoose.Types.ObjectId(),
-    title: "Existing Todo",
-    description: "Existing Todo Description",
-    completed: true,
+    title: "Foreign language class",
+    description: "learn a new language",
+    completed: false,
     user: new mongoose.Types.ObjectId(),
 };
 
