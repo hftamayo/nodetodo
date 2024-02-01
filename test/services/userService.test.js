@@ -6,7 +6,7 @@ const {
   mockUserUpdate,
   mockUserDelete,
 } = require("../mocks/user.mock");
-const userService = require("../../services/userService");
+const userService = require("../../src/services/userService");
 
 describe("UserService Unit Tests", () => {
   afterEach(function () {
