@@ -1,10 +1,10 @@
 const expect = require("chai").expect;
 const sinon = require("sinon");
 const Todo = require("../../src/models/Todo");
-const { newTodo } = require("../mocks/todo.mock");
+const { newTodo, existingTodo } = require("../mocks/todo.mock");
 
 describe("Todo Model", () => {
-    it.only("should create a new todo with valid data", async () => {
+    it("should create a new todo with valid data", async () => {
         const saveStub = sinon.stub(Todo.prototype, "save");
 
         const mockTodo = newTodo();
@@ -27,7 +27,9 @@ describe("Todo Model", () => {
     it("should throw an error if the todo's title is missing", async () => {
         const todo = new Todo({
         title: "",
-        completed: mockTodo.completed,
+        description: existingTodo.description,
+        completed: existingTodo.completed,
+        user: existingTodo.user,
         });
     
         const saveStub = sinon.stub(Todo.prototype, "save");
