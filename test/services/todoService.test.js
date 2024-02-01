@@ -4,20 +4,49 @@ const { newTodo, existingTodo, updateTodo } = require("../mocks/todo.mock");
 const todoService = require("../../src/services/todoService");
 
 describe("TodoService Unit Tests", () => {
-    afterEach(function () {
-        sinon.restore();
+  afterEach(function () {
+    sinon.restore();
+  });
+
+  describe("createTodo()", () => {
+    it("should create a new todo with valid data", async () => {
+      const requestBody = newTodo();
+
+      const mockResponse = {
+        httpStatusCode: 200,
+        message: "Todo created successfully",
+        todo: requestBody,
+      };
+
+      sinon.stub(todoService, "createTodo").resolves(mockResponse);
+
+      const response = await todoService.createTodo(requestBody);
+
+      expect(response.httpStatusCode).to.equal(200);
+      expect(response.message).to.equal("Todo created successfully");
+      expect(response.todo).to.exist;
+      expect(response.todo.title).to.equal(requestBody.title);
+      expect(response.todo.description).to.equal(requestBody.description);
+      expect(response.todo.user.toString()).to.equal(
+        requestBody.user.toString()
+      );
+      expect(response.todo.completed).to.equal(requestBody.completed);
     });
-    
-    describe("createTodo()", () => {
-        it("should create a new todo with valid data", async () => {
-        const requestBody = {
-            title: newTodo.title,
-            description: newTodo.description,
-            completed: newTodo.completed,
-            user: newTodo.user,
-        };
-    
-        const mockResponse = {
-            httpStatusCode: 200,
-            message: "Todo created successfully",
+
+    it("should return if the title already exists", async () => {
+      const requestBody = newTodo();
+
+      const mockResponse = {
+        httpStatusCode: 400,
+        message: "Title already taken",
+      };
+
+      sinon.stub(todoService, "createTodo").resolves(mockResponse);
+
+      const response = await todoService.createTodo(requestBody);
+
+      expect(response.httpStatusCode).to.equal(400);
+      expect(response.message).to.equal("Title already taken");
+    });
+  });
 });
