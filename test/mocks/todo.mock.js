@@ -2,8 +2,12 @@ const Todo  = require("../../src/models/Todo");
 const User = require("../../src/models/User");
 const mongoose = require("mongoose");
 
+const getRandomInt = (max) => {
+    return Math.floor(Math.random() * Math.floor(max));
+  };
+
 const newTodo = (userId = new mongoose.Types.ObjectId()) => ({
-    title: "New Todo",
+    title: `New Todo${getRandomInt(1000000)}`,
     description: "New Todo Description",
     completed: false,
     user: userId,
