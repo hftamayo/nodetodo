@@ -73,4 +73,26 @@ describe("TodoService Unit Tests", () => {
         expect(response.message).to.equal("Todo updated successfully");
         });
   });
+
+  describe("deleteTodoByID()", () => {
+    it("should delete a todo with valid data", async () => {
+      const requestUserId = existingTodo.user;
+      const requestTodoId = existingTodo._id;
+
+      const mockResponse = {
+        httpStatusCode: 200,
+        message: "Todo Deleted Successfully",
+      };
+
+      sinon.stub(todoService, "deleteTodoByID").resolves(mockResponse);
+
+      const response = await todoService.deleteTodoByID(
+        requestUserId,
+        requestTodoId
+      );
+
+      expect(response.httpStatusCode).to.equal(200);
+      expect(response.message).to.equal("Todo Deleted Successfully");
+    });
+  });
 });
