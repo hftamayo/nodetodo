@@ -94,5 +94,47 @@ describe("TodoService Unit Tests", () => {
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("Todo Deleted Successfully");
     });
+
+    it("should return if the todo does not exist", async () => {
+      const requestUserId = existingTodo.user;
+      const requestTodoId = existingTodo._id;
+
+      const mockResponse = {
+        httpStatusCode: 404,
+        message: "Todo Not Found",
+      };
+
+      sinon.stub(todoService, "deleteTodoByID").resolves(mockResponse);
+
+      const response = await todoService.deleteTodoByID(
+        requestUserId,
+        requestTodoId
+      );
+
+      expect(response.httpStatusCode).to.equal(404);
+      expect(response.message).to.equal("Todo Not Found");
+    });
+
+    it("should return if the user is not the owner of the todo", async () => {
+      const requestUserId = existingTodo.user;
+      const requestTodoId = existingTodo._id;
+
+      const mockResponse = {
+        httpStatusCode: 401,
+        message: "You're not the owner of this Todo",
+      };
+
+      sinon.stub(todoService, "deleteTodoByID").resolves(mockResponse);
+
+      const response = await todoService.deleteTodoByID(
+        requestUserId,
+        requestTodoId
+      );
+
+      expect(response.httpStatusCode).to.equal(401);
+      expect(response.message).to.equal("You're not the owner of this Todo");
+    });
+
+
   });
 });
