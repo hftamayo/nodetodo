@@ -1,5 +1,5 @@
 const sinon = require("sinon");
-const {newTodo, existingTodo, updateTodo} = require("../mocks/todo.mock");
+const { newTodo, existingTodo, updateTodo } = require("../mocks/todo.mock");
 const todoController = require("../../src/api/controllers/todoController");
 
 describe("todoController Unit Tests", () => {
@@ -42,7 +42,7 @@ describe("todoController Unit Tests", () => {
       listTodoByID.withArgs(req.user, req.params.id).resolves({
         httpStatusCode: 200,
         message: "Todo Found",
+      });
     });
+  });
 });
-});        
-      }
