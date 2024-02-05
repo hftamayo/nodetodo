@@ -4,14 +4,33 @@ const todoController = require("../../src/api/controllers/todoController");
 
 describe("todoController Unit Tests", () => {
   describe("getTodos", () => {
+    let req, res, json, sandbox, listActiveTodosStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
     it("should return a list of todos", async () => {
-      const req = {
+      req = {
         user: "5f0f6d4a4f2b9b3d8c9f2b4d",
       };
-      const res = {
-        status: sinon.spy(),
-        json: sinon.spy(),
-      };
+
+        res = {};
+        json = sandbox.spy();
+        res.status = sandbox.stub().returns({ json});
+
+        listActiveTodosStub = sandbox.stub().resolves({
+          httpStatusCode: 200,
+          message: "Todo found",
+          todos: [existingTodo],
+        });
+
+        todoController.getTodos(listActiveTodosStub);
+
       const listActiveTodos = sinon.stub();
       listActiveTodos.withArgs(req.user).resolves({
         httpStatusCode: 200,
