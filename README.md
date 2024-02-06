@@ -17,6 +17,7 @@ Application which help the user to manage tasks and reminders. This repo belongs
 * BackEnd: NodeJS
 * Render Framework: Express
 * Architecture: To be defined 
+* Rate Limiting: express-rate-limit (for enterprise project please check "rate-limiter-flexible")
 
 ### Available Functions ###
 * Add a new task
@@ -39,3 +40,5 @@ Application which help the user to manage tasks and reminders. This repo belongs
 ## Bugs ##
 Please refer to the Issues section in this repository
 
+## References ##
+* Testing [Test a Restful API with Mocha and Chai](https://www.digitalocean.com/community/tutorials/test-a-node-restful-api-with-mocha-and-chai)

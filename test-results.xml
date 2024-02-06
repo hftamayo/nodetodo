@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.251" tests="1" failures="1">
+  <testsuite name="Root Suite" timestamp="2023-08-14T19:21:43" tests="0" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Add an account for testing" timestamp="2023-08-14T19:21:43" tests="1" file="/home/hftamayo/sourcecode/nodejs/myprojects/nodetodo/test/test.user.js" time="0.245" failures="1">
+    <testcase name="Add an account for testing POST /users/register" time="0.213" classname="POST /users/register">
+      <failure message="expected { Object (_events, _eventsCount, ...) } to have status code 200 but got 404" type="AssertionError"><![CDATA[AssertionError: expected { Object (_events, _eventsCount, ...) } to have status code 200 but got 404
+    at file:///home/hftamayo/sourcecode/nodejs/myprojects/nodetodo/test/test.user.js:34:25
+    at Request.callback (node_modules/superagent/lib/node/index.js:857:12)
+    at IncomingMessage.<anonymous> (node_modules/superagent/lib/node/index.js:1070:18)
+    at IncomingMessage.emit (node:events:525:35)
+    at endReadableNT (node:internal/streams/readable:1359:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+
+      + expected - actual
+
+      -404
+      +200
+      ]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

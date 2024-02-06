@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -19,10 +19,16 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    // isAdmin: {
+    //   type: Boolean,
+    //   required: true,
+    //   default: false,
+    // },
   },
+
   { timestamps: true }
 );
 
 const User = mongoose.model("User", UserSchema);
 
-export default User;
+module.exports = User;
