@@ -3,7 +3,7 @@ const { newTodo, existingTodo, updateTodo } = require("../mocks/todo.mock");
 const todoController = require("../../src/api/controllers/todoController");
 
 describe("todoController Unit Tests", () => {
-  describe("getTodos", () => {
+  describe("getTodos method", () => {
     let req, res, json, sandbox, listActiveTodosStub;
 
     beforeEach(() => {
@@ -14,34 +14,31 @@ describe("todoController Unit Tests", () => {
       sandbox.restore();
     });
 
-    it("should return a list of todos", async () => {
+    it("should return a list of todos associated to an active user", async () => {
       req = {
         user: "5f0f6d4a4f2b9b3d8c9f2b4d",
       };
 
-        res = {};
-        json = sandbox.spy();
-        res.status = sandbox.stub().returns({ json});
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
 
-        listActiveTodosStub = sandbox.stub().resolves({
-          httpStatusCode: 200,
-          message: "Todo found",
-          todos: [existingTodo],
-        });
-
-        todoController.getTodos(listActiveTodosStub);
-
-      const listActiveTodos = sinon.stub();
-      listActiveTodos.withArgs(req.user).resolves({
+      listActiveTodosStub = sandbox.stub().resolves({
         httpStatusCode: 200,
-        message: "Active Todos",
+        message: "Tasks found",
         todos: [existingTodo],
       });
 
-      await todoController.getTodos(req, res);
+      todoController.setActiveTodos(listActiveTodosStub);
+
+      await todoController.getTodosHandler(req, res);
+      sinon.assert.calledOnce(listActiveTodosStub);
+      sinon.assert.calledWith(listActiveTodosStub, req.user);
+      sinon.assert.calledOnce(res.status);
       sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledWith(res.json, {
-        resultMessage: "Active Todos",
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Tasks found",
         activeTodos: [existingTodo],
       });
     });
