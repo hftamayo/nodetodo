@@ -64,10 +64,12 @@ describe("todoController Unit Tests", () => {
       };
       res = {};
       json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+
       listActiveTodoStub = sandbox.stub().resolves({
         httpStatusCode: 200,
-        message: "Tasks found",
-        searchTodo: todoSupervisor,
+        message: "Todo found",
+        todo: todoSupervisor,
       });
 
       todoController.setTodoByID(listActiveTodoStub);
@@ -81,7 +83,7 @@ describe("todoController Unit Tests", () => {
       sinon.assert.calledOnce(json);
       sinon.assert.calledWith(json, {
         resultMessage: "Todo found",
-        activeTodos: [existingTodo],
+        searchTodo: todoSupervisor,
       });      
 
     });
