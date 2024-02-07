@@ -1,5 +1,7 @@
 const sinon = require("sinon");
-const { newTodo, existingTodo, updateTodo } = require("../mocks/todo.mock");
+const { newTodo, todoSupervisor, updateTodo } = require("../mocks/todo.mock");
+const { mockUserSupervisor } = require("../mocks/user.mock");
+
 const todoController = require("../../src/api/controllers/todoController");
 
 describe("todoController Unit Tests", () => {
@@ -16,7 +18,7 @@ describe("todoController Unit Tests", () => {
 
     it("should return a list of todos associated to an active user", async () => {
       req = {
-        user: "5f0f6d4a4f2b9b3d8c9f2b4d",
+        user: mockUserSupervisor.id,
       };
 
       res = {};
@@ -26,7 +28,7 @@ describe("todoController Unit Tests", () => {
       listActiveTodosStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         message: "Tasks found",
-        todos: [existingTodo],
+        todos: todoSupervisor,
       });
 
       todoController.setActiveTodos(listActiveTodosStub);
@@ -39,26 +41,49 @@ describe("todoController Unit Tests", () => {
       sinon.assert.calledOnce(json);
       sinon.assert.calledWith(json, {
         resultMessage: "Tasks found",
-        activeTodos: [existingTodo],
+        activeTodos: todoSupervisor,
       });
     });
   });
 
-  describe("getTodo", () => {
+  describe("getTodo method", () => {
+    let req, res, json, sandbox, listActiveTodoStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
     it("should return a todo", async () => {
-      const req = {
-        user: "5f0f6d4a4f2b9b3d8c9f2b4d",
-        params: { id: "5f0f6d4a4f2b9b3d8c9f2b4d" },
+      req = {
+        user: mockUserSupervisor.id,
+        params: { id: todoSupervisor._id },
       };
-      const res = {
-        status: sinon.spy(),
-        json: sinon.spy(),
-      };
-      const listTodoByID = sinon.stub();
-      listTodoByID.withArgs(req.user, req.params.id).resolves({
+      res = {};
+      json = sandbox.spy();
+      listActiveTodoStub = sandbox.stub().resolves({
         httpStatusCode: 200,
-        message: "Todo Found",
+        message: "Tasks found",
+        searchTodo: todoSupervisor,
       });
+
+      todoController.setTodoByID(listActiveTodoStub);
+
+      await todoController.getTodoHandler(req, res);
+
+      sinon.assert.calledOnce(listActiveTodoStub);
+      sinon.assert.calledWith(listActiveTodoStub, req.user);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Todo found",
+        activeTodos: [existingTodo],
+      });      
+
     });
   });
 });
