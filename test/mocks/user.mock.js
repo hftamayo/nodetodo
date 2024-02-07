@@ -4,30 +4,40 @@ const getRandomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(max));
 };
 
-//this user is already created in the database
-const mockUserLogin = {
-  id: "658cb60218796c6f55f54fc4",
+const mockUserAdmin = {
+  id: "5f7f8b1e9f3f9c1d6c1e4d1e",
+  name: "Administrator",
+  email: "administrator@nodetodo.com",
+  password: "password",
+  age: 30,
+  role: "admin",
+}
+
+const mockUserSupervisor = {
+  id: "5f7f8b1e9f3f9c1d6c1e4d1f",
   name: "Sebastian Fernandez",
   email: "sebas@gmail.com",
   password: "password",
   age: 20,
-};
+  role: "supervisor",
+}
+
+const mockUserUser = {
+  id: "5f7f8b1e9f3f9c1d6c1e4d20",
+  name: "Lupita Martinez",
+  email: "lupita@fundamuvi.com",
+  password: "password",
+  age: 25,
+  role: "user",
+}
 
 const getNewUser = () => ({
-  name: "Guadalupe Martinez Fernandez",
-  email: `guadalupe${getRandomInt(1000000)}@gmail.com`,
+  name: "Milu Fernandez Martinez",
+  email: `milu${getRandomInt(1000000)}@gmail.com`,
   password: "password",
-  age: 30,
+  age: 18,
 })
 
-//user for unit tests and update/delete operations
-const mockUser = new User({
-  id: "1234567890",
-  name: "Herbert Fernandez Tamayo",
-  email: `hftamayo${getRandomInt(1000000)}@gmail.com`,
-  password: "password",
-  age: 30,
-});
 
 const mockUserInvalid = {
   id: "123123123AAA",
@@ -38,8 +48,8 @@ const mockUserInvalid = {
 };
 
 const mockUserUpdate = {
-  name: "Sebastian Fernandez",
-  email: `sebas${getRandomInt(1000000)}@gmail.com`,
+  name: "Yuki Fernandez Martinez",
+  email: `yuki${getRandomInt(1000000)}@gmail.com`,
   emailTaken: "hftamayo@gmail.com",
   oldPassword: "password",
   newPassword: "milucito",
@@ -53,7 +63,9 @@ const mockUserDelete = {
 };
 
 module.exports = {
-  mockUser,
+  mockUserAdmin,
+  mockUserSupervisor,
+  mockUserUser,
   getNewUser,
   mockUserLogin,
   mockUserInvalid,
