@@ -10,6 +10,20 @@ const seedTodos = async function () {
       completed: false,
       user: "5f7f8b1e9f3f9c1d6c1e4d1e",
     },
+    {
+      _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1f"),
+      title: "Gym",
+      description: "To exercise",
+      completed: false,
+      user: "5f7f8b1e9f3f9c1d6c1e4d1f",
+    },
+    {
+      _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d20"),
+      title: "Buy groceries",
+      description: "To buy food",
+      completed: false,
+      user: "5f7f8b1e9f3f9c1d6c1e4d20",
+    },
   ];
 
   try {
