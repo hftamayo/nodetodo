@@ -67,7 +67,6 @@ module.exports = {
   mockUserSupervisor,
   mockUserUser,
   getNewUser,
-  mockUserLogin,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
