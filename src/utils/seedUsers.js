@@ -1,8 +1,10 @@
+const mongoose = require("mongoose");
 const User = require("../models/User");
 
 const seedUsers = async function () {
   const users = [
     {
+      _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1e"),
       name: "Administrator",
       email: "administrator@nodetodo.com",
       password: "password",
@@ -10,6 +12,7 @@ const seedUsers = async function () {
       role: "admin",
     },
     {
+      _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1f"),
       name: "Sebastian Fernandez",
       email: "sebas@gmail.com",
       password: "password",
@@ -17,6 +20,7 @@ const seedUsers = async function () {
       role: "supervisor",
     },
     {
+      _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d20"),
       name: "Lupita Martinez",
       email: "lupita@fundamuvi.com",
       password: "password",
