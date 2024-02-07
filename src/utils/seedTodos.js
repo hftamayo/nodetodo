@@ -7,7 +7,7 @@ const seedTodos = async function () {
       _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1d"),
       title: "Foreign language class",
       description: "To learn a new language",
-      complete: false,
+      completed: false,
       user: "5f7f8b1e9f3f9c1d6c1e4d1e",
     },
   ];
