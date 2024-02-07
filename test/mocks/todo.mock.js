@@ -13,11 +13,11 @@ const newTodo = (userId = new mongoose.Types.ObjectId()) => ({
     user: userId,
 });
 
-const existingTodo = {
-    title: "Foreign language class",
-    description: "learn a new language",
+const todoSupervisor = {
+    title: "Gym",
+    description: "To exercise",
     completed: false,
-    user: new mongoose.Types.ObjectId(),
+    user: "5f7f8b1e9f3f9c1d6c1e4d1f",
 };
 
 const updateTodo = {
@@ -28,6 +28,6 @@ const updateTodo = {
 
 module.exports = {
     newTodo,
-    existingTodo,
+    todoSupervisor,
     updateTodo,
 };
