@@ -26,8 +26,13 @@ const updateTodo = {
     completed: true,
 };
 
+const deleteTodo = {
+    id: "222222222",
+}
+
 module.exports = {
     newTodo,
     todoSupervisor,
     updateTodo,
+    deleteTodo,
 };

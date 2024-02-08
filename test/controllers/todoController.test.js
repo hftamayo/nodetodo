@@ -1,5 +1,5 @@
 const sinon = require("sinon");
-const { newTodo, todoSupervisor, updateTodo } = require("../mocks/todo.mock");
+const { newTodo, todoSupervisor, updateTodo, deleteTodo } = require("../mocks/todo.mock");
 const { mockUserSupervisor } = require("../mocks/user.mock");
 
 const todoController = require("../../src/api/controllers/todoController");
