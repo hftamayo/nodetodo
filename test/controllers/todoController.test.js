@@ -195,7 +195,7 @@ describe("todoController Unit Tests", () => {
 
       deleteTodoStub = sandbox.stub().resolves({
         httpStatusCode: 200,
-        message: "Todo deleted successfully",
+        message: "Todo Deleted Successfully",
       });
 
       todoController.setDeleteTodoByID(deleteTodoStub);
@@ -208,7 +208,7 @@ describe("todoController Unit Tests", () => {
       sinon.assert.calledWith(res.status, 200);
       sinon.assert.calledOnce(json);
       sinon.assert.calledWith(json, {
-        resultMessage: "Todo deleted successfully",
+        resultMessage: "Todo Deleted Successfully",
       });
     });
   });
