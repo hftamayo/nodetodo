@@ -129,4 +129,87 @@ describe("todoController Unit Tests", () => {
       });
     });
   });
+
+  describe("updateTodo method", () => {
+    let req, res, json, sandbox, updateTodoStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should update a todo", async () => {
+      req = {
+        user: mockUserSupervisor.id,
+        params: { id: todoSupervisor._id },
+        body: updateTodo,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+
+      updateTodoStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "Todo updated successfully",
+        updateTodo: updateTodo,
+      });
+
+      todoController.setUpdateTodoByID(updateTodoStub);
+
+      await todoController.updateTodoHandler(req, res);
+
+      sinon.assert.calledOnce(updateTodoStub);
+      sinon.assert.calledWith(updateTodoStub, req.user, req.params.id, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Todo updated successfully",
+        updateTodo: updateTodo,
+      });
+    });
+  });
+
+  describe("deleteTodo method", () => {
+    let req, res, json, sandbox, deleteTodoStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should delete a todo", async () => {
+      req = {
+        user: mockUserSupervisor.id,
+        params: { id: todoSupervisor._id },
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+
+      deleteTodoStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "Todo deleted successfully",
+      });
+
+      todoController.setDeleteTodoByID(deleteTodoStub);
+
+      await todoController.deleteTodoHandler(req, res);
+
+      sinon.assert.calledOnce(deleteTodoStub);
+      sinon.assert.calledWith(deleteTodoStub, req.user, req.params.id);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Todo deleted successfully",
+      });
+    });
+  });
 });
