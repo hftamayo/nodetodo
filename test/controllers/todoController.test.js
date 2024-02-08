@@ -84,8 +84,49 @@ describe("todoController Unit Tests", () => {
       sinon.assert.calledWith(json, {
         resultMessage: "Todo found",
         searchTodo: todoSupervisor,
-      });      
+      });
+    });
+  });
 
+  describe("createTodo method", () => {
+    let req, res, json, sandbox, newTodoStub;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should create a new todo", async () => {
+      req = {
+        user: mockUserSupervisor.id,
+        body: newTodo,
+      };
+      res = {};
+      json = sandbox.spy();
+      res.status = sandbox.stub().returns({ json });
+
+      newTodoStub = sandbox.stub().resolves({
+        httpStatusCode: 200,
+        message: "Todo created successfully",
+        todo: newTodo,
+      });
+
+      todoController.setCreateTodo(newTodoStub);
+
+      await todoController.newTodoHandler(req, res);
+
+      sinon.assert.calledOnce(newTodoStub);
+      sinon.assert.calledWith(newTodoStub, req.user, req.body);
+      sinon.assert.calledOnce(res.status);
+      sinon.assert.calledWith(res.status, 200);
+      sinon.assert.calledOnce(json);
+      sinon.assert.calledWith(json, {
+        resultMessage: "Todo created successfully",
+        newTodo: newTodo,
+      });
     });
   });
 });
