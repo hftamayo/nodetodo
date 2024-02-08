@@ -56,7 +56,7 @@ const deleteUserHandler = (req, res) => {
 
 router.post("/register", signUpLimiter, registerRules, validateResult, registerHandler);
 router.post("/login", loginLimiter, loginRules, validateResult, loginHandler);
-router.get("/logout", authorize, logoutHandler);
+router.post("/logout", authorize, logoutHandler);
 router.get("/me", authorize, listUserHandler);
 router.put(
   "/updatedetails",
