@@ -1,4 +1,3 @@
-
 const Todo = require("../models/Todo");
 
 const listActiveTodos = async function (requestUserId) {
@@ -75,7 +74,7 @@ const updateTodoByID = async function (
   const { title, description, completed } = requestBody;
 
   try {
-    const updateTodo = await Todo.findById(todoId);
+    let updateTodo = await Todo.findById(todoId);
     if (!updateTodo) {
       return { httpStatusCode: 404, message: "Todo Not Found" };
     }
@@ -89,7 +88,11 @@ const updateTodoByID = async function (
     updateTodo.description = description;
     updateTodo.completed = completed;
     await updateTodo.save();
-    return { httpStatusCode: 200, message: "Todo updated successfully" };
+    return {
+      httpStatusCode: 200,
+      message: "Todo updated successfully",
+      todo: updateTodo,
+    };
   } catch (error) {
     console.error("todoService, updateTodo: " + error.message);
     return { httpStatusCode: 500, message: "Internal Server Error" };
