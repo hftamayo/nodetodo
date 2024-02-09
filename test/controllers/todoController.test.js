@@ -141,7 +141,7 @@ describe("todoController Unit Tests", () => {
       sandbox.restore();
     });
 
-    it.only("should update a todo", async () => {
+    it("should update a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
         params: { id: todoSupervisor._id },
