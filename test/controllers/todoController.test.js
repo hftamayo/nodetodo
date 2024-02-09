@@ -1,5 +1,10 @@
 const sinon = require("sinon");
-const { newTodo, todoSupervisor, updateTodo, deleteTodo } = require("../mocks/todo.mock");
+const {
+  newTodo,
+  todoSupervisor,
+  updateTodo,
+  deleteTodo,
+} = require("../mocks/todo.mock");
 const { mockUserSupervisor } = require("../mocks/user.mock");
 
 const todoController = require("../../src/api/controllers/todoController");
@@ -141,7 +146,7 @@ describe("todoController Unit Tests", () => {
       sandbox.restore();
     });
 
-    it("should update a todo", async () => {
+    it.only("should update a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
         params: { id: todoSupervisor._id },
@@ -162,7 +167,12 @@ describe("todoController Unit Tests", () => {
       await todoController.updateTodoHandler(req, res);
 
       sinon.assert.calledOnce(updateTodoStub);
-      sinon.assert.calledWith(updateTodoStub, req.user, req.params.id, req.body);
+      sinon.assert.calledWith(
+        updateTodoStub,
+        req.user,
+        req.params.id,
+        req.body
+      );
       sinon.assert.calledOnce(res.status);
       sinon.assert.calledWith(res.status, 200);
       sinon.assert.calledOnce(json);
@@ -184,7 +194,7 @@ describe("todoController Unit Tests", () => {
       sandbox.restore();
     });
 
-    it.only("should delete a todo", async () => {
+    it("should delete a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
         params: { id: deleteTodo.id },
