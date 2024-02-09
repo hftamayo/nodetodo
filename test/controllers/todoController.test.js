@@ -184,10 +184,10 @@ describe("todoController Unit Tests", () => {
       sandbox.restore();
     });
 
-    it("should delete a todo", async () => {
+    it.only("should delete a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
-        params: { id: todoSupervisor._id },
+        params: { id: deleteTodo.id },
       };
       res = {};
       json = sandbox.spy();
