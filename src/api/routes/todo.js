@@ -2,21 +2,21 @@ const express = require("express");
 const authorize = require("../middleware/authorize");
 const todoController = require("../controllers/todoController");
 const {
-  getTodos,
-  getTodo,
-  newTodo,
-  updateTodo,
-  deleteTodo,
+  listActiveTodos,
+  listTodoByID,
+  createTodo,
+  updateTodoByID,
+  deleteTodoByID,
 } = require("../../services/todoService");
 const { createTodoRules, updateTodoRules } = require("../middleware/validator");
 const { validateResult } = require("../middleware/validationResults");
 const router = express.Router();
 
-todoController.setActiveTodos(getTodos);
-todoController.setTodoByID(getTodo);
-todoController.setCreateTodo(newTodo);
-todoController.setUpdateTodoByID(updateTodo);
-todoController.setDeleteTodoByID(deleteTodo);
+todoController.setActiveTodos(listActiveTodos);
+todoController.setTodoByID(listTodoByID);
+todoController.setCreateTodo(createTodo);
+todoController.setUpdateTodoByID(updateTodoByID);
+todoController.setDeleteTodoByID(deleteTodoByID);
 
 const getTodosHandler = (req, res) => {
   todoController.getTodosHandler(req, res);
