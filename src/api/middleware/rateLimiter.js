@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const isDev = process.env.NODE_ENV === "development";
 
 const rateLimit = require("express-rate-limit");
