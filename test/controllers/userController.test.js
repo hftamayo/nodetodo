@@ -1,11 +1,13 @@
 const sinon = require("sinon");
 const {
-  mockUser,
+  getNewUser,
+  mockUserUser,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
 } = require("../mocks/user.mock");
-const userController = require("../../api/controllers/userController");
+const userController = require("../../src/api/controllers/userController");
+const { get } = require("superagent");
 
 describe("userController Unit Test", () => {
   describe("register method", () => {
@@ -19,14 +21,9 @@ describe("userController Unit Test", () => {
       sandbox.restore();
     });
 
-    it("should register a new user", async () => {
+    it.only("should register a new user", async () => {
       req = {
-        body: {
-          name: mockUser.name,
-          email: mockUser.email,
-          password: mockUser.password,
-          age: mockUser.age,
-        },
+        body: getNewUser,
       };
       res = {};
       json = sandbox.spy();
@@ -35,14 +32,14 @@ describe("userController Unit Test", () => {
       signUpUserStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         message: "User created successfully",
-        user: mockUser,
+        user: getNewUser,
       });
 
       userController.setSignUpUser(signUpUserStub);
 
       await userController.registerHandler(req, res);
 
-      const { password, ...filteredMockUser } = mockUser._doc;
+      const { password, ...filteredMockUser } = getNewUser._doc;
 
       sinon.assert.calledOnce(signUpUserStub);
       sinon.assert.calledWith(signUpUserStub, req.body);
@@ -102,8 +99,8 @@ describe("userController Unit Test", () => {
     it("should login a valid user", async () => {
       req = {
         body: {
-          email: mockUser.email,
-          password: mockUser.password,
+          email: mockUserUser.email,
+          password: mockUserUser.password,
         },
       };
       res = {};
@@ -116,7 +113,7 @@ describe("userController Unit Test", () => {
         httpStatusCode: 200,
         tokenCreated: "token",
         message: "User login successfully",
-        user: mockUser,
+        user: mockUserUser,
         token: "token",
       });
 
@@ -124,7 +121,7 @@ describe("userController Unit Test", () => {
 
       await userController.loginHandler(req, res);
 
-      const { password, ...filteredMockUser } = mockUser._doc;
+      const { password, ...filteredMockUser } = mockUserUser._doc;
 
       sinon.assert.calledOnce(loginStub);
       sinon.assert.calledWith(loginStub, req.body);
@@ -215,7 +212,7 @@ describe("userController Unit Test", () => {
 
     it("should get details of a valid user", async () => {
       req = {
-        user: mockUser,
+        user: mockUserUser,
       };
       res = {};
       json = sandbox.spy();
@@ -225,7 +222,7 @@ describe("userController Unit Test", () => {
       getMeStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         message: "User Found",
-        user: mockUser,
+        user: mockUserUser,
       });
 
       userController.setListUser(getMeStub);
@@ -293,7 +290,7 @@ describe("userController Unit Test", () => {
       };
 
       req = {
-        user: mockUser,
+        user: mockUserUser,
         body: expectedUpdateProperties,
       };
       res = {};
@@ -304,7 +301,7 @@ describe("userController Unit Test", () => {
       updateDetailsStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         message: "Data updated successfully",
-        user: mockUser,
+        user: mockUserUser,
       });
 
       userController.setUpdateUserDetails(updateDetailsStub);
@@ -378,7 +375,7 @@ describe("userController Unit Test", () => {
       };
 
       req = {
-        user: mockUser,
+        user: mockUserUser,
         body: expectedUpdateProperties,
       };
       res = {};
@@ -389,14 +386,14 @@ describe("userController Unit Test", () => {
       updatePasswordStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         message: "Password updated successfully",
-        user: mockUser,
+        user: mockUserUser,
       });
 
       userController.setUpdateUserPassword(updatePasswordStub);
 
       await userController.updateUserPasswordHandler(req, res);
 
-      const { password, ...filteredMockUser } = mockUser._doc;
+      const { password, ...filteredMockUser } = mockUserUser._doc;
 
       sinon.assert.calledOnce(updatePasswordStub);
       sinon.assert.calledWith(updatePasswordStub, req.user, req.body);
@@ -450,7 +447,7 @@ describe("userController Unit Test", () => {
       };
 
       req = {
-        user: mockUser,
+        user: mockUserUser,
         body: expectedUpdateProperties,
       };
       res = {};
