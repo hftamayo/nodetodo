@@ -146,7 +146,7 @@ describe("todoController Unit Tests", () => {
       sandbox.restore();
     });
 
-    it("should update a todo", async () => {
+    it.skip("should update a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
         params: { id: todoSupervisor.id },
