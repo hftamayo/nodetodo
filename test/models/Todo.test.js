@@ -1,7 +1,7 @@
 const expect = require("chai").expect;
 const sinon = require("sinon");
 const Todo = require("../../src/models/Todo");
-const { newTodo, existingTodo } = require("../mocks/todo.mock");
+const { newTodo, todoSupervisor } = require("../mocks/todo.mock");
 
 describe("Todo Model", () => {
   it("should create a new todo with valid data", async () => {
@@ -27,9 +27,9 @@ describe("Todo Model", () => {
   it("should throw an error if the todo's title is missing", async () => {
     const todo = new Todo({
       title: "",
-      description: existingTodo.description,
-      completed: existingTodo.completed,
-      user: existingTodo.user,
+      description: todoSupervisor.description,
+      completed: todoSupervisor.completed,
+      user: todoSupervisor.user,
     });
 
     const saveStub = sinon.stub(Todo.prototype, "save");
@@ -49,10 +49,10 @@ describe("Todo Model", () => {
 
   it("should throw an error if the todo's description is missing", async () => {
     const todo = new Todo({
-      title: existingTodo.title,
+      title: todoSupervisor.title,
       description: "",
-      completed: existingTodo.completed,
-      user: existingTodo.user,
+      completed: todoSupervisor.completed,
+      user: todoSupervisor.user,
     });
 
     const saveStub = sinon.stub(Todo.prototype, "save");
@@ -74,10 +74,10 @@ describe("Todo Model", () => {
 
   it("should throw an error if the todo's completed status is missing", async () => {
     const todo = new Todo({
-      title: existingTodo.title,
-      description: existingTodo.description,
+      title: todoSupervisor.title,
+      description: todoSupervisor.description,
       completed: "",
-      user: existingTodo.user,
+      user: todoSupervisor.user,
     });
 
     const saveStub = sinon.stub(Todo.prototype, "save");
