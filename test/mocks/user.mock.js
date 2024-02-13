@@ -1,3 +1,4 @@
+const { mongo } = require("mongoose");
 const User = require("../../src/models/User");
 
 const getRandomInt = (max) => {
@@ -32,6 +33,7 @@ const mockUserUser = {
 }
 
 const getNewUser = () => ({
+  id: new mongo.Types.ObjectId(),
   name: "Milu Fernandez Martinez",
   email: `milu${getRandomInt(1000000)}@gmail.com`,
   password: "password",
