@@ -74,7 +74,7 @@ const userController = {
   logoutHandler: async function (req, res) {
     try {
       res.clearCookie("nodetodo");
-      res.status(200).json({ msg: "User logged out successfully" });
+      res.status(200).json({ resultMessage: "User logged out successfully" });
     } catch (error) {
       console.error("userController, logout: " + error.message);
       res.status(500).json({ resultMessage: "Internal Server Error" });
