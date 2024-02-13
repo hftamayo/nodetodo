@@ -2,7 +2,7 @@ const sinon = require("sinon");
 const {
   newTodo,
   todoSupervisor,
-  updateTodo,
+  todoForUpdate,
   deleteTodo,
 } = require("../mocks/todo.mock");
 const { mockUserSupervisor } = require("../mocks/user.mock");
@@ -150,7 +150,7 @@ describe("todoController Unit Tests", () => {
       req = {
         user: mockUserSupervisor.id,
         params: { id: todoSupervisor._id },
-        body: updateTodo,
+        body: todoForUpdate,
       };
       res = {};
       json = sandbox.spy();
@@ -158,8 +158,8 @@ describe("todoController Unit Tests", () => {
 
       updateTodoStub = sandbox.stub().resolves({
         httpStatusCode: 200,
-        message: "Todo updated successfully",
-        updateTodo: updateTodo,
+        resultMessage: "Todo updated successfully",
+        updateTodo: todoForUpdate,
       });
 
       todoController.setUpdateTodoByID(updateTodoStub);
@@ -178,7 +178,7 @@ describe("todoController Unit Tests", () => {
       sinon.assert.calledOnce(json);
       sinon.assert.calledWith(json, {
         resultMessage: "Todo updated successfully",
-        updateTodo: updateTodo,
+        updateTodo: todoForUpdate,
       });
     });
   });
