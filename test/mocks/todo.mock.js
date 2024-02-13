@@ -20,7 +20,7 @@ const todoSupervisor = {
     user: "5f7f8b1e9f3f9c1d6c1e4d1f",
 };
 
-const updateTodo = {
+const todoForUpdate = {
     title: "Update Todo",
     description: "Update Todo Description",
     completed: true,
@@ -33,6 +33,6 @@ const deleteTodo = {
 module.exports = {
     newTodo,
     todoSupervisor,
-    updateTodo,
+    todoForUpdate,
     deleteTodo,
 };
