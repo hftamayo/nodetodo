@@ -146,10 +146,10 @@ describe("todoController Unit Tests", () => {
       sandbox.restore();
     });
 
-    it.only("should update a todo", async () => {
+    it("should update a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
-        params: { id: todoSupervisor._id },
+        params: { id: todoSupervisor.id },
         body: todoForUpdate,
       };
       res = {};
@@ -159,7 +159,7 @@ describe("todoController Unit Tests", () => {
       updateTodoStub = sandbox.stub().resolves({
         httpStatusCode: 200,
         resultMessage: "Todo updated successfully",
-        updateTodo: todoForUpdate,
+        updateTodo: todoSupervisor,
       });
 
       todoController.setUpdateTodoByID(updateTodoStub);
