@@ -1,7 +1,7 @@
 const expect = require("chai").expect;
 const sinon = require("sinon");
 const {
-  mockUser,
+  mockUserUser,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
@@ -16,16 +16,16 @@ describe("UserService Unit Tests", () => {
   describe("signupUser()", () => {
     it("should create a new user with valid data", async () => {
       const requestBody = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        age: mockUser.age,
+        name: mockUserUser.name,
+        email: mockUserUser.email,
+        password: mockUserUser.password,
+        age: mockUserUser.age,
       };
 
       const mockResponse = {
         httpStatusCode: 200,
         message: "User created successfully",
-        user: mockUser,
+        user: mockUserUser,
       };
 
       sinon.stub(userService, "signUpUser").resolves(mockResponse);
@@ -35,17 +35,17 @@ describe("UserService Unit Tests", () => {
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User created successfully");
       expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUser.name);
-      expect(response.user.email).to.equal(mockUser.email);
-      expect(response.user.age).to.equal(mockUser.age);
+      expect(response.user.name).to.equal(mockUserUser.name);
+      expect(response.user.email).to.equal(mockUserUser.email);
+      expect(response.user.age).to.equal(mockUserUser.age);
     });
 
     it("should return an error if the user's email is already in use", async () => {
       const requestBody = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        age: mockUser.age,
+        name: mockUserUser.name,
+        email: mockUserUser.email,
+        password: mockUserUser.password,
+        age: mockUserUser.age,
       };
 
       const mockResponse = {
@@ -65,15 +65,15 @@ describe("UserService Unit Tests", () => {
   describe("loginUser()", () => {
     it("should login a user with valid credentials", async () => {
       const requestBody = {
-        email: mockUser.email,
-        password: mockUser.password,
+        email: mockUserUser.email,
+        password: mockUserUser.password,
       };
 
       const mockResponse = {
         httpStatusCode: 200,
         tokenCreated: "token",
         message: "User login successfully",
-        user: mockUser,
+        user: mockUserUser,
       };
 
       sinon.stub(userService, "loginUser").resolves(mockResponse);
@@ -84,15 +84,15 @@ describe("UserService Unit Tests", () => {
       expect(response.tokenCreated).to.exist;
       expect(response.message).to.equal("User login successfully");
       expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUser.name);
-      expect(response.user.email).to.equal(mockUser.email);
-      expect(response.user.age).to.equal(mockUser.age);
+      expect(response.user.name).to.equal(mockUserUser.name);
+      expect(response.user.email).to.equal(mockUserUser.email);
+      expect(response.user.age).to.equal(mockUserUser.age);
     });
 
     it("should not login if user does not exist", async () => {
       const requestBody = {
         email: mockUserInvalid.email,
-        password: mockUser.password,
+        password: mockUserUser.password,
       };
 
       const mockResponse = {
@@ -110,7 +110,7 @@ describe("UserService Unit Tests", () => {
 
     it("should return an error if the password is incorrect", async () => {
       const requestBody = {
-        email: mockUser.email,
+        email: mockUserUser.email,
         password: mockUserInvalid.password,
       };
 
@@ -130,12 +130,12 @@ describe("UserService Unit Tests", () => {
 
   describe("listUserById()", () => {
     it("should return a user with valid id", async () => {
-      const requestUserId = mockUser.id;
+      const requestUserId = mockUserUser.id;
 
       const mockResponse = {
         httpStatusCode: 200,
         message: "User Found",
-        user: mockUser,
+        user: mockUserUser,
       };
 
       sinon.stub(userService, "listUserByID").resolves(mockResponse);
@@ -145,9 +145,9 @@ describe("UserService Unit Tests", () => {
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User Found");
       expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUser.name);
-      expect(response.user.email).to.equal(mockUser.email);
-      expect(response.user.age).to.equal(mockUser.age);
+      expect(response.user.name).to.equal(mockUserUser.name);
+      expect(response.user.email).to.equal(mockUserUser.email);
+      expect(response.user.age).to.equal(mockUserUser.age);
     });
 
     it("should return an error if the user id is invalid", async () => {

@@ -1,32 +1,32 @@
 const expect = require("chai").expect;
 const sinon = require("sinon");
 const User = require("../../src/models/User");
-const { mockUser } = require("../mocks/user.mock");
+const { mockUserUser } = require("../mocks/user.mock");
 
 describe("User Model", () => {
   it("should create a new user with valid data", async () => {
     const saveStub = sinon.stub(User.prototype, "save");
 
     saveStub.resolves({
-      name: mockUser.name,
-      email: mockUser.email,
-      password: mockUser.password,
-      age: mockUser.age,
+      name: mockUserUser.name,
+      email: mockUserUser.email,
+      password: mockUserUser.password,
+      age: mockUserUser.age,
     });
 
     const user = new User({
-      name: mockUser.name,
-      email: mockUser.email,
-      password: mockUser.password,
-      age: mockUser.age,
+      name: mockUserUser.name,
+      email: mockUserUser.email,
+      password: mockUserUser.password,
+      age: mockUserUser.age,
     });
 
     await user.save();
 
     expect(user).to.exist;
-    expect(user.name).to.equal(mockUser.name);
-    expect(user.email).to.equal(mockUser.email);
-    expect(user.age).to.equal(mockUser.age);
+    expect(user.name).to.equal(mockUserUser.name);
+    expect(user.email).to.equal(mockUserUser.email);
+    expect(user.age).to.equal(mockUserUser.age);
 
     saveStub.restore();
   });
@@ -34,9 +34,9 @@ describe("User Model", () => {
   it("should throw an error if the user's name is missing", async () => {
     const user = new User({
       name: "",
-      email: mockUser.email,
-      password: mockUser.password,
-      age: mockUser.age,
+      email: mockUserUser.email,
+      password: mockUserUser.password,
+      age: mockUserUser.age,
     });
 
     const saveStub = sinon.stub(User.prototype, "save");
@@ -56,10 +56,10 @@ describe("User Model", () => {
 
   it("should throw an error if the user's email is missing", async () => {
     const user = new User({
-      name: mockUser.name,
+      name: mockUserUser.name,
       email: "",
-      password: mockUser.password,
-      age: mockUser.age,
+      password: mockUserUser.password,
+      age: mockUserUser.age,
     });
 
     const saveStub = sinon.stub(User.prototype, "save");
@@ -79,10 +79,10 @@ describe("User Model", () => {
 
   it("should throw an error if the user's password is missing", async () => {
     const user = new User({
-      name: mockUser.name,
-      email: mockUser.email,
+      name: mockUserUser.name,
+      email: mockUserUser.email,
       password: "",
-      age: mockUser.age,
+      age: mockUserUser.age,
     });
 
     const saveStub = sinon.stub(User.prototype, "save");
@@ -102,9 +102,9 @@ describe("User Model", () => {
 
   it("should throw an error if the user's age is missing", async () => {
     const user = new User({
-      name: mockUser.name,
-      email: mockUser.email,
-      password: mockUser.password,
+      name: mockUserUser.name,
+      email: mockUserUser.email,
+      password: mockUserUser.password,
       age: "",
     });
 
