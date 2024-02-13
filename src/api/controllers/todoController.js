@@ -86,7 +86,11 @@ const todoController = {
       );
       res
         .status(httpStatusCode)
-        .json({ resultMessage: message, updateTodo: todo });
+        .json(
+          httpStatusCode === 200
+            ? { resultMessage: message, updateTodo: todo }
+            : { resultMessage: message }
+        );
     } catch (error) {
       console.error("todoController, updateTodo: " + error.message);
       res.status(500).json({ resultMessage: "Internal Server Error" });
