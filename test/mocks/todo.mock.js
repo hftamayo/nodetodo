@@ -14,6 +14,7 @@ const newTodo = (userId = new mongoose.Types.ObjectId()) => ({
 });
 
 const todoSupervisor = {
+    id : new mongoose.Types.ObjectId(),
     title: "Gym",
     description: "To exercise",
     completed: false,
