@@ -1,6 +1,6 @@
 const expect = require("chai").expect;
 const sinon = require("sinon");
-const { newTodo, existingTodo, updateTodo } = require("../mocks/todo.mock");
+const { newTodo, todoSupervisor, updateTodo } = require("../mocks/todo.mock");
 const todoService = require("../../src/services/todoService");
 
 describe("TodoService Unit Tests", () => {
@@ -13,7 +13,7 @@ describe("TodoService Unit Tests", () => {
       const mockResponse = {
         httpStatusCode: 200,
         message: "Tasks found",
-        todos: [existingTodo],
+        todos: [todoSupervisor],
       };
 
       sinon.stub(todoService, "listActiveTodos").resolves(mockResponse);
@@ -46,13 +46,13 @@ describe("TodoService Unit Tests", () => {
 
   describe("listTodoByID()", () => {
     it("should return a todo with valid data", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
 
       const mockResponse = {
         httpStatusCode: 200,
         message: "Todo found",
-        todo: existingTodo,
+        todo: todoSupervisor,
       };
 
       sinon.stub(todoService, "listTodoByID").resolves(mockResponse);
@@ -65,17 +65,17 @@ describe("TodoService Unit Tests", () => {
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("Todo found");
       expect(response.todo).to.exist;
-      expect(response.todo.title).to.equal(existingTodo.title);
-      expect(response.todo.description).to.equal(existingTodo.description);
+      expect(response.todo.title).to.equal(todoSupervisor.title);
+      expect(response.todo.description).to.equal(todoSupervisor.description);
       expect(response.todo.user.toString()).to.equal(
-        existingTodo.user.toString()
+        todoSupervisor.user.toString()
       );
-      expect(response.todo.completed).to.equal(existingTodo.completed);
+      expect(response.todo.completed).to.equal(todoSupervisor.completed);
     });
 
     it("should return if the todo does not exist", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
 
       const mockResponse = {
         httpStatusCode: 404,
@@ -94,8 +94,8 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if the user is not the owner of the todo", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
 
       const mockResponse = {
         httpStatusCode: 400,
@@ -160,8 +160,8 @@ describe("TodoService Unit Tests", () => {
 
   describe("updateTodoByID()", () => {
     it("should update a todo with valid data", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
       const requestBody = updateTodo;
 
       const mockResponse = {
@@ -182,8 +182,8 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if the todo does not exist", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
       const requestBody = updateTodo;
 
       const mockResponse = {
@@ -204,8 +204,8 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if the user is not the owner of the todo", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
       const requestBody = updateTodo;
 
       const mockResponse = {
@@ -228,8 +228,8 @@ describe("TodoService Unit Tests", () => {
 
   describe("deleteTodoByID()", () => {
     it("should delete a todo with valid data", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
 
       const mockResponse = {
         httpStatusCode: 200,
@@ -248,8 +248,8 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if the todo does not exist", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
 
       const mockResponse = {
         httpStatusCode: 404,
@@ -268,8 +268,8 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if the user is not the owner of the todo", async () => {
-      const requestUserId = existingTodo.user;
-      const requestTodoId = existingTodo._id;
+      const requestUserId = todoSupervisor.user;
+      const requestTodoId = todoSupervisor._id;
 
       const mockResponse = {
         httpStatusCode: 401,
