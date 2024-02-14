@@ -30,12 +30,14 @@ const todoController = {
         .status(httpStatusCode)
         .json(
           httpStatusCode === 200
-            ? { resultMessage: message, activeTodos: todos }
-            : { resultMessage: message }
+            ? { httpStatusCode, resultMessage: message, activeTodos: todos }
+            : {httpStatusCode, resultMessage: message }
         );
     } catch (error) {
       console.error("todoController, getTodos: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -49,12 +51,14 @@ const todoController = {
         .status(httpStatusCode)
         .json(
           httpStatusCode === 200
-            ? { resultMessage: message, searchTodo: todo }
-            : { resultMessage: message }
+            ? { httpStatusCode, resultMessage: message, searchTodo: todo }
+            : { httpStatusCode, resultMessage: message }
         );
     } catch (error) {
       console.error("todoController, getTodo: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -68,12 +72,14 @@ const todoController = {
         .status(httpStatusCode)
         .json(
           httpStatusCode === 200
-            ? { resultMessage: message, newTodo: todo }
-            : { resultMessage: message }
+            ? { httpStatusCode, resultMessage: message, newTodo: todo }
+            : { httpStatusCode, resultMessage: message }
         );
     } catch (error) {
       console.error("todoController, newTodo: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -88,12 +94,14 @@ const todoController = {
         .status(httpStatusCode)
         .json(
           httpStatusCode === 200
-            ? { resultMessage: message, updateTodo: todo }
-            : { resultMessage: message }
+            ? { httpStatusCode, resultMessage: message, updateTodo: todo }
+            : { httpStatusCode, resultMessage: message }
         );
     } catch (error) {
       console.error("todoController, updateTodo: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -103,10 +111,14 @@ const todoController = {
         req.user,
         req.params.id
       );
-      res.status(httpStatusCode).json({ resultMessage: message });
+      res
+        .status(httpStatusCode)
+        .json({ httpStatusCode, resultMessage: message });
     } catch (error) {
       console.error("todoController, deleteTodo: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
     }
   },
 };
