@@ -34,15 +34,21 @@ const userController = {
       const { httpStatusCode, message, user } = await signUpUser(req.body);
       if (httpStatusCode === 200) {
         const { password, ...filteredUser } = user._doc;
+        res.status(httpStatusCode).json({
+          httpStatusCode,
+          resultMessage: message,
+          newUser: filteredUser,
+        });
+      } else {
         res
           .status(httpStatusCode)
-          .json({ resultMessage: message, newUser: filteredUser });
-      } else {
-        res.status(httpStatusCode).json({ resultMessage: message });
+          .json({ httpStatusCode, resultMessage: message });
       }
     } catch (error) {
       console.error("userController, register: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -59,25 +65,38 @@ const userController = {
         });
         //filtering password for not showing during the output
         const { password, ...filteredUser } = user._doc;
+        res.status(httpStatusCode).json({
+          httpStatusCode,
+          resultMessage: message,
+          loggedUser: filteredUser,
+        });
+      } else {
         res
           .status(httpStatusCode)
-          .json({ resultMessage: message, loggedUser: filteredUser });
-      } else {
-        res.status(httpStatusCode).json({ resultMessage: message });
+          .json({ httpStatusCode, resultMessage: message });
       }
     } catch (error) {
       console.error("userController, login: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
   logoutHandler: async function (req, res) {
     try {
       res.clearCookie("nodetodo");
-      res.status(200).json({ resultMessage: "User logged out successfully" });
+      res
+        .status(200)
+        .json({
+          httpStatusCode,
+          resultMessage: "User logged out successfully",
+        });
     } catch (error) {
       console.error("userController, logout: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -88,13 +107,21 @@ const userController = {
         const { password, ...filteredUser } = user._doc;
         res
           .status(httpStatusCode)
-          .json({ resultMessage: message, searchUser: filteredUser });
+          .json({
+            httpStatusCode,
+            resultMessage: message,
+            searchUser: filteredUser,
+          });
       } else {
-        res.status(httpStatusCode).json({ resultMessage: message });
+        res
+          .status(httpStatusCode)
+          .json({ httpStatusCode, resultMessage: message });
       }
     } catch (error) {
       console.error("userController, getMe: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -106,16 +133,24 @@ const userController = {
       );
 
       if (!user) {
-        return res.status(httpStatusCode).json({ resultMessage: message });
+        return res
+          .status(httpStatusCode)
+          .json({ httpStatusCode, resultMessage: message });
       }
 
       const { password, ...filteredUSer } = user._doc;
       res
         .status(httpStatusCode)
-        .json({ resultMessage: message, updatedUser: filteredUSer });
+        .json({
+          httpStatusCode,
+          resultMessage: message,
+          updatedUser: filteredUSer,
+        });
     } catch (error) {
       console.error("userController, updateDetails: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -127,16 +162,24 @@ const userController = {
       );
 
       if (!user) {
-        return res.status(httpStatusCode).json({ resultMessage: message });
+        return res
+          .status(httpStatusCode)
+          .json({ httpStatusCode, resultMessage: message });
       }
 
       const { password, ...filteredUser } = user._doc;
       res
         .status(httpStatusCode)
-        .json({ resultMessage: message, updatedUser: filteredUser });
+        .json({
+          httpStatusCode,
+          resultMessage: message,
+          updatedUser: filteredUser,
+        });
     } catch (error) {
       console.error("userController, updatePassword: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -147,10 +190,14 @@ const userController = {
       if (httpStatusCode === 200) {
         res.clearCookie("nodetodo");
       }
-      res.status(httpStatusCode).json({ resultMessage: message });
+      res
+        .status(httpStatusCode)
+        .json({ httpStatusCode, resultMessage: message });
     } catch (error) {
       console.error("userController, deleteUser: " + error.message);
-      res.status(500).json({ resultMessage: "Internal Server Error" });
+      res
+        .status(500)
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 };

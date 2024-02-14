@@ -1,0 +1,3 @@
+docker build -t nodetodo:stable-0.0.1 .
+docker tag nodetodo:stable-0.0.1 hftamayo/nodetodo:stable-0.0.1
+docker run -d --name nodetodo --env-file ./.env -p 8003:8003 nodetodo:stable-0.0.1
