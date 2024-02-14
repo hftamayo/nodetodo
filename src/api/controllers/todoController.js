@@ -37,7 +37,7 @@ const todoController = {
       console.error("todoController, getTodos: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -58,7 +58,7 @@ const todoController = {
       console.error("todoController, getTodo: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -79,7 +79,7 @@ const todoController = {
       console.error("todoController, newTodo: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -101,7 +101,7 @@ const todoController = {
       console.error("todoController, updateTodo: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -118,7 +118,7 @@ const todoController = {
       console.error("todoController, deleteTodo: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 };

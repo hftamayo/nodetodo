@@ -48,7 +48,7 @@ const userController = {
       console.error("userController, register: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -79,7 +79,7 @@ const userController = {
       console.error("userController, login: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -96,7 +96,7 @@ const userController = {
       console.error("userController, logout: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -121,7 +121,7 @@ const userController = {
       console.error("userController, getMe: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -150,7 +150,7 @@ const userController = {
       console.error("userController, updateDetails: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -179,7 +179,7 @@ const userController = {
       console.error("userController, updatePassword: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 
@@ -197,7 +197,7 @@ const userController = {
       console.error("userController, deleteUser: " + error.message);
       res
         .status(500)
-        .json({ httpStatusCode, resultMessage: "Internal Server Error" });
+        .json({ httpStatusCode: 500, resultMessage: "Internal Server Error" });
     }
   },
 };
