@@ -89,7 +89,7 @@ const userController = {
       res
         .status(200)
         .json({
-          httpStatusCode,
+          httpStatusCode: 200,
           resultMessage: "User logged out successfully",
         });
     } catch (error) {
