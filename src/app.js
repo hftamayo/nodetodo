@@ -21,6 +21,13 @@ async function startApp() {
     app.use(express.urlencoded({ extended: true })); //cuando false?
     app.use(cookieParser()); //parsea cookie headers y populate req.cookies
 
+    //I live this method in case of request monitoring
+    // app.use((req, res, next) => {
+    //   console.log("Request received: ", req.method, req.url);
+    //   console.log("Request headers: ", req.headers);
+    //   next();
+    // });
+
     await seedDatabase();
 
     app.use("/nodetodo/todos", todosRoutes);
