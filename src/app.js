@@ -15,7 +15,7 @@ const PORT = port || 5001;
 async function startApp() {
   try {
     await dbConnection();
-    app.use(setCorsEnviro);
+    setCorsEnviro(app);
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true })); //cuando false?
