@@ -3,7 +3,7 @@ const cookieParser = require("cookie-parser");
 const { dbConnection, setCorsEnviro } = require("./config/setup");
 const { port } = require("./config/envvars");
 
-const  seedDatabase  = require("./utils/seedDatabase");
+const seedDatabase = require("./utils/seedDatabase");
 const todosRoutes = require("./api/routes/todo");
 const usersRoutes = require("./api/routes/user");
 const healthCheckRoutes = require("./api/routes/healthCheck");
