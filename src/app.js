@@ -3,7 +3,7 @@ const cookieParser = require("cookie-parser");
 const { dbConnection, setCorsEnviro } = require("./config/setup");
 const { port } = require("./config/envvars");
 
-const  seedDatabase  = require("./utils/seedDatabase");
+const seedDatabase = require("./utils/seedDatabase");
 const todosRoutes = require("./api/routes/todo");
 const usersRoutes = require("./api/routes/user");
 const healthCheckRoutes = require("./api/routes/healthCheck");
@@ -15,11 +15,18 @@ const PORT = port || 5001;
 async function startApp() {
   try {
     await dbConnection();
-    app.use(setCorsEnviro);
+    setCorsEnviro(app);
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true })); //cuando false?
     app.use(cookieParser()); //parsea cookie headers y populate req.cookies
+
+    //I live this method in case of request monitoring
+    // app.use((req, res, next) => {
+    //   console.log("Request received: ", req.method, req.url);
+    //   console.log("Request headers: ", req.headers);
+    //   next();
+    // });
 
     await seedDatabase();
 

@@ -1,5 +1,6 @@
+const cors = require("cors");
 const mongoose = require("mongoose");
-const { backend } = require("./envvars");
+const { backend, whitelist_frontend } = require("./envvars");
 
 const dbConnection = async () => {
   try {
@@ -18,24 +19,18 @@ const dbConnection = async () => {
   }
 };
 
-const setCorsEnviro = async (req, res, next) => {
-  try {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    );
-    if (req.method === "OPTIONS") {
-      res.header(
-        "Access-Control-Allow-Methods",
-        "PUT, POST, PATCH, DELETE, GET"
-      );
-      return res.status(200).json({});
-    }
-    next();
-  } catch (error) {
-    console.log("CORS error: " + error.message);
-    process.exit(1);
-  }
+const setCorsEnviro = (app) => {
+  app.use(
+    cors({
+      origin: function (origin, callback) {
+        if (whitelist_frontend.indexOf(origin) !== -1 || !origin) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    })
+  );
 };
 module.exports = { dbConnection, setCorsEnviro };

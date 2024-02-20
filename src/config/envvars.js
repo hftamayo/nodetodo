@@ -7,6 +7,8 @@ const masterKey = process.env.JWT_SECRET;
 const refreshKey = process.env.JWT_FRESH;
 const mode = process.env.EXEC_MODE;
 
+const whitelist_frontend = process.env.FRONTEND_ORIGINS.split(",");
+
 const backend =
   mode === "production"
     ? process.env.MONGODB_URI_PROD
@@ -20,6 +22,7 @@ module.exports = {
   masterKey,
   refreshKey,
   backend,
+  whitelist_frontend,
   dataseeddev,
   dataseedprod,
 };

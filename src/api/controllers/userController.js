@@ -61,7 +61,10 @@ const userController = {
       if (httpStatusCode === 200) {
         res.cookie("nodetodo", tokenCreated, {
           httpOnly: true,
-          expiresIn: 360000,
+          //expiresIn: 360000,
+          maxAge: 360000,
+          secure: true,
+          sameSite: "None",
         });
         //filtering password for not showing during the output
         const { password, ...filteredUser } = user._doc;
@@ -89,7 +92,7 @@ const userController = {
       res
         .status(200)
         .json({
-          httpStatusCode,
+          httpStatusCode: 200,
           resultMessage: "User logged out successfully",
         });
     } catch (error) {

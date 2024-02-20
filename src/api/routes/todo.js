@@ -40,8 +40,13 @@ const deleteTodoHandler = (req, res) => {
 
 router.get("/list", authorize, getTodosHandler);
 router.get("/task/:id", authorize, getTodoHandler);
-router.post("/create", authorize, createTodoRules, validateResult, newTodoHandler);
-router.post("/create", authorize, createTodoRules, validateResult);
+router.post(
+  "/create",
+  authorize,
+  createTodoRules,
+  validateResult,
+  newTodoHandler
+);
 router.put(
   "/update/:id",
   authorize,
