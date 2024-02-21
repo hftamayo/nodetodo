@@ -61,10 +61,10 @@ const userController = {
       if (httpStatusCode === 200) {
         res.cookie("nodetodo", tokenCreated, {
           httpOnly: true,
-          //expiresIn: 360000,
           maxAge: 360000,
           secure: true,
-          sameSite: "None",
+          sameSite: "Lax",
+          path: "/",
         });
         //filtering password for not showing during the output
         const { password, ...filteredUser } = user._doc;
@@ -89,12 +89,10 @@ const userController = {
   logoutHandler: async function (req, res) {
     try {
       res.clearCookie("nodetodo");
-      res
-        .status(200)
-        .json({
-          httpStatusCode: 200,
-          resultMessage: "User logged out successfully",
-        });
+      res.status(200).json({
+        httpStatusCode: 200,
+        resultMessage: "User logged out successfully",
+      });
     } catch (error) {
       console.error("userController, logout: " + error.message);
       res
@@ -108,13 +106,11 @@ const userController = {
       const { httpStatusCode, message, user } = await listUserByID(req.user);
       if (httpStatusCode === 200) {
         const { password, ...filteredUser } = user._doc;
-        res
-          .status(httpStatusCode)
-          .json({
-            httpStatusCode,
-            resultMessage: message,
-            searchUser: filteredUser,
-          });
+        res.status(httpStatusCode).json({
+          httpStatusCode,
+          resultMessage: message,
+          searchUser: filteredUser,
+        });
       } else {
         res
           .status(httpStatusCode)
@@ -142,13 +138,11 @@ const userController = {
       }
 
       const { password, ...filteredUSer } = user._doc;
-      res
-        .status(httpStatusCode)
-        .json({
-          httpStatusCode,
-          resultMessage: message,
-          updatedUser: filteredUSer,
-        });
+      res.status(httpStatusCode).json({
+        httpStatusCode,
+        resultMessage: message,
+        updatedUser: filteredUSer,
+      });
     } catch (error) {
       console.error("userController, updateDetails: " + error.message);
       res
@@ -171,13 +165,11 @@ const userController = {
       }
 
       const { password, ...filteredUser } = user._doc;
-      res
-        .status(httpStatusCode)
-        .json({
-          httpStatusCode,
-          resultMessage: message,
-          updatedUser: filteredUser,
-        });
+      res.status(httpStatusCode).json({
+        httpStatusCode,
+        resultMessage: message,
+        updatedUser: filteredUser,
+      });
     } catch (error) {
       console.error("userController, updatePassword: " + error.message);
       res
