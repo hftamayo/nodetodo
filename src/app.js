@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { dbConnection, setCorsEnviro } = require("./config/setup");
 const { port } = require("./config/envvars");
@@ -15,7 +16,7 @@ const PORT = port || 5001;
 async function startApp() {
   try {
     await dbConnection();
-    setCorsEnviro(app);
+    app.use(cors(setCorsEnviro)); //cors middleware
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true })); //cuando false?
