@@ -34,7 +34,7 @@ const setCorsEnviro = {
     "Access-Control-Allow-Headers",
     "Access-Control-Allow-Origin",
     "Access-Control-Allow-Methods",
-    "Access-Control-Allow-Credential",
+    "Access-Control-Allow-Credentials",
     "Origin",
     "withCredentials",
     "X-Requested-With",
