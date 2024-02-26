@@ -62,7 +62,7 @@ const userController = {
         res.cookie("nodetodo", tokenCreated, {
           httpOnly: true,
           maxAge: 360000,
-          secure: true,
+          //secure: true, -> sent the cookie only if https is enabled
           sameSite: "Lax",
           path: "/",
         });
