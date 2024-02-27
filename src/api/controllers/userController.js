@@ -63,7 +63,7 @@ const userController = {
           httpOnly: true,
           maxAge: 360000,
           //secure: true, -> sent the cookie only if https is enabled
-          sameSite: "Lax",
+          sameSite: "Lax", //on HTTPS set this to "None"
           path: "/",
         });
         //filtering password for not showing during the output
