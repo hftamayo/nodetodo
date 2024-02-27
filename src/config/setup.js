@@ -29,8 +29,9 @@ const setCorsEnviro = {
   },
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
   allowedHeaders: [
+    "Content-Type",
     "Access-Control-Allow-Headers",
     "Access-Control-Allow-Origin",
     "Access-Control-Allow-Methods",
