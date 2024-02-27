@@ -62,8 +62,8 @@ const userController = {
         res.cookie("nodetodo", tokenCreated, {
           httpOnly: true,
           maxAge: 360000,
-          //secure: true, -> sent the cookie only if https is enabled
-          sameSite: "Lax", //on HTTPS set this to "None"
+          secure: true, //sent the cookie only if https is enabled
+          sameSite: "None", //on HTTPS set this to "None"
           path: "/",
         });
         //filtering password for not showing during the output
