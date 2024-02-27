@@ -1,3 +1,4 @@
+const { cors_secure, cors_samesite } = require("./envvars");
 let signUpUser;
 let loginUser;
 let logoutUser;
@@ -62,8 +63,8 @@ const userController = {
         res.cookie("nodetodo", tokenCreated, {
           httpOnly: true,
           maxAge: 360000,
-          secure: true, //sent the cookie only if https is enabled
-          sameSite: "None", //on HTTPS set this to "None"
+          secure: cors_secure, //sent the cookie only if https is enabled
+          sameSite: cors_samesite,
           path: "/",
         });
         //filtering password for not showing during the output
