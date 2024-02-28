@@ -1,13 +1,13 @@
-const express = require("express");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const { dbConnection, setCorsEnviro } = require("./config/setup");
-const { port } = require("./config/envvars");
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { dbConnection, setCorsEnviro } from "./config/setup";
+import { port } from "./config/envvars";
 
-const seedDatabase = require("./utils/seedDatabase");
-const todosRoutes = require("./api/routes/todo");
-const usersRoutes = require("./api/routes/user");
-const healthCheckRoutes = require("./api/routes/healthCheck");
+import seedDatabase from "./utils/seedDatabase";
+import todosRoutes from "./api/routes/todo";
+import usersRoutes from "./api/routes/user";
+import healthCheckRoutes from "./api/routes/healthCheck";
 
 const app = express();
 
@@ -40,10 +40,10 @@ async function startApp() {
       console.log(`The server instance is running on port ${PORT}`);
     });
     return server;
-  } catch (error) {
+  } catch (error: any) {
     console.error("the backend is down: ", error.message);
     process.exit(1);
   }
 }
 
-module.exports = { app, startApp };
+export { app, startApp };
