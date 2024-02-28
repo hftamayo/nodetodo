@@ -7,12 +7,12 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "mocha test/**/*.js",
-    "smoketest": "mocha smoketest/**/*.js",
-    "unittest": "mocha 'test/subruta/unit.test.js'",
-    "integrationcontroller": "mocha 'test/controllers/intcontroller.test.js'",
-    "integrationservice": "mocha 'test/services/intservice.test.js'",
-    "testrpt": "mocha 'test/**/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
+    "test": "jest test/**/*.js",
+    "smoketest": "jest smoketest/**/*.js",
+    "unittest": "jest 'test/subruta/unit.test.js'",
+    "integrationcontroller": "jest 'test/controllers/intcontroller.test.js'",
+    "integrationservice": "jest 'test/services/intservice.test.js'",
+    "testrpt": "jest 'test/**/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
   },
   "author": "Herbert Tamayo",
   "license": "ISC",
