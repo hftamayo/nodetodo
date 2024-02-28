@@ -36,6 +36,7 @@
     "nodemon": "^2.0.22",
     "sinon": "^17.0.1",
     "supertest": "^6.3.3",
-    "ts-jest": "^29.1.2"
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
   }
 }
