@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "test": "jest test/**/*.js",
+    "build": "tsc",
     "smoketest": "jest smoketest/**/*.js",
     "unittest": "jest 'test/subruta/unit.test.js'",
     "integrationcontroller": "jest 'test/controllers/intcontroller.test.js'",
