@@ -1,4 +1,4 @@
-const { cors_secure, cors_samesite } = require("./envvars");
+const { cors_secure, cors_samesite } = require("../../config/envvars");
 let signUpUser;
 let loginUser;
 let logoutUser;
