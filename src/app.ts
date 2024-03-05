@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { dbConnection, setCorsEnviro } from "./config/setup";
@@ -23,17 +23,24 @@ async function startApp() {
     app.use(cookieParser()); //parsea cookie headers y populate req.cookies
 
     //I live this method in case of request monitoring
-    // app.use((req, res, next) => {
-    //   console.log("Request received: ", req.method, req.url);
-    //   console.log("Request headers: ", req.headers);
-    //   next();
-    // });
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      console.log("Request received: ", req.method, req.url);
+      console.log("Request headers: ", req.headers);
+      next();
+    });
 
     await seedDatabase();
 
     app.use("/nodetodo/todos", todosRoutes);
     app.use("/nodetodo/users", usersRoutes);
     app.use("/nodetodo/healthcheck", healthCheckRoutes);
+
+    // Error handling middleware
+    app.use((error: any, res: Response) => {
+      console.error("Error middleware: ", error.message);
+      console.error("Error details: ", error.stack);
+      res.status(500).send("An unexpected error occurred");
+    });
 
     console.log("the backend is ready");
     const server = app.listen(port, () => {
