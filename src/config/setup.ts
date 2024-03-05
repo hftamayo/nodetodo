@@ -1,25 +1,26 @@
-const mongoose = require("mongoose");
-const { backend, whitelist_frontend } = require("./envvars");
+import mongoose from "mongoose";
+import {backend, whitelist_frontend} from "./envvars";
+
 
 const dbConnection = async () => {
   try {
-    await mongoose.connect(backend, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    if(!backend) throw new Error("Backend URL not found");
+
+    await mongoose.connect(backend);
     const db = mongoose.connection;
     db.on("error", console.error.bind(console, "connection error:"));
     db.once("open", function () {
       console.log("Connected to the Remote Dataset");
     });
   } catch (error) {
-    console.log("Database connection error: " + error.message);
+    console.log("Database connection error: " + (error as Error).message);
     process.exit(1);
   }
 };
 
 const setCorsEnviro = {
   origin: (origin, callback) => {
+    console.log(`CORS requested from origin: ${origin}`);
     if (whitelist_frontend.indexOf(origin) !== -1 || !origin) {
       console.log(`CORS requested from origin: ${origin} granted`);
       callback(null, true);
@@ -48,4 +49,4 @@ const setCorsEnviro = {
     "Request",
   ],
 };
-module.exports = { dbConnection, setCorsEnviro };
+export { dbConnection, setCorsEnviro };
