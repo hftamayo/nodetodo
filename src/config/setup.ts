@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
-import {backend, whitelist_frontend} from "./envvars";
-
+import { backend, whitelist_frontend } from "./envvars";
 
 const dbConnection = async () => {
   try {
-    if(!backend) throw new Error("Backend URL not found");
+    if (!backend) throw new Error("Backend URL not found");
 
     await mongoose.connect(backend);
     const db = mongoose.connection;
@@ -19,13 +18,19 @@ const dbConnection = async () => {
 };
 
 const setCorsEnviro = {
-  origin: (origin, callback) => {
+  origin: (
+    origin: string,
+    callback: (error: Error | null, allow: boolean) => void
+  ) => {
     console.log(`CORS requested from origin: ${origin}`);
     if (whitelist_frontend.indexOf(origin) !== -1 || !origin) {
       console.log(`CORS requested from origin: ${origin} granted`);
       callback(null, true);
     } else {
-      callback(new Error(`CORS requested from origin: ${origin} denied`));
+      callback(
+        new Error(`CORS requested from origin: ${origin} denied`),
+        false
+      );
     }
   },
   credentials: true,
