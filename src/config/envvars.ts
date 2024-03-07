@@ -12,8 +12,8 @@ const refreshKey = process.env.JWT_FRESH;
 const mode = process.env.EXEC_MODE;
 
 const whitelist_frontend = (process.env.FRONTEND_ORIGINS ?? '').split(",");
-const cors_secure = process.env.CORS_SECURE;
-const cors_samesite = process.env.CORS_SAMESITE;
+const cors_secure = mode === 'production';
+const cors_samesite = mode === 'production' ? 'None' : 'Lax';
 
 const backend =
   mode === "production"
