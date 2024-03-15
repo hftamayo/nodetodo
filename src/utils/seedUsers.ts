@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const User = require("../models/User");
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import User from "../models/User";
 
 const seedUsers = async function () {
   const users = [
@@ -36,9 +36,9 @@ const seedUsers = async function () {
       await User.create(user);
       console.log("User created: ", user);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("seedUsers: ", error.message);
   }
 };
 
-module.exports = seedUsers;
+export default seedUsers;
