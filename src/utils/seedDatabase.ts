@@ -1,7 +1,6 @@
-const { mode, dataseeddev, dataseedprod } = require("../config/envvars");
-
-const seedUsers = require("./seedUsers");
-const todoUsers = require("./seedTodos");
+import { mode, dataseeddev, dataseedprod } from "../config/envvars";
+import seedUsers from "./seedUsers";
+import todoUsers from "./seedTodos";
 
 async function seedDatabase() {
   try {
@@ -17,13 +16,20 @@ async function seedDatabase() {
     } else {
       console.log("No seeding required");
     }
-  } catch (error) {
-    console.error(
-      "error in seeding database, impossible to continue: ",
-      error.message
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(
+        "error in seeding database, impossible to continue: ",
+        error.message
+      );
+    } else {
+      console.error(
+        "error in seeding database, impossible to continue: ",
+        error
+      );
+    }
     process.exit(1);
   }
 }
 
-module.exports = seedDatabase;
+export default seedDatabase;
