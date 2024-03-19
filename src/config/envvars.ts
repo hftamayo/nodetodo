@@ -27,6 +27,7 @@ export {
   port,
   masterKey,
   refreshKey,
+  mode,
   backend,
   whitelist_frontend,
   cors_secure,
