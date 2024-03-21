@@ -1,6 +1,6 @@
-const { check } = require("express-validator");
+import { ValidationChain, check } from "express-validator";
 
-const registerRules = [
+const registerRules: ValidationChain[] = [
   check("name", "Name is Required").notEmpty().trim().escape(),
   check("email", "Please give a valid email").isEmail().normalizeEmail(),
   check(
@@ -10,20 +10,20 @@ const registerRules = [
   check("age", "Age is required").notEmpty().trim().escape().isNumeric(),
 ];
 
-const loginRules = [
+const loginRules: ValidationChain[] = [
   check("email", "Please give a valid Email").isEmail().normalizeEmail(),
   check("password", "Password should be 6 or more characters").isLength({
     min: 6,
   }),
 ];
 
-const updateDetailsRules = [
+const updateDetailsRules: ValidationChain[] = [
   check("name", "Name is Required").notEmpty().trim().escape(),
   check("email", "Please give a valid email").isEmail().normalizeEmail(),
   check("age", "Age is required").notEmpty().trim().escape().isNumeric(),
 ];
 
-const updatePasswordRules = [
+const updatePasswordRules: ValidationChain[] = [
   check(
     "password",
     "Password should be at least 6 or more characters"
@@ -34,12 +34,12 @@ const updatePasswordRules = [
   ).isLength({ min: 6 }),
 ];
 
-const createTodoRules = [
+const createTodoRules: ValidationChain[] = [
   check("title", "Title is Required").notEmpty().trim().escape(),
   check("description", "Description is Required").notEmpty().trim().escape(),
 ];
 
-const updateTodoRules = [
+const updateTodoRules: ValidationChain[] = [
   check("title", "Title is Required").notEmpty().trim().escape(),
   check("description", "Description is Required").notEmpty().trim().escape(),
   check("completed", "Completed is Required")
@@ -49,7 +49,7 @@ const updateTodoRules = [
     .isBoolean(),
 ];
 
-module.exports = {
+export default {
   registerRules,
   loginRules,
   updateDetailsRules,
