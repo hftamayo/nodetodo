@@ -1,20 +1,37 @@
-const jwt = require("jsonwebtoken");
-const { masterKey } = require("../../config/envvars");
+import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import { masterKey } from "../../config/envvars";
 
-const authorize = async (req, res, next) => {
-  const token = req.cookies.nodetodo;
+interface User {
+  id: string;
+  email: string;
+}
+
+interface RequestWithUser extends Request {
+  user: User;
+}
+
+const authorize = (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const token = req.header("x-auth-token");
   if (!token) {
     return res
       .status(401)
       .json({ resultMessage: "Not authorized, please login first" });
   }
   try {
-    const decoded = jwt.verify(token, masterKey);
+    const decoded = jwt.verify(token, masterKey) as { searchUser: User };
     req.user = decoded.searchUser;
     next();
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ resultMessage: "Internal Server Error" });
+  } catch (error: unknown) {
+    if (error instanceof Error){
+      console.error(error.message);
+      res.status(401).json({ resultMessage: "Not authorized, please login first" });
+    
+    } else {
+      console.error(error);
+      res.status(500).json({ resultMessage: "Internal Server Error" });
+    
+    }
   }
 };
 
