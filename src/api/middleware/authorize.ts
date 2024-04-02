@@ -1,14 +1,11 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { masterKey } from "../../config/envvars";
-
-interface User {
-  id: string;
-  email: string;
-}
+import { User } from "./user.interface";
+import { JwtPayloadWithUser } from "./user-jwt.interface";
 
 interface RequestWithUser extends Request {
-  user: User;
+  user?: User;
 }
 
 const authorize = (req: RequestWithUser, res: Response, next: NextFunction) => {
@@ -18,19 +15,29 @@ const authorize = (req: RequestWithUser, res: Response, next: NextFunction) => {
       .status(401)
       .json({ resultMessage: "Not authorized, please login first" });
   }
+  if (!masterKey) {
+    return res.status(500).json({ resultMessage: "Internal Server Error" });
+  }
   try {
-    const decoded = jwt.verify(token, masterKey) as { searchUser: User };
+    const decoded = jwt.verify(token, masterKey) as
+      | JwtPayloadWithUser
+      | undefined;
+    if (!decoded) {
+      return res
+        .status(401)
+        .json({ resultMessage: "Not authorized, please login first" });
+    }
     req.user = decoded.searchUser;
     next();
   } catch (error: unknown) {
-    if (error instanceof Error){
+    if (error instanceof Error) {
       console.error(error.message);
-      res.status(401).json({ resultMessage: "Not authorized, please login first" });
-    
+      res
+        .status(401)
+        .json({ resultMessage: "Not authorized, please login first" });
     } else {
       console.error(error);
       res.status(500).json({ resultMessage: "Internal Server Error" });
-    
     }
   }
 };
