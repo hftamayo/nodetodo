@@ -42,4 +42,4 @@ const authorize = (req: RequestWithUser, res: Response, next: NextFunction) => {
   }
 };
 
-module.exports = authorize;
+export default authorize;
