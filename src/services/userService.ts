@@ -1,8 +1,9 @@
-const User = require("../models/User");
-const Todo = require("../models/Todo");
-const jwt = require("jsonwebtoken");
-const { masterKey } = require("../config/envvars");
-const bcrypt = require("bcrypt");
+import User from "../models/User";
+import Todo from "../models/Todo";
+import { masterKey } from "../config/envvars";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
 
 const signUpUser = async function (requestBody) {
   const { name, email, password, age } = requestBody;
