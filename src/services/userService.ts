@@ -3,9 +3,10 @@ import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { UserRequestBody, IdPasswordBody } from "./types/user-request.interface";
 
 
-const signUpUser = async function (requestBody) {
+const signUpUser = async function (requestBody: UserRequestBody) {
   const { name, email, password, age } = requestBody;
   try {
     let searchUser = await User.findOne({ email }).exec();
@@ -26,13 +27,17 @@ const signUpUser = async function (requestBody) {
       message: "User created successfully",
       user: searchUser,
     };
-  } catch (error) {
-    console.error("userService, signUpUser: " + error.message);
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("userService, signUpUser: " + error.message);
+    } else {
+      console.error("userService, signUpUser: " + error);
+    }
+    return { httpStatusCode: 500, message: "Internal Server Error" };    
   }
 };
 
-const loginUser = async function (requestBody) {
+const loginUser = async function (requestBody: UserRequestBody) {
   const { email, password } = requestBody;
   try {
     let searchUser = await User.findOne({ email }).exec();
@@ -52,7 +57,9 @@ const loginUser = async function (requestBody) {
     }
     const payload = { searchUser: searchUser._id };
 
-    const token = jwt.sign(payload, masterKey, {
+    const secretKey = masterKey ?? "";
+
+    const token = jwt.sign(payload, secretKey, {
       expiresIn: 360000,
     });
     return {
@@ -61,9 +68,13 @@ const loginUser = async function (requestBody) {
       message: "User login successfully",
       user: searchUser,
     };
-  } catch (error) {
-    console.error("userService, loginUser: " + error.message);
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+  } catch (error : unknown) {
+    if (error instanceof Error) {
+      console.error("userService, loginUser: " + error.message);
+    } else {
+      console.error("userService, loginUser: " + error);
+    }
+    return { httpStatusCode: 500, message: "Internal Server Error" };    
   }
 };
 
@@ -162,7 +173,7 @@ const deleteUserByID = async function (requestUserId) {
   }
 };
 
-module.exports = {
+export default {
   signUpUser,
   loginUser,
   listUserByID,
