@@ -3,10 +3,9 @@ import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { UserRequestBody, IdPasswordBody } from "./types/user-request.interface";
+import { PartialUserRequestBody } from "./types/user-request.interface";
 
-
-const signUpUser = async function (requestBody: UserRequestBody) {
+const signUpUser = async function (requestBody: PartialUserRequestBody) {
   const { name, email, password, age } = requestBody;
   try {
     let searchUser = await User.findOne({ email }).exec();
@@ -33,11 +32,11 @@ const signUpUser = async function (requestBody: UserRequestBody) {
     } else {
       console.error("userService, signUpUser: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };    
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
-const loginUser = async function (requestBody: UserRequestBody) {
+const loginUser = async function (requestBody: PartialUserRequestBody) {
   const { email, password } = requestBody;
   try {
     let searchUser = await User.findOne({ email }).exec();
@@ -68,26 +67,30 @@ const loginUser = async function (requestBody: UserRequestBody) {
       message: "User login successfully",
       user: searchUser,
     };
-  } catch (error : unknown) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, loginUser: " + error.message);
     } else {
       console.error("userService, loginUser: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };    
+    return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
-const listUserByID = async function (requestUserId) {
-  const userId = requestUserId;
+const listUserByID = async function (requestUserId: PartialUserRequestBody) {
+  const id = requestUserId;
   try {
-    let searchUser = await User.findById(userId).exec();
+    let searchUser = await User.findById(id).exec();
     if (!searchUser) {
       return { httpStatusCode: 404, message: "User Not Found" };
     }
     return { httpStatusCode: 200, message: "User Found", user: searchUser };
-  } catch (error) {
-    console.error("userService, listItemByID: " + error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("userService, listItemByID: " + error.message);
+    } else {
+      console.error("userService, listItemByID: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
@@ -119,8 +122,12 @@ const updateUserByID = async function (requestUserId, requestBody) {
       message: "Data updated successfully",
       user: searchUser,
     };
-  } catch (error) {
-    console.error("userService, updateUserByID: " + error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("userService, updateUserByID: " + error.message);
+    } else {
+      console.error("userService, updateUserByID: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
@@ -148,16 +155,20 @@ const updateUserPassword = async function (requestUserId, requestPword) {
       message: "Password updated successfully",
       user: searchUser,
     };
-  } catch (error) {
-    console.error("userService, updateUserPassword: " + error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("userService, updateUserPassword: " + error.message);
+    } else {
+      console.error("userService, updateUserPassword: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
-const deleteUserByID = async function (requestUserId) {
-  const userId = requestUserId;
+const deleteUserByID = async function (requestUserId: PartialUserRequestBody) {
+  const id = requestUserId;
   try {
-    const searchUser = await User.findById(userId).exec();
+    const searchUser = await User.findById(id).exec();
     if (!searchUser) {
       return { httpStatusCode: 404, message: "User not found" };
     }
@@ -167,8 +178,12 @@ const deleteUserByID = async function (requestUserId) {
     }
     await searchUser.deleteOne();
     return { httpStatusCode: 200, message: "User deleted successfully" };
-  } catch (error) {
-    console.error("userService, deleteUserByID: " + error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("userService, deleteUserByID: " + error.message);
+    } else {
+      console.error("userService, deleteUserByID: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
