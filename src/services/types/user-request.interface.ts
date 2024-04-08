@@ -1,11 +1,9 @@
 export interface UserRequestBody {
+    id: string;
     name: string;
     email: string;
     age: number;
     password: string;
 }
 
-export interface IdPasswordBody {
-    id: string;
-    password: string;
-}
+export type PartialUserRequestBody = Partial<UserRequestBody>;
