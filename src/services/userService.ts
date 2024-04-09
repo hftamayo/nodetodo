@@ -7,6 +7,11 @@ import { PartialUserRequestBody } from "./types/user-request.interface";
 
 const signUpUser = async function (requestBody: PartialUserRequestBody) {
   const { name, email, password, age } = requestBody;
+
+  if(!name || !email || !password || !age){
+    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  }
+
   try {
     let searchUser = await User.findOne({ email }).exec();
     if (searchUser) {
