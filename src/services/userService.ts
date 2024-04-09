@@ -3,7 +3,7 @@ import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { PartialUserRequestBody } from "./types/user-request.interface";
+import { UserId, PartialUserRequestBody } from "./types/user-request.interface";
 
 const signUpUser = async function (requestBody: PartialUserRequestBody) {
   const { name, email, password, age } = requestBody;
@@ -87,7 +87,7 @@ const loginUser = async function (requestBody: PartialUserRequestBody) {
   }
 };
 
-const listUserByID = async function (requestUserId: PartialUserRequestBody) {
+const listUserByID = async function (requestUserId: UserId) {
   const id = requestUserId;
   try {
     let searchUser = await User.findById(id).exec();
@@ -105,9 +105,16 @@ const listUserByID = async function (requestUserId: PartialUserRequestBody) {
   }
 };
 
-const updateUserByID = async function (requestUserId, requestBody) {
+const updateUserByID = async function (
+  requestUserId: UserId,
+  requestBody: PartialUserRequestBody
+) {
   const userId = requestUserId;
   const { name, email, age } = requestBody;
+
+  if (!name || !email || !age) {
+    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  }
 
   try {
     let searchUser = await User.findById(userId).exec();
@@ -142,9 +149,17 @@ const updateUserByID = async function (requestUserId, requestBody) {
   }
 };
 
-const updateUserPassword = async function (requestUserId, requestPword) {
+const updateUserPassword = async function (
+  requestUserId: UserId,
+  requestPword: PartialUserRequestBody
+) {
   const userId = requestUserId;
   const { password, newPassword } = requestPword;
+
+  if (!password || !newPassword) {
+    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  }
+
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
