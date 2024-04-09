@@ -4,6 +4,7 @@ export interface UserRequestBody {
     email: string;
     age: number;
     password: string;
+    newPassword: string;
 }
 
 export type PartialUserRequestBody = Partial<UserRequestBody>;
