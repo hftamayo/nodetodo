@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { masterKey } from "../../config/envvars";
 import { User } from "./user.interface";
-import { JwtPayloadWithUser } from "./user-jwt.interface";
+import { JwtPayloadWithUser } from "./types/user-jwt.interface";
 
 interface RequestWithUser extends Request {
   user?: User;
