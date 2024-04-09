@@ -7,3 +7,7 @@ export interface UserRequestBody {
 }
 
 export type PartialUserRequestBody = Partial<UserRequestBody>;
+
+export interface UserId {
+    id: string;
+}
