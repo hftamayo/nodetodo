@@ -1,6 +1,9 @@
-const Todo = require("../models/Todo");
+import { User } from "../api/middleware/types/user.interface";
+import Todo from "../models/Todo";
+import { TodoId, PartialTodoRequestBody } from "./types/todo-request.interface";
+import { UserId } from "./types/user-request.interface";
 
-const listActiveTodos = async function (requestUserId) {
+const listActiveTodos = async function (requestUserId: UserId) {
   const userId = requestUserId;
   try {
     let activeTodos = await Todo.find({ user: userId }).exec();
@@ -11,29 +14,41 @@ const listActiveTodos = async function (requestUserId) {
       };
     }
     return { httpStatusCode: 200, message: "Tasks found", todos: activeTodos };
-  } catch (error) {
-    console.error("todoService, listActiveTodos: " + error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("todoService, listActiveTodos: " + error.message);
+    } else {
+      console.error("todoService, listActiveTodos: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
-const listTodoByID = async function (requestUserId, requestTodoId) {
+const listTodoByID = async function (
+  requestUserId: UserId,
+  requestTodoId: TodoId
+) {
   const userId = requestUserId;
   const todoId = requestTodoId;
+
   try {
     const searchTodo = await Todo.findById(todoId).exec();
     if (!searchTodo) {
       return { httpStatusCode: 404, message: "Task Not Found" };
     }
-    if (searchTodo.user.toString() !== userId) {
+    if (searchTodo.user.toString() !== userId.id.toString()) {
       return {
         httpStatusCode: 400,
         message: "There's a problem with your credentials",
       };
     }
     return { httpStatusCode: 200, message: "Todo found", todo: searchTodo };
-  } catch (error) {
-    console.error(error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("todoService, listTodoByID: " + error.message);
+    } else {
+      console.error("todoService, listTodoByID: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
