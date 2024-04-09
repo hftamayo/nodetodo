@@ -1,4 +1,3 @@
-import { User } from "../api/middleware/types/user.interface";
 import Todo from "../models/Todo";
 import { TodoId, PartialTodoRequestBody } from "./types/todo-request.interface";
 import { UserId } from "./types/user-request.interface";
@@ -106,8 +105,8 @@ const updateTodoByID = async function (
         message: "You're not the owner of this Todo",
       };
     }
-    updateTodo.title = title ?? '';
-    updateTodo.description = description ?? '';
+    updateTodo.title = title ?? "";
+    updateTodo.description = description ?? "";
     updateTodo.completed = completed ?? false;
     await updateTodo.save();
     return {
@@ -119,13 +118,16 @@ const updateTodoByID = async function (
     if (error instanceof Error) {
       console.error("todoService, updateTodo: " + error.message);
     } else {
-    console.error("todoService, updateTodo: " + error);
+      console.error("todoService, updateTodo: " + error);
     }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
-const deleteTodoByID = async function (requestUserId, requestTodoId) {
+const deleteTodoByID = async function (
+  requestUserId: UserId,
+  requestTodoId: TodoId
+) {
   const owner = requestUserId;
   const todoId = requestTodoId;
 
@@ -134,21 +136,26 @@ const deleteTodoByID = async function (requestUserId, requestTodoId) {
     if (!deleteTodo) {
       return { httpStatusCode: 404, message: "Todo not found" };
     }
-    if (deleteTodo.user.toString() !== owner) {
+    if (deleteTodo.user.toString() !== owner.id.toString()) {
       return {
         httpStatusCode: 401,
         message: "You're not the owner of this Todo",
       };
     }
+
     await deleteTodo.deleteOne();
     return { httpStatusCode: 200, message: "Todo Deleted Successfully" };
-  } catch (error) {
-    console.error("todoService, deleteTodo: " + error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("todoService, deleteTodo: " + error.message);
+    } else {
+      console.error("todoService, deleteTodo: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
-module.exports = {
+export default {
   listActiveTodos,
   listTodoByID,
   createTodo,
