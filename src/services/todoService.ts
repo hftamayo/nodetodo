@@ -53,7 +53,10 @@ const listTodoByID = async function (
   }
 };
 
-const createTodo = async function (requestUserId, requestBody) {
+const createTodo = async function (
+  requestUserId: UserId,
+  requestBody: PartialTodoRequestBody
+) {
   const owner = requestUserId;
   const { title, description } = requestBody;
   try {
@@ -73,16 +76,20 @@ const createTodo = async function (requestUserId, requestBody) {
       message: "Todo created successfully",
       todo: newTodo,
     };
-  } catch (error) {
-    console.error("todoService, createTodo: " + error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("todoService, createTodo: " + error.message);
+    } else {
+      console.error("todoService, createTodo: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
 
 const updateTodoByID = async function (
-  requestUserId,
-  requestTodoId,
-  requestBody
+  requestUserId: UserId,
+  requestTodoId: TodoId,
+  requestBody: PartialTodoRequestBody
 ) {
   const owner = requestUserId;
   const todoId = requestTodoId;
@@ -93,23 +100,27 @@ const updateTodoByID = async function (
     if (!updateTodo) {
       return { httpStatusCode: 404, message: "Todo Not Found" };
     }
-    if (updateTodo.user.toString() !== owner) {
+    if (updateTodo.user.toString() !== owner.id.toString()) {
       return {
         httpStatusCode: 401,
         message: "You're not the owner of this Todo",
       };
     }
-    updateTodo.title = title;
-    updateTodo.description = description;
-    updateTodo.completed = completed;
+    updateTodo.title = title ?? '';
+    updateTodo.description = description ?? '';
+    updateTodo.completed = completed ?? false;
     await updateTodo.save();
     return {
       httpStatusCode: 200,
       message: "Todo updated successfully",
       todo: updateTodo,
     };
-  } catch (error) {
-    console.error("todoService, updateTodo: " + error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("todoService, updateTodo: " + error.message);
+    } else {
+    console.error("todoService, updateTodo: " + error);
+    }
     return { httpStatusCode: 500, message: "Internal Server Error" };
   }
 };
