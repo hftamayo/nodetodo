@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 const { cors_secure, cors_samesite } = require("./envvars");
 let signUpUser;
 let loginUser;
@@ -30,7 +31,7 @@ const userController = {
     deleteUserByID = newDeleteUser;
   },
 
-  registerHandler: async function (req, res) {
+  registerHandler: async function (req: Request, res: Response) {
     try {
       const { httpStatusCode, message, user } = await signUpUser(req.body);
       if (httpStatusCode === 200) {
@@ -57,7 +58,7 @@ const userController = {
     }
   },
 
-  loginHandler: async function (req, res) {
+  loginHandler: async function (req: Request, res: Response) {
     try {
       const { httpStatusCode, tokenCreated, message, user } = await loginUser(
         req.body
@@ -95,7 +96,7 @@ const userController = {
     }
   },
 
-  logoutHandler: async function (req, res) {
+  logoutHandler: async function (req: Request, res: Response) {
     try {
       res.clearCookie("nodetodo");
       res.status(200).json({
@@ -114,7 +115,7 @@ const userController = {
     }
   },
 
-  listUserHandler: async function (req, res) {
+  listUserHandler: async function (req: Request, res: Response) {
     try {
       const { httpStatusCode, message, user } = await listUserByID(req.user);
       if (httpStatusCode === 200) {
@@ -141,7 +142,7 @@ const userController = {
     }
   },
 
-  updateUserDetailsHandler: async function (req, res) {
+  updateUserDetailsHandler: async function (req: Request, res: Response) {
     try {
       const { httpStatusCode, message, user } = await updateUserDetailsByID(
         req.user,
@@ -173,7 +174,7 @@ const userController = {
     }
   },
 
-  updateUserPasswordHandler: async function (req, res) {
+  updateUserPasswordHandler: async function (req: Request, res: Response) {
     try {
       const { httpStatusCode, message, user } = await updateUserPasswordByID(
         req.user,
@@ -204,7 +205,7 @@ const userController = {
     }
   },
 
-  deleteUserHandler: async function (req, res) {
+  deleteUserHandler: async function (req: Request, res: Response) {
     try {
       const { httpStatusCode, message } = await deleteUserByID(req.user);
 
