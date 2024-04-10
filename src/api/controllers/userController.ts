@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 const { cors_secure, cors_samesite } = require("./envvars");
-let signUpUser;
-let loginUser;
-let logoutUser;
-let listUserByID;
-let updateUserDetailsByID;
-let updateUserPasswordByID;
-let deleteUserByID;
+let signUpUser: (newSignUpUser: any) => void;
+let loginUser: (newLoginUser: any) => void;
+let logoutUser: (newLogoutUser: any) => void;
+let listUserByID: (newListUser: any) => void;
+let updateUserDetailsByID: (newUpdateUserDetails: any) => void;
+let updateUserPasswordByID: (newUpdateUserPassword: any) => void;
+let deleteUserByID: (newDeleteUser: any) => void;
 
 const userController = {
   setSignUpUser: function (newSignUpUser) {
