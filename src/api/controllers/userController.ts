@@ -9,25 +9,25 @@ let updateUserPasswordByID: (newUpdateUserPassword: any) => void;
 let deleteUserByID: (newDeleteUser: any) => void;
 
 const userController = {
-  setSignUpUser: function (newSignUpUser) {
+  setSignUpUser: function (newSignUpUser: any) {
     signUpUser = newSignUpUser;
   },
-  setLoginUser: function (newLoginUser) {
+  setLoginUser: function (newLoginUser: any) {
     loginUser = newLoginUser;
   },
-  setLogoutUser: function (newLogoutUser) {
+  setLogoutUser: function (newLogoutUser: any) {
     logoutUser = newLogoutUser;
   },
-  setListUser: function (newListUser) {
+  setListUser: function (newListUser: any) {
     listUserByID = newListUser;
   },
-  setUpdateUserDetails: function (newUpdateUserDetails) {
+  setUpdateUserDetails: function (newUpdateUserDetails: any) {
     updateUserDetailsByID = newUpdateUserDetails;
   },
-  setUpdateUserPassword: function (newUpdateUserPassword) {
+  setUpdateUserPassword: function (newUpdateUserPassword: any) {
     updateUserPasswordByID = newUpdateUserPassword;
   },
-  setDeleteUser: function (newDeleteUser) {
+  setDeleteUser: function (newDeleteUser: any) {
     deleteUserByID = newDeleteUser;
   },
 
