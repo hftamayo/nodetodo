@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   UserControllerResult,
   UserRequestBody,
+  UserId,
 } from "../../types/user.interface";
 const { cors_secure, cors_samesite } = require("./envvars");
 let signUpUser: (
@@ -12,17 +13,17 @@ let logoutUser: (
   newLogoutUser: UserRequestBody
 ) => Promise<UserControllerResult>;
 let listUserByID: (
-  newListUser: UserRequestBody
+  newListUser: UserId
 ) => Promise<UserControllerResult>;
 let updateUserDetailsByID: (
+  userId: UserId,
   newUpdateUserDetails: UserRequestBody
 ) => Promise<UserControllerResult>;
 let updateUserPasswordByID: (
+  userId: UserId,
   newUpdateUserPassword: UserRequestBody
 ) => Promise<UserControllerResult>;
-let deleteUserByID: (
-  newDeleteUser: UserRequestBody
-) => Promise<UserControllerResult>;
+let deleteUserByID: (newDeleteUser: UserId) => Promise<UserControllerResult>;
 
 const userController = {
   setSignUpUser: function (newSignUpUser: any) {
@@ -222,7 +223,7 @@ const userController = {
   },
 
   deleteUserHandler: async function (
-    req: Request<{}, {}, UserRequestBody>,
+    req: Request<{}, {}, UserId>,
     res: Response
   ) {
     try {
