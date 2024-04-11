@@ -13,6 +13,7 @@ export interface UserId {
 
 export interface UserControllerResult {
     httpStatusCode: number;
+    tokenCreated: string;
     message: string;
     user: UserRequestBody;
 }
