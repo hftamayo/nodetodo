@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { UserControllerResult, UserRequestBody } from "../../types/user.interface";
 const { cors_secure, cors_samesite } = require("./envvars");
 let signUpUser: (newSignUpUser: any) => void;
 let loginUser: (newLoginUser: any) => void;
@@ -6,7 +7,7 @@ let logoutUser: (newLogoutUser: any) => void;
 let listUserByID: (newListUser: any) => void;
 let updateUserDetailsByID: (newUpdateUserDetails: any) => void;
 let updateUserPasswordByID: (newUpdateUserPassword: any) => void;
-let deleteUserByID: (newDeleteUser: any) => void;
+let deleteUserByID: (newDeleteUser: UserRequestBody) => Promise<UserControllerResult>;
 
 const userController = {
   setSignUpUser: function (newSignUpUser: any) {
@@ -32,6 +33,7 @@ const userController = {
   },
 
   registerHandler: async function (req: Request, res: Response) {
+    
     try {
       const { httpStatusCode, message, user } = await signUpUser(req.body);
       if (httpStatusCode === 200) {
@@ -205,7 +207,7 @@ const userController = {
     }
   },
 
-  deleteUserHandler: async function (req: Request, res: Response) {
+  deleteUserHandler: async function (req: Request<{}, {}, UserRequestBody>, res: Response) {
     try {
       const { httpStatusCode, message } = await deleteUserByID(req.user);
 
