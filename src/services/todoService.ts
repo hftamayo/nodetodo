@@ -1,6 +1,6 @@
 import Todo from "../models/Todo";
-import { TodoId, PartialTodoRequestBody } from "./types/todo-request.interface";
-import { UserId } from "./types/user-request.interface";
+import { TodoId, PartialTodoRequestBody } from "../types/todo-request.interface";
+import { UserId } from "../types/user-request.interface";
 
 const listActiveTodos = async function (requestUserId: UserId) {
   const userId = requestUserId;
