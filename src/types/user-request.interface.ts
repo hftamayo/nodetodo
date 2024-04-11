@@ -7,8 +7,15 @@ export interface UserRequestBody {
     newPassword: string;
 }
 
-export type PartialUserRequestBody = Partial<UserRequestBody>;
-
 export interface UserId {
     id: string;
 }
+
+export interface UserControllerResult {
+    httpStatusCode: number;
+    message: string;
+    user: UserRequestBody;
+}
+
+export type PartialUserRequestBody = Partial<UserRequestBody>;
+
