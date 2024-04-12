@@ -4,6 +4,7 @@ import {
   UserRequestBody,
   UserId,
   RequestWithUserId,
+  RequestWithUserBody,
 } from "../../types/user.interface";
 const { cors_secure, cors_samesite } = require("./envvars");
 let signUpUser: (
@@ -25,9 +26,14 @@ let updateUserPasswordByID: (
 let deleteUserByID: (newDeleteUser: UserId) => Promise<UserControllerResult>;
 
 const userController = {
-  setSignUpUser: function (newSignUpUser: any) {
+  setSignUpUser: function (
+    newSignUpUser: (
+      newSignUpUser: UserRequestBody
+    ) => Promise<UserControllerResult>
+  ) {
     signUpUser = newSignUpUser;
   },
+
   setLoginUser: function (newLoginUser: any) {
     loginUser = newLoginUser;
   },
@@ -52,11 +58,11 @@ const userController = {
     deleteUserByID = newDeleteUser;
   },
 
-  registerHandler: async function (req: Request, res: Response) {
+  registerHandler: async function (req: RequestWithUserBody, res: Response) {
     try {
-      const { httpStatusCode, message, user } = await signUpUser(req.body);
+      const { httpStatusCode, message, user } = await signUpUser(req.user);
       if (httpStatusCode === 200) {
-        const { password, ...filteredUser } = user._doc;
+        const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
           httpStatusCode,
           resultMessage: message,
