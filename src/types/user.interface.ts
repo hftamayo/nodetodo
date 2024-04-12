@@ -11,6 +11,10 @@ export interface UserId {
     id: string;
 }
 
+export interface RequestWithUserId extends Request {
+    user: UserId;
+}
+
 export interface UserControllerResult {
     httpStatusCode: number;
     tokenCreated: string;
