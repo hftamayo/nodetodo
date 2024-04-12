@@ -13,9 +13,7 @@ let loginUser: (newLoginUser: UserRequestBody) => Promise<UserControllerResult>;
 let logoutUser: (
   newLogoutUser: UserRequestBody
 ) => Promise<UserControllerResult>;
-let listUserByID: (
-  newListUser: UserId
-) => Promise<UserControllerResult>;
+let listUserByID: (newListUser: UserId) => Promise<UserControllerResult>;
 let updateUserDetailsByID: (
   userId: UserId,
   newUpdateUserDetails: UserRequestBody
@@ -36,7 +34,10 @@ const userController = {
   setLogoutUser: function (newLogoutUser: any) {
     logoutUser = newLogoutUser;
   },
-  setListUser: function (newListUser: any) {
+
+  setListUser: function (
+    newListUser: (newListUser: UserId) => Promise<UserControllerResult>
+  ) {
     listUserByID = newListUser;
   },
   setUpdateUserDetails: function (newUpdateUserDetails: any) {
@@ -45,7 +46,9 @@ const userController = {
   setUpdateUserPassword: function (newUpdateUserPassword: any) {
     updateUserPasswordByID = newUpdateUserPassword;
   },
-  setDeleteUser: function (newDeleteUser: (newDeleteUser: UserId) => Promise<UserControllerResult>) {
+  setDeleteUser: function (
+    newDeleteUser: (newDeleteUser: UserId) => Promise<UserControllerResult>
+  ) {
     deleteUserByID = newDeleteUser;
   },
 
@@ -133,11 +136,11 @@ const userController = {
     }
   },
 
-  listUserHandler: async function (req: Request, res: Response) {
+  listUserHandler: async function (req: RequestWithUserId, res: Response) {
     try {
       const { httpStatusCode, message, user } = await listUserByID(req.user);
       if (httpStatusCode === 200) {
-        const { password, ...filteredUser } = user._doc;
+        const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
           httpStatusCode,
           resultMessage: message,
@@ -223,10 +226,7 @@ const userController = {
     }
   },
 
-  deleteUserHandler: async function (
-    req: RequestWithUserId,
-    res: Response
-  ) {
+  deleteUserHandler: async function (req: RequestWithUserId, res: Response) {
     try {
       const { httpStatusCode, message } = await deleteUserByID(req.user);
 
