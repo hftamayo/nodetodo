@@ -3,6 +3,7 @@ import {
   UserControllerResult,
   UserRequestBody,
   UserId,
+  RequestWithUserId,
 } from "../../types/user.interface";
 const { cors_secure, cors_samesite } = require("./envvars");
 let signUpUser: (
@@ -44,7 +45,7 @@ const userController = {
   setUpdateUserPassword: function (newUpdateUserPassword: any) {
     updateUserPasswordByID = newUpdateUserPassword;
   },
-  setDeleteUser: function (newDeleteUser: any) {
+  setDeleteUser: function (newDeleteUser: (newDeleteUser: UserId) => Promise<UserControllerResult>) {
     deleteUserByID = newDeleteUser;
   },
 
@@ -223,7 +224,7 @@ const userController = {
   },
 
   deleteUserHandler: async function (
-    req: Request<{}, {}, UserId>,
+    req: RequestWithUserId,
     res: Response
   ) {
     try {
