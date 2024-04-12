@@ -188,10 +188,12 @@ const userController = {
     }
   },
 
-  updateUserDetailsHandler: async function (req: Request, res: Response) {
+  updateUserDetailsHandler: async function (req: RequestWithUserId, res: Response) {
     try {
+      const userId = new UserId(req.user.id);
+
       const { httpStatusCode, message, user } = await updateUserDetailsByID(
-        req.user,
+        userId,
         req.body
       );
 
@@ -201,7 +203,7 @@ const userController = {
           .json({ httpStatusCode, resultMessage: message });
       }
 
-      const { password, ...filteredUSer } = user._doc;
+      const { password, ...filteredUSer } = user;
       res.status(httpStatusCode).json({
         httpStatusCode,
         resultMessage: message,
