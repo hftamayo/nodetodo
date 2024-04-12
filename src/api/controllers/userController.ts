@@ -34,9 +34,14 @@ const userController = {
     signUpUser = newSignUpUser;
   },
 
-  setLoginUser: function (newLoginUser: any) {
+  setLoginUser: function (
+    newLoginUser: (
+      newLoginUser: UserRequestBody
+    ) => Promise<UserControllerResult>
+  ) {
     loginUser = newLoginUser;
   },
+
   setLogoutUser: function (newLogoutUser: any) {
     logoutUser = newLogoutUser;
   },
@@ -85,10 +90,10 @@ const userController = {
     }
   },
 
-  loginHandler: async function (req: Request, res: Response) {
+  loginHandler: async function (req: RequestWithUserBody, res: Response) {
     try {
       const { httpStatusCode, tokenCreated, message, user } = await loginUser(
-        req.body
+        req.user
       );
 
       if (httpStatusCode === 200) {
@@ -100,7 +105,7 @@ const userController = {
           path: "/",
         });
         //filtering password for not showing during the output
-        const { password, ...filteredUser } = user._doc;
+        const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
           httpStatusCode,
           resultMessage: message,
