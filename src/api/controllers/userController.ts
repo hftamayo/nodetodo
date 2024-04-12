@@ -51,12 +51,26 @@ const userController = {
   ) {
     listUserByID = newListUser;
   },
-  setUpdateUserDetails: function (newUpdateUserDetails: any) {
+
+  setUpdateUserDetails: function (
+    newUpdateUserDetails: (
+      UserId: UserId,
+      newUpdateUserDetails: UserRequestBody
+    ) => Promise<UserControllerResult>
+  ) {
     updateUserDetailsByID = newUpdateUserDetails;
   },
-  setUpdateUserPassword: function (newUpdateUserPassword: any) {
+
+  setUpdatePassword: function (
+    newUpdateUserPassword: (
+      UserId: UserId,
+      newUpdatePassword: UserRequestBody
+    ) => Promise<UserControllerResult>
+  ) {
     updateUserPasswordByID = newUpdateUserPassword;
-  },
+  },  
+
+
   setDeleteUser: function (
     newDeleteUser: (newDeleteUser: UserId) => Promise<UserControllerResult>
   ) {
