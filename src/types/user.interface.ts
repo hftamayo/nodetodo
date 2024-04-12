@@ -15,7 +15,7 @@ export interface RequestWithUserId extends Request {
   user: UserId;
 }
 
-export interface RequestWithUser extends Request {
+export interface RequestWithUserBody extends Request {
   user: UserRequestBody;
 }
 
