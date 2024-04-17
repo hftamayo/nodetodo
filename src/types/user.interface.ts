@@ -16,6 +16,12 @@ export interface UserRequestUpdateBody {
   newPassword?: string;
 }
 
+export interface UserRequestPassword {
+  id: string;
+  password: string;
+  newPassword: string;
+}
+
 export interface UserId {
   id: string;
 }
@@ -23,6 +29,12 @@ export interface UserId {
 export interface UpdateUserDetailsParams {
   userId: string;
   user: UserRequestUpdateBody;
+}
+
+export interface UpdateUserPasswordParams {
+  userId: string;
+  user: UserRequestPassword;
+
 }
 
 export interface RequestWithUserId extends Request {
