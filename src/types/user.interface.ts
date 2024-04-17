@@ -20,6 +20,11 @@ export interface UserId {
   id: string;
 }
 
+export interface UpdateUserDetailsParams {
+  userId: string;
+  user: UserRequestUpdateBody;
+}
+
 export interface RequestWithUserId extends Request {
   user: UserId;
 }
@@ -28,10 +33,6 @@ export interface RequestWithUserBody extends Request {
   user: UserRequestBody;
 }
 
-export interface RequestWithUserUpdateBody extends Request {
-  userId: UserId;
-  user: UserRequestUpdateBody;
-}
 
 export interface UserControllerResult {
   httpStatusCode: number;
