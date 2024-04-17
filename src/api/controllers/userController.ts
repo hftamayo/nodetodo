@@ -5,6 +5,7 @@ import {
   RequestWithUserId,
   RequestWithUserBody,
   UpdateUserDetailsParams,
+  UpdateUserPasswordParams,
   UserControllerResult,
   UserUpdateControllerResult,
 } from "../../types/user.interface";
@@ -22,9 +23,8 @@ let updateUserDetailsByID: (
   params: UpdateUserDetailsParams
 ) => Promise<UserUpdateControllerResult>;
 let updateUserPasswordByID: (
-  userId: UserId,
-  newUpdateUserPassword: UserRequestBody
-) => Promise<UserControllerResult>;
+  params: UpdateUserPasswordParams
+) => Promise<UserUpdateControllerResult>;
 let deleteUserByID: (newDeleteUser: UserId) => Promise<UserControllerResult>;
 
 const userController = {
@@ -64,9 +64,8 @@ const userController = {
 
   setUpdatePassword: function (
     newUpdateUserPassword: (
-      UserId: UserId,
-      newUpdatePassword: UserRequestBody
-    ) => Promise<UserControllerResult>
+      params: UpdateUserPasswordParams
+    ) => Promise<UserUpdateControllerResult>
   ) {
     updateUserPasswordByID = newUpdateUserPassword;
   },
@@ -234,11 +233,25 @@ const userController = {
     }
   },
 
-  updateUserPasswordHandler: async function (req: Request, res: Response) {
+  updateUserPasswordHandler: async function (
+    req: UpdateUserPasswordParams,
+    res: Response
+  ) {
     try {
+      if (!req.user) {
+        return res.status(400).json({
+          httpStatusCode: 400,
+          resultMessage: "Invalid request",
+        });
+      }
+
+      const params: UpdateUserPasswordParams = {
+        userId: req.userId,
+        user: req.user,
+      };
+
       const { httpStatusCode, message, user } = await updateUserPasswordByID(
-        req.user,
-        req.body
+        params
       );
 
       if (!user) {
@@ -247,7 +260,7 @@ const userController = {
           .json({ httpStatusCode, resultMessage: message });
       }
 
-      const { password, ...filteredUser } = user._doc;
+      const { password, ...filteredUser } = user;
       res.status(httpStatusCode).json({
         httpStatusCode,
         resultMessage: message,
