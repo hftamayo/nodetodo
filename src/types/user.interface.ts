@@ -43,7 +43,7 @@ export interface UserControllerResult {
 export interface UserUpdateControllerResult {
   httpStatusCode: number;
   message: string;
-  updatedUser: UserRequestBody;
+  user: UserRequestBody;
 }
 
 export type PartialUserRequestBody = Partial<UserRequestBody>;
