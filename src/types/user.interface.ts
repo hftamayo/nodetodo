@@ -1,10 +1,10 @@
 export interface UserRequestBody {
   id: string;
-  name: string;
-  email: string;
-  age: number;
-  password: string;
-  newPassword: string;
+  name?: string;
+  email?: string;
+  age?: number;
+  password?: string;
+  newPassword?: string;
 }
 
 export interface UserId {
