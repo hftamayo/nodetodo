@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
 import {
-  UserControllerResult,
-  UserRequestBody,
   UserId,
+  UserRequestBody,
   RequestWithUserId,
   RequestWithUserBody,
+  UpdateUserDetailsParams,
+  UserControllerResult,
+  UserUpdateControllerResult,
 } from "../../types/user.interface";
+import User from "../../models/User";
 const { cors_secure, cors_samesite } = require("./envvars");
 let signUpUser: (
   newSignUpUser: UserRequestBody
@@ -16,9 +19,8 @@ let logoutUser: (
 ) => Promise<UserControllerResult>;
 let listUserByID: (newListUser: UserId) => Promise<UserControllerResult>;
 let updateUserDetailsByID: (
-  userId: UserId,
-  newUpdateUserDetails: UserRequestBody
-) => Promise<UserControllerResult>;
+  params: UpdateUserDetailsParams
+) => Promise<UserUpdateControllerResult>;
 let updateUserPasswordByID: (
   userId: UserId,
   newUpdateUserPassword: UserRequestBody
@@ -54,9 +56,8 @@ const userController = {
 
   setUpdateUserDetails: function (
     newUpdateUserDetails: (
-      UserId: UserId,
-      newUpdateUserDetails: UserRequestBody
-    ) => Promise<UserControllerResult>
+      params: UpdateUserDetailsParams
+    ) => Promise<UserUpdateControllerResult>
   ) {
     updateUserDetailsByID = newUpdateUserDetails;
   },
@@ -68,8 +69,7 @@ const userController = {
     ) => Promise<UserControllerResult>
   ) {
     updateUserPasswordByID = newUpdateUserPassword;
-  },  
-
+  },
 
   setDeleteUser: function (
     newDeleteUser: (newDeleteUser: UserId) => Promise<UserControllerResult>
@@ -188,13 +188,25 @@ const userController = {
     }
   },
 
-  updateUserDetailsHandler: async function (req: RequestWithUserId, res: Response) {
+  updateUserDetailsHandler: async function (
+    req: UpdateUserDetailsParams,
+    res: Response
+  ) {
     try {
-      const userId = new UserId(req.user.id);
+      if (!req.user) {
+        return res.status(400).json({
+          httpStatusCode: 400,
+          resultMessage: "Invalid request",
+        });
+      }
+
+      const params: UpdateUserDetailsParams = {
+        userId: req.userId,
+        user: req.user,
+      };
 
       const { httpStatusCode, message, user } = await updateUserDetailsByID(
-        userId,
-        req.body
+        params
       );
 
       if (!user) {
