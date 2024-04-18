@@ -1,77 +1,82 @@
-const express = require("express");
-const userController = require("../controllers/userController");
-const {
-  signUpUser,
-  loginUser,
-  listUserByID,
-  updateUserByID,
-  updateUserPassword,
-  deleteUserByID,
-} = require("../../services/userService");
-const authorize = require("../middleware/authorize");
-const {
-  loginRules,
-  registerRules,
-  updateDetailsRules,
-  updatePasswordRules,
-} = require("../middleware/validator");
-const { validateResult } = require("../middleware/validationResults");
-const { signUpLimiter, loginLimiter } = require("../middleware/rateLimiter");
+import express, {Request, Response} from "express";
+import userController from "../controllers/userController";
+import userService from "../../services/userService";
+import authorize from "../middleware/authorize";
+import validator from "../middleware/validator";
+import validateResult from "../middleware/validationResults";
+import rateLimiter from "../middleware/rateLimiter";
+import {
+  UserId,
+  UserRequestBody,
+  RequestWithUserId,
+  RequestWithUserBody,
+  UpdateUserDetailsParams,
+  UpdateUserPasswordParams,
+  UserControllerResult,
+  UserUpdateControllerResult,
+} from "../../types/user.interface";
+
 const router = express.Router();
 
-userController.setSignUpUser(signUpUser);
-userController.setLoginUser(loginUser);
-userController.setListUser(listUserByID);
-userController.setUpdateUserDetails(updateUserByID);
-userController.setUpdateUserPassword(updateUserPassword);
-userController.setDeleteUser(deleteUserByID);
+userController.setSignUpUser(userService.signUpUser);
+userController.setLoginUser(userService.loginUser);
+userController.setListUser(userService.listUserByID);
+userController.setUpdateUserDetails(userService.updateUserByID);
+userController.setUpdateUserPassword(userService.updateUserPassword);
+userController.setDeleteUser(userService.deleteUserByID as (newDeleteUser: UserId) => Promise<UserControllerResult>);
 
-const registerHandler = (req, res) => {
+const registerHandler = (req: RequestWithUserBody, res: Response) => {
   userController.registerHandler(req, res);
 };
 
-const loginHandler = (req, res) => {
+const loginHandler = (req: RequestWithUserBody, res: Response) => {
   userController.loginHandler(req, res);
 };
 
-const logoutHandler = (req, res) => {
+const logoutHandler = (req: Request, res: Response) => {
   userController.logoutHandler(req, res);
 };
 
-const listUserHandler = (req, res) => {
+const listUserHandler = (req: RequestWithUserId, res: Response) => {
   userController.listUserHandler(req, res);
 };
 
-const updateUserDetailsHandler = (req, res) => {
+const updateUserDetailsHandler = (req: UpdateUserDetailsParams, res: Response) => {
   userController.updateUserDetailsHandler(req, res);
 };
 
-const updateUserPasswordHandler = (req, res) => {
+const updateUserPasswordHandler = (req: UpdateUserPasswordParams, res: Response) => {
   userController.updateUserPasswordHandler(req, res);
 };
 
-const deleteUserHandler = (req, res) => {
+const deleteUserHandler = (req: RequestWithUserId, res: Response) => {
   userController.deleteUserHandler(req, res);
 };
 
-router.post("/register", signUpLimiter, registerRules, validateResult, registerHandler);
-router.post("/login", loginLimiter, loginRules, validateResult, loginHandler);
+router.post(
+  "/register",
+  rateLimiter.signUpLimiter,
+  validator.registerRules,
+  validateResult,
+  registerHandler
+);
+router.post("/login", rateLimiter.loginLimiter, validator.loginRules, validateResult, loginHandler);
 router.post("/logout", authorize, logoutHandler);
 router.get("/me", authorize, listUserHandler);
 router.put(
   "/updatedetails",
   authorize,
-  updateDetailsRules,
+  validator.updateDetailsRules,
   validateResult,
   updateUserDetailsHandler
 );
 router.put(
   "/updatepassword",
   authorize,
-  updatePasswordRules,
+  validator.updatePasswordRules,
   validateResult,
   updateUserPasswordHandler
 );
 router.delete("/deleteuser", authorize, deleteUserHandler);
 
-module.exports = router;
+export default router;
