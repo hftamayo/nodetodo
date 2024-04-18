@@ -9,8 +9,9 @@ import {
   UserControllerResult,
   UserUpdateControllerResult,
 } from "../../types/user.interface";
-import User from "../../models/User";
-const { cors_secure, cors_samesite } = require("./envvars");
+
+import { cors_secure, cors_samesite } from "../../config/envvars";
+
 let signUpUser: (
   newSignUpUser: UserRequestBody
 ) => Promise<UserControllerResult>;
@@ -301,4 +302,4 @@ const userController = {
   },
 };
 
-module.exports = userController;
+export default userController;
