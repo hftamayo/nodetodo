@@ -57,7 +57,7 @@ export interface TokenUserControllerResult {
 export type LoginUserControllerResult = BasedUserControllerResult &
   TokenUserControllerResult;
 
-export interface UserDeleteControllerResult {
+export interface DeleteUserControllerResult {
   httpStatusCode: number;
   message: string;
 }
