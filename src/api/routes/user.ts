@@ -12,18 +12,18 @@ import {
   RequestWithUserBody,
   UpdateUserDetailsParams,
   UpdateUserPasswordParams,
-  UserControllerResult,
-  UserUpdateControllerResult,
+  BasedUserControllerResult,
+  DeleteUserControllerResult,
 } from "../../types/user.interface";
 
 const router = express.Router();
 
 userController.setSignUpUser(userService.signUpUser);
-userController.setLoginUser(userService.loginUser);
-userController.setListUser(userService.listUserByID);
+userController.setLoginUser(userService.loginUser as (newLoginUser: UserRequestBody) => Promise<UserControllerResult>);
+userController.setListUser(userService.listUserByID as (newListUser: UserId) => Promise<BasedUserControllerResult>);
 userController.setUpdateUserDetails(userService.updateUserByID);
 userController.setUpdateUserPassword(userService.updateUserPassword);
-userController.setDeleteUser(userService.deleteUserByID as (newDeleteUser: UserId) => Promise<UserControllerResult>);
+userController.setDeleteUser(userService.deleteUserByID as (newDeleteUser: UserId) => Promise<DeleteUserControllerResult>);
 
 const registerHandler = (req: RequestWithUserBody, res: Response) => {
   userController.registerHandler(req, res);
@@ -37,8 +37,8 @@ const logoutHandler = (req: Request, res: Response) => {
   userController.logoutHandler(req, res);
 };
 
-const listUserHandler = (req: RequestWithUserId, res: Response) => {
-  userController.listUserHandler(req, res);
+const listUserHandler = (req: Request, res: Response) => {
+  userController.listUserHandler(req as unknown as RequestWithUserId, res);
 };
 
 const updateUserDetailsHandler = (req: UpdateUserDetailsParams, res: Response) => {
