@@ -6,33 +6,38 @@ import {
   RequestWithUserBody,
   UpdateUserDetailsParams,
   UpdateUserPasswordParams,
-  UserControllerResult,
-  UserUpdateControllerResult,
+  BasedUserControllerResult,
+  LoginUserControllerResult,
+  DeleteUserControllerResult,
 } from "../../types/user.interface";
 
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
 let signUpUser: (
   newSignUpUser: UserRequestBody
-) => Promise<UserControllerResult>;
-let loginUser: (newLoginUser: UserRequestBody) => Promise<UserControllerResult>;
+) => Promise<BasedUserControllerResult>;
+let loginUser: (
+  newLoginUser: UserRequestBody
+) => Promise<LoginUserControllerResult>;
 let logoutUser: (
   newLogoutUser: UserRequestBody
-) => Promise<UserControllerResult>;
-let listUserByID: (newListUser: UserId) => Promise<UserControllerResult>;
+) => Promise<BasedUserControllerResult>;
+let listUserByID: (newListUser: UserId) => Promise<BasedUserControllerResult>;
 let updateUserDetailsByID: (
   params: UpdateUserDetailsParams
-) => Promise<UserUpdateControllerResult>;
+) => Promise<BasedUserControllerResult>;
 let updateUserPasswordByID: (
   params: UpdateUserPasswordParams
-) => Promise<UserUpdateControllerResult>;
-let deleteUserByID: (newDeleteUser: UserId) => Promise<UserControllerResult>;
+) => Promise<BasedUserControllerResult>;
+let deleteUserByID: (
+  newDeleteUser: UserId
+) => Promise<DeleteUserControllerResult>;
 
 const userController = {
   setSignUpUser: function (
     newSignUpUser: (
       newSignUpUser: UserRequestBody
-    ) => Promise<UserControllerResult>
+    ) => Promise<BasedUserControllerResult>
   ) {
     signUpUser = newSignUpUser;
   },
@@ -40,7 +45,7 @@ const userController = {
   setLoginUser: function (
     newLoginUser: (
       newLoginUser: UserRequestBody
-    ) => Promise<UserControllerResult>
+    ) => Promise<LoginUserControllerResult>
   ) {
     loginUser = newLoginUser;
   },
@@ -50,7 +55,7 @@ const userController = {
   },
 
   setListUser: function (
-    newListUser: (newListUser: UserId) => Promise<UserControllerResult>
+    newListUser: (newListUser: UserId) => Promise<BasedUserControllerResult>
   ) {
     listUserByID = newListUser;
   },
@@ -58,7 +63,7 @@ const userController = {
   setUpdateUserDetails: function (
     newUpdateUserDetails: (
       params: UpdateUserDetailsParams
-    ) => Promise<UserUpdateControllerResult>
+    ) => Promise<BasedUserControllerResult>
   ) {
     updateUserDetailsByID = newUpdateUserDetails;
   },
@@ -66,13 +71,15 @@ const userController = {
   setUpdatePassword: function (
     newUpdateUserPassword: (
       params: UpdateUserPasswordParams
-    ) => Promise<UserUpdateControllerResult>
+    ) => Promise<BasedUserControllerResult>
   ) {
     updateUserPasswordByID = newUpdateUserPassword;
   },
 
   setDeleteUser: function (
-    newDeleteUser: (newDeleteUser: UserId) => Promise<UserControllerResult>
+    newDeleteUser: (
+      newDeleteUser: UserId
+    ) => Promise<DeleteUserControllerResult>
   ) {
     deleteUserByID = newDeleteUser;
   },
