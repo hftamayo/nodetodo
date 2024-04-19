@@ -49,8 +49,8 @@ const updateUserPasswordHandler = (req: UpdateUserPasswordParams, res: Response)
   userController.updateUserPasswordHandler(req, res);
 };
 
-const deleteUserHandler = (req: RequestWithUserId, res: Response) => {
-  userController.deleteUserHandler(req, res);
+const deleteUserHandler = (req: Request, res: Response) => {
+  userController.deleteUserHandler(req as unknown as RequestWithUserId, res);
 };
 
 router.post(
