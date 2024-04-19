@@ -1,4 +1,4 @@
-export interface UserRequestBody {
+export interface NewUserRequestBody {
   id: string;
   name: string;
   email: string;
@@ -7,13 +7,18 @@ export interface UserRequestBody {
   newPassword: string;
 }
 
+export interface ExistingUserRequestBody {
+  id: string;
+  name: string;
+  email: string;
+  age: number;
+}
+
 export interface UserRequestUpdateBody {
   id: string;
   name?: string;
   email?: string;
   age?: number;
-  password?: string;
-  newPassword?: string;
 }
 
 export interface UserRequestPassword {
