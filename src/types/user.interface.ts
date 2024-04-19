@@ -46,7 +46,6 @@ export interface RequestWithUserBody extends Request {
 
 export interface BasedUserControllerResult {
   httpStatusCode: number;
-  tokenCreated: string;
   message: string;
   user: UserRequestBody;
 }
@@ -58,10 +57,9 @@ export interface TokenUserControllerResult {
 export type LoginUserControllerResult = BasedUserControllerResult &
   TokenUserControllerResult;
 
-export interface UserUpdateControllerResult {
+export interface UserDeleteControllerResult {
   httpStatusCode: number;
   message: string;
-  user: UserRequestBody;
 }
 
 export type PartialUserRequestBody = Partial<UserRequestBody>;
