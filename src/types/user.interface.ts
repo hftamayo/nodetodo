@@ -34,7 +34,6 @@ export interface UpdateUserDetailsParams {
 export interface UpdateUserPasswordParams {
   userId: string;
   user: UserRequestPassword;
-
 }
 
 export interface RequestWithUserId extends Request {
@@ -45,13 +44,19 @@ export interface RequestWithUserBody extends Request {
   user: UserRequestBody;
 }
 
-
-export interface UserControllerResult {
+export interface BasedUserControllerResult {
   httpStatusCode: number;
   tokenCreated: string;
   message: string;
   user: UserRequestBody;
 }
+
+export interface TokenUserControllerResult {
+  tokenCreated: string;
+}
+
+export type LoginUserControllerResult = BasedUserControllerResult &
+  TokenUserControllerResult;
 
 export interface UserUpdateControllerResult {
   httpStatusCode: number;
