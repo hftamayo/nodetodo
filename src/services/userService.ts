@@ -111,8 +111,8 @@ const listUserByID = async function (requestUserId: UserRequestBodyWithId) {
 };
 
 const updateUserByID = async function (
-  requestUserId: UserId,
-  requestBody: ExistingUserRequestUpdateBody
+  requestUserId: UserRequestBodyWithId,
+  requestBody: UserRequestBody
 ) {
   const userId = requestUserId;
   const { name, email, age } = requestBody;
