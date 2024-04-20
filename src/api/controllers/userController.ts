@@ -149,10 +149,12 @@ const userController = {
   listUserHandler: async function (req: PartialUserRequest, res: Response) {
     try {
       if (!req.userId) {
-        res.status(400).json({ httpStatusCode: 400, resultMessage: "User ID is required" });
+        res
+          .status(400)
+          .json({ httpStatusCode: 400, resultMessage: "User ID is required" });
         return;
       }
-      
+
       const { httpStatusCode, message, user } = await listUserByID(req.userId);
       if (httpStatusCode === 200 && user) {
         const { password, ...filteredUser } = user;
@@ -269,9 +271,15 @@ const userController = {
     }
   },
 
-  deleteUserHandler: async function (req: string, res: Response) {
+  deleteUserHandler: async function (req: PartialUserRequest, res: Response) {
     try {
-      const { httpStatusCode, message } = await deleteUserByID(req.user);
+      if (!req.userId) {
+        res
+          .status(400)
+          .json({ httpStatusCode: 400, resultMessage: "User ID is required" });
+        return;
+      }
+      const { httpStatusCode, message } = await deleteUserByID(req.userId);
 
       if (httpStatusCode === 200) {
         res.clearCookie("nodetodo");
