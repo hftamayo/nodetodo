@@ -3,12 +3,9 @@ import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import {
-  UserRequestBody,
-  UserRequestBodyWithId,
-} from "../types/user.interface";
+import { UserRequest } from "../types/user.interface";
 
-const signUpUser = async function (requestBody: UserRequestBody) {
+const signUpUser = async function (requestBody: Partial<UserRequest>) {
   const { name, email, password, age } = requestBody;
 
   if (!name || !email || !password || !age) {
@@ -44,7 +41,7 @@ const signUpUser = async function (requestBody: UserRequestBody) {
   }
 };
 
-const loginUser = async function (requestBody: UserRequestBody) {
+const loginUser = async function (requestBody: Partial<UserRequest>) {
   const { email, password } = requestBody;
 
   if (!email || !password) {
@@ -90,7 +87,7 @@ const loginUser = async function (requestBody: UserRequestBody) {
   }
 };
 
-const listUserByID = async function (requestUserId: UserRequestBodyWithId) {
+const listUserByID = async function (requestUserId: Partial<UserRequest>) {
   const id = requestUserId;
   try {
     let searchUser = await User.findById(id).exec();
@@ -109,8 +106,8 @@ const listUserByID = async function (requestUserId: UserRequestBodyWithId) {
 };
 
 const updateUserByID = async function (
-  requestUserId: UserRequestBodyWithId,
-  requestBody: UserRequestBody
+  requestUserId: string,
+  requestBody: Partial<UserRequest>
 ) {
   const userId = requestUserId;
   const { name, email, age } = requestBody;
@@ -153,8 +150,8 @@ const updateUserByID = async function (
 };
 
 const updateUserPassword = async function (
-  requestUserId: UserRequestBodyWithId,
-  requestPword: UserRequestBody
+  requestUserId: string,
+  requestPword: Partial<UserRequest>
 ) {
   const userId = requestUserId;
   const { password, newPassword } = requestPword;
@@ -193,7 +190,7 @@ const updateUserPassword = async function (
   }
 };
 
-const deleteUserByID = async function (requestUserId: UserRequestBodyWithId) {
+const deleteUserByID = async function (requestUserId: string) {
   const id = requestUserId;
   try {
     const searchUser = await User.findById(id).exec();
