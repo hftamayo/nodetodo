@@ -7,6 +7,10 @@ export interface UserRequest {
   newPassword: string;
 }
 
+export interface PartialUserRequest extends Partial<UserRequest> {
+  user: Partial<UserRequest>;
+}
+
 export interface UserResult {
   httpStatusCode: number;
   message: string;
