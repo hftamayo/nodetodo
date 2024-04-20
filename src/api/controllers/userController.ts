@@ -62,7 +62,9 @@ const userController = {
 
   registerHandler: async function (req: PartialUserRequest, res: Response) {
     try {
-      const { httpStatusCode, message, user } = await signUpUser(req.user as UserRequest);
+      const { httpStatusCode, message, user } = await signUpUser(
+        req.user as UserRequest
+      );
       if (httpStatusCode === 200 && user) {
         const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
@@ -144,10 +146,15 @@ const userController = {
     }
   },
 
-  listUserHandler: async function (req: Partial<UserRequest>, res: Response) {
+  listUserHandler: async function (req: PartialUserRequest, res: Response) {
     try {
-      const { httpStatusCode, message, user } = await listUserByID(req.user);
-      if (httpStatusCode === 200) {
+      if (!req.userId) {
+        res.status(400).json({ httpStatusCode: 400, resultMessage: "User ID is required" });
+        return;
+      }
+      
+      const { httpStatusCode, message, user } = await listUserByID(req.userId);
+      if (httpStatusCode === 200 && user) {
         const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
           httpStatusCode,
