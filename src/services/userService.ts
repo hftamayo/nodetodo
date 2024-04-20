@@ -46,7 +46,7 @@ const signUpUser = async function (requestBody: UserRequestBody) {
   }
 };
 
-const loginUser = async function (requestBody: PartialUserRequestBody) {
+const loginUser = async function (requestBody: UserRequestBody) {
   const { email, password } = requestBody;
 
   if (!email || !password) {
