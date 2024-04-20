@@ -195,7 +195,7 @@ const updateUserPassword = async function (
   }
 };
 
-const deleteUserByID = async function (requestUserId: PartialUserRequestBody) {
+const deleteUserByID = async function (requestUserId: UserRequestBodyWithId) {
   const id = requestUserId;
   try {
     const searchUser = await User.findById(id).exec();
