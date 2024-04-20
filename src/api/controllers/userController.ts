@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { UserRequest, UserResult } from "../../types/user.interface";
 
 import { cors_secure, cors_samesite } from "../../config/envvars";
@@ -45,39 +45,39 @@ const userController = {
   },
 
   setListUser: function (
-    newListUser: (newListUser: UserId) => Promise<BasedUserControllerResult>
+    newListUser: (newListUser: string) => Promise<UserResult>
   ) {
     listUserByID = newListUser;
   },
 
   setUpdateUserDetails: function (
     newUpdateUserDetails: (
-      params: UpdateUserDetailsParams
-    ) => Promise<BasedUserControllerResult>
+      params: Partial<UserRequest>
+    ) => Promise<UserResult>
   ) {
     updateUserDetailsByID = newUpdateUserDetails;
   },
 
   setUpdatePassword: function (
     newUpdateUserPassword: (
-      params: UpdateUserPasswordParams
-    ) => Promise<BasedUserControllerResult>
+      params: Partial<UserRequest>
+    ) => Promise<UserResult>
   ) {
     updateUserPasswordByID = newUpdateUserPassword;
   },
 
   setDeleteUser: function (
     newDeleteUser: (
-      newDeleteUser: UserId
-    ) => Promise<DeleteUserControllerResult>
+      newDeleteUser: string
+    ) => Promise<UserResult>
   ) {
     deleteUserByID = newDeleteUser;
   },
 
-  registerHandler: async function (req: RequestWithUserBody, res: Response) {
+  registerHandler: async function (req: Partial<UserRequest>, res: Response) {
     try {
       const { httpStatusCode, message, user } = await signUpUser(req.user);
-      if (httpStatusCode === 200) {
+      if (httpStatusCode === 200 && user) {
         const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
           httpStatusCode,
@@ -101,7 +101,7 @@ const userController = {
     }
   },
 
-  loginHandler: async function (req: RequestWithUserBody, res: Response) {
+  loginHandler: async function (req: Partial<UserRequest>, res: Response) {
     try {
       const { httpStatusCode, tokenCreated, message, user } = await loginUser(
         req.user
@@ -139,7 +139,7 @@ const userController = {
     }
   },
 
-  logoutHandler: async function (req: Request, res: Response) {
+  logoutHandler: async function (req: Partial<UserRequest>, res: Response) {
     try {
       res.clearCookie("nodetodo");
       res.status(200).json({
@@ -158,7 +158,7 @@ const userController = {
     }
   },
 
-  listUserHandler: async function (req: RequestWithUserId, res: Response) {
+  listUserHandler: async function (req: Partial<UserRequest>, res: Response) {
     try {
       const { httpStatusCode, message, user } = await listUserByID(req.user);
       if (httpStatusCode === 200) {
@@ -276,7 +276,7 @@ const userController = {
     }
   },
 
-  deleteUserHandler: async function (req: RequestWithUserId, res: Response) {
+  deleteUserHandler: async function (req: string, res: Response) {
     try {
       const { httpStatusCode, message } = await deleteUserByID(req.user);
 
