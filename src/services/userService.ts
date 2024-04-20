@@ -3,9 +3,14 @@ import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { UserId, PartialSignUpLoginUserRequestBody } from "../types/user.interface";
+import {
+  UserRequestBody,
+  UserRequestBodyWithId,
+  UpdateUserDetailsParams,
+  UpdateUserPasswordParams,
+} from "../types/user.interface";
 
-const signUpUser = async function (requestBody: PartialSignUpLoginUserRequestBody) {
+const signUpUser = async function (requestBody: UserRequestBody) {
   const { name, email, password, age } = requestBody;
 
   if (!name || !email || !password || !age) {
@@ -41,7 +46,7 @@ const signUpUser = async function (requestBody: PartialSignUpLoginUserRequestBod
   }
 };
 
-const loginUser = async function (requestBody: PartialSignUpLoginUserRequestBody) {
+const loginUser = async function (requestBody: PartialUserRequestBody) {
   const { email, password } = requestBody;
 
   if (!email || !password) {
@@ -107,7 +112,7 @@ const listUserByID = async function (requestUserId: UserId) {
 
 const updateUserByID = async function (
   requestUserId: UserId,
-  requestBody: PartialSignUpLoginUserRequestBody
+  requestBody: ExistingUserRequestUpdateBody
 ) {
   const userId = requestUserId;
   const { name, email, age } = requestBody;
@@ -151,7 +156,7 @@ const updateUserByID = async function (
 
 const updateUserPassword = async function (
   requestUserId: UserId,
-  requestPword: PartialSignUpLoginUserRequestBody
+  requestPword: PartialUserRequestBody
 ) {
   const userId = requestUserId;
   const { password, newPassword } = requestPword;
@@ -190,7 +195,7 @@ const updateUserPassword = async function (
   }
 };
 
-const deleteUserByID = async function (requestUserId: PartialSignUpLoginUserRequestBody) {
+const deleteUserByID = async function (requestUserId: PartialUserRequestBody) {
   const id = requestUserId;
   try {
     const searchUser = await User.findById(id).exec();
