@@ -92,7 +92,7 @@ const loginUser = async function (requestBody: UserRequestBody) {
   }
 };
 
-const listUserByID = async function (requestUserId: UserId) {
+const listUserByID = async function (requestUserId: UserRequestBodyWithId) {
   const id = requestUserId;
   try {
     let searchUser = await User.findById(id).exec();
