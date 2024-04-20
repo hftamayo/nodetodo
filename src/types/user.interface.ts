@@ -1,4 +1,4 @@
-export interface UserRequestBody {
+export interface UserRequest {
   id?: string;
   name: string;
   email: string;
@@ -7,17 +7,9 @@ export interface UserRequestBody {
   newPassword: string;
 }
 
-export interface UpdateUserParams {
-  user: Partial<UserRequestBody>;
-}
-
-export interface RequestWitUserBody extends Request {
-  user: Partial<UserRequestBody>;
-}
-
-export interface UserControllerResult {
+export interface UserResult {
   httpStatusCode: number;
   message: string;
   tokenCreated?: string;
-  user?: Partial<UserRequestBody>;
+  user?: Partial<UserRequest>;
 }
