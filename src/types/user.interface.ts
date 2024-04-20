@@ -1,4 +1,5 @@
 export interface UserRequestBody {
+  id?: string;
   name: string;
   email: string;
   age: number;
@@ -6,20 +7,8 @@ export interface UserRequestBody {
   newPassword: string;
 }
 
-export interface UserRequestBodyWithId extends UserRequestBody {
-  id?: string;
-}
-
-export interface UpdateUserDetailsParams {
-  user: UserRequestBodyWithId;
-}
-
-export interface UpdateUserPasswordParams {
-  user: Partial<UserRequestBodyWithId>;
-}
-
-export interface RequestWithUserId extends Request {
-  id: Partial<UserRequestBodyWithId>;
+export interface UpdateUserParams {
+  user: Partial<UserRequestBody>;
 }
 
 export interface RequestWitUserBody extends Request {
