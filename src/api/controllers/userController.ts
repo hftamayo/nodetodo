@@ -227,7 +227,7 @@ const userController = {
   },
 
   updateUserPasswordHandler: async function (
-    req: UpdateUserPasswordParams,
+    req: PartialUserRequest,
     res: Response
   ) {
     try {
@@ -238,7 +238,7 @@ const userController = {
         });
       }
 
-      const params: UpdateUserPasswordParams = {
+      const params: PartialUserRequest = {
         userId: req.userId,
         user: req.user,
       };
