@@ -1,5 +1,4 @@
-export interface NewUserRequestBody {
-  id: string;
+export interface UserRequestBody {
   name: string;
   email: string;
   age: number;
@@ -7,59 +6,49 @@ export interface NewUserRequestBody {
   newPassword: string;
 }
 
-export interface ExistingUserRequestBody {
-  id: string;
-  name: string;
-  email: string;
-  age: number;
-}
-
-export interface UserRequestUpdateBody {
-  id: string;
-  name?: string;
-  email?: string;
-  age?: number;
-}
-
-export interface UserRequestPassword {
-  id: string;
-  password: string;
-  newPassword: string;
-}
-
-export interface UserId {
-  id: string;
+export interface UserRequestBodyWithId extends UserRequestBody {
+  id?: string;
 }
 
 export interface UpdateUserDetailsParams {
   userId: string;
-  user: UserRequestUpdateBody;
+  user: UserRequestBody;
 }
 
 export interface UpdateUserPasswordParams {
   userId: string;
-  user: UserRequestPassword;
+  user: Partial<UserRequestBody>;
 }
 
 export interface RequestWithUserId extends Request {
-  user: UserId;
+  id: string;
 }
 
-export interface RequestWithUserBody extends Request {
-  user: UserRequestBody;
+export interface RequestWithNewUserBody extends Request {
+  user: NewUserRequestBody;
 }
 
-export interface BasedUserControllerResult {
+export interface BasedNewUserControllerResult {
   httpStatusCode: number;
   message: string;
-  user: UserRequestBody;
+  user: NewUserRequestBody;
+}
+
+export interface RequestWithExistingUserBody extends Request {
+  user: ExistingUserRequestBody;
+}
+
+export interface BasedExistingUserControllerResult {
+  httpStatusCode: number;
+  message: string;
+  user: ExistingUserRequestBody;
 }
 
 export interface TokenUserControllerResult {
   tokenCreated: string;
 }
 
-export type LoginUserControllerResult = BasedUserControllerResult &
+export type LoginUserControllerResult = BasedExistingUserControllerResult &
   TokenUserControllerResult;
 
 export interface DeleteUserControllerResult {
