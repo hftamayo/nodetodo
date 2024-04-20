@@ -6,8 +6,6 @@ import bcrypt from "bcrypt";
 import {
   UserRequestBody,
   UserRequestBodyWithId,
-  UpdateUserDetailsParams,
-  UpdateUserPasswordParams,
 } from "../types/user.interface";
 
 const signUpUser = async function (requestBody: UserRequestBody) {
@@ -155,8 +153,8 @@ const updateUserByID = async function (
 };
 
 const updateUserPassword = async function (
-  requestUserId: UserId,
-  requestPword: PartialUserRequestBody
+  requestUserId: UserRequestBodyWithId,
+  requestPword: UserRequestBody
 ) {
   const userId = requestUserId;
   const { password, newPassword } = requestPword;
