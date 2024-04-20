@@ -1,51 +1,41 @@
 import { Request, Response } from "express";
-import {
-  UserId,
-  UserRequestBody,
-  RequestWithUserId,
-  RequestWithUserBody,
-  UpdateUserDetailsParams,
-  UpdateUserPasswordParams,
-  BasedUserControllerResult,
-  LoginUserControllerResult,
-  DeleteUserControllerResult,
-} from "../../types/user.interface";
+import { UserRequest, UserResult } from "../../types/user.interface";
 
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
 let signUpUser: (
-  newSignUpUser: UserRequestBody
-) => Promise<BasedUserControllerResult>;
+  newSignUpUser: UserRequest
+) => Promise<UserResult>;
 let loginUser: (
-  newLoginUser: UserRequestBody
-) => Promise<LoginUserControllerResult>;
+  newLoginUser: UserRequest
+) => Promise<UserResult>;
 let logoutUser: (
-  newLogoutUser: UserRequestBody
-) => Promise<BasedUserControllerResult>;
-let listUserByID: (newListUser: UserId) => Promise<BasedUserControllerResult>;
+  newLogoutUser: UserRequest
+) => Promise<UserResult>;
+let listUserByID: (newListUser: string) => Promise<UserResult>;
 let updateUserDetailsByID: (
-  params: UpdateUserDetailsParams
-) => Promise<BasedUserControllerResult>;
+  params: Partial<UserRequest>
+) => Promise<UserResult>;
 let updateUserPasswordByID: (
-  params: UpdateUserPasswordParams
-) => Promise<BasedUserControllerResult>;
+  params: Partial<UserRequest>
+) => Promise<UserResult>;
 let deleteUserByID: (
-  newDeleteUser: UserId
-) => Promise<DeleteUserControllerResult>;
+  newDeleteUser: string
+) => Promise<UserResult>;
 
 const userController = {
   setSignUpUser: function (
     newSignUpUser: (
-      newSignUpUser: UserRequestBody
-    ) => Promise<BasedUserControllerResult>
+      newSignUpUser: UserRequest
+    ) => Promise<UserResult>
   ) {
     signUpUser = newSignUpUser;
   },
 
   setLoginUser: function (
     newLoginUser: (
-      newLoginUser: UserRequestBody
-    ) => Promise<LoginUserControllerResult>
+      newLoginUser: UserRequest
+    ) => Promise<UserResult>
   ) {
     loginUser = newLoginUser;
   },
