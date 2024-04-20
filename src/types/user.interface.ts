@@ -19,22 +19,21 @@ export interface UpdateUserPasswordParams {
 }
 
 export interface RequestWithUserId extends Request {
-  id: string;
+  id: Partial<UserRequestBodyWithId>;
 }
 
-export interface RequestWithNewUserBody extends Request {
-  user: NewUserRequestBody;
+export interface RequestWitUserBody extends Request {
+  user: Partial<UserRequestBody>;
 }
 
-export interface BasedNewUserControllerResult {
+
+export interface UserControllerResult {
   httpStatusCode: number;
   message: string;
   user: NewUserRequestBody;
 }
 
-export interface RequestWithExistingUserBody extends Request {
-  user: ExistingUserRequestBody;
-}
+
 
 export interface BasedExistingUserControllerResult {
   httpStatusCode: number;
