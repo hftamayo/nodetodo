@@ -30,15 +30,12 @@ export interface RequestWitUserBody extends Request {
 export interface UserControllerResult {
   httpStatusCode: number;
   message: string;
-  user: NewUserRequestBody;
+  user: Partial<UserRequestBody>;
 }
 
-
-
-export interface BasedExistingUserControllerResult {
+export interface DeleteUserControllerResult {
   httpStatusCode: number;
   message: string;
-  user: ExistingUserRequestBody;
 }
 
 export interface TokenUserControllerResult {
@@ -48,9 +45,6 @@ export interface TokenUserControllerResult {
 export type LoginUserControllerResult = BasedExistingUserControllerResult &
   TokenUserControllerResult;
 
-export interface DeleteUserControllerResult {
-  httpStatusCode: number;
-  message: string;
-}
+
 
 export type PartialUserRequestBody = Partial<UserRequestBody>;
