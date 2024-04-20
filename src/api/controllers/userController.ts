@@ -1,17 +1,15 @@
 import { Response } from "express";
-import { UserRequest, UserResult } from "../../types/user.interface";
+import {
+  UserRequest,
+  UserResult,
+  PartialUserRequest,
+} from "../../types/user.interface";
 
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
-let signUpUser: (
-  newSignUpUser: UserRequest
-) => Promise<UserResult>;
-let loginUser: (
-  newLoginUser: UserRequest
-) => Promise<UserResult>;
-let logoutUser: (
-  newLogoutUser: UserRequest
-) => Promise<UserResult>;
+let signUpUser: (newSignUpUser: UserRequest) => Promise<UserResult>;
+let loginUser: (newLoginUser: UserRequest) => Promise<UserResult>;
+let logoutUser: (newLogoutUser: UserRequest) => Promise<UserResult>;
 let listUserByID: (newListUser: string) => Promise<UserResult>;
 let updateUserDetailsByID: (
   params: Partial<UserRequest>
@@ -19,23 +17,17 @@ let updateUserDetailsByID: (
 let updateUserPasswordByID: (
   params: Partial<UserRequest>
 ) => Promise<UserResult>;
-let deleteUserByID: (
-  newDeleteUser: string
-) => Promise<UserResult>;
+let deleteUserByID: (newDeleteUser: string) => Promise<UserResult>;
 
 const userController = {
   setSignUpUser: function (
-    newSignUpUser: (
-      newSignUpUser: UserRequest
-    ) => Promise<UserResult>
+    newSignUpUser: (newSignUpUser: UserRequest) => Promise<UserResult>
   ) {
     signUpUser = newSignUpUser;
   },
 
   setLoginUser: function (
-    newLoginUser: (
-      newLoginUser: UserRequest
-    ) => Promise<UserResult>
+    newLoginUser: (newLoginUser: UserRequest) => Promise<UserResult>
   ) {
     loginUser = newLoginUser;
   },
@@ -51,32 +43,26 @@ const userController = {
   },
 
   setUpdateUserDetails: function (
-    newUpdateUserDetails: (
-      params: Partial<UserRequest>
-    ) => Promise<UserResult>
+    newUpdateUserDetails: (params: Partial<UserRequest>) => Promise<UserResult>
   ) {
     updateUserDetailsByID = newUpdateUserDetails;
   },
 
   setUpdatePassword: function (
-    newUpdateUserPassword: (
-      params: Partial<UserRequest>
-    ) => Promise<UserResult>
+    newUpdateUserPassword: (params: Partial<UserRequest>) => Promise<UserResult>
   ) {
     updateUserPasswordByID = newUpdateUserPassword;
   },
 
   setDeleteUser: function (
-    newDeleteUser: (
-      newDeleteUser: string
-    ) => Promise<UserResult>
+    newDeleteUser: (newDeleteUser: string) => Promise<UserResult>
   ) {
     deleteUserByID = newDeleteUser;
   },
 
-  registerHandler: async function (req: Partial<UserRequest>, res: Response) {
+  registerHandler: async function (req: PartialUserRequest, res: Response) {
     try {
-      const { httpStatusCode, message, user } = await signUpUser(req.user);
+      const { httpStatusCode, message, user } = await signUpUser(req.user as UserRequest);
       if (httpStatusCode === 200 && user) {
         const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
@@ -101,13 +87,13 @@ const userController = {
     }
   },
 
-  loginHandler: async function (req: Partial<UserRequest>, res: Response) {
+  loginHandler: async function (req: PartialUserRequest, res: Response) {
     try {
       const { httpStatusCode, tokenCreated, message, user } = await loginUser(
-        req.user
+        req.user as UserRequest
       );
 
-      if (httpStatusCode === 200) {
+      if (httpStatusCode === 200 && user) {
         res.cookie("nodetodo", tokenCreated, {
           httpOnly: true,
           maxAge: 360000,
