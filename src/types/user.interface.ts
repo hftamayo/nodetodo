@@ -8,6 +8,7 @@ export interface UserRequest {
 }
 
 export interface PartialUserRequest extends Partial<UserRequest> {
+  userId?: string;
   user: Partial<UserRequest>;
 }
 
