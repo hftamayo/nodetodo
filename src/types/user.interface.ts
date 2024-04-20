@@ -26,25 +26,9 @@ export interface RequestWitUserBody extends Request {
   user: Partial<UserRequestBody>;
 }
 
-
 export interface UserControllerResult {
   httpStatusCode: number;
   message: string;
-  user: Partial<UserRequestBody>;
+  tokenCreated?: string;
+  user?: Partial<UserRequestBody>;
 }
-
-export interface DeleteUserControllerResult {
-  httpStatusCode: number;
-  message: string;
-}
-
-export interface TokenUserControllerResult {
-  tokenCreated: string;
-}
-
-export type LoginUserControllerResult = BasedExistingUserControllerResult &
-  TokenUserControllerResult;
-
-
-
-export type PartialUserRequestBody = Partial<UserRequestBody>;
