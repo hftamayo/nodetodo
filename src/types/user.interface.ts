@@ -11,13 +11,11 @@ export interface UserRequestBodyWithId extends UserRequestBody {
 }
 
 export interface UpdateUserDetailsParams {
-  userId: string;
-  user: UserRequestBody;
+  user: UserRequestBodyWithId;
 }
 
 export interface UpdateUserPasswordParams {
-  userId: string;
-  user: Partial<UserRequestBody>;
+  user: Partial<UserRequestBodyWithId>;
 }
 
 export interface RequestWithUserId extends Request {
