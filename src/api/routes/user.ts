@@ -7,8 +7,8 @@ import validateResult from "../middleware/validationResults";
 import rateLimiter from "../middleware/rateLimiter";
 import {
   UserRequest,
+  UserIdRequest,
   UserResult,
-  PartialUserRequest,
 } from "../../types/user.interface";
 
 const router = express.Router();
@@ -18,23 +18,22 @@ userController.setLoginUser(
   userService.loginUser as (newLoginUser: UserRequest) => Promise<UserResult>
 );
 userController.setListUser(
-  userService.listUserByID as (newListUser: UserRequest) => Promise<UserResult>
+  userService.listUserByID as (newListUser : UserIdRequest) => Promise<UserResult>
 );
 userController.setUpdateUserDetails(userService.updateUserByID);
 userController.setUpdateUserPassword(userService.updateUserPassword);
 userController.setDeleteUser(
-  userService.deleteUserByID as (newDeleteUser: UserId) => Promise<UserResult>
+  userService.deleteUserByID as (newDeleteUser: UserIdRequest) => Promise<UserResult>
 );
 
 const registerHandler = (req: Request, res: Response) => {
-  const UserRequest: PartialUserRequest = req.body;
+  const UserRequest: UserRequest = req.body;
   userController.registerHandler(UserRequest, res);
 };
 
 const loginHandler = (req: Request, res: Response) => {
   const UserRequest: UserRequest = req.body;
-  const partialUserRequest: PartialUserRequest = { user: UserRequest };
-  userController.loginHandler(partialUserRequest, res);
+  userController.loginHandler(UserRequest, res);
 };
 
 const logoutHandler = (req: Request, res: Response) => {
@@ -42,7 +41,8 @@ const logoutHandler = (req: Request, res: Response) => {
 };
 
 const listUserHandler = (req: Request, res: Response) => {
-  userController.listUserHandler(req as unknown as RequestWithUserId, res);
+  const userIdRequest: UserIdRequest = {userId: req.body.userId};
+  userController.listUserHandler(userIdRequest, res);
 };
 
 const updateUserDetailsHandler = (req: PartialUserRequest, res: Response) => {
