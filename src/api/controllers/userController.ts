@@ -145,16 +145,16 @@ const userController = {
     }
   },
 
-  listUserHandler: async function (req: PartialUserRequest, res: Response) {
+  listUserHandler: async function (req: UserIdRequest, res: Response) {
     try {
-      if (!req.userId) {
+      if (!req) {
         res
           .status(400)
           .json({ httpStatusCode: 400, resultMessage: "User ID is required" });
         return;
       }
 
-      const { httpStatusCode, message, user } = await listUserByID(req.userId);
+      const { httpStatusCode, message, user } = await listUserByID(req);
       if (httpStatusCode === 200 && user) {
         const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
