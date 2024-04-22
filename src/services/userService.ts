@@ -87,7 +87,7 @@ const loginUser = async function (requestBody: Partial<UserRequest>) {
   }
 };
 
-const listUserByID = async function (requestUserId: UserRequest) {
+const listUserByID = async function (requestUserId: Partial<UserRequest>) {
   const id = requestUserId;
   try {
     let searchUser = await User.findById(id).exec();
@@ -190,7 +190,7 @@ const updateUserPassword = async function (
   }
 };
 
-const deleteUserByID = async function (requestUserId: string) {
+const deleteUserByID = async function (requestUserId: Partial<UserRequest>) {
   const id = requestUserId;
   try {
     const searchUser = await User.findById(id).exec();
