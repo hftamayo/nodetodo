@@ -270,15 +270,15 @@ const userController = {
     }
   },
 
-  deleteUserHandler: async function (req: PartialUserRequest, res: Response) {
+  deleteUserHandler: async function (req: UserIdRequest, res: Response) {
     try {
-      if (!req.userId) {
+      if (!req) {
         res
           .status(400)
           .json({ httpStatusCode: 400, resultMessage: "User ID is required" });
         return;
       }
-      const { httpStatusCode, message } = await deleteUserByID(req.userId);
+      const { httpStatusCode, message } = await deleteUserByID(req);
 
       if (httpStatusCode === 200) {
         res.clearCookie("nodetodo");
