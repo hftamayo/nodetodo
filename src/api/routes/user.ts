@@ -1,4 +1,4 @@
-import express, {Request, Response} from "express";
+import express, { Request, Response } from "express";
 import userController from "../controllers/userController";
 import userService from "../../services/userService";
 import authorize from "../middleware/authorize";
@@ -6,24 +6,31 @@ import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
 import rateLimiter from "../middleware/rateLimiter";
 import {
-  UserId,
-  UserRequestBody,
-  RequestWithUserId,
-  RequestWithUserBody,
-  UpdateUserDetailsParams,
-  UpdateUserPasswordParams,
-  BasedUserControllerResult,
-  DeleteUserControllerResult,
+  UserRequest,
+  UserResult,
+  PartialUserRequest,
 } from "../../types/user.interface";
 
 const router = express.Router();
 
 userController.setSignUpUser(userService.signUpUser);
-userController.setLoginUser(userService.loginUser as (newLoginUser: UserRequestBody) => Promise<UserControllerResult>);
-userController.setListUser(userService.listUserByID as (newListUser: UserId) => Promise<BasedUserControllerResult>);
+userController.setLoginUser(
+  userService.loginUser as (
+    newLoginUser: UserRequestBody
+  ) => Promise<UserResult>
+);
+userController.setListUser(
+  userService.listUserByID as (
+    newListUser: UserId
+  ) => Promise<UserResult>
+);
 userController.setUpdateUserDetails(userService.updateUserByID);
 userController.setUpdateUserPassword(userService.updateUserPassword);
-userController.setDeleteUser(userService.deleteUserByID as (newDeleteUser: UserId) => Promise<DeleteUserControllerResult>);
+userController.setDeleteUser(
+  userService.deleteUserByID as (
+    newDeleteUser: UserId
+  ) => Promise<UserResult>
+);
 
 const registerHandler = (req: RequestWithUserBody, res: Response) => {
   userController.registerHandler(req, res);
@@ -41,11 +48,17 @@ const listUserHandler = (req: Request, res: Response) => {
   userController.listUserHandler(req as unknown as RequestWithUserId, res);
 };
 
-const updateUserDetailsHandler = (req: UpdateUserDetailsParams, res: Response) => {
+const updateUserDetailsHandler = (
+  req: UpdateUserDetailsParams,
+  res: Response
+) => {
   userController.updateUserDetailsHandler(req, res);
 };
 
-const updateUserPasswordHandler = (req: UpdateUserPasswordParams, res: Response) => {
+const updateUserPasswordHandler = (
+  req: UpdateUserPasswordParams,
+  res: Response
+) => {
   userController.updateUserPasswordHandler(req, res);
 };
 
@@ -60,7 +73,13 @@ router.post(
   validateResult,
   registerHandler
 );
-router.post("/login", rateLimiter.loginLimiter, validator.loginRules, validateResult, loginHandler);
+router.post(
+  "/login",
+  rateLimiter.loginLimiter,
+  validator.loginRules,
+  validateResult,
+  loginHandler
+);
 router.post("/logout", authorize, logoutHandler);
 router.get("/me", authorize, listUserHandler);
 router.put(
