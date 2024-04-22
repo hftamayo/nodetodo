@@ -15,21 +15,15 @@ const router = express.Router();
 
 userController.setSignUpUser(userService.signUpUser);
 userController.setLoginUser(
-  userService.loginUser as (
-    newLoginUser: UserRequest
-  ) => Promise<UserResult>
+  userService.loginUser as (newLoginUser: UserRequest) => Promise<UserResult>
 );
 userController.setListUser(
-  userService.listUserByID as (
-    newListUser: UserRequest
-  ) => Promise<UserResult>
+  userService.listUserByID as (newListUser: UserRequest) => Promise<UserResult>
 );
 userController.setUpdateUserDetails(userService.updateUserByID);
 userController.setUpdateUserPassword(userService.updateUserPassword);
 userController.setDeleteUser(
-  userService.deleteUserByID as (
-    newDeleteUser: UserId
-  ) => Promise<UserResult>
+  userService.deleteUserByID as (newDeleteUser: UserId) => Promise<UserResult>
 );
 
 const registerHandler = (req: Request, res: Response) => {
@@ -37,8 +31,10 @@ const registerHandler = (req: Request, res: Response) => {
   userController.registerHandler(UserRequest, res);
 };
 
-const loginHandler = (req: UserRequest, res: Response) => {
-  userController.loginHandler(req, res);
+const loginHandler = (req: Request, res: Response) => {
+  const UserRequest: UserRequest = req.body;
+  const partialUserRequest: PartialUserRequest = { user: UserRequest };
+  userController.loginHandler(partialUserRequest, res);
 };
 
 const logoutHandler = (req: Request, res: Response) => {
@@ -49,17 +45,11 @@ const listUserHandler = (req: Request, res: Response) => {
   userController.listUserHandler(req as unknown as RequestWithUserId, res);
 };
 
-const updateUserDetailsHandler = (
-  req: PartialUserRequest,
-  res: Response
-) => {
+const updateUserDetailsHandler = (req: PartialUserRequest, res: Response) => {
   userController.updateUserDetailsHandler(req, res);
 };
 
-const updateUserPasswordHandler = (
-  req: PartialUserRequest,
-  res: Response
-) => {
+const updateUserPasswordHandler = (req: PartialUserRequest, res: Response) => {
   userController.updateUserPasswordHandler(req, res);
 };
 
