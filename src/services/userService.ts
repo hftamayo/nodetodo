@@ -3,7 +3,7 @@ import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { UserRequest } from "../types/user.interface";
+import { UserRequest, PartialUserRequest } from "../types/user.interface";
 
 const signUpUser = async function (requestBody: Partial<UserRequest>) {
   const { name, email, password, age } = requestBody;
@@ -87,8 +87,8 @@ const loginUser = async function (requestBody: Partial<UserRequest>) {
   }
 };
 
-const listUserByID = async function (requestUserId: Partial<UserRequest>) {
-  const id = requestUserId;
+const listUserByID = async function (requestUserId: PartialUserRequest) {
+  const id = requestUserId.userId;
   try {
     let searchUser = await User.findById(id).exec();
     if (!searchUser) {
