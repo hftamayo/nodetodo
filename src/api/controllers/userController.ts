@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import {
   UserRequest,
   UserResult,
@@ -9,7 +9,7 @@ import { cors_secure, cors_samesite } from "../../config/envvars";
 
 let signUpUser: (newSignUpUser: UserRequest) => Promise<UserResult>;
 let loginUser: (newLoginUser: UserRequest) => Promise<UserResult>;
-let logoutUser: (newLogoutUser: UserRequest) => Promise<UserResult>;
+let logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
 let listUserByID: (newListUser: string) => Promise<UserResult>;
 let updateUserDetailsByID: (
   params: Partial<UserRequest>
@@ -127,7 +127,7 @@ const userController = {
     }
   },
 
-  logoutHandler: async function (req: Partial<UserRequest>, res: Response) {
+  logoutHandler: async function (req: Request, res: Response) {
     try {
       res.clearCookie("nodetodo");
       res.status(200).json({
