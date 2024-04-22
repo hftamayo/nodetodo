@@ -16,12 +16,12 @@ const router = express.Router();
 userController.setSignUpUser(userService.signUpUser);
 userController.setLoginUser(
   userService.loginUser as (
-    newLoginUser: UserRequestBody
+    newLoginUser: UserRequest
   ) => Promise<UserResult>
 );
 userController.setListUser(
   userService.listUserByID as (
-    newListUser: UserId
+    newListUser: UserRequest
   ) => Promise<UserResult>
 );
 userController.setUpdateUserDetails(userService.updateUserByID);
@@ -32,11 +32,11 @@ userController.setDeleteUser(
   ) => Promise<UserResult>
 );
 
-const registerHandler = (req: RequestWithUserBody, res: Response) => {
+const registerHandler = (req: UserRequest, res: Response) => {
   userController.registerHandler(req, res);
 };
 
-const loginHandler = (req: RequestWithUserBody, res: Response) => {
+const loginHandler = (req: UserRequest, res: Response) => {
   userController.loginHandler(req, res);
 };
 
@@ -49,21 +49,21 @@ const listUserHandler = (req: Request, res: Response) => {
 };
 
 const updateUserDetailsHandler = (
-  req: UpdateUserDetailsParams,
+  req: PartialUserRequest,
   res: Response
 ) => {
   userController.updateUserDetailsHandler(req, res);
 };
 
 const updateUserPasswordHandler = (
-  req: UpdateUserPasswordParams,
+  req: PartialUserRequest,
   res: Response
 ) => {
   userController.updateUserPasswordHandler(req, res);
 };
 
 const deleteUserHandler = (req: Request, res: Response) => {
-  userController.deleteUserHandler(req as unknown as RequestWithUserId, res);
+  userController.deleteUserHandler(req as unknown as PartialUserRequest, res);
 };
 
 router.post(
