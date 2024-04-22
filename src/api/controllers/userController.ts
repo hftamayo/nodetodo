@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import {
   UserRequest,
+  UpdateUserRequest,
+  UserIdRequest,
   UserResult,
-  PartialUserRequest,
 } from "../../types/user.interface";
 
 import { cors_secure, cors_samesite } from "../../config/envvars";
@@ -10,14 +11,14 @@ import { cors_secure, cors_samesite } from "../../config/envvars";
 let signUpUser: (newSignUpUser: UserRequest) => Promise<UserResult>;
 let loginUser: (newLoginUser: UserRequest) => Promise<UserResult>;
 let logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
-let listUserByID: (newListUser: string) => Promise<UserResult>;
+let listUserByID: (newListUser: UserIdRequest) => Promise<UserResult>;
 let updateUserDetailsByID: (
   params: Partial<UserRequest>
 ) => Promise<UserResult>;
 let updateUserPasswordByID: (
   params: Partial<UserRequest>
 ) => Promise<UserResult>;
-let deleteUserByID: (newDeleteUser: string) => Promise<UserResult>;
+let deleteUserByID: (newDeleteUser: UserIdRequest) => Promise<UserResult>;
 
 const userController = {
   setSignUpUser: function (
@@ -37,7 +38,7 @@ const userController = {
   },
 
   setListUser: function (
-    newListUser: (newListUser: string) => Promise<UserResult>
+    newListUser: (newListUser: UserIdRequest) => Promise<UserResult>
   ) {
     listUserByID = newListUser;
   },
@@ -55,16 +56,14 @@ const userController = {
   },
 
   setDeleteUser: function (
-    newDeleteUser: (newDeleteUser: string) => Promise<UserResult>
+    newDeleteUser: (newDeleteUser: UserIdRequest) => Promise<UserResult>
   ) {
     deleteUserByID = newDeleteUser;
   },
 
-  registerHandler: async function (req: PartialUserRequest, res: Response) {
+  registerHandler: async function (req: UserRequest, res: Response) {
     try {
-      const { httpStatusCode, message, user } = await signUpUser(
-        req.user as UserRequest
-      );
+      const { httpStatusCode, message, user } = await signUpUser(req);
       if (httpStatusCode === 200 && user) {
         const { password, ...filteredUser } = user;
         res.status(httpStatusCode).json({
@@ -89,10 +88,10 @@ const userController = {
     }
   },
 
-  loginHandler: async function (req: PartialUserRequest, res: Response) {
+  loginHandler: async function (req: UserRequest, res: Response) {
     try {
       const { httpStatusCode, tokenCreated, message, user } = await loginUser(
-        req.user as UserRequest
+        req
       );
 
       if (httpStatusCode === 200 && user) {
