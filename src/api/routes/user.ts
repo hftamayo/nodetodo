@@ -32,8 +32,9 @@ userController.setDeleteUser(
   ) => Promise<UserResult>
 );
 
-const registerHandler = (req: UserRequest, res: Response) => {
-  userController.registerHandler(req, res);
+const registerHandler = (req: Request, res: Response) => {
+  const UserRequest: PartialUserRequest = req.body;
+  userController.registerHandler(UserRequest, res);
 };
 
 const loginHandler = (req: UserRequest, res: Response) => {
