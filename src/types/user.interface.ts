@@ -7,9 +7,13 @@ export interface UserRequest {
   newPassword: string;
 }
 
-export interface PartialUserRequest extends Partial<UserRequest> {
-  userId?: string;
+export interface UpdateUserRequest extends Partial<UserRequest> {
+  userId: string;
   user: Partial<UserRequest>;
+}
+
+export interface UserIdRequest {
+  userId: string;
 }
 
 export interface UserResult {
