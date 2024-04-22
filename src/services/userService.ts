@@ -3,7 +3,11 @@ import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { UserRequest, PartialUserRequest } from "../types/user.interface";
+import {
+  UserRequest,
+  UpdateUserRequest,
+  UserIdRequest,
+} from "../types/user.interface";
 
 const signUpUser = async function (requestBody: Partial<UserRequest>) {
   const { name, email, password, age } = requestBody;
