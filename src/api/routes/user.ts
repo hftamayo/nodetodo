@@ -53,11 +53,11 @@ const listUserHandler = (req: Request, res: Response) => {
   userController.listUserHandler(userIdRequest, res);
 };
 
-const updateUserDetailsHandler = (req: UpdateUserRequest, res: Response) => {
-  userController.updateUserDetailsHandler(req, res);
+const updateUserDetailsHandler = (req: Request, res: Response) => {
+  userController.updateUserDetailsHandler(req as unknown as UpdateUserRequest, res);
 };
 
-const updateUserPasswordHandler = (req: PartialUserRequest, res: Response) => {
+const updateUserPasswordHandler = (req: UpdateUserRequest, res: Response) => {
   userController.updateUserPasswordHandler(req, res);
 };
 
