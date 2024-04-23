@@ -9,6 +9,7 @@ import {
   UserRequest,
   UserIdRequest,
   UserResult,
+  UpdateUserRequest,
 } from "../../types/user.interface";
 
 const router = express.Router();
@@ -20,7 +21,9 @@ userController.setLoginUser(
 userController.setListUser(
   userService.listUserByID as (newListUser : UserIdRequest) => Promise<UserResult>
 );
-userController.setUpdateUserDetails(userService.updateUserByID);
+userController.setUpdateUserDetails(
+  (userId: string, user: Partial<UserRequest>) => userService.updateUserByID(userId, user)
+  );
 userController.setUpdateUserPassword(userService.updateUserPassword);
 userController.setDeleteUser(
   userService.deleteUserByID as (newDeleteUser: UserIdRequest) => Promise<UserResult>
@@ -45,8 +48,8 @@ const listUserHandler = (req: Request, res: Response) => {
   userController.listUserHandler(userIdRequest, res);
 };
 
-const updateUserDetailsHandler = (req: PartialUserRequest, res: Response) => {
-  userController.updateUserDetailsHandler(req, res);
+const updateUserDetailsHandler = (req: UpdateUserRequest, res: Response) => {
+  userController.updateUserDetailsHandler(req.userId, req.user, res);
 };
 
 const updateUserPasswordHandler = (req: PartialUserRequest, res: Response) => {
