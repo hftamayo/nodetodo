@@ -180,7 +180,7 @@ const userController = {
   },
 
   updateUserDetailsHandler: async function (
-    req: PartialUserRequest,
+    req: UpdateUserRequest,
     res: Response
   ) {
     try {
@@ -191,7 +191,7 @@ const userController = {
         });
       }
 
-      const params: PartialUserRequest = {
+      const params: UpdateUserRequest = {
         userId: req.userId,
         user: req.user,
       };
@@ -226,7 +226,7 @@ const userController = {
   },
 
   updateUserPasswordHandler: async function (
-    req: PartialUserRequest,
+    req: UpdateUserRequest,
     res: Response
   ) {
     try {
@@ -237,7 +237,7 @@ const userController = {
         });
       }
 
-      const params: PartialUserRequest = {
+      const params: UpdateUserRequest = {
         userId: req.userId,
         user: req.user,
       };
