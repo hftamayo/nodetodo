@@ -54,7 +54,8 @@ const updateUserPasswordHandler = (req: PartialUserRequest, res: Response) => {
 };
 
 const deleteUserHandler = (req: Request, res: Response) => {
-  userController.deleteUserHandler(req as unknown as PartialUserRequest, res);
+  const userIdRequest: UserIdRequest = {userId: req.body.userId};
+  userController.deleteUserHandler(userIdRequest, res);
 };
 
 router.post(
