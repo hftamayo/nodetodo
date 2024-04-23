@@ -13,8 +13,7 @@ let loginUser: (newLoginUser: UserRequest) => Promise<UserResult>;
 let logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
 let listUserByID: (newListUser: UserIdRequest) => Promise<UserResult>;
 let updateUserDetailsByID: (
-  userId: string,
-  user: Partial<UserRequest>
+  params: Partial<UserRequest>
 ) => Promise<UserResult>;
 let updateUserPasswordByID: (
   params: Partial<UserRequest>
@@ -45,10 +44,7 @@ const userController = {
   },
 
   setUpdateUserDetails: function (
-    newUpdateUserDetails: (
-      userId: string,
-      user: Partial<UserRequest>
-    ) => Promise<UserResult>
+    newUpdateUserDetails: (params: Partial<UserRequest>) => Promise<UserResult>
   ) {
     updateUserDetailsByID = newUpdateUserDetails;
   },
@@ -195,9 +191,13 @@ const userController = {
         });
       }
 
+      const params: UpdateUserRequest = {
+        userId: req.userId,
+        user: req.user,
+      };
+
       const { httpStatusCode, message, user } = await updateUserDetailsByID(
-        req.userId,
-        req.user
+        params
       );
 
       if (!user) {
