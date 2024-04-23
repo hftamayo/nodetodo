@@ -19,15 +19,20 @@ userController.setLoginUser(
   userService.loginUser as (newLoginUser: UserRequest) => Promise<UserResult>
 );
 userController.setListUser(
-  userService.listUserByID as (newListUser : UserIdRequest) => Promise<UserResult>
+  userService.listUserByID as (
+    newListUser: UserIdRequest
+  ) => Promise<UserResult>
 );
-userController.setUpdateUserDetails(
-  (userId: string, user: Partial<UserRequest>) => userService.updateUserByID(userId, user)
-  );
-userController.setUpdateUserPassword(userService.updateUserPassword);
-userController.setDeleteUser(
-  userService.deleteUserByID as (newDeleteUser: UserIdRequest) => Promise<UserResult>
-);
+userController.setUpdateUserDetails((params: Partial<UserRequest>) => {
+  if ("userId" in params && "user" in params) {
+    return userService.updateUserByID(
+      params.userId as string,
+      params.user as Partial<UserRequest>
+    );
+  } else {
+    throw new Error("Invalid parameters");
+  }
+});
 
 const registerHandler = (req: Request, res: Response) => {
   const UserRequest: UserRequest = req.body;
@@ -44,12 +49,12 @@ const logoutHandler = (req: Request, res: Response) => {
 };
 
 const listUserHandler = (req: Request, res: Response) => {
-  const userIdRequest: UserIdRequest = {userId: req.body.userId};
+  const userIdRequest: UserIdRequest = { userId: req.body.userId };
   userController.listUserHandler(userIdRequest, res);
 };
 
 const updateUserDetailsHandler = (req: UpdateUserRequest, res: Response) => {
-  userController.updateUserDetailsHandler(req.userId, req.user, res);
+  userController.updateUserDetailsHandler(req, res);
 };
 
 const updateUserPasswordHandler = (req: PartialUserRequest, res: Response) => {
@@ -57,7 +62,7 @@ const updateUserPasswordHandler = (req: PartialUserRequest, res: Response) => {
 };
 
 const deleteUserHandler = (req: Request, res: Response) => {
-  const userIdRequest: UserIdRequest = {userId: req.body.userId};
+  const userIdRequest: UserIdRequest = { userId: req.body.userId };
   userController.deleteUserHandler(userIdRequest, res);
 };
 
