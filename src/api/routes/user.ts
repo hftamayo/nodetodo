@@ -23,7 +23,19 @@ userController.setListUser(
     newListUser: UserIdRequest
   ) => Promise<UserResult>
 );
+
 userController.setUpdateUserDetails((params: Partial<UserRequest>) => {
+  if ("userId" in params && "user" in params) {
+    return userService.updateUserByID(
+      params.userId as string,
+      params.user as Partial<UserRequest>
+    );
+  } else {
+    throw new Error("Invalid parameters");
+  }
+});
+
+userController.setUpdatePassword((params: Partial<UserRequest>) => {
   if ("userId" in params && "user" in params) {
     return userService.updateUserByID(
       params.userId as string,
@@ -57,8 +69,8 @@ const updateUserDetailsHandler = (req: Request, res: Response) => {
   userController.updateUserDetailsHandler(req as unknown as UpdateUserRequest, res);
 };
 
-const updateUserPasswordHandler = (req: UpdateUserRequest, res: Response) => {
-  userController.updateUserPasswordHandler(req, res);
+const updateUserPasswordHandler = (req: Request, res: Response) => {
+  userController.updateUserPasswordHandler(req as unknown as UpdateUserRequest, res);
 };
 
 const deleteUserHandler = (req: Request, res: Response) => {
