@@ -39,7 +39,12 @@ const todoController = {
   ) {
     listTodoByID = newTodoByID;
   },
-  setCreateTodo: function (newCreateTodo) {
+  setCreateTodo: function (
+    newCreateTodo: (
+      params: UserIdRequest,
+      requestBody: TodoRequest
+    ) => Promise<TodoResult>
+    ) {
     createTodo = newCreateTodo;
   },
   setUpdateTodoByID: function (newUpdateTodoByID) {
