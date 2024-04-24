@@ -1,13 +1,23 @@
-export interface TodoRequestBody {
-    id: string;
+export interface TodoRequest{
+    id?: string;
     title: string;
     description: string;
     completed: boolean;
     user: string;
 }
 
-export type PartialTodoRequestBody = Partial<TodoRequestBody>;
+export interface TodoIdRequest{
+    todoId: string;
+}
 
-export interface TodoId {
-    id: string;
+export interface UpdateTodoRequest{
+    owner: string;
+    todoId: string;
+    todo: Partial<TodoRequest>;
+}
+
+export interface TodoResult{
+    httpStatusCode: number;
+    message: string;
+    todo?: Partial<TodoRequest>;
 }
