@@ -1,8 +1,8 @@
 import Todo from "../models/Todo";
 import { TodoId, PartialTodoRequestBody } from "../types/todo.interface";
-import { UserId } from "../types/user.interface";
+import { UserIdRequest } from "../types/user.interface";
 
-const listActiveTodos = async function (requestUserId: UserId) {
+const listActiveTodos = async function (requestUserId: UserIdRequest) {
   const userId = requestUserId;
   try {
     let activeTodos = await Todo.find({ user: userId }).exec();
