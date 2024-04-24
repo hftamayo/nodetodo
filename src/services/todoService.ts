@@ -1,5 +1,5 @@
 import Todo from "../models/Todo";
-import { TodoIdRequest, PartialTodoRequestBody } from "../types/todo.interface";
+import { TodoIdRequest, TodoRequest } from "../types/todo.interface";
 import { UserIdRequest } from "../types/user.interface";
 
 const listActiveTodos = async function (requestUserId: UserIdRequest) {
@@ -53,8 +53,8 @@ const listTodoByID = async function (
 };
 
 const createTodo = async function (
-  requestUserId: UserId,
-  requestBody: PartialTodoRequestBody
+  requestUserId: UserIdRequest,
+  requestBody: TodoRequest
 ) {
   const owner = requestUserId;
   const { title, description } = requestBody;
