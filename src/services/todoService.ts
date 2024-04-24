@@ -1,5 +1,5 @@
 import Todo from "../models/Todo";
-import { TodoId, PartialTodoRequestBody } from "../types/todo.interface";
+import { TodoIdRequest, PartialTodoRequestBody } from "../types/todo.interface";
 import { UserIdRequest } from "../types/user.interface";
 
 const listActiveTodos = async function (requestUserId: UserIdRequest) {
@@ -24,8 +24,8 @@ const listActiveTodos = async function (requestUserId: UserIdRequest) {
 };
 
 const listTodoByID = async function (
-  requestUserId: UserId,
-  requestTodoId: TodoId
+  requestUserId: UserIdRequest,
+  requestTodoId: TodoIdRequest
 ) {
   const userId = requestUserId;
   const todoId = requestTodoId;
@@ -35,7 +35,7 @@ const listTodoByID = async function (
     if (!searchTodo) {
       return { httpStatusCode: 404, message: "Task Not Found" };
     }
-    if (searchTodo.user.toString() !== userId.id.toString()) {
+    if (searchTodo.user.toString() !== userId.userId.toString()) {
       return {
         httpStatusCode: 400,
         message: "There's a problem with your credentials",
