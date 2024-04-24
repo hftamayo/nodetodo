@@ -86,9 +86,9 @@ const createTodo = async function (
 };
 
 const updateTodoByID = async function (
-  requestUserId: UserId,
-  requestTodoId: TodoId,
-  requestBody: PartialTodoRequestBody
+  requestUserId: UserIdRequest,
+  requestTodoId: TodoIdRequest,
+  requestBody: TodoRequest
 ) {
   const owner = requestUserId;
   const todoId = requestTodoId;
@@ -99,7 +99,7 @@ const updateTodoByID = async function (
     if (!updateTodo) {
       return { httpStatusCode: 404, message: "Todo Not Found" };
     }
-    if (updateTodo.user.toString() !== owner.id.toString()) {
+    if (updateTodo.user.toString() !== owner.userId.toString()) {
       return {
         httpStatusCode: 401,
         message: "You're not the owner of this Todo",
