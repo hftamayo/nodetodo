@@ -44,10 +44,16 @@ const todoController = {
       params: UserIdRequest,
       requestBody: TodoRequest
     ) => Promise<TodoResult>
-    ) {
+  ) {
     createTodo = newCreateTodo;
   },
-  setUpdateTodoByID: function (newUpdateTodoByID) {
+  setUpdateTodoByID: function (
+    newUpdateTodoByID: (
+      params: UserIdRequest,
+      requestTodoId: TodoIdRequest,
+      requestBody: TodoRequest
+    ) => Promise<TodoResult>
+  ) {
     updateTodoByID = newUpdateTodoByID;
   },
   setDeleteTodoByID: function (newDeleteTodoByID) {
