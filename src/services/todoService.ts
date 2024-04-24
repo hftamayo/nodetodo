@@ -125,8 +125,8 @@ const updateTodoByID = async function (
 };
 
 const deleteTodoByID = async function (
-  requestUserId: UserId,
-  requestTodoId: TodoId
+  requestUserId: UserIdRequest,
+  requestTodoId: TodoIdRequest
 ) {
   const owner = requestUserId;
   const todoId = requestTodoId;
@@ -136,7 +136,7 @@ const deleteTodoByID = async function (
     if (!deleteTodo) {
       return { httpStatusCode: 404, message: "Todo not found" };
     }
-    if (deleteTodo.user.toString() !== owner.id.toString()) {
+    if (deleteTodo.user.toString() !== owner.userId.toString()) {
       return {
         httpStatusCode: 401,
         message: "You're not the owner of this Todo",
