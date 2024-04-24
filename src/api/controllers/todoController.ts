@@ -6,7 +6,7 @@ import {
 } from "../../types/todo.interface";
 import { UserIdRequest } from "../../types/user.interface";
 
-let listActiveTodos: (newActiveTodos: TodoIdRequest) => Promise<TodoResult>;
+let listActiveTodos: (newActiveTodos: UserIdRequest) => Promise<TodoResult>;
 let listTodoByID: (
   params: UserIdRequest,
   todoIdRequest: TodoIdRequest
@@ -26,7 +26,9 @@ let deleteTodoByID: (
 ) => Promise<TodoResult>;
 
 const todoController = {
-  setActiveTodos: function (newActiveTodos) {
+  setActiveTodos: function (
+    newActiveTodos: (newActiveTodos: UserIdRequest) => Promise<TodoResult>
+  ) {
     listActiveTodos = newActiveTodos;
   },
   setTodoByID: function (newTodoByID) {
