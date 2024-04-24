@@ -56,7 +56,12 @@ const todoController = {
   ) {
     updateTodoByID = newUpdateTodoByID;
   },
-  setDeleteTodoByID: function (newDeleteTodoByID) {
+  setDeleteTodoByID: function (
+    newDeleteTodoByID: (
+      params: UserIdRequest,
+      todoIdRequest: TodoIdRequest
+    ) => Promise<TodoResult>
+  ) {
     deleteTodoByID = newDeleteTodoByID;
   },
 
