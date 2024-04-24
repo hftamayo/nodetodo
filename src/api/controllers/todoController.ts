@@ -1,8 +1,29 @@
-let listActiveTodos;
-let listTodoByID;
-let createTodo;
-let updateTodoByID;
-let deleteTodoByID;
+import { Request, Response } from "express";
+import {
+  TodoRequest,
+  TodoIdRequest,
+  TodoResult,
+} from "../../types/todo.interface";
+import { UserIdRequest } from "../../types/user.interface";
+
+let listActiveTodos: (newActiveTodos: TodoIdRequest) => Promise<TodoResult>;
+let listTodoByID: (
+  params: UserIdRequest,
+  todoIdRequest: TodoIdRequest
+) => Promise<TodoResult>;
+let createTodo: (
+  params: UserIdRequest,
+  requestBody: TodoRequest
+) => Promise<TodoResult>;
+let updateTodoByID: (
+  params: UserIdRequest,
+  requestTodoId: TodoIdRequest,
+  requestBody: TodoRequest
+) => Promise<TodoResult>;
+let deleteTodoByID: (
+  params: UserIdRequest,
+  todoIdRequest: TodoIdRequest
+) => Promise<TodoResult>;
 
 const todoController = {
   setActiveTodos: function (newActiveTodos) {
@@ -31,7 +52,7 @@ const todoController = {
         .json(
           httpStatusCode === 200
             ? { httpStatusCode, resultMessage: message, activeTodos: todos }
-            : {httpStatusCode, resultMessage: message }
+            : { httpStatusCode, resultMessage: message }
         );
     } catch (error) {
       console.error("todoController, getTodos: " + error.message);
