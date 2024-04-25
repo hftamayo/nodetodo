@@ -20,4 +20,5 @@ export interface TodoResult{
     httpStatusCode: number;
     message: string;
     todo?: Partial<TodoRequest>;
+    todos?: Partial<TodoRequest>[];
 }
