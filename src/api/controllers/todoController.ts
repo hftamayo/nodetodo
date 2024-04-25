@@ -65,11 +65,9 @@ const todoController = {
     deleteTodoByID = newDeleteTodoByID;
   },
 
-  getTodosHandler: async function (req: TodoIdRequest, res: Response) {
+  getTodosHandler: async function (req: UserIdRequest, res: Response) {
     try {
-      const { httpStatusCode, message, todos } = await listActiveTodos(
-        req.user
-      );
+      const { httpStatusCode, message, todos } = await listActiveTodos(req);
       res
         .status(httpStatusCode)
         .json(
