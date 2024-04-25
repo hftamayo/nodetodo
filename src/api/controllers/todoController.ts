@@ -187,4 +187,4 @@ const todoController = {
   },
 };
 
-module.exports = todoController;
+export default todoController;
