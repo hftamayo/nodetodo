@@ -15,12 +15,12 @@ let listTodoByID: (
 ) => Promise<TodoResult>;
 let createTodo: (
   params: UserIdRequest,
-  requestBody: TodoRequest
+  requestBody: Partial<TodoRequest>
 ) => Promise<TodoResult>;
 let updateTodoByID: (
   params: UserIdRequest,
   requestTodoId: TodoIdRequest,
-  requestBody: TodoRequest
+  requestBody: Partial<TodoRequest>
 ) => Promise<TodoResult>;
 let deleteTodoByID: (
   userId: UserIdRequest,
@@ -44,7 +44,7 @@ const todoController = {
   setCreateTodo: function (
     newCreateTodo: (
       params: UserIdRequest,
-      requestBody: TodoRequest
+      requestBody: Partial<TodoRequest>
     ) => Promise<TodoResult>
   ) {
     createTodo = newCreateTodo;
@@ -53,7 +53,7 @@ const todoController = {
     newUpdateTodoByID: (
       params: UserIdRequest,
       requestTodoId: TodoIdRequest,
-      requestBody: TodoRequest
+      requestBody: Partial<TodoRequest>
     ) => Promise<TodoResult>
   ) {
     updateTodoByID = newUpdateTodoByID;
@@ -114,12 +114,27 @@ const todoController = {
     }
   },
 
-  newTodoHandler: async function (req: UpdateTodoRequest, res: Response) {
+  newTodoHandler: async function (req: OwnerTodoBodyRequest, res: Response) {
     try {
       const { httpStatusCode, message, todo } = await createTodo(
-        req.user,
-        req.body
+        req.owner,
+        req.todo
       );
+
+      if (
+        !req.todo.title ||
+        !req.todo.description ||
+        !req.todo.completed ||
+        !req.todo.user
+      ) {
+        return res
+          .status(400)
+          .json({
+            httpStatusCode: 400,
+            resultMessage: "Missing required fields",
+          });
+      }
+
       res
         .status(httpStatusCode)
         .json(
