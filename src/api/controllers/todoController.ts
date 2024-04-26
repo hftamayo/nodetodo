@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   TodoRequest,
   TodoIdRequest,
+  DeleteTodoRequest,
   TodoResult,
 } from "../../types/todo.interface";
 import { UserIdRequest } from "../../types/user.interface";
@@ -21,8 +22,8 @@ let updateTodoByID: (
   requestBody: TodoRequest
 ) => Promise<TodoResult>;
 let deleteTodoByID: (
-  params: UserIdRequest,
-  todoIdRequest: TodoIdRequest
+  userId: UserIdRequest,
+  todoId: TodoIdRequest
 ) => Promise<TodoResult>;
 
 const todoController = {
@@ -58,8 +59,8 @@ const todoController = {
   },
   setDeleteTodoByID: function (
     newDeleteTodoByID: (
-      params: UserIdRequest,
-      todoIdRequest: TodoIdRequest
+      userId: UserIdRequest,
+      todoId: TodoIdRequest
     ) => Promise<TodoResult>
   ) {
     deleteTodoByID = newDeleteTodoByID;
@@ -163,7 +164,7 @@ const todoController = {
     }
   },
 
-  deleteTodoHandler: async function (req, res) {
+  deleteTodoHandler: async function (req: DeleteTodoRequest, res: Response) {
     try {
       const { httpStatusCode, message } = await deleteTodoByID(
         req.user,
