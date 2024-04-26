@@ -13,8 +13,8 @@ export interface TodoIdRequest{
 }
 
 export interface OwnerTodoBodyRequest{
-    owner: string;
-    todoId?: string;
+    owner: UserIdRequest;
+    todoId?: TodoIdRequest;
     todo: Partial<TodoRequest>;
 }
 
