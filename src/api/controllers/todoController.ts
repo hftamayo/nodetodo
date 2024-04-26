@@ -1,4 +1,5 @@
 import { Response } from "express";
+
 import {
   TodoRequest,
   TodoIdRequest,
@@ -127,12 +128,10 @@ const todoController = {
         !req.todo.completed ||
         !req.todo.user
       ) {
-        return res
-          .status(400)
-          .json({
-            httpStatusCode: 400,
-            resultMessage: "Missing required fields",
-          });
+        return res.status(400).json({
+          httpStatusCode: 400,
+          resultMessage: "Missing required fields",
+        });
       }
 
       res
@@ -154,12 +153,15 @@ const todoController = {
     }
   },
 
-  updateTodoHandler: async function (req, res) {
+  updateTodoHandler: async function (req: OwnerTodoBodyRequest, res: Response) {
     try {
+      if (!req.todoId) {
+        throw new Error("Missing todoId");
+      }
       const { httpStatusCode, message, todo } = await updateTodoByID(
-        req.user,
-        req.params.id,
-        req.body
+        req.owner,
+        req.todoId,
+        req.todo
       );
       res
         .status(httpStatusCode)
