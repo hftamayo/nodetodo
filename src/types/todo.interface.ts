@@ -18,7 +18,7 @@ export interface UpdateTodoRequest{
     todo: Partial<TodoRequest>;
 }
 
-export interface DeleteTodoRequest extends Request {
+export interface OwnerTodoRequest extends Request {
     user: UserIdRequest;
     params: {
         id: TodoIdRequest;
