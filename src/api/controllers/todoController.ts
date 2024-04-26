@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import {
   TodoRequest,
   TodoIdRequest,
-  OwnerTodoRequest,
+  OwnerTodoIdRequest,
   TodoResult,
+  OwnerTodoBodyRequest,
 } from "../../types/todo.interface";
 import { UserIdRequest } from "../../types/user.interface";
 
@@ -88,7 +89,7 @@ const todoController = {
     }
   },
 
-  getTodoHandler: async function (req: OwnerTodoRequest, res: Response) {
+  getTodoHandler: async function (req: OwnerTodoIdRequest, res: Response) {
     try {
       const { httpStatusCode, message, todo } = await listTodoByID(
         req.user,
@@ -113,7 +114,7 @@ const todoController = {
     }
   },
 
-  newTodoHandler: async function (req, res) {
+  newTodoHandler: async function (req: UpdateTodoRequest, res: Response) {
     try {
       const { httpStatusCode, message, todo } = await createTodo(
         req.user,
@@ -164,7 +165,7 @@ const todoController = {
     }
   },
 
-  deleteTodoHandler: async function (req: OwnerTodoRequest, res: Response) {
+  deleteTodoHandler: async function (req: OwnerTodoIdRequest, res: Response) {
     try {
       const { httpStatusCode, message } = await deleteTodoByID(
         req.user,

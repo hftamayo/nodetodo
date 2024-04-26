@@ -12,18 +12,19 @@ export interface TodoIdRequest{
     todoId: string;
 }
 
-export interface UpdateTodoRequest{
+export interface OwnerTodoBodyRequest{
     owner: string;
-    todoId: string;
+    todoId?: string;
     todo: Partial<TodoRequest>;
 }
 
-export interface OwnerTodoRequest extends Request {
+export interface OwnerTodoIdRequest extends Request {
     user: UserIdRequest;
     params: {
         id: TodoIdRequest;
     }
 }
+
 
 export interface TodoResult{
     httpStatusCode: number;
