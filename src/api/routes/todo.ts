@@ -20,23 +20,23 @@ todoController.setCreateTodo(createTodo);
 todoController.setUpdateTodoByID(updateTodoByID);
 todoController.setDeleteTodoByID(deleteTodoByID);
 
-const getTodosHandler = (req, res) => {
+const getTodosHandler = (req: Request, res: Response) => {
   todoController.getTodosHandler(req, res);
 };
 
-const getTodoHandler = (req, res) => {
+const getTodoHandler = (req: Request, res: Response) => {
   todoController.getTodoHandler(req, res);
 };
 
-const newTodoHandler = (req, res) => {
+const newTodoHandler = (req: Request, res: Response) => {
   todoController.newTodoHandler(req, res);
 };
 
-const updateTodoHandler = (req, res) => {
+const updateTodoHandler = (req: Request, res: Response) => {
   todoController.updateTodoHandler(req, res);
 };
 
-const deleteTodoHandler = (req, res) => {
+const deleteTodoHandler = (req: Request, res: Response) => {
   todoController.deleteTodoHandler(req, res);
 };
 
@@ -45,17 +45,17 @@ router.get("/task/:id", authorize, getTodoHandler);
 router.post(
   "/create",
   authorize,
-  createTodoRules,
+  validator.createTodoRules,
   validateResult,
   newTodoHandler
 );
 router.put(
   "/update/:id",
   authorize,
-  updateTodoRules,
+  validator.updateTodoRules,
   validateResult,
   updateTodoHandler
 );
 router.delete("/delete/:id", authorize, deleteTodoHandler);
 
-module.exports = router;
+export default router;
