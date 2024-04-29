@@ -1,15 +1,17 @@
-import express from "express";
-const authorize = require("../middleware/authorize");
-const todoController = require("../controllers/todoController");
-const {
-  listActiveTodos,
-  listTodoByID,
-  createTodo,
-  updateTodoByID,
-  deleteTodoByID,
-} = require("../../services/todoService");
-const { createTodoRules, updateTodoRules } = require("../middleware/validator");
-const { validateResult } = require("../middleware/validationResults");
+import express, {Request, Response} from "express";
+import authorize from "../middleware/authorize";
+import validator from "../middleware/validator";
+import  validateResult  from "../middleware/validationResults";
+import todoService from "../../services/todoService";
+import todoController from "../controllers/todoController";
+import {
+  TodoRequest,
+  TodoIdRequest,
+  OwnerTodoIdRequest,
+  OwnerTodoBodyRequest,
+  TodoResult,
+} from "../../types/todo.interface";
+
 const router = express.Router();
 
 todoController.setActiveTodos(listActiveTodos);
