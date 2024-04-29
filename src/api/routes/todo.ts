@@ -14,11 +14,11 @@ import {
 
 const router = express.Router();
 
-todoController.setActiveTodos(listActiveTodos);
-todoController.setTodoByID(listTodoByID);
-todoController.setCreateTodo(createTodo);
-todoController.setUpdateTodoByID(updateTodoByID);
-todoController.setDeleteTodoByID(deleteTodoByID);
+todoController.setActiveTodos(todoService.listActiveTodos as (newActiveTodos: OwnerTodoIdRequest) => Promise<TodoResult>);
+todoController.setTodoByID(todoService.listTodoByID as (params: OwnerTodoIdRequest) => Promise<TodoResult>);
+todoController.setCreateTodo(todoService.createTodo as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
+todoController.setUpdateTodoByID(todoService.updateTodoByID as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
+todoController.setDeleteTodoByID(todoService.deleteTodoByID as (params: OwnerTodoIdRequest) => Promise<TodoResult>;
 
 const getTodosHandler = (req: Request, res: Response) => {
   todoController.getTodosHandler(req, res);
