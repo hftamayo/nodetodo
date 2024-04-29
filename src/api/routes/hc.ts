@@ -1,16 +1,16 @@
-import express from "express";
-
-const router = express.Router();
+import express, {Request, Response} from "express";
 import { dbConnection } from "../../config/setup";
 
-router.get("/app", (req, res) => {
+const router = express.Router();
+
+router.get("/app", (req: Request, res: Response) => {
   res.status(200).json({
     message: "HealthCheck: Application is up and running",
     timestamp: new Date().toISOString(),
   });
 });
 
-router.get("/db", async (req, res) => {
+router.get("/db", async (req: Request, res: Response) => {
   try {
     await dbConnection();
     res.status(200).json({
