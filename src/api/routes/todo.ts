@@ -12,12 +12,15 @@ import {
   TodoResult,
 } from "../../types/todo.interface";
 import { UserIdRequest } from "../../types/user.interface";
-import { User } from "../middleware/types/user.interface";
 
 const router = express.Router();
 
 todoController.setActiveTodos(todoService.listActiveTodos as (newActiveTodos: UserIdRequest) => Promise<TodoResult>);
-todoController.setTodoByID((params: UserIdRequest, todoIdRequest: TodoIdRequest) => todoService.listTodoByID(params, todoIdRequest));
+
+todoController.setTodoByID((params: UserIdRequest, todoIdRequest: TodoIdRequest): Promise<TodoResult> => {
+  return todoService.listTodoByID(params, todoIdRequest);
+});
+
 todoController.setCreateTodo(todoService.createTodo as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
 todoController.setUpdateTodoByID(todoService.updateTodoByID as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
 todoController.setDeleteTodoByID((userId: UserIdRequest, todoId: TodoIdRequest): Promise<TodoResult> => {
