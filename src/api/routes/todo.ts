@@ -12,6 +12,7 @@ import {
   TodoResult,
 } from "../../types/todo.interface";
 import { UserIdRequest } from "../../types/user.interface";
+import { request } from "http";
 
 const router = express.Router();
 
@@ -21,7 +22,10 @@ todoController.setTodoByID((params: UserIdRequest, todoIdRequest: TodoIdRequest)
   return todoService.listTodoByID(params, todoIdRequest);
 });
 
-todoController.setCreateTodo(todoService.createTodo as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
+todoController.setCreateTodo((params: UserIdRequest, requestBody: Partial<TodoRequest>): Promise<TodoResult> => {
+  return todoService.createTodo(params, requestBody as TodoRequest);
+});
+
 todoController.setUpdateTodoByID(todoService.updateTodoByID as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
 todoController.setDeleteTodoByID((userId: UserIdRequest, todoId: TodoIdRequest): Promise<TodoResult> => {
   return todoService.deleteTodoByID(userId, todoId);
