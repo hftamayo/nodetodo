@@ -11,14 +11,18 @@ import {
   OwnerTodoBodyRequest,
   TodoResult,
 } from "../../types/todo.interface";
+import { UserIdRequest } from "../../types/user.interface";
+import { User } from "../middleware/types/user.interface";
 
 const router = express.Router();
 
-todoController.setActiveTodos(todoService.listActiveTodos as (newActiveTodos: OwnerTodoIdRequest) => Promise<TodoResult>);
-todoController.setTodoByID(todoService.listTodoByID as (params: OwnerTodoIdRequest) => Promise<TodoResult>);
+todoController.setActiveTodos(todoService.listActiveTodos as (newActiveTodos: UserIdRequest) => Promise<TodoResult>);
+todoController.setTodoByID((params: UserIdRequest, todoIdRequest: TodoIdRequest) => todoService.listTodoByID(params, todoIdRequest));
 todoController.setCreateTodo(todoService.createTodo as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
 todoController.setUpdateTodoByID(todoService.updateTodoByID as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
-todoController.setDeleteTodoByID(todoService.deleteTodoByID as (params: OwnerTodoIdRequest) => Promise<TodoResult>;
+todoController.setDeleteTodoByID((userId: UserIdRequest, todoId: TodoIdRequest): Promise<TodoResult> => {
+  return todoService.deleteTodoByID(userId, todoId);
+});
 
 const getTodosHandler = (req: Request, res: Response) => {
   todoController.getTodosHandler(req, res);
