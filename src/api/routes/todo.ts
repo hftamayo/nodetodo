@@ -1,7 +1,7 @@
-import express, {Request, Response} from "express";
+import express, { Request, Response } from "express";
 import authorize from "../middleware/authorize";
 import validator from "../middleware/validator";
-import  validateResult  from "../middleware/validationResults";
+import validateResult from "../middleware/validationResults";
 import todoService from "../../services/todoService";
 import todoController from "../controllers/todoController";
 import {
@@ -16,20 +16,54 @@ import { request } from "http";
 
 const router = express.Router();
 
-todoController.setActiveTodos(todoService.listActiveTodos as (newActiveTodos: UserIdRequest) => Promise<TodoResult>);
+todoController.setActiveTodos(
+  todoService.listActiveTodos as (
+    newActiveTodos: UserIdRequest
+  ) => Promise<TodoResult>
+);
 
-todoController.setTodoByID((params: UserIdRequest, todoIdRequest: TodoIdRequest): Promise<TodoResult> => {
-  return todoService.listTodoByID(params, todoIdRequest);
-});
+todoController.setTodoByID(
+  (
+    params: UserIdRequest,
+    todoIdRequest: TodoIdRequest
+  ): Promise<TodoResult> => {
+    return todoService.listTodoByID(params, todoIdRequest);
+  }
+);
 
-todoController.setCreateTodo((params: UserIdRequest, requestBody: Partial<TodoRequest>): Promise<TodoResult> => {
-  return todoService.createTodo(params, requestBody as TodoRequest);
-});
+todoController.setCreateTodo(
+  async (
+    params: UserIdRequest,
+    requestBody: Partial<TodoRequest>
+  ): Promise<TodoResult> => {
+    const result = await todoService.createTodo(
+      params,
+      requestBody as TodoRequest
+    );
+    return {
+      httpStatusCode: result.httpStatusCode,
+      message: result.message,
+      todo: {
+        id: result.todo?._id.toString(),
+        title: result.todo?.title,
+        description: result.todo?.description,
+        completed: result.todo?.completed,
+        user: result.todo?.user.toString(),
+      },
+    };
+  }
+);
 
-todoController.setUpdateTodoByID(todoService.updateTodoByID as (params: OwnerTodoBodyRequest) => Promise<TodoResult>);
-todoController.setDeleteTodoByID((userId: UserIdRequest, todoId: TodoIdRequest): Promise<TodoResult> => {
-  return todoService.deleteTodoByID(userId, todoId);
-});
+todoController.setUpdateTodoByID(
+  todoService.updateTodoByID as (
+    params: OwnerTodoBodyRequest
+  ) => Promise<TodoResult>
+);
+todoController.setDeleteTodoByID(
+  (userId: UserIdRequest, todoId: TodoIdRequest): Promise<TodoResult> => {
+    return todoService.deleteTodoByID(userId, todoId);
+  }
+);
 
 const getTodosHandler = (req: Request, res: Response) => {
   todoController.getTodosHandler(req, res);
