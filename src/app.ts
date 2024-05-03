@@ -7,7 +7,7 @@ import { port } from "./config/envvars";
 import seedDatabase from "./utils/seedDatabase";
 import todosRoutes from "./api/routes/todo";
 import usersRoutes from "./api/routes/user";
-import healthCheckRoutes from "./api/routes/healthCheck";
+import healthCheckRoutes from "./api/routes/hc";
 
 const app = express();
 
