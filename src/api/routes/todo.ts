@@ -12,7 +12,6 @@ import {
   TodoResult,
 } from "../../types/todo.interface";
 import { UserIdRequest } from "../../types/user.interface";
-import { request } from "http";
 
 const router = express.Router();
 
@@ -74,7 +73,8 @@ const getTodoHandler = (req: Request, res: Response) => {
 };
 
 const newTodoHandler = (req: Request, res: Response) => {
-  todoController.newTodoHandler(req, res);
+  const OwnerTodoBodyRequest: OwnerTodoBodyRequest = req.body;
+  todoController.newTodoHandler(OwnerTodoBodyRequest, res);
 };
 
 const updateTodoHandler = (req: Request, res: Response) => {
