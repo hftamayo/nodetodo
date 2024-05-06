@@ -58,6 +58,7 @@ todoController.setUpdateTodoByID(
     params: OwnerTodoBodyRequest
   ) => Promise<TodoResult>
 );
+
 todoController.setDeleteTodoByID(
   (userId: UserIdRequest, todoId: TodoIdRequest): Promise<TodoResult> => {
     return todoService.deleteTodoByID(userId, todoId);
@@ -82,7 +83,15 @@ const updateTodoHandler = (req: Request, res: Response) => {
 };
 
 const deleteTodoHandler = (req: Request, res: Response) => {
-  todoController.deleteTodoHandler(req, res);
+  const user: UserIdRequest = { userId: req.body.userId };
+  const id: TodoIdRequest = { todoId: req.params.id };
+
+  const OwnerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
+
+  OwnerTodoIdRequest.user = user;
+  OwnerTodoIdRequest.params.id = id;
+
+  todoController.deleteTodoHandler(OwnerTodoIdRequest, res);
 };
 
 router.get("/list", authorize, getTodosHandler);
