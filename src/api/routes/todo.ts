@@ -66,7 +66,8 @@ todoController.setDeleteTodoByID(
 );
 
 const getTodosHandler = (req: Request, res: Response) => {
-  todoController.getTodosHandler(req, res);
+  const UserIdRequest: UserIdRequest = { userId: req.body.userId };
+  todoController.getTodosHandler(UserIdRequest, res);
 };
 
 const getTodoHandler = (req: Request, res: Response) => {
