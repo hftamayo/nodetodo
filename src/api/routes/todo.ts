@@ -22,12 +22,10 @@ todoController.setActiveTodos(
 );
 
 todoController.setTodoByID(
-  (
+  todoService.listTodoByID as (
     params: UserIdRequest,
     todoIdRequest: TodoIdRequest
-  ): Promise<TodoResult> => {
-    return todoService.listTodoByID(params, todoIdRequest);
-  }
+  ) => Promise<TodoResult>
 );
 
 todoController.setCreateTodo(
@@ -71,7 +69,14 @@ const getTodosHandler = (req: Request, res: Response) => {
 };
 
 const getTodoHandler = (req: Request, res: Response) => {
-  todoController.getTodoHandler(req, res);
+  const user: UserIdRequest = { userId: req.body.userId };
+  const id: TodoIdRequest = { todoId: req.params.id };
+
+  const OwnerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
+  OwnerTodoIdRequest.user = user;
+  OwnerTodoIdRequest.params.id = id;
+
+  todoController.getTodoHandler(OwnerTodoIdRequest, res);
 };
 
 const newTodoHandler = (req: Request, res: Response) => {
