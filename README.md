@@ -9,7 +9,7 @@ Application which help the user to manage tasks and reminders. This repo belongs
 - Delete permanently a task / reminder
 
 
-## Version 1 specs ##
+## Technical Details ##
 
 ### Technical Stack ###
 * Data storage: MongoDB
@@ -42,3 +42,19 @@ Please refer to the Issues section in this repository
 
 ## References ##
 * Testing [Test a Restful API with Mocha and Chai](https://www.digitalocean.com/community/tutorials/test-a-node-restful-api-with-mocha-and-chai)
+
+
+## Log releases ##
+### 0.0.1 Version ###
+- Released on: March 7th 2024
+- CommonJS modules
+- Unit and integration testing written in Chai + Mocha
+
+### 0.0.2 Version ###
+- Released on:
+- ES Modules
+- Full Typescript support
+
+### 0.1.2 Version ###
+- Released on:
+- Unit and Integration testing written in Jest
