@@ -46,14 +46,16 @@ Please refer to the Issues section in this repository
 
 ## Log releases ##
 ### 0.0.1 Version ###
-- Released on: March 7th 2024
+- Released on: Feb 6th 2024
 - CommonJS modules
 - Unit and integration testing written in Chai + Mocha
+- Commit ID: [f98ec2b](https://github.com/hftamayo/nodetodo/commit/f98ec2b594dfc93271d52d34ffca0ced4fcf1d59)
 
 ### 0.0.2 Version ###
 - Released on:
 - ES Modules
 - Full Typescript support
+- Commit ID:
 
 ### 0.1.2 Version ###
 - Released on:
