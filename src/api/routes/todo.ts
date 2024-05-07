@@ -52,9 +52,28 @@ todoController.setCreateTodo(
 );
 
 todoController.setUpdateTodoByID(
-  todoService.updateTodoByID as (
-    params: OwnerTodoBodyRequest
-  ) => Promise<TodoResult>
+  async (
+    params: UserIdRequest,
+    requestTodoId: TodoIdRequest,
+    requestBody: Partial<TodoRequest>
+  ): Promise<TodoResult> => {
+    const result = await todoService.updateTodoByID(
+      params,
+      requestTodoId,
+      requestBody as TodoRequest
+    );
+    return {
+      httpStatusCode: result.httpStatusCode,
+      message: result.message,
+      todo: {
+        id: result.todo?._id.toString(),
+        title: result.todo?.title,
+        description: result.todo?.description,
+        completed: result.todo?.completed,
+        user: result.todo?.user.toString(),
+      },
+    };
+  }
 );
 
 todoController.setDeleteTodoByID(
@@ -85,7 +104,8 @@ const newTodoHandler = (req: Request, res: Response) => {
 };
 
 const updateTodoHandler = (req: Request, res: Response) => {
-  todoController.updateTodoHandler(req, res);
+  const OwnerTodoBodyRequest: OwnerTodoBodyRequest = req.body;
+  todoController.updateTodoHandler(OwnerTodoBodyRequest, res);
 };
 
 const deleteTodoHandler = (req: Request, res: Response) => {
