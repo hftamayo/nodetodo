@@ -1,3 +1,20 @@
+import mongoose from "mongoose";
+
+export enum UserRole {
+  ADMIN = "admin",
+  SUPERVISOR = "supervisor",
+  USER = "user",
+}
+
+export interface UserSeed {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password: string;
+  age: number;
+  role: UserRole;
+}
+
 export interface UserRequest {
   id?: string;
   name: string;
