@@ -3,13 +3,10 @@ import seedUsers from "./seedUsers";
 import todoUsers from "./seedTodos";
 
 async function seedDatabase() {
+  const shouldSeedDatabase = dataseeddev === "true" || dataseedprod === "true";
+
   try {
-    if (
-      mode === "development" ||
-      dataseeddev === "true" ||
-      mode === "production" ||
-      dataseedprod === "true"
-    ) {
+    if (shouldSeedDatabase) {
       console.log(`Seeding the database in ${mode} environment...`);
       await seedUsers();
       await todoUsers();
