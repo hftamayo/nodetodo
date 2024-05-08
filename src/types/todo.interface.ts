@@ -1,5 +1,14 @@
+import mongoose from "mongoose";
 import { UserIdRequest } from "./user.interface";
 
+export interface TodoSeed {
+    _id: mongoose.Types.ObjectId;
+    title: string;
+    description: string;
+    completed: boolean;
+    user: mongoose.Types.ObjectId;
+  };
+  
 export interface TodoRequest{
     id?: string;
     title: string;

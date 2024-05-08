@@ -1,15 +1,9 @@
 import mongoose from "mongoose";
 import Todo from "../models/Todo";
+import { TodoSeed } from "../types/todo.interface";
 
-interface Todo {
-  _id: mongoose.Types.ObjectId;
-  title: string;
-  description: string;
-  completed: boolean;
-  user: mongoose.Types.ObjectId;
-};
 
-const todos: Todo[] = [
+const todos: TodoSeed[] = [
   {
     _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1d"),
     title: "Foreign language class",
