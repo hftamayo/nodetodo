@@ -1,23 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import User from "../models/User";
+import { UserRole, UserSeed } from "../types/user.interface";
 
-  enum UserRole {
-    ADMIN = "admin",
-    SUPERVISOR = "supervisor",
-    USER = "user",
-  }
 
-  interface User {
-    _id: mongoose.Types.ObjectId;
-    name: string;
-    email: string;
-    password: string;
-    age: number;
-    role: UserRole;
-  };
 
-    const users: User[] = [
+    const users: UserSeed[] = [
       {
         _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1e"),
         name: "Administrator",
