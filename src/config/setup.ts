@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { backend, whitelist_frontend } from "./envvars";
+import { backend, whitelist_frontend, mode } from "./envvars";
 
 const dbConnection = async () => {
   try {
@@ -9,7 +9,7 @@ const dbConnection = async () => {
     const db = mongoose.connection;
     db.on("error", console.error.bind(console, "connection error:"));
     db.once("open", function () {
-      console.log("Connected to the Remote Dataset");
+      console.log(`Connected to the Remote Dataset in ${mode} environment`);
     });
   } catch (error) {
     console.log("Database connection error: " + (error as Error).message);

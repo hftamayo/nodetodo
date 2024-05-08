@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { dbConnection, setCorsEnviro } from "./config/setup";
-import { port } from "./config/envvars";
+import { port, mode } from "./config/envvars";
 
 import seedDatabase from "./utils/seedDatabase";
 import todosRoutes from "./api/routes/todo";
@@ -42,7 +42,7 @@ async function startApp() {
       res.status(500).send("An unexpected error occurred");
     });
 
-    console.log("the backend is ready");
+    console.log(`the backend is ready in ${mode} environment`);
     const server = app.listen(port, () => {
       console.log(`The server instance is running on port ${PORT}`);
     });
