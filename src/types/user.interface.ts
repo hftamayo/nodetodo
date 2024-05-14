@@ -24,6 +24,12 @@ export interface UserRequest {
   newPassword: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+
+}
+
 export interface UpdateUserRequest extends Partial<UserRequest> {
   userId: string;
   user: Partial<UserRequest>;
