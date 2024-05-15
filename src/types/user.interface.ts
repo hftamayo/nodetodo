@@ -27,7 +27,11 @@ export interface UserRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+}
 
+export interface ValidateActiveSession {
+  user?: Partial<UserRequest>;
+  cookies?: { [key: string]: string };
 }
 
 export interface UpdateUserRequest extends Partial<UserRequest> {
