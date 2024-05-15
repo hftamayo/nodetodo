@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { JwtPayload } from "jsonwebtoken";
 
 export enum UserRole {
   ADMIN = "admin",
@@ -32,6 +33,10 @@ export interface LoginRequest {
 export interface ValidateActiveSession {
   user?: Partial<UserRequest>;
   cookies?: { [key: string]: string };
+}
+
+export interface JwtPayloadWithUser extends JwtPayload {
+  searchUser: Partial<ValidateActiveSession["user"]>;
 }
 
 export interface UpdateUserRequest extends Partial<UserRequest> {
