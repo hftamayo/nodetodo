@@ -1,15 +1,14 @@
 import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { masterKey } from "../../config/envvars";
-import { User } from "./types/user.interface";
-import { JwtPayloadWithUser } from "./types/user-jwt.interface";
+import { ValidateActiveSession, JwtPayloadWithUser } from "../../types/user.interface";
 
-interface RequestWithUser extends Request {
-  user?: User;
-}
+const authorize = (req: ValidateActiveSession, res: Response, next: NextFunction) => {
+  if (req.cookies === undefined) {
+    return res.status(401).json({ resultMessage: "Not authorized, please login first" });
+  }
 
-const authorize = (req: RequestWithUser, res: Response, next: NextFunction) => {
-  const token = req.header("x-auth-token");
+  const token = req.cookies.nodetodo;
   if (!token) {
     return res
       .status(401)
