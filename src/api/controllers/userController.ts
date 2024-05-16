@@ -147,11 +147,13 @@ const userController = {
 
   listUserHandler: async function (req: UserIdRequest, res: Response) {
     try {
-      if (!req) {
+      if (!req?.userId) {
         res
           .status(400)
-          .json({ httpStatusCode: 400, resultMessage: "User ID is required" });
+          .json({ httpStatusCode: 400, resultMessage: "Internal Error: User ID is required" });
         return;
+      } else {
+        console.log("el ID del user a listar es: ", req.userId);
       }
 
       const { httpStatusCode, message, user } = await listUserByID(req);
