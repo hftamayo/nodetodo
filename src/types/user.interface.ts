@@ -17,7 +17,7 @@ export interface UserSeed {
 }
 
 export interface UserRequest {
-  id?: string;
+  id: string;
   name: string;
   email: string;
   age: number;
@@ -25,27 +25,20 @@ export interface UserRequest {
   newPassword: string;
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+export type LoginRequest = Pick<UserRequest, "email" | "password">;
 
-export interface ValidateActiveSession {
-  user?: Partial<UserRequest>;
-  cookies?: { [key: string]: string };
+export interface ValidateActiveSession extends Partial<UserRequest> {
+  userId: string;
+  cookies: { [key: string]: string };
 }
 
 export interface JwtPayloadWithUser extends JwtPayload {
-  searchUser: Partial<ValidateActiveSession["user"]>;
+  searchUser: Partial<UserRequest>;
 }
 
 export interface UpdateUserRequest extends Partial<UserRequest> {
   userId: string;
   user: Partial<UserRequest>;
-}
-
-export interface UserIdRequest {
-  userId: string;
 }
 
 export interface UserResult {
