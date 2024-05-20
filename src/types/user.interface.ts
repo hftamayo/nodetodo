@@ -17,12 +17,12 @@ export interface UserSeed {
 }
 
 export interface UserRequest {
-  id: string;
+  id?: string;
   name: string;
   email: string;
   age: number;
   password: string;
-  newPassword: string;
+  newPassword?: string;
 }
 
 export interface LoginRequest {
