@@ -39,6 +39,10 @@ export interface JwtPayloadWithUser extends JwtPayload {
   searchUser: Partial<UserRequest>;
 }
 
+export interface UserIdRequest {
+  userId: string;
+}
+
 export interface UpdateUserRequest {
   userId: string;
   user: Partial<UserRequest>;
