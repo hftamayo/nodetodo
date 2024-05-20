@@ -5,11 +5,12 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {
   UserRequest,
+  LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
 } from "../types/user.interface";
 
-const signUpUser = async function (requestBody: Partial<UserRequest>) {
+const signUpUser = async function (requestBody: UserRequest) {
   const { name, email, password, age } = requestBody;
 
   if (!name || !email || !password || !age) {
@@ -45,7 +46,7 @@ const signUpUser = async function (requestBody: Partial<UserRequest>) {
   }
 };
 
-const loginUser = async function (requestBody: Partial<UserRequest>) {
+const loginUser = async function (requestBody: LoginRequest) {
   const { email, password } = requestBody;
 
   if (!email || !password) {
