@@ -25,7 +25,10 @@ export interface UserRequest {
   newPassword: string;
 }
 
-export type LoginRequest = Pick<UserRequest, "email" | "password">;
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
 
 export interface ValidateActiveSession extends Partial<UserRequest> {
   userId: string;
@@ -36,7 +39,7 @@ export interface JwtPayloadWithUser extends JwtPayload {
   searchUser: Partial<UserRequest>;
 }
 
-export interface UpdateUserRequest extends Partial<UserRequest> {
+export interface UpdateUserRequest {
   userId: string;
   user: Partial<UserRequest>;
 }
