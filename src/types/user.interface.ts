@@ -30,13 +30,13 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface ValidateActiveSession extends Partial<UserRequest> {
+export interface ValidateActiveSession {
   userId: string;
   cookies: { [key: string]: string };
 }
 
-export interface JwtPayloadWithUser extends JwtPayload {
-  searchUser: Partial<UserRequest>;
+export interface JwtPayloadWithUserId extends JwtPayload {
+  userId: string;
 }
 
 export interface UserIdRequest {
