@@ -1,11 +1,20 @@
 import jwt from "jsonwebtoken";
 import { Response, NextFunction } from "express";
 import { masterKey } from "../../config/envvars";
-import { ValidateActiveSession, JwtPayloadWithUser } from "../../types/user.interface";
+import {
+  ValidateActiveSession,
+  JwtPayloadWithUserId,
+} from "../../types/user.interface";
 
-const authorize = (req: ValidateActiveSession, res: Response, next: NextFunction) => {
+const authorize = (
+  req: ValidateActiveSession,
+  res: Response,
+  next: NextFunction
+) => {
   if (req.cookies === undefined) {
-    return res.status(401).json({ resultMessage: "Not authorized, please login first" });
+    return res
+      .status(401)
+      .json({ resultMessage: "Not authorized, please login first" });
   }
 
   const token = req.cookies.nodetodo;
@@ -19,14 +28,15 @@ const authorize = (req: ValidateActiveSession, res: Response, next: NextFunction
   }
   try {
     const decoded = jwt.verify(token, masterKey) as
-      | JwtPayloadWithUser
+      | JwtPayloadWithUserId
       | undefined;
     if (!decoded) {
       return res
         .status(401)
         .json({ resultMessage: "Not authorized, please login first" });
     }
-    req.user = decoded.searchUser;
+
+    req.userId = decoded.searchUser;
     next();
   } catch (error: unknown) {
     if (error instanceof Error) {
