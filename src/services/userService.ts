@@ -93,9 +93,9 @@ const loginUser = async function (requestBody: LoginRequest) {
 };
 
 const listUserByID = async function (requestUserId: UserIdRequest) {
-  const id = requestUserId.userId;
+  const userId = requestUserId.userId;
   try {
-    let searchUser = await User.findById(id).exec();
+    let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
       return { httpStatusCode: 404, message: "User Not Found" };
     }
@@ -196,9 +196,9 @@ const updateUserPassword = async function (
 };
 
 const deleteUserByID = async function (requestUserId: UserIdRequest) {
-  const id = requestUserId;
+  const userId = requestUserId;
   try {
-    const searchUser = await User.findById(id).exec();
+    const searchUser = await User.findById(userId).exec();
     if (!searchUser) {
       return { httpStatusCode: 404, message: "User not found" };
     }
