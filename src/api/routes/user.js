@@ -54,6 +54,8 @@ const deleteUserHandler = (req, res) => {
   userController.deleteUserHandler(req, res);
 };
 
+//router.post("/register", signUpLimiter, registerRules, validateResult, registerHandler);
+//router.post("/login", loginLimiter, loginRules, validateResult, loginHandler);
 router.post("/register", signUpLimiter, registerRules, validateResult, registerHandler);
 router.post("/login", loginLimiter, loginRules, validateResult, loginHandler);
 router.post("/logout", authorize, logoutHandler);
