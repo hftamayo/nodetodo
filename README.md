@@ -18,6 +18,10 @@ Application which help the user to manage tasks and reminders. This repo belongs
 * Render Framework: Express
 * Architecture: To be defined 
 * Rate Limiting: express-rate-limit (for enterprise project please check "rate-limiter-flexible")
+* Testing: on Oldstable branch you can find unit and integration testing routines using Mocha and Chai, one key 
+  element was to use the dependency injection pattern on the controller and routes modules. After the migration to
+  Typescript the test framework is Jest, please refer to the branch jestunstable. If in a near future I decide to 
+  try playwright a branch will be created for this purpose.
 
 ### Available Functions ###
 * Add a new task
