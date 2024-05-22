@@ -194,7 +194,7 @@ const updateUserPassword = async function (
 };
 
 const deleteUserByID = async function (requestUserId: UserIdRequest) {
-  const userId = requestUserId;
+  const userId = requestUserId.userId;
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {
