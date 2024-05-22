@@ -12,9 +12,8 @@ export default function userController(userService: UserServices) {
   return {
     registerHandler: async function (req: UserRequest, res: Response) {
       try {
-        const { httpStatusCode, message, user } = await userService.signUpUser(
-          req
-        );
+        const result: UserResult = await userService.signUpUser(req);
+        const { httpStatusCode, message, user } = result;
         if (httpStatusCode === 200 && user) {
           const { password, ...filteredUser } = user;
           res.status(httpStatusCode).json({
@@ -33,20 +32,17 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, register: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
     loginHandler: async function (req: UserRequest, res: Response) {
       try {
-        const { httpStatusCode, tokenCreated, message, user } =
-          await userService.loginUser(req);
-
+        const result: UserResult = await userService.loginUser(req);
+        const { httpStatusCode, tokenCreated, message, user } = result;
         if (httpStatusCode === 200 && user) {
           res.cookie("nodetodo", tokenCreated, {
             httpOnly: true,
@@ -73,12 +69,10 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, login: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
@@ -95,31 +89,27 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, logout: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
     listUserHandler: async function (req: UserIdRequest, res: Response) {
       try {
         if (!req?.userId) {
-          res
-            .status(400)
-            .json({
-              httpStatusCode: 400,
-              resultMessage: "Internal Error: User ID is required",
-            });
+          res.status(400).json({
+            httpStatusCode: 400,
+            resultMessage: "Internal Error: User ID is required",
+          });
           return;
         } else {
           console.log("el ID del user a listar es: ", req.userId);
         }
 
-        const { httpStatusCode, message, user } =
-          await userService.listUserByID(req);
+        const result: UserResult = await userService.listUserByID(req);
+        const { httpStatusCode, message, user } = result;
         if (httpStatusCode === 200 && user) {
           const { password, ...filteredUser } = user;
           res.status(httpStatusCode).json({
@@ -138,12 +128,10 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, listUser: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
@@ -164,8 +152,10 @@ export default function userController(userService: UserServices) {
           user: req.user,
         };
 
-        const { httpStatusCode, message, user } =
-          await userService.updateUserDetailsByID(params);
+        const result: UserResult = await userService.updateUserDetailsByID(
+          params
+        );
+        const { httpStatusCode, message, user } = result;
 
         if (!user) {
           return res
@@ -186,12 +176,10 @@ export default function userController(userService: UserServices) {
           console.error("userController, updateDetails: " + error);
         }
 
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
@@ -212,8 +200,11 @@ export default function userController(userService: UserServices) {
           user: req.user,
         };
 
-        const { httpStatusCode, message, user } =
-          await userService.updateUserPasswordByID(params);
+        const result: UserResult = await userService.updateUserPasswordByID(
+          params
+        );
+
+        const { httpStatusCode, message, user } = result;
 
         if (!user) {
           return res
@@ -233,29 +224,26 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, updatePassword: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
     deleteUserHandler: async function (req: UserIdRequest, res: Response) {
       try {
         if (!req) {
-          res
-            .status(400)
-            .json({
-              httpStatusCode: 400,
-              resultMessage: "User ID is required",
-            });
+          res.status(400).json({
+            httpStatusCode: 400,
+            resultMessage: "User ID is required",
+          });
           return;
         }
-        const { httpStatusCode, message } = await userService.deleteUserByID(
+        const result:UserResult = await userService.deleteUserByID(
           req
         );
+        const { httpStatusCode, message } = result;
 
         if (httpStatusCode === 200) {
           res.clearCookie("nodetodo");
@@ -269,12 +257,10 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, deleteUser: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
   };
