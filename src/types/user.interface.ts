@@ -54,3 +54,14 @@ export interface UserResult {
   tokenCreated?: string;
   user?: Partial<UserRequest>;
 }
+
+//interfaces for dependency injection pattern
+export interface UserServices {
+  signUpUser: (newSignUpUser: UserRequest) => Promise<UserResult>;
+  loginUser: (newLoginUser: LoginRequest) => Promise<UserResult>;
+  logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
+  listUserByID: (newListUser: UserIdRequest) => Promise<UserResult>;
+  updateUserDetailsByID: (params: UpdateUserRequest) => Promise<UserResult>;
+  updateUserPasswordByID: (params: UpdateUserRequest) => Promise<UserResult>;
+  deleteUserByID: (newDeleteUser: UserIdRequest) => Promise<UserResult>;
+}
