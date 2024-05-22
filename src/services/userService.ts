@@ -154,11 +154,10 @@ const updateUserByID = async function (
 };
 
 const updateUserPassword = async function (
-  requestUserId: string,
-  requestPword: Partial<UserRequest>
+  updateUserRequest: UpdateUserRequest
 ) {
-  const userId = requestUserId;
-  const { password, newPassword } = requestPword;
+  const {userId, user } = updateUserRequest;
+  const { password, newPassword } = user;
 
   if (!password || !newPassword) {
     return { httpStatusCode: 400, message: "Please fill all required fields" };
