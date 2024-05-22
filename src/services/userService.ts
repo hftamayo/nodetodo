@@ -111,11 +111,10 @@ const listUserByID = async function (requestUserId: UserIdRequest) {
 };
 
 const updateUserByID = async function (
-  requestUserId: string,
-  requestBody: Partial<UserRequest>
+  updateUserRequest: UpdateUserRequest
 ) {
-  const userId = requestUserId;
-  const { name, email, age } = requestBody;
+  const {userId, user } = updateUserRequest;
+  const { name, email, age } = user;
 
   if (!name || !email || !age) {
     return { httpStatusCode: 400, message: "Please fill all required fields" };
