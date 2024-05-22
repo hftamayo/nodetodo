@@ -147,14 +147,7 @@ export default function userController(userService: UserServices) {
           });
         }
 
-        const params: UpdateUserRequest = {
-          userId: req.userId,
-          user: req.user,
-        };
-
-        const result: UserResult = await userService.updateUserDetailsByID(
-          params
-        );
+        const result: UserResult = await userService.updateUserDetailsByID(req);
         const { httpStatusCode, message, user } = result;
 
         if (!user) {
@@ -195,13 +188,8 @@ export default function userController(userService: UserServices) {
           });
         }
 
-        const params: UpdateUserRequest = {
-          userId: req.userId,
-          user: req.user,
-        };
-
         const result: UserResult = await userService.updateUserPasswordByID(
-          params
+          req
         );
 
         const { httpStatusCode, message, user } = result;
@@ -240,9 +228,7 @@ export default function userController(userService: UserServices) {
           });
           return;
         }
-        const result:UserResult = await userService.deleteUserByID(
-          req
-        );
+        const result: UserResult = await userService.deleteUserByID(req);
         const { httpStatusCode, message } = result;
 
         if (httpStatusCode === 200) {
