@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {
   UserRequest,
+  LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
   UserResult,
@@ -39,7 +40,7 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    loginHandler: async function (req: UserRequest, res: Response) {
+    loginHandler: async function (req: LoginRequest, res: Response) {
       try {
         const result: UserResult = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, user } = result;
