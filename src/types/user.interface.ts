@@ -30,7 +30,7 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface ValidateActiveSession {
+export interface ValidateActiveSession extends Request {
   userId: string;
   cookies: { [key: string]: string };
 }
