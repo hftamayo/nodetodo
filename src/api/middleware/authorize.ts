@@ -1,23 +1,14 @@
 import jwt from "jsonwebtoken";
-import { Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { masterKey } from "../../config/envvars";
 import {
-  ValidateActiveSession,
   JwtPayloadWithUserId,
 } from "../../types/user.interface";
 
-const authorize = (
-  req: ValidateActiveSession,
-  res: Response,
-  next: NextFunction
-) => {
-  if (req.cookies === undefined) {
-    return res
-      .status(401)
-      .json({ resultMessage: "Not authorized, please login first" });
-  }
+const authorize = (req: Request, res: Response, next: NextFunction) => {
+  const { cookies } = req;
+  const token = cookies?.nodetodo;
 
-  const token = req.cookies.nodetodo;
   if (!token) {
     return res
       .status(401)
@@ -36,7 +27,14 @@ const authorize = (
         .json({ resultMessage: "Not authorized, please login first" });
     }
 
-    req.userId = decoded.searchUser;
+    const userId = req.body.userId || req.query.userId;
+
+    if (userId !== decoded.userId) {
+      return res.status(401).json({
+        resultMessage: "Not authorized to access this resource",
+      });
+    }
+    
     next();
   } catch (error: unknown) {
     if (error instanceof Error) {
