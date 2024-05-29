@@ -30,11 +30,6 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface ValidateActiveSession extends Request {
-  userId: string;
-  cookies: { [key: string]: string };
-}
-
 export interface JwtPayloadWithUserId extends JwtPayload {
   userId: string;
 }
