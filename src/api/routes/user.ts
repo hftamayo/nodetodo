@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import userController from "../controllers/userController";
+import userService from "../../services/userService";
 import authorize from "../middleware/authorize";
 import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
@@ -9,13 +10,12 @@ import {
   LoginRequest,
   UserIdRequest,
   UpdateUserRequest,
-  UserServices
+  UserServices,
 } from "../../types/user.interface";
-
 
 const router = express.Router();
 
-const controller = userController({} as UserServices);
+const controller = userController(userService as UserServices);
 
 const registerHandler = (req: Request, res: Response) => {
   const userRequest: UserRequest = req.body;
@@ -38,7 +38,7 @@ const listUserHandler = (req: Request, res: Response) => {
 
 const updateUserDetailsHandler = (req: Request, res: Response) => {
   const updateUserRequest: UpdateUserRequest = req.body;
-   controller.updateUserDetailsHandler(updateUserRequest, res);
+  controller.updateUserDetailsHandler(updateUserRequest, res);
 };
 
 const updateUserPasswordHandler = (req: Request, res: Response) => {
