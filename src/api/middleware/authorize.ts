@@ -34,6 +34,7 @@ const authorize = (req: Request, res: Response, next: NextFunction) => {
         resultMessage: "Not authorized to access this resource",
       });
     }
+    req.body.userId = decoded.userId;
     
     next();
   } catch (error: unknown) {
