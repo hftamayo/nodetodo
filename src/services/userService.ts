@@ -110,7 +110,7 @@ const listUserByID = async function (requestUserId: UserIdRequest) {
   }
 };
 
-const updateUserByID = async function (
+const updateUserDetailsByID = async function (
   updateUserRequest: UpdateUserRequest
 ) {
   const {userId, user } = updateUserRequest;
@@ -153,7 +153,7 @@ const updateUserByID = async function (
   }
 };
 
-const updateUserPassword = async function (
+const updateUserPasswordByID = async function (
   updateUserRequest: UpdateUserRequest
 ) {
   const {userId, user } = updateUserRequest;
@@ -220,7 +220,7 @@ export default {
   signUpUser,
   loginUser,
   listUserByID,
-  updateUserByID,
-  updateUserPassword,
+  updateUserDetailsByID,
+  updateUserPasswordByID,
   deleteUserByID,
 };
