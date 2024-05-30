@@ -99,16 +99,6 @@ export default function userController(userService: UserServices) {
 
     listUserHandler: async function (req: UserIdRequest, res: Response) {
       try {
-        // if (!req?.userId) {
-        //   res.status(400).json({
-        //     httpStatusCode: 400,
-        //     resultMessage: "Internal Error: User ID is required",
-        //   });
-        //   return;
-        // } else {
-        //   console.log("el ID del user a listar es: ", req.userId);
-        // }
-
         const result: UserResult = await userService.listUserByID(req);
         const { httpStatusCode, message, user } = result;
         if (httpStatusCode === 200 && user) {
