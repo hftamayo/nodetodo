@@ -113,7 +113,7 @@ const listUserByID = async function (requestUserId: UserIdRequest) {
 const updateUserDetailsByID = async function (
   updateUserRequest: UpdateUserRequest
 ) {
-  const {userId, user } = updateUserRequest;
+  const { userId, user } = updateUserRequest;
   const { name, email, age } = user;
 
   if (!name || !email || !age) {
@@ -156,7 +156,7 @@ const updateUserDetailsByID = async function (
 const updateUserPasswordByID = async function (
   updateUserRequest: UpdateUserRequest
 ) {
-  const {userId, user } = updateUserRequest;
+  const { userId, user } = updateUserRequest;
   const { password, newPassword } = user;
 
   if (!password || !newPassword) {
