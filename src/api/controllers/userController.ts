@@ -198,13 +198,6 @@ export default function userController(userService: UserServices) {
 
     deleteUserHandler: async function (req: UserIdRequest, res: Response) {
       try {
-        if (!req) {
-          res.status(400).json({
-            httpStatusCode: 400,
-            resultMessage: "User ID is required",
-          });
-          return;
-        }
         const result: UserResult = await userService.deleteUserByID(req);
         const { httpStatusCode, message } = result;
 
