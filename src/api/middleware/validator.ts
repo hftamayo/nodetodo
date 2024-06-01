@@ -26,12 +26,13 @@ const updateDetailsRules: ValidationChain[] = [
 ];
 
 const updatePasswordRules: ValidationChain[] = [
+  check('user').exists().withMessage('User object is required'),
   check(
-    "password",
+    "user.password",
     "Password should be at least 6 or more characters"
   ).isLength({ min: 6 }),
   check(
-    "newPassword",
+    "user.newPassword",
     "Password should be at least 6 or more characters"
   ).isLength({ min: 6 }),
 ];
