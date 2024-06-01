@@ -18,9 +18,11 @@ const loginRules: ValidationChain[] = [
 ];
 
 const updateDetailsRules: ValidationChain[] = [
-  check("name", "Name is Required").notEmpty().trim().escape(),
-  check("email", "Please give a valid email").isEmail().normalizeEmail(),
-  check("age", "Age is required").notEmpty().trim().escape().isNumeric(),
+  check('user').exists().withMessage('User object is required'),
+  check("user.name", "Name is Required").notEmpty().trim().escape(),
+  check("user.email", "Please give a valid email").isEmail().normalizeEmail(),
+  check("user.age", "Age is required").notEmpty().isNumeric(),
+  check("user.age").isInt({ min: 18, max: 100 }).withMessage("Age should be between 18 and 100"),
 ];
 
 const updatePasswordRules: ValidationChain[] = [
