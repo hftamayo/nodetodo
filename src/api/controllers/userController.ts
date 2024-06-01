@@ -165,13 +165,6 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        if (!req.user) {
-          return res.status(400).json({
-            httpStatusCode: 400,
-            resultMessage: "Invalid request",
-          });
-        }
-
         const result: UserResult = await userService.updateUserPasswordByID(
           req
         );
