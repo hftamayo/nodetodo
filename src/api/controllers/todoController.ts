@@ -40,10 +40,11 @@ export default function todoController(todoService: TodoServices) {
 
     getTodoHandler: async function (req: OwnerTodoIdRequest, res: Response) {
       try {
-        const { httpStatusCode, message, todo } = await todoService.listTodoByID(
+        const result: TodoResult = await todoService.listTodoByID(
           req.user,
           req.params.id
         );
+        const { httpStatusCode, message, todo } = result;
         res
           .status(httpStatusCode)
           .json(
