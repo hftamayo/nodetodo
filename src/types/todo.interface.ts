@@ -41,7 +41,7 @@ export interface TodoResult {
   todos?: Partial<TodoRequest>[];
 }
 
-export interface todoServices {
+export interface TodoServices {
   listActiveTodos: (requestUserId: UserIdRequest) => Promise<TodoResult>;
   listTodoByID: (
     requestUserId: UserIdRequest,
