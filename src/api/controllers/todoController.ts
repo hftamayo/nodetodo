@@ -29,12 +29,10 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, getTodos: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
@@ -58,22 +56,15 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, getTodo: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
     newTodoHandler: async function (req: OwnerTodoBodyRequest, res: Response) {
       try {
-        const { httpStatusCode, message, todo } = await todoService.createTodo(
-          req.owner,
-          req.todo
-        );
-
         if (
           !req.todo.title ||
           !req.todo.description ||
@@ -85,6 +76,13 @@ export default function todoController(todoService: TodoServices) {
             resultMessage: "Missing required fields",
           });
         }
+
+        const result: TodoResult = await todoService.createTodo(
+          req.owner,
+          req.todo
+        );
+
+        const { httpStatusCode, message, todo } = result;
 
         res
           .status(httpStatusCode)
@@ -99,12 +97,10 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, newTodo: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
@@ -116,11 +112,8 @@ export default function todoController(todoService: TodoServices) {
         if (!req.todoId) {
           throw new Error("Missing todoId");
         }
-        const { httpStatusCode, message, todo } = await todoService.updateTodoByID(
-          req.owner,
-          req.todoId,
-          req.todo
-        );
+        const { httpStatusCode, message, todo } =
+          await todoService.updateTodoByID(req.owner, req.todoId, req.todo);
         res
           .status(httpStatusCode)
           .json(
@@ -134,12 +127,10 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, updateTodo: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
 
@@ -158,12 +149,10 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, deleteTodo: " + error);
         }
-        res
-          .status(500)
-          .json({
-            httpStatusCode: 500,
-            resultMessage: "Internal Server Error",
-          });
+        res.status(500).json({
+          httpStatusCode: 500,
+          resultMessage: "Internal Server Error",
+        });
       }
     },
   };
