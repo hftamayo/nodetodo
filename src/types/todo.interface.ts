@@ -17,7 +17,10 @@ interface TodoRequest {
   user: string;
 }
 
-
+export interface NewTodoRequest {
+  owner: UserIdRequest;
+  todo: TodoRequest;
+}
 
 export interface UpdateTodoRequest {
   owner: UserIdRequest;
