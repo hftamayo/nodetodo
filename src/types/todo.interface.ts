@@ -17,13 +17,17 @@ export interface TodoRequest {
   user: string;
 }
 
-export interface TodoIdRequest {
-  todoId: string;
-}
-
 export interface UpdateTodoRequest {
   owner: UserIdRequest;
   todo: Partial<TodoRequest>;
+}
+
+/*
+this interface won't be use alone because it's necessary
+to check the ownership always for sec concerns
+*/
+export interface TodoIdRequest {
+  todoId: string;
 }
 
 export interface OwnerTodoIdRequest extends Request {
