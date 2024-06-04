@@ -9,13 +9,15 @@ export interface TodoSeed {
   user: mongoose.Types.ObjectId;
 }
 
-export interface TodoRequest {
+interface TodoRequest {
   id?: string;
   title: string;
   description: string;
   completed: boolean;
   user: string;
 }
+
+
 
 export interface UpdateTodoRequest {
   owner: UserIdRequest;
