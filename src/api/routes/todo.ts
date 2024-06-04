@@ -15,23 +15,28 @@ import { UserIdRequest } from "../../types/user.interface";
 
 const router = express.Router();
 
+const controller = todoController(todoService as TodoServices);
+
+const getTodosHandler = (req: UserIdRequest, res: Response) => {
+  controller.getTodosHandler(req, res);
+};
 
 router.get("/list", authorize, getTodosHandler);
 router.get("/task/:id", authorize, getTodoHandler);
-router.post(
-  "/create",
-  authorize,
-  validator.createTodoRules,
-  validateResult,
-  newTodoHandler
-);
-router.put(
-  "/update/:id",
-  authorize,
-  validator.updateTodoRules,
-  validateResult,
-  updateTodoHandler
-);
-router.delete("/delete/:id", authorize, deleteTodoHandler);
+// router.post(
+//   "/create",
+//   authorize,
+//   validator.createTodoRules,
+//   validateResult,
+//   newTodoHandler
+// );
+// router.put(
+//   "/update/:id",
+//   authorize,
+//   validator.updateTodoRules,
+//   validateResult,
+//   updateTodoHandler
+// );
+// router.delete("/delete/:id", authorize, deleteTodoHandler);
 
 export default router;
