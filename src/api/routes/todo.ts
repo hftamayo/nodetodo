@@ -17,8 +17,16 @@ const router = express.Router();
 
 const controller = todoController(todoService as TodoServices);
 
-const getTodosHandler = (req: UserIdRequest, res: Response) => {
-  controller.getTodosHandler(req, res);
+const getTodosHandler = (req: Request, res: Response) => {
+  const userIdRequest: UserIdRequest = { userId: req.body.userId };
+  controller.getTodosHandler(userIdRequest, res);
+};
+
+const getTodoHandler = (req: Request, res: Response) => {
+  const ownerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
+  ownerTodoIdRequest.user = { userId: req.body.userId };
+  ownerTodoIdRequest.params = { id: { todoId: req.params.id } };
+  controller.getTodoHandler(ownerTodoIdRequest, res);
 };
 
 router.get("/list", authorize, getTodosHandler);
