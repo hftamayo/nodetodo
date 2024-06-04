@@ -29,6 +29,13 @@ const getTodoHandler = (req: Request, res: Response) => {
   controller.getTodoHandler(ownerTodoIdRequest, res);
 };
 
+const deleteTodoHandler = (req: Request, res: Response) => {
+  const ownerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
+  ownerTodoIdRequest.user = { userId: req.body.userId};
+  ownerTodoIdRequest.params = { id: {todoId: req.params.id}};
+  controller.deleteTodoHandler(ownerTodoIdRequest, res);
+}
+
 router.get("/list", authorize, getTodosHandler);
 router.get("/task/:id", authorize, getTodoHandler);
 // router.post(
@@ -45,6 +52,6 @@ router.get("/task/:id", authorize, getTodoHandler);
 //   validateResult,
 //   updateTodoHandler
 // );
-// router.delete("/delete/:id", authorize, deleteTodoHandler);
+router.delete("/delete/:id", authorize, deleteTodoHandler);
 
 export default router;
