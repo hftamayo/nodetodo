@@ -21,9 +21,8 @@ export interface TodoIdRequest {
   todoId: string;
 }
 
-export interface OwnerTodoBodyRequest {
+export interface UpdateTodoRequest {
   owner: UserIdRequest;
-  todoId?: TodoIdRequest;
   todo: Partial<TodoRequest>;
 }
 
