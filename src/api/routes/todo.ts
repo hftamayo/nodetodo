@@ -5,10 +5,9 @@ import validateResult from "../middleware/validationResults";
 import todoService from "../../services/todoService";
 import todoController from "../controllers/todoController";
 import {
-  TodoRequest,
-  TodoIdRequest,
+  NewTodoRequest,
   OwnerTodoIdRequest,
-  OwnerTodoBodyRequest,
+  UpdateTodoRequest,
   TodoServices,
 } from "../../types/todo.interface";
 import { UserIdRequest } from "../../types/user.interface";
@@ -29,6 +28,14 @@ const getTodoHandler = (req: Request, res: Response) => {
   controller.getTodoHandler(ownerTodoIdRequest, res);
 };
 
+const newTodoHandler = (req: Request, res: Response) => {
+  const NewTodoRequest = req.body as NewTodoRequest;
+  NewTodoRequest.owner = { userId: req.body.userId };
+  NewTodoRequest.todo = req.body;
+
+  todoController.newTodoHandler(NewTodoRequest, res);
+}
+
 const deleteTodoHandler = (req: Request, res: Response) => {
   const ownerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
   ownerTodoIdRequest.user = { userId: req.body.userId};
@@ -38,13 +45,13 @@ const deleteTodoHandler = (req: Request, res: Response) => {
 
 router.get("/list", authorize, getTodosHandler);
 router.get("/task/:id", authorize, getTodoHandler);
-// router.post(
-//   "/create",
-//   authorize,
-//   validator.createTodoRules,
-//   validateResult,
-//   newTodoHandler
-// );
+router.post(
+  "/create",
+  authorize,
+  validator.createTodoRules,
+  validateResult,
+  newTodoHandler
+);
 // router.put(
 //   "/update/:id",
 //   authorize,

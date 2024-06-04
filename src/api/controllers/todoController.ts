@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
 
 import {
-  TodoRequest,
-  TodoIdRequest,
   OwnerTodoIdRequest,
-  OwnerTodoBodyRequest,
+  NewTodoRequest,
   TodoResult,
   TodoServices,
 } from "../../types/todo.interface";
@@ -63,7 +61,7 @@ export default function todoController(todoService: TodoServices) {
       }
     },
 
-    newTodoHandler: async function (req: OwnerTodoBodyRequest, res: Response) {
+    newTodoHandler: async function (req: NewTodoRequest, res: Response) {
       try {
         if (
           !req.todo.title ||
