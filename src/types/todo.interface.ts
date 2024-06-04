@@ -26,7 +26,7 @@ export interface UpdateTodoRequest {
 this interface won't be use alone because it's necessary
 to check the ownership always for sec concerns
 */
-export interface TodoIdRequest {
+interface TodoIdRequest {
   todoId: string;
 }
 
