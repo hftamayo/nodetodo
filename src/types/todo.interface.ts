@@ -50,22 +50,13 @@ export interface TodoResult {
 }
 
 export interface TodoServices {
-  listActiveTodos: (requestUserId: UserIdRequest) => Promise<TodoResult>;
-  listTodoByID: (
-    requestUserId: UserIdRequest,
-    requestTodoId: TodoIdRequest
-  ) => Promise<TodoResult>;
-  createTodo: (
-    requestUserId: UserIdRequest,
-    requestBody: Partial<TodoRequest>
-  ) => Promise<TodoResult>;
+  listActiveTodos: (req: UserIdRequest) => Promise<TodoResult>;
+  listTodoByID: (req: OwnerTodoIdRequest) => Promise<TodoResult>;
+  createTodo: (req: NewTodoRequest) => Promise<TodoResult>;
   updateTodoByID: (
     requestUserId: UserIdRequest,
     requestTodoId: TodoIdRequest,
     requestBody: Partial<TodoRequest>
   ) => Promise<TodoResult>;
-  deleteTodoByID: (
-    requestUserId: UserIdRequest,
-    requestTodoId: TodoIdRequest
-  ) => Promise<TodoResult>;
+  deleteTodoByID: (req: OwnerTodoIdRequest) => Promise<TodoResult>;
 }
