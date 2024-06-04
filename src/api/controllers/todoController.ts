@@ -112,8 +112,12 @@ export default function todoController(todoService: TodoServices) {
         if (!req.todoId) {
           throw new Error("Missing todoId");
         }
-        const { httpStatusCode, message, todo } =
-          await todoService.updateTodoByID(req.owner, req.todoId, req.todo);
+        const result: TodoResult = await todoService.updateTodoByID(
+          req.owner,
+          req.todoId,
+          req.todo
+        );
+        const { httpStatusCode, message, todo } = result;
         res
           .status(httpStatusCode)
           .json(
@@ -136,10 +140,11 @@ export default function todoController(todoService: TodoServices) {
 
     deleteTodoHandler: async function (req: OwnerTodoIdRequest, res: Response) {
       try {
-        const { httpStatusCode, message } = await todoService.deleteTodoByID(
+        const result: TodoResult = await todoService.deleteTodoByID(
           req.user,
           req.params.id
         );
+        const { httpStatusCode, message } = result;
         res
           .status(httpStatusCode)
           .json({ httpStatusCode, resultMessage: message });
