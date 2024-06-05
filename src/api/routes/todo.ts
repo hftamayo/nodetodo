@@ -33,15 +33,15 @@ const newTodoHandler = (req: Request, res: Response) => {
   NewTodoRequest.owner = { userId: req.body.userId };
   NewTodoRequest.todo = req.body;
 
-  todoController.newTodoHandler(NewTodoRequest, res);
-}
+  controller.newTodoHandler(NewTodoRequest, res);
+};
 
 const deleteTodoHandler = (req: Request, res: Response) => {
   const ownerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
-  ownerTodoIdRequest.user = { userId: req.body.userId};
-  ownerTodoIdRequest.params = { id: {todoId: req.params.id}};
+  ownerTodoIdRequest.user = { userId: req.body.userId };
+  ownerTodoIdRequest.params = { id: { todoId: req.params.id } };
   controller.deleteTodoHandler(ownerTodoIdRequest, res);
-}
+};
 
 router.get("/list", authorize, getTodosHandler);
 router.get("/task/:id", authorize, getTodoHandler);
