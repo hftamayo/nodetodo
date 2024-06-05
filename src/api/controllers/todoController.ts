@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 
 import {
   OwnerTodoIdRequest,
   NewTodoRequest,
+  UpdateTodoRequest,
   TodoResult,
   TodoServices,
 } from "../../types/todo.interface";
@@ -36,10 +37,7 @@ export default function todoController(todoService: TodoServices) {
 
     getTodoHandler: async function (req: OwnerTodoIdRequest, res: Response) {
       try {
-        const result: TodoResult = await todoService.listTodoByID(
-          req.user,
-          req.params.id
-        );
+        const result: TodoResult = await todoService.listTodoByID(req);
         const { httpStatusCode, message, todo } = result;
         res
           .status(httpStatusCode)
@@ -75,10 +73,7 @@ export default function todoController(todoService: TodoServices) {
           });
         }
 
-        const result: TodoResult = await todoService.createTodo(
-          req.owner,
-          req.todo
-        );
+        const result: TodoResult = await todoService.createTodo(req);
 
         const { httpStatusCode, message, todo } = result;
 
@@ -102,19 +97,12 @@ export default function todoController(todoService: TodoServices) {
       }
     },
 
-    updateTodoHandler: async function (
-      req: OwnerTodoBodyRequest,
-      res: Response
-    ) {
+    updateTodoHandler: async function (req: UpdateTodoRequest, res: Response) {
       try {
         if (!req.todoId) {
           throw new Error("Missing todoId");
         }
-        const result: TodoResult = await todoService.updateTodoByID(
-          req.owner,
-          req.todoId,
-          req.todo
-        );
+        const result: TodoResult = await todoService.updateTodoByID(req);
         const { httpStatusCode, message, todo } = result;
         res
           .status(httpStatusCode)
@@ -138,10 +126,7 @@ export default function todoController(todoService: TodoServices) {
 
     deleteTodoHandler: async function (req: OwnerTodoIdRequest, res: Response) {
       try {
-        const result: TodoResult = await todoService.deleteTodoByID(
-          req.user,
-          req.params.id
-        );
+        const result: TodoResult = await todoService.deleteTodoByID(req);
         const { httpStatusCode, message } = result;
         res
           .status(httpStatusCode)
