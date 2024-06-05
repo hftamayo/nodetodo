@@ -1,5 +1,9 @@
 import Todo from "../models/Todo";
-import { TodoIdRequest, TodoRequest } from "../types/todo.interface";
+import {
+  OwnerTodoIdRequest,
+  NewTodoRequest,
+  UpdateTodoRequest,
+} from "../types/todo.interface";
 import { UserIdRequest } from "../types/user.interface";
 
 const listActiveTodos = async function (requestUserId: UserIdRequest) {
@@ -23,12 +27,9 @@ const listActiveTodos = async function (requestUserId: UserIdRequest) {
   }
 };
 
-const listTodoByID = async function (
-  requestUserId: UserIdRequest,
-  requestTodoId: TodoIdRequest
-) {
-  const userId = requestUserId;
-  const todoId = requestTodoId;
+const listTodoByID = async function (req: OwnerTodoIdRequest) {
+  const userId = req.user;
+  const todoId = req.params.id;
 
   try {
     const searchTodo = await Todo.findById(todoId).exec();
@@ -52,12 +53,9 @@ const listTodoByID = async function (
   }
 };
 
-const createTodo = async function (
-  requestUserId: UserIdRequest,
-  requestBody: TodoRequest
-) {
-  const owner = requestUserId;
-  const { title, description } = requestBody;
+const createTodo = async function (req: NewTodoRequest) {
+  const owner = req.owner;
+  const { title, description } = req.todo;
   try {
     let newTodo = await Todo.findOne({ title }).exec();
     if (newTodo) {
@@ -85,14 +83,10 @@ const createTodo = async function (
   }
 };
 
-const updateTodoByID = async function (
-  requestUserId: UserIdRequest,
-  requestTodoId: TodoIdRequest,
-  requestBody: TodoRequest
-) {
-  const owner = requestUserId;
-  const todoId = requestTodoId;
-  const { title, description, completed } = requestBody;
+const updateTodoByID = async function (req: UpdateTodoRequest) {
+  const owner = req.owner;
+  const todoId = req.todo.id;
+  const { title, description, completed } = req.todo;
 
   try {
     let updateTodo = await Todo.findById(todoId);
@@ -124,12 +118,10 @@ const updateTodoByID = async function (
   }
 };
 
-const deleteTodoByID = async function (
-  requestUserId: UserIdRequest,
-  requestTodoId: TodoIdRequest
+const deleteTodoByID = async function (req: OwnerTodoIdRequest
 ) {
-  const owner = requestUserId;
-  const todoId = requestTodoId;
+  const owner = req.user;
+  const todoId = req.params.id;
 
   try {
     const deleteTodo = await Todo.findById(todoId);
