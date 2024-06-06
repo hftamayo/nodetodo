@@ -31,15 +31,20 @@ const listActiveTodos = async function (requestUserId: UserIdRequest) {
 };
 
 const listTodoByID = async function (req: OwnerTodoIdRequest) {
-  const userId = req.user;
+  const userId = req.user.userId;
   const todoId = req.params.id;
 
   try {
-    const searchTodo = await Todo.findById(todoId).exec();
+    let searchTodo = await Todo.findOne({
+      "_id": todoId,
+      completed: false,
+    }).exec();
+
     if (!searchTodo) {
       return { httpStatusCode: 404, message: "Task Not Found" };
     }
-    if (searchTodo.user.toString() !== userId.userId.toString()) {
+    
+    if (searchTodo.user.toString() !== userId) {
       return {
         httpStatusCode: 400,
         message: "There's a problem with your credentials",
