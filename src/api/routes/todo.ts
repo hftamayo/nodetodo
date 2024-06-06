@@ -60,7 +60,7 @@ router.post(
   validateResult,
   newTodoHandler
 );
-router.put(
+router.patch(
   "/update/:id",
   authorize,
   validator.updateTodoRules,
