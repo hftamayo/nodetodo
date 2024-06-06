@@ -32,18 +32,15 @@ const listActiveTodos = async function (requestUserId: UserIdRequest) {
 
 const listTodoByID = async function (req: OwnerTodoIdRequest) {
   const userId = req.user.userId;
-  const todoId = req.params.id;
+  const todoId = req.params.todoId;
 
   try {
-    let searchTodo = await Todo.findOne({
-      "_id": todoId,
-      completed: false,
-    }).exec();
+    let searchTodo = await Todo.findById(todoId).exec();
 
     if (!searchTodo) {
       return { httpStatusCode: 404, message: "Task Not Found" };
     }
-    
+
     if (searchTodo.user.toString() !== userId) {
       return {
         httpStatusCode: 400,
@@ -128,7 +125,7 @@ const updateTodoByID = async function (req: UpdateTodoRequest) {
 
 const deleteTodoByID = async function (req: OwnerTodoIdRequest) {
   const owner = req.user;
-  const todoId = req.params.id;
+  const todoId = req.params.todoId;
 
   try {
     const deleteTodo = await Todo.findById(todoId);
