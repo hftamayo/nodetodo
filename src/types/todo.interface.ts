@@ -27,18 +27,10 @@ export interface UpdateTodoRequest {
   todo: Partial<TodoRequest>;
 }
 
-/*
-this interface won't be use alone because it's necessary
-to check the ownership always for sec concerns
-*/
-interface TodoIdRequest {
-  todoId: string;
-}
-
 export interface OwnerTodoIdRequest extends Request {
   user: UserIdRequest;
   params: {
-    id: TodoIdRequest;
+    todoId: string;
   };
 }
 
