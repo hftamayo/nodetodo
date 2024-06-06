@@ -87,9 +87,6 @@ export default function todoController(todoService: TodoServices) {
 
     updateTodoHandler: async function (req: UpdateTodoRequest, res: Response) {
       try {
-        if (!req.todoId) {
-          throw new Error("Missing todoId");
-        }
         const result: TodoResult = await todoService.updateTodoByID(req);
         const { httpStatusCode, message, todo } = result;
         res
