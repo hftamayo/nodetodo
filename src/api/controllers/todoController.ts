@@ -61,18 +61,6 @@ export default function todoController(todoService: TodoServices) {
 
     newTodoHandler: async function (req: NewTodoRequest, res: Response) {
       try {
-        if (
-          !req.todo.title ||
-          !req.todo.description ||
-          !req.todo.completed ||
-          !req.todo.user
-        ) {
-          return res.status(400).json({
-            httpStatusCode: 400,
-            resultMessage: "Missing required fields",
-          });
-        }
-
         const result: TodoResult = await todoService.createTodo(req);
 
         const { httpStatusCode, message, todo } = result;
