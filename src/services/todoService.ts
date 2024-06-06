@@ -9,7 +9,10 @@ import { UserIdRequest } from "../types/user.interface";
 const listActiveTodos = async function (requestUserId: UserIdRequest) {
   const userId = requestUserId;
   try {
-    let activeTodos = await Todo.find({ user: userId }).exec();
+    let activeTodos = await Todo.find({
+      "user._id": userId,
+      completed: false,
+    }).exec();
     if (!activeTodos) {
       return {
         httpStatusCode: 404,
@@ -118,8 +121,7 @@ const updateTodoByID = async function (req: UpdateTodoRequest) {
   }
 };
 
-const deleteTodoByID = async function (req: OwnerTodoIdRequest
-) {
+const deleteTodoByID = async function (req: OwnerTodoIdRequest) {
   const owner = req.user;
   const todoId = req.params.id;
 
