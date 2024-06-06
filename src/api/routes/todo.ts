@@ -36,6 +36,14 @@ const newTodoHandler = (req: Request, res: Response) => {
   controller.newTodoHandler(NewTodoRequest, res);
 };
 
+const updateTodoHandler = (req: Request, res: Response) => {
+  const updateTodoRequest = req.body as UpdateTodoRequest;
+  updateTodoRequest.owner = { userId: req.body.userId };
+  updateTodoRequest.todo = req.body;
+
+  controller.updateTodoHandler(updateTodoRequest, res);
+};
+
 const deleteTodoHandler = (req: Request, res: Response) => {
   const ownerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
   ownerTodoIdRequest.user = { userId: req.body.userId };
@@ -52,13 +60,13 @@ router.post(
   validateResult,
   newTodoHandler
 );
-// router.put(
-//   "/update/:id",
-//   authorize,
-//   validator.updateTodoRules,
-//   validateResult,
-//   updateTodoHandler
-// );
+router.put(
+  "/update/:id",
+  authorize,
+  validator.updateTodoRules,
+  validateResult,
+  updateTodoHandler
+);
 router.delete("/delete/:id", authorize, deleteTodoHandler);
 
 export default router;
