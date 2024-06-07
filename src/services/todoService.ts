@@ -70,7 +70,7 @@ const createTodo = async function (req: NewTodoRequest) {
       title,
       description,
       completed: false,
-      user: owner,
+      user: owner.userId,
     });
     await newTodo.save();
     return {
