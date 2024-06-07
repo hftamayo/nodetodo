@@ -18,15 +18,17 @@ const loginRules: ValidationChain[] = [
 ];
 
 const updateDetailsRules: ValidationChain[] = [
-  check('user').exists().withMessage('User object is required'),
+  check("user").exists().withMessage("User object is required"),
   check("user.name", "Name is Required").notEmpty().trim().escape(),
   check("user.email", "Please give a valid email").isEmail().normalizeEmail(),
   check("user.age", "Age is required").notEmpty().isNumeric(),
-  check("user.age").isInt({ min: 18, max: 100 }).withMessage("Age should be between 18 and 100"),
+  check("user.age")
+    .isInt({ min: 18, max: 100 })
+    .withMessage("Age should be between 18 and 100"),
 ];
 
 const updatePasswordRules: ValidationChain[] = [
-  check('user').exists().withMessage('User object is required'),
+  check("user").exists().withMessage("User object is required"),
   check(
     "user.password",
     "Password should be at least 6 or more characters"
@@ -43,9 +45,14 @@ const createTodoRules: ValidationChain[] = [
 ];
 
 const updateTodoRules: ValidationChain[] = [
-  check("title", "Title is Required").notEmpty().trim().escape(),
-  check("description", "Description is Required").notEmpty().trim().escape(),
+  check("title", "Title is Required").optional().notEmpty().trim().escape(),
+  check("description", "Description is Required")
+    .optional()
+    .notEmpty()
+    .trim()
+    .escape(),
   check("completed", "Completed is Required")
+    .optional()
     .notEmpty()
     .trim()
     .escape()
