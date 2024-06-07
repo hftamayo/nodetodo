@@ -10,13 +10,10 @@ const listActiveTodos = async function (requestUserId: UserIdRequest) {
   const userId = requestUserId.userId;
   try {
     let activeTodos = await Todo.find({
-      "user": userId,
+      user: userId,
       completed: false,
     }).exec();
-    console.log(`Number of active todos: ${activeTodos.length}`);
-    if (activeTodos.length > 0) {
-      console.log(`First active todo: ${JSON.stringify(activeTodos[0])}`);
-    }
+
     if (!activeTodos) {
       return {
         httpStatusCode: 404,
