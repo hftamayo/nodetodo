@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, {Document} from "mongoose";
 import { JwtPayload } from "jsonwebtoken";
 
 export enum UserRole {
@@ -47,7 +47,7 @@ export interface UserResult {
   httpStatusCode: number;
   message: string;
   tokenCreated?: string;
-  user?: Partial<UserRequest>;
+  user?: Partial<UserRequest & Document>;
 }
 
 //interfaces for dependency injection pattern
