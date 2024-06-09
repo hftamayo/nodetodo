@@ -15,6 +15,7 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: TodoResult = await todoService.listActiveTodos(req);
         const { httpStatusCode, message, todos } = result;
+        const {_id, user, updatedAt, ...filteredTodos} = todos;
         res
           .status(httpStatusCode)
           .json(
