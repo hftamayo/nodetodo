@@ -15,8 +15,9 @@ export default function userController(userService: UserServices) {
       try {
         const result: UserResult = await userService.signUpUser(req);
         const { httpStatusCode, message, user } = result;
-        if (httpStatusCode === 200 && user) {
-          const { password, ...filteredUser } = user;
+        if (httpStatusCode === 200 && user?.toObject) {
+          const userObject = user.toObject();
+          const { password, ...filteredUser } = userObject;
           res.status(httpStatusCode).json({
             httpStatusCode,
             resultMessage: message,
@@ -44,7 +45,7 @@ export default function userController(userService: UserServices) {
       try {
         const result: UserResult = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, user } = result;
-        if (httpStatusCode === 200 && user) {
+        if (httpStatusCode === 200 && user?.toObject) {
           res.cookie("nodetodo", tokenCreated, {
             httpOnly: true,
             maxAge: 360000,
@@ -52,8 +53,9 @@ export default function userController(userService: UserServices) {
             sameSite: cors_samesite,
             path: "/",
           });
+          const userObject = user.toObject();
           //filtering password for not showing during the output
-          const { password, ...filteredUser } = user;
+          const { password, ...filteredUser } = userObject;
           res.status(httpStatusCode).json({
             httpStatusCode,
             resultMessage: message,
@@ -102,12 +104,15 @@ export default function userController(userService: UserServices) {
         const result: UserResult = await userService.listUserByID(req);
         const { httpStatusCode, message, user } = result;
         if (httpStatusCode === 200 && user) {
-          const { password, ...filteredUser } = user;
-          res.status(httpStatusCode).json({
-            httpStatusCode,
-            resultMessage: message,
-            searchUser: filteredUser,
-          });
+          if (user.toObject) {
+            const userObject = user.toObject();
+            const { password, _id, ...filteredUser } = userObject;
+            res.status(httpStatusCode).json({
+              httpStatusCode,
+              resultMessage: message,
+              searchUser: filteredUser,
+            });
+          }
         } else {
           res
             .status(httpStatusCode)
