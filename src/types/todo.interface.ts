@@ -37,8 +37,8 @@ export interface OwnerTodoIdRequest extends Request {
 export interface TodoResult {
   httpStatusCode: number;
   message: string;
-  todo?: Partial<TodoRequest>;
-  todos?: Partial<TodoRequest>[];
+  todo?: Partial<TodoRequest & Document>;
+  todos?: Partial<TodoRequest & Document>[];
 }
 
 export interface TodoServices {
