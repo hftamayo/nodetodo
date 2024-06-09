@@ -94,8 +94,6 @@ const updateTodoByID = async function (req: UpdateTodoRequest) {
   const todoId = req.todo.id;
   const { title, description, completed } = req.todo;
 
-  console.log("the value of todoID from update is: ", todoId);
-
   try {
     let updateTodo = await Todo.findById(todoId);
     if (!updateTodo) {
