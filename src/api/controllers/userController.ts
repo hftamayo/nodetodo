@@ -103,16 +103,14 @@ export default function userController(userService: UserServices) {
       try {
         const result: UserResult = await userService.listUserByID(req);
         const { httpStatusCode, message, user } = result;
-        if (httpStatusCode === 200 && user) {
-          if (user.toObject) {
-            const userObject = user.toObject();
-            const { password, _id, ...filteredUser } = userObject;
-            res.status(httpStatusCode).json({
-              httpStatusCode,
-              resultMessage: message,
-              searchUser: filteredUser,
-            });
-          }
+        if (httpStatusCode === 200 && user?.toObject) {
+          const userObject = user.toObject();
+          const { password, _id, ...filteredUser } = userObject;
+          res.status(httpStatusCode).json({
+            httpStatusCode,
+            resultMessage: message,
+            searchUser: filteredUser,
+          });
         } else {
           res
             .status(httpStatusCode)
@@ -139,13 +137,13 @@ export default function userController(userService: UserServices) {
         const result: UserResult = await userService.updateUserDetailsByID(req);
         const { httpStatusCode, message, user } = result;
 
-        if (!user) {
+        if (!user?.toObject) {
           return res
             .status(httpStatusCode)
             .json({ httpStatusCode, resultMessage: message });
         }
-
-        const { password, ...filteredUSer } = user;
+        const userObject = user.toObject();
+        const { password, ...filteredUSer } = userObject;
         res.status(httpStatusCode).json({
           httpStatusCode,
           resultMessage: message,
@@ -176,13 +174,14 @@ export default function userController(userService: UserServices) {
 
         const { httpStatusCode, message, user } = result;
 
-        if (!user) {
+        if (!user?.toObject) {
           return res
             .status(httpStatusCode)
             .json({ httpStatusCode, resultMessage: message });
         }
 
-        const { password, ...filteredUser } = user;
+        const userObject = user.toObject();
+        const { password, ...filteredUser } = userObject;
         res.status(httpStatusCode).json({
           httpStatusCode,
           resultMessage: message,
