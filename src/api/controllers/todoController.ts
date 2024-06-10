@@ -44,12 +44,12 @@ export default function todoController(todoService: TodoServices) {
         const result: TodoResult = await todoService.listTodoByID(req);
         const { httpStatusCode, message, todo } = result;
         if (httpStatusCode === 200 && todo?.toObject) {
-          const todoObject = todo.toObject();
-          const { user, ...filteredTodo } = todoObject;
+          // const todoObject = todo.toObject();
+          // const { user, ...filteredTodo } = todoObject;
           res.status(httpStatusCode).json({
             httpStatusCode,
             resultMessage: message,
-            searchTodo: filteredTodo,
+            searchTodo: todo,
           });
         } else {
           res
@@ -74,14 +74,19 @@ export default function todoController(todoService: TodoServices) {
         const result: TodoResult = await todoService.createTodo(req);
 
         const { httpStatusCode, message, todo } = result;
-
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { httpStatusCode, resultMessage: message, newTodo: todo }
-              : { httpStatusCode, resultMessage: message }
-          );
+        if (httpStatusCode === 200 && todo?.toObject) {
+          // const todoObject = todo.toObject();
+          // const { user, ...filteredTodo } = todoObject;
+          return res.status(httpStatusCode).json({
+            httpStatusCode,
+            resultMessage: message,
+            newTodo: todo,
+          });
+        } else {
+          res
+            .status(httpStatusCode)
+            .json({ httpStatusCode, resultMessage: message });
+        }
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, newTodo: " + error.message);
