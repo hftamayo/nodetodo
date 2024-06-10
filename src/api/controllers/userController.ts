@@ -17,8 +17,7 @@ export default function userController(userService: UserServices) {
         const { httpStatusCode, message, user } = result;
         if (httpStatusCode === 200 && user?.toObject) {
           const userObject = user.toObject();
-          const { password, _id, createdAt, updatedAt, ...filteredUser } =
-            userObject;
+          const { password, updatedAt, ...filteredUser } = userObject;
           res.status(httpStatusCode).json({
             httpStatusCode,
             resultMessage: message,
@@ -56,8 +55,7 @@ export default function userController(userService: UserServices) {
           });
           const userObject = user.toObject();
           //filtering password for not showing during the output
-          const { password, _id, createdAt, updatedAt, ...filteredUser } =
-            userObject;
+          const { password, ...filteredUser } = userObject;
           res.status(httpStatusCode).json({
             httpStatusCode,
             resultMessage: message,
@@ -107,8 +105,7 @@ export default function userController(userService: UserServices) {
         const { httpStatusCode, message, user } = result;
         if (httpStatusCode === 200 && user?.toObject) {
           const userObject = user.toObject();
-          const { password, _id, createdAt, updatedAt, ...filteredUser } =
-            userObject;
+          const { password, ...filteredUser } = userObject;
           res.status(httpStatusCode).json({
             httpStatusCode,
             resultMessage: message,
@@ -146,8 +143,7 @@ export default function userController(userService: UserServices) {
             .json({ httpStatusCode, resultMessage: message });
         }
         const userObject = user.toObject();
-        const { password, _id, createdAt, updatedAt, ...filteredUSer } =
-          userObject;
+        const { password, ...filteredUSer } = userObject;
         res.status(httpStatusCode).json({
           httpStatusCode,
           resultMessage: message,
@@ -185,8 +181,7 @@ export default function userController(userService: UserServices) {
         }
 
         const userObject = user.toObject();
-        const { password, _id, createdAt, updatedAt, ...filteredUser } =
-          userObject;
+        const { password, ...filteredUser } = userObject;
         res.status(httpStatusCode).json({
           httpStatusCode,
           resultMessage: message,
