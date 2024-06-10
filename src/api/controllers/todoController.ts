@@ -15,14 +15,17 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: TodoResult = await todoService.listActiveTodos(req);
         const { httpStatusCode, message, todos } = result;
-        const {_id, user, updatedAt, ...filteredTodos} = todos;
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { httpStatusCode, resultMessage: message, activeTodos: todos }
-              : { httpStatusCode, resultMessage: message }
-          );
+        if (httpStatusCode === 200 && todos?.length) {
+          res.status(httpStatusCode).json({
+            httpStatusCode,
+            resultMessage: message,
+            activeTodos: todos,
+          });
+        } else {
+          res
+            .status(httpStatusCode)
+            .json({ httpStatusCode, resultMessage: message });
+        }
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, getTodos: " + error.message);
@@ -40,13 +43,19 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: TodoResult = await todoService.listTodoByID(req);
         const { httpStatusCode, message, todo } = result;
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { httpStatusCode, resultMessage: message, searchTodo: todo }
-              : { httpStatusCode, resultMessage: message }
-          );
+        if (httpStatusCode === 200 && todo?.toObject) {
+          const todoObject = todo.toObject();
+          const { user, ...filteredTodo } = todoObject;
+          res.status(httpStatusCode).json({
+            httpStatusCode,
+            resultMessage: message,
+            searchTodo: filteredTodo,
+          });
+        } else {
+          res
+            .status(httpStatusCode)
+            .json({ httpStatusCode, resultMessage: message });
+        }
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, getTodo: " + error.message);
