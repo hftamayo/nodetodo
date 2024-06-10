@@ -31,11 +31,11 @@ Application which help the user to manage tasks and reminders. This repo belongs
 
 
 ## Branches ##
-* OldStable : deprecated versions of the project
-* Stable: current or latest official version
+* Oldmain : deprecated versions of the project
+* main: current or latest official version
 * Unstable: sourcecode that is in progress of testing
+* oldstable: testing routines using deprecated test frameworks
 * Experimental: sourcecode in progress
-
 
 ## Proof of Concept ##
 [Todo]
@@ -56,10 +56,10 @@ Please refer to the Issues section in this repository
 - Commit ID: [f98ec2b](https://github.com/hftamayo/nodetodo/commit/f98ec2b594dfc93271d52d34ffca0ced4fcf1d59)
 
 ### 0.0.2 Version ###
-- Released on:
+- Released on: Jun 10th 2024
 - ES Modules
 - Full Typescript support
-- Commit ID:
+- Commit ID: [70e6186](https://github.com/hftamayo/nodetodo/commit/70e6186b89ff4912a3c17745403db35685aa824a): typescript -> experimental -> main
 
 ### 0.1.2 Version ###
 - Released on:
