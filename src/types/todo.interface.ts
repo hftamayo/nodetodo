@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, {Document} from "mongoose";
 import { UserIdRequest } from "./user.interface";
 
 export interface TodoSeed {
