@@ -1,13 +1,13 @@
-const express = require("express");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const { dbConnection, setCorsEnviro } = require("./config/setup");
-const { port } = require("./config/envvars");
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { dbConnection, setCorsEnviro } from "./config/setup";
+import { port, mode } from "./config/envvars";
 
-const seedDatabase = require("./utils/seedDatabase");
-const todosRoutes = require("./api/routes/todo");
-const usersRoutes = require("./api/routes/user");
-const healthCheckRoutes = require("./api/routes/healthCheck");
+import seedDatabase from "./utils/seedDatabase";
+import todosRoutes from "./api/routes/todo";
+import usersRoutes from "./api/routes/user";
+import healthCheckRoutes from "./api/routes/hc";
 
 const app = express();
 
@@ -23,7 +23,7 @@ async function startApp() {
     app.use(cookieParser()); //parsea cookie headers y populate req.cookies
 
     //I live this method in case of request monitoring
-    app.use((req, res, next) => {
+    app.use((req: Request, res: Response, next: NextFunction) => {
       console.log("Request received: ", req.method, req.url);
       console.log("Request headers: ", req.headers);
       next();
@@ -36,21 +36,21 @@ async function startApp() {
     app.use("/nodetodo/healthcheck", healthCheckRoutes);
 
     // Error handling middleware
-    app.use((error, req, res, next) => {
+    app.use((error: any, res: Response) => {
       console.error("Error middleware: ", error.message);
       console.error("Error details: ", error.stack);
       res.status(500).send("An unexpected error occurred");
     });
 
-    console.log("the backend is ready");
+    console.log(`the backend is ready in ${mode} environment`);
     const server = app.listen(port, () => {
       console.log(`The server instance is running on port ${PORT}`);
     });
     return server;
-  } catch (error) {
+  } catch (error: any) {
     console.error("the backend is down: ", error.message);
     process.exit(1);
   }
 }
 
-module.exports = { app, startApp };
+export { app, startApp };
