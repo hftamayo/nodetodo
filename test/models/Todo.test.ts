@@ -1,6 +1,5 @@
-const expect = require("chai").expect;
-const sinon = require("sinon");
-const Todo = require("../../src/models/Todo");
+import Todo from "../../src/models/Todo";
+
 const { newTodo, todoSupervisor } = require("../mocks/todo.mock");
 
 describe("Todo Model", () => {
