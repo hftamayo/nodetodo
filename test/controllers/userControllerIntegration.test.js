@@ -9,6 +9,30 @@ const {
 } = require("../mocks/user.mock");
 
 let server;
+/* 
+por favor ver estas funciones para mockear los modelos
+
+jest.mock('../../src/models/User', () => {
+  return {
+    find: jest.fn().mockResolvedValue([mockUserAdmin, mockUserSupervisor, mockUserUser]),
+    findById: jest.fn().mockImplementation((id) => {
+      const users = [mockUserAdmin, mockUserSupervisor, mockUserUser];
+      return Promise.resolve(users.find(user => user.id === id));
+    }),
+    // Add other methods as needed
+  };
+});
+
+jest.mock('../../src/models/User', () => ({
+  findOne: jest.fn().mockImplementation((query) => {
+    if (query.email === 'existing@example.com') {
+      return Promise.resolve({ /* user data */ });
+    }
+    return Promise.resolve(null);
+  }),
+  // Other methods like save, findById, etc.
+}));
+*/
 
 before(async function () {
   this.timeout(60000);
