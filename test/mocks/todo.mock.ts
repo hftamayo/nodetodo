@@ -4,7 +4,7 @@ const getRandomInt = (max: number) => {
     return Math.floor(Math.random() * Math.floor(max));
   };
 
-export const newTodo = (userId = new mongoose.Types.ObjectId()) => ({
+export const newStandardTodo = (userId = new mongoose.Types.ObjectId()) => ({
     title: `New Todo${getRandomInt(1000000)}`,
     description: "New Todo Description",
     completed: false,
