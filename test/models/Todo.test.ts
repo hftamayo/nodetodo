@@ -43,52 +43,38 @@ describe("Todo Model", () => {
   });
 
   it("should throw an error if the todo's description is missing", async () => {
-    const todo = new Todo({
-      title: todoSupervisor.title,
-      description: "",
-      completed: todoSupervisor.completed,
-      user: todoSupervisor.user,
-    });
+    const { description, ...todoWithoutDesc } = newStandardTodo;
+    const saveMock = jest
+      .spyOn(Todo.prototype, "save")
+      .mockRejectedValue(
+        new Error("Todo validation failed: `description` is required")
+      );
 
-    const saveStub = sinon.stub(Todo.prototype, "save");
+    const todo = new Todo(todoWithoutDesc);
 
-    saveStub.rejects(
-      new Error("Todo validation failed: `description` is required")
+    await expect(todo.save()).rejects.toThrow(
+      "Todo validation failed: `description` is required"
     );
 
-    try {
-      await todo.save();
-    } catch (error) {
-      expect(error).to.exist;
-      expect(error.message).to.equal(
-        "Todo validation failed: `description` is required"
-      );
-    }
-    saveStub.restore();
+    saveMock.mockRestore();
+
   });
 
   it("should throw an error if the todo's completed status is missing", async () => {
-    const todo = new Todo({
-      title: todoSupervisor.title,
-      description: todoSupervisor.description,
-      completed: "",
-      user: todoSupervisor.user,
-    });
+    const { completed, ...todoWithoutStatus } = newStandardTodo;
+    const saveMock = jest
+      .spyOn(Todo.prototype, "save")
+      .mockRejectedValue(
+        new Error("Todo validation failed: `status` is required")
+      );
 
-    const saveStub = sinon.stub(Todo.prototype, "save");
+    const todo = new Todo(todoWithoutStatus);
 
-    saveStub.rejects(
-      new Error("Todo validation failed: `completed` is required")
+    await expect(todo.save()).rejects.toThrow(
+      "Todo validation failed: `status` is required"
     );
 
-    try {
-      await todo.save();
-    } catch (error) {
-      expect(error).to.exist;
-      expect(error.message).to.equal(
-        "Todo validation failed: `completed` is required"
-      );
-    }
-    saveStub.restore();
+    saveMock.mockRestore();
   });
+
 });
