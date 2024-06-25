@@ -2,7 +2,7 @@ import Todo from "../../src/models/Todo";
 import User from "../../src/models/User";
 import mongoose from "mongoose";
 
-const getRandomInt = (max) => {
+const getRandomInt = (max: number) => {
     return Math.floor(Math.random() * Math.floor(max));
   };
 
