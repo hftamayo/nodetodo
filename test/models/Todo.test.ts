@@ -7,48 +7,39 @@ describe("Todo Model", () => {
   });
   
   it("should create a new todo with valid data", async () => {
-    const mockTodo = newStandardTodo();
-
     const saveMock = jest
       .spyOn(Todo.prototype, "save")
-      .mockResolvedValue(mockTodo);
+      .mockResolvedValue(newStandardTodo);
 
-      const todoData = newStandardTodo();
-      const todo = new Todo(todoData);
+      const todo = new Todo(newStandardTodo);
 
       await todo.save();
 
       expect(todo).toBeDefined();
-      expect(todo.title).toEqual(todoData.title);
-      expect(todo.description).toEqual(todoData.description);
-      expect(todo.completed).toEqual(todoData.completed);
-      expect(todo.user.toString()).toEqual(todoData.user.toString());
+      expect(todo.title).toEqual(newStandardTodo.title);
+      expect(todo.description).toEqual(newStandardTodo.description);
+      expect(todo.completed).toEqual(newStandardTodo.completed);
+      expect(todo.user.toString()).toEqual(newStandardTodo.user.toString());
 
       saveMock.mockRestore();
   });
 
 
   it("should throw an error if the todo's title is missing", async () => {
-    const todo = new Todo({
-      title: "",
-      description: todoSupervisor.description,
-      completed: todoSupervisor.completed,
-      user: todoSupervisor.user,
-    });
-
-    const saveStub = sinon.stub(Todo.prototype, "save");
-
-    saveStub.rejects(new Error("Todo validation failed: `title` is required"));
-
-    try {
-      await todo.save();
-    } catch (error) {
-      expect(error).to.exist;
-      expect(error.message).to.equal(
-        "Todo validation failed: `title` is required"
+    const { title, ...todoWithoutTitle } = newStandardTodo;
+    const saveMock = jest
+      .spyOn(Todo.prototype, "save")
+      .mockRejectedValue(
+        new Error("Todo validation failed: `title` is required")
       );
-    }
-    saveStub.restore();
+
+    const todo = new Todo(todoWithoutTitle);
+
+    await expect(todo.save()).rejects.toThrow(
+      "Todo validation failed: `title` is required"
+    );
+
+    saveMock.mockRestore();
   });
 
   it("should throw an error if the todo's description is missing", async () => {
