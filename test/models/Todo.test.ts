@@ -1,27 +1,32 @@
 import Todo from "../../src/models/Todo";
-
-const { newTodo, todoSupervisor } = require("../mocks/todo.mock");
+import { newStandardTodo, todoSupervisor } from "../mocks/todo.mock";
 
 describe("Todo Model", () => {
-  it("should create a new todo with valid data", async () => {
-    const saveStub = sinon.stub(Todo.prototype, "save");
-
-    const mockTodo = newTodo();
-
-    saveStub.resolves(mockTodo);
-
-    const todo = new Todo(mockTodo);
-
-    await todo.save();
-
-    expect(todo).to.exist;
-    expect(todo.title).to.equal(mockTodo.title);
-    expect(todo.description).to.equal(mockTodo.description);
-    expect(todo.completed).to.equal(mockTodo.completed);
-    expect(todo.user.toString()).to.equal(mockTodo.user.toString());
-
-    saveStub.restore();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
+  
+  it("should create a new todo with valid data", async () => {
+    const mockTodo = newStandardTodo();
+
+    const saveMock = jest
+      .spyOn(Todo.prototype, "save")
+      .mockResolvedValue(mockTodo);
+
+      const todoData = newStandardTodo();
+      const todo = new Todo(todoData);
+
+      await todo.save();
+
+      expect(todo).toBeDefined();
+      expect(todo.title).toEqual(todoData.title);
+      expect(todo.description).toEqual(todoData.description);
+      expect(todo.completed).toEqual(todoData.completed);
+      expect(todo.user.toString()).toEqual(todoData.user.toString());
+
+      saveMock.mockRestore();
+  });
+
 
   it("should throw an error if the todo's title is missing", async () => {
     const todo = new Todo({
