@@ -1,51 +1,54 @@
-const expect = require("chai").expect;
-const sinon = require("sinon");
-const {
-  mockUserUser,
+import {
+  mockUserRoleUser,
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
-} = require("../mocks/user.mock");
-const userService = require("../../src/services/userService");
+} from "../mocks/user.mock";
+import userService from "../../src/services/userService";
 
 describe("UserService Unit Tests", () => {
   afterEach(function () {
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   describe("signupUser()", () => {
     it("should create a new user with valid data", async () => {
       const requestBody = {
-        name: mockUserUser.name,
-        email: mockUserUser.email,
-        password: mockUserUser.password,
-        age: mockUserUser.age,
+        name: mockUserRoleUser.name,
+        email: mockUserRoleUser.email,
+        password: mockUserRoleUser.password,
+        age: mockUserRoleUser.age,
       };
 
       const mockResponse = {
         httpStatusCode: 200,
         message: "User created successfully",
-        user: mockUserUser,
+        user: {
+          ...mockUserRoleUser,
+        _id: "1234567890",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
       };
 
-      sinon.stub(userService, "signUpUser").resolves(mockResponse);
+      jest.spyOn(userService, "signUpUser").mockResolvedValue(mockResponse);
 
       const response = await userService.signUpUser(requestBody);
 
       expect(response.httpStatusCode).to.equal(200);
       expect(response.message).to.equal("User created successfully");
       expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUserUser.name);
-      expect(response.user.email).to.equal(mockUserUser.email);
-      expect(response.user.age).to.equal(mockUserUser.age);
+      expect(response.user.name).to.equal(mockUserRoleUser.name);
+      expect(response.user.email).to.equal(mockUserRoleUser.email);
+      expect(response.user.age).to.equal(mockUserRoleUser.age);
     });
 
     it("should return an error if the user's email is already in use", async () => {
       const requestBody = {
-        name: mockUserUser.name,
-        email: mockUserUser.email,
-        password: mockUserUser.password,
-        age: mockUserUser.age,
+        name: mockUserRoleUser.name,
+        email: mockUserRoleUser.email,
+        password: mockUserRoleUser.password,
+        age: mockUserRoleUser.age,
       };
 
       const mockResponse = {
@@ -53,7 +56,7 @@ describe("UserService Unit Tests", () => {
         message: "Email already exists",
       };
 
-      sinon.stub(userService, "signUpUser").resolves(mockResponse);
+      jest.spyOn(userService, "signUpUser").mockResolvedValue(mockResponse);
 
       const response = await userService.signUpUser(requestBody);
 
