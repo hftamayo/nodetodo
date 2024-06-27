@@ -1,3 +1,4 @@
+import { Document } from "mongoose";
 import {
   mockUserRoleUser,
   mockUserInvalid,
@@ -5,6 +6,7 @@ import {
   mockUserDelete,
 } from "../mocks/user.mock";
 import userService from "../../src/services/userService";
+import { UserRequest } from "../../src/types/user.interface";
 
 describe("UserService Unit Tests", () => {
   afterEach(function () {
@@ -20,27 +22,27 @@ describe("UserService Unit Tests", () => {
         age: mockUserRoleUser.age,
       };
 
+      const mockUser: Partial<UserRequest & Document> = {
+        ...requestBody,
+        id: "123456789",
+      };
+
       const mockResponse = {
         httpStatusCode: 200,
         message: "User created successfully",
-        user: {
-          ...mockUserRoleUser,
-        _id: "1234567890",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+        user: mockUser as any,//please improve this
       };
 
       jest.spyOn(userService, "signUpUser").mockResolvedValue(mockResponse);
 
       const response = await userService.signUpUser(requestBody);
 
-      expect(response.httpStatusCode).to.equal(200);
-      expect(response.message).to.equal("User created successfully");
-      expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUserRoleUser.name);
-      expect(response.user.email).to.equal(mockUserRoleUser.email);
-      expect(response.user.age).to.equal(mockUserRoleUser.age);
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.message).toBe("User created successfully");
+      if (!response.user) throw new Error("User not found");
+      expect(response.user.name).toBe(mockUserRoleUser.name);
+      expect(response.user.email).toBe(mockUserRoleUser.email);
+      expect(response.user.age).toBe(mockUserRoleUser.age);
     });
 
     it("should return an error if the user's email is already in use", async () => {
