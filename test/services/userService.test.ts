@@ -38,11 +38,11 @@ describe("UserService Unit Tests", () => {
       const response = await userService.signUpUser(requestBody);
 
       expect(response.httpStatusCode).toBe(200);
+      expect(response.user).toBeDefined();
       expect(response.message).toBe("User created successfully");
-      if (!response.user) throw new Error("User not found");
-      expect(response.user.name).toBe(mockUserRoleUser.name);
-      expect(response.user.email).toBe(mockUserRoleUser.email);
-      expect(response.user.age).toBe(mockUserRoleUser.age);
+      expect(response.user!.name).toBe(mockUserRoleUser.name);
+      expect(response.user!.email).toBe(mockUserRoleUser.email);
+      expect(response.user!.age).toBe(mockUserRoleUser.age);
     });
 
     it("should return an error if the user's email is already in use", async () => {
@@ -70,28 +70,34 @@ describe("UserService Unit Tests", () => {
   describe("loginUser()", () => {
     it("should login a user with valid credentials", async () => {
       const requestBody = {
-        email: mockUserUser.email,
-        password: mockUserUser.password,
+        email: mockUserRoleUser.email,
+        password: mockUserRoleUser.password,
+      };
+
+      const mockUser: Partial<UserRequest & Document> = {
+        ...requestBody,
+        name: mockUserRoleUser.name,
+        age: mockUserRoleUser.age,
       };
 
       const mockResponse = {
         httpStatusCode: 200,
         tokenCreated: "token",
         message: "User login successfully",
-        user: mockUserUser,
+        user: mockUser as any,
       };
 
-      sinon.stub(userService, "loginUser").resolves(mockResponse);
+      jest.spyOn(userService, "loginUser").mockResolvedValue(mockResponse);
 
       const response = await userService.loginUser(requestBody);
 
-      expect(response.httpStatusCode).to.equal(200);
-      expect(response.tokenCreated).to.exist;
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.tokenCreated).toBeDefined();
+      expect(response.user).toBeDefined();
       expect(response.message).to.equal("User login successfully");
-      expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUserUser.name);
-      expect(response.user.email).to.equal(mockUserUser.email);
-      expect(response.user.age).to.equal(mockUserUser.age);
+      expect(response.user!.name).to.equal(mockUserRoleUser.name);
+      expect(response.user!.email).to.equal(mockUserRoleUser.email);
+      expect(response.user!.age).to.equal(mockUserRoleUser.age);
     });
 
     it("should not login if user does not exist", async () => {
