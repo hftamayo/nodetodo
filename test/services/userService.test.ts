@@ -166,7 +166,11 @@ describe("UserService Unit Tests", () => {
     });
 
     it("should return an error if the user id is invalid", async () => {
-      const requestUserId = mockUserInvalid.id;
+      const userId = mockUserInvalid.id.toString();
+
+      const userIdRequest: UserIdRequest = {
+        userId: userId,
+      };
 
       const mockResponse = {
         httpStatusCode: 404,
@@ -175,9 +179,9 @@ describe("UserService Unit Tests", () => {
 
       sinon.stub(userService, "listUserByID").resolves(mockResponse);
 
-      const response = await userService.listUserByID(requestUserId);
+      const response = await userService.listUserByID(userIdRequest);
 
-      expect(response.httpStatusCode).to.equal(404);
+      expect(response.httpStatusCode).toBe(404);
       expect(response.message).to.equal("User Not Found");
     });
   });
