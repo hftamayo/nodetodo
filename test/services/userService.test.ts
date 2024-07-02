@@ -292,7 +292,11 @@ describe("UserService Unit Tests", () => {
 
   describe("deleteUser()", () => {
     it("should delete a user with valid id", async () => {
-      const requestUserId = mockUserDelete.id;
+      const userId = mockUserDelete.id;
+
+      const userIdRequest: UserIdRequest = {
+        userId: userId,
+      };
 
       const mockResponse = {
         httpStatusCode: 200,
@@ -301,9 +305,9 @@ describe("UserService Unit Tests", () => {
 
       sinon.stub(userService, "deleteUserByID").resolves(mockResponse);
 
-      const response = await userService.deleteUserByID(requestUserId);
+      const response = await userService.deleteUserByID(userIdRequest);
 
-      expect(response.httpStatusCode).to.equal(200);
+      expect(response.httpStatusCode).toBe(200);
       expect(response.message).to.equal("User deleted successfully");
     });
 
