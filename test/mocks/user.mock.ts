@@ -6,6 +6,7 @@ const getRandomInt = (max: number) => {
 };
 
 export const mockUserRoleUser = {
+  _id: new mongo.ObjectId("123456789012"),
   name: "John Doe",
   email: "john@example.com",
   password: "securePassword123",
