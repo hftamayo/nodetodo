@@ -223,13 +223,13 @@ describe("UserService Unit Tests", () => {
     });
 
     it("should not update if the user has already taken", async () => {
-      const requestBody = {
-        id: mockUserUpdate.id,
+      const requestBody: UpdateUserRequest = {
+        userId: mockUserUpdate.id,
+        user: {
         name: mockUserUpdate.name,
-        email: mockUserUpdate.emailTaken,
-        oldPassword: mockUserUpdate.oldPassword,
-        newPassword: mockUserUpdate.newPassword,
+        email: mockUserUpdate.email,
         age: mockUserUpdate.age,
+        }
       };
 
       const mockResponse = {
@@ -237,11 +237,11 @@ describe("UserService Unit Tests", () => {
         message: "Email already taken",
       };
 
-      sinon.stub(userService, "updateUserByID").resolves(mockResponse);
+      jest.spyOn(userService, "updateUserDetailsByID").mockResolvedValue(mockResponse);
 
-      const response = await userService.updateUserByID(requestBody);
+      const response = await userService.updateUserDetailsByID(requestBody);
 
-      expect(response.httpStatusCode).to.equal(400);
+      expect(response.httpStatusCode).toBe(400);
       expect(response.message).to.equal("Email already taken");
     });
 
