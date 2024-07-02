@@ -303,7 +303,7 @@ describe("UserService Unit Tests", () => {
         message: "User deleted successfully",
       };
 
-      sinon.stub(userService, "deleteUserByID").resolves(mockResponse);
+      jest.spyOn(userService, "deleteUserByID").mockResolvedValue(mockResponse);
 
       const response = await userService.deleteUserByID(userIdRequest);
 
@@ -312,18 +312,22 @@ describe("UserService Unit Tests", () => {
     });
 
     it("should return an error if the user id is invalid", async () => {
-      const requestUserId = mockUserInvalid.id;
+      const userId = mockUserInvalid.id;
+
+      const userIdRequest: UserIdRequest = {
+        userId: userId,
+      };
 
       const mockResponse = {
         httpStatusCode: 404,
         message: "User Not Found",
       };
 
-      sinon.stub(userService, "deleteUserByID").resolves(mockResponse);
+      jest.spyOn(userService, "deleteUserByID").mockResolvedValue(mockResponse);
 
-      const response = await userService.deleteUserByID(requestUserId);
+      const response = await userService.deleteUserByID(userIdRequest);
 
-      expect(response.httpStatusCode).to.equal(404);
+      expect(response.httpStatusCode).toBe(404);
       expect(response.message).to.equal("User Not Found");
     });
   });
