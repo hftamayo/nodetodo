@@ -6,7 +6,8 @@ import {
   mockUserDelete,
 } from "../mocks/user.mock";
 import userService from "../../src/services/userService";
-import { UserRequest, UserIdRequest } from "../../src/types/user.interface";
+import { UserRequest, UserIdRequest, UpdateUserRequest } from "../../src/types/user.interface";
+import { mock } from "node:test";
 
 describe("UserService Unit Tests", () => {
   afterEach(function () {
@@ -188,31 +189,37 @@ describe("UserService Unit Tests", () => {
 
   describe("updateUser()", () => {
     it("should update a user with valid data", async () => {
-      const requestBody = {
-        id: mockUserUpdate.id,
+      const requestBody: UpdateUserRequest = {
+        userId: mockUserUpdate.id,
+        user: {
         name: mockUserUpdate.name,
         email: mockUserUpdate.email,
-        oldPassword: mockUserUpdate.oldPassword,
-        newPassword: mockUserUpdate.newPassword,
+        age: mockUserUpdate.age,
+        }
+      };
+
+      const mockUser: Partial<UserRequest> = {
+        name: mockUserUpdate.name,
+        email: mockUserUpdate.email,
         age: mockUserUpdate.age,
       };
 
       const mockResponse = {
         httpStatusCode: 200,
         message: "User updated successfully",
-        user: mockUserUpdate,
+        user: mockUser as any,
       };
 
-      sinon.stub(userService, "updateUserByID").resolves(mockResponse);
+      jest.spyOn(userService, "updateUserDetailsByID").mockResolvedValue(mockResponse);
 
-      const response = await userService.updateUserByID(requestBody);
+      const response = await userService.updateUserDetailsByID(requestBody);
 
-      expect(response.httpStatusCode).to.equal(200);
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.user).toBeDefined();
       expect(response.message).to.equal("User updated successfully");
-      expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUserUpdate.name);
-      expect(response.user.email).to.equal(mockUserUpdate.email);
-      expect(response.user.age).to.equal(mockUserUpdate.age);
+      expect(response.user!.name).to.equal(mockUserUpdate.name);
+      expect(response.user!.email).to.equal(mockUserUpdate.email);
+      expect(response.user!.age).to.equal(mockUserUpdate.age);
     });
 
     it("should not update if the user has already taken", async () => {
