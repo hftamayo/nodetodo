@@ -22,6 +22,7 @@ export const mockUserInvalid = {
 };
 
 export const mockUserUpdate = {
+  id: "123456789012",
   name: "Yuki Fernandez Martinez",
   email: `yuki${getRandomInt(1000000)}@gmail.com`,
   emailTaken: "hftamayo@gmail.com",
