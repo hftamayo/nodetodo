@@ -6,7 +6,7 @@ import {
   mockUserDelete,
 } from "../mocks/user.mock";
 import userService from "../../src/services/userService";
-import { UserRequest } from "../../src/types/user.interface";
+import { UserRequest, UserIdRequest } from "../../src/types/user.interface";
 
 describe("UserService Unit Tests", () => {
   afterEach(function () {
@@ -141,24 +141,28 @@ describe("UserService Unit Tests", () => {
 
   describe("listUserById()", () => {
     it("should return a user with valid id", async () => {
-      const requestUserId = mockUserUser.id;
+      const userId = mockUserRoleUser._id.toString();
+
+      const userIdRequest: UserIdRequest = {
+        userId: userId,
+      };
 
       const mockResponse = {
         httpStatusCode: 200,
         message: "User Found",
-        user: mockUserUser,
+        user: mockUserRoleUser as any,
       };
 
-      sinon.stub(userService, "listUserByID").resolves(mockResponse);
+      jest.spyOn(userService, "listUserByID").mockResolvedValue(mockResponse);
 
-      const response = await userService.listUserByID(requestUserId);
+      const response = await userService.listUserByID(userIdRequest);
 
-      expect(response.httpStatusCode).to.equal(200);
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.user).toBeDefined();
       expect(response.message).to.equal("User Found");
-      expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUserUser.name);
-      expect(response.user.email).to.equal(mockUserUser.email);
-      expect(response.user.age).to.equal(mockUserUser.age);
+      expect(response.user!.name).to.equal(mockUserRoleUser.name);
+      expect(response.user!.email).to.equal(mockUserRoleUser.email);
+      expect(response.user!.age).to.equal(mockUserRoleUser.age);
     });
 
     it("should return an error if the user id is invalid", async () => {
