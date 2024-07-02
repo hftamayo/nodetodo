@@ -30,7 +30,7 @@ describe("UserService Unit Tests", () => {
       const mockResponse = {
         httpStatusCode: 200,
         message: "User created successfully",
-        user: mockUser as any,//please improve this
+        user: mockUser as any, //please improve this
       };
 
       jest.spyOn(userService, "signUpUser").mockResolvedValue(mockResponse);
@@ -103,25 +103,6 @@ describe("UserService Unit Tests", () => {
     it("should not login if user does not exist", async () => {
       const requestBody = {
         email: mockUserInvalid.email,
-        password: mockUserUser.password,
-      };
-
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "User or Password does not match",
-      };
-
-      sinon.stub(userService, "loginUser").resolves(mockResponse);
-
-      const response = await userService.loginUser(requestBody);
-
-      expect(response.httpStatusCode).to.equal(404);
-      expect(response.message).to.equal("User or Password does not match");
-    });
-
-    it("should return an error if the password is incorrect", async () => {
-      const requestBody = {
-        email: mockUserUser.email,
         password: mockUserInvalid.password,
       };
 
@@ -130,11 +111,30 @@ describe("UserService Unit Tests", () => {
         message: "User or Password does not match",
       };
 
-      sinon.stub(userService, "loginUser").resolves(mockResponse);
+      jest.spyOn(userService, "loginUser").mockResolvedValue(mockResponse);
 
       const response = await userService.loginUser(requestBody);
 
-      expect(response.httpStatusCode).to.equal(404);
+      expect(response.httpStatusCode).toBe(404);
+      expect(response.message).to.equal("User or Password does not match");
+    });
+
+    it("should return an error if the password is incorrect", async () => {
+      const requestBody = {
+        email: mockUserInvalid.email,
+        password: mockUserInvalid.password,
+      };
+
+      const mockResponse = {
+        httpStatusCode: 404,
+        message: "User or Password does not match",
+      };
+
+      jest.spyOn(userService, "loginUser").mockResolvedValue(mockResponse);
+
+      const response = await userService.loginUser(requestBody);
+
+      expect(response.httpStatusCode).toBe(404);
       expect(response.message).to.equal("User or Password does not match");
     });
   });
