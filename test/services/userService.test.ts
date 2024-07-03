@@ -6,7 +6,11 @@ import {
   mockUserDelete,
 } from "../mocks/user.mock";
 import userService from "../../src/services/userService";
-import { UserRequest, UserIdRequest, UpdateUserRequest } from "../../src/types/user.interface";
+import {
+  UserRequest,
+  UserIdRequest,
+  UpdateUserRequest,
+} from "../../src/types/user.interface";
 import { mock } from "node:test";
 
 describe("UserService Unit Tests", () => {
@@ -192,10 +196,10 @@ describe("UserService Unit Tests", () => {
       const requestBody: UpdateUserRequest = {
         userId: mockUserUpdate.id,
         user: {
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.email,
-        age: mockUserUpdate.age,
-        }
+          name: mockUserUpdate.name,
+          email: mockUserUpdate.email,
+          age: mockUserUpdate.age,
+        },
       };
 
       const mockUser: Partial<UserRequest> = {
@@ -210,7 +214,9 @@ describe("UserService Unit Tests", () => {
         user: mockUser as any,
       };
 
-      jest.spyOn(userService, "updateUserDetailsByID").mockResolvedValue(mockResponse);
+      jest
+        .spyOn(userService, "updateUserDetailsByID")
+        .mockResolvedValue(mockResponse);
 
       const response = await userService.updateUserDetailsByID(requestBody);
 
@@ -226,10 +232,10 @@ describe("UserService Unit Tests", () => {
       const requestBody: UpdateUserRequest = {
         userId: mockUserUpdate.id,
         user: {
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.email,
-        age: mockUserUpdate.age,
-        }
+          name: mockUserUpdate.name,
+          email: mockUserUpdate.email,
+          age: mockUserUpdate.age,
+        },
       };
 
       const mockResponse = {
@@ -237,7 +243,9 @@ describe("UserService Unit Tests", () => {
         message: "Email already taken",
       };
 
-      jest.spyOn(userService, "updateUserDetailsByID").mockResolvedValue(mockResponse);
+      jest
+        .spyOn(userService, "updateUserDetailsByID")
+        .mockResolvedValue(mockResponse);
 
       const response = await userService.updateUserDetailsByID(requestBody);
 
@@ -247,12 +255,11 @@ describe("UserService Unit Tests", () => {
 
     it("should not update if current passwod did not match", async () => {
       const requestBody = {
-        id: mockUserUpdate.id,
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.email,
-        oldPassword: mockUserUpdate.notMatchPassword,
-        newPassword: mockUserUpdate.newPassword,
-        age: mockUserUpdate.age,
+        userId: mockUserUpdate.id,
+        user: {
+          password: mockUserUpdate.notMatchPassword,
+          newPassword: mockUserUpdate.newPassword,
+        },
       };
 
       const mockResponse = {
@@ -260,40 +267,46 @@ describe("UserService Unit Tests", () => {
         message: "Password does not match",
       };
 
-      sinon.stub(userService, "updateUserByID").resolves(mockResponse);
+      jest
+        .spyOn(userService, "updateUserPasswordByID")
+        .mockResolvedValue(mockResponse);
 
-      const response = await userService.updateUserByID(requestBody);
+      const response = await userService.updateUserPasswordByID(requestBody);
 
-      expect(response.httpStatusCode).to.equal(400);
+      expect(response.httpStatusCode).toBe(400);
       expect(response.message).to.equal("Password does not match");
     });
 
     it("should update the password of a valid user", async () => {
       const requestBody = {
-        id: mockUserUpdate.id,
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.email,
-        oldPassword: mockUserUpdate.oldPassword,
+        userId: mockUserUpdate.id,
+        user: {
+          password: mockUserUpdate.oldPassword,
+          newPassword: mockUserUpdate.newPassword,
+        },
+      };
+
+      const mockUser: Partial<UserRequest> = {
+        password: mockUserUpdate.oldPassword,
         newPassword: mockUserUpdate.newPassword,
-        age: mockUserUpdate.age,
       };
 
       const mockResponse = {
         httpStatusCode: 200,
         message: "Password updated successfully",
-        user: mockUserUpdate,
+        user: mockUser as any,
       };
 
-      sinon.stub(userService, "updateUserPassword").resolves(mockResponse);
+      sinon.stub(userService, "updateUserPasswordByID").resolves(mockResponse);
 
-      const response = await userService.updateUserPassword(requestBody);
+      const response = await userService.updateUserPasswordByID(requestBody);
 
-      expect(response.httpStatusCode).to.equal(200);
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.user).toBeDefined();
       expect(response.message).to.equal("Password updated successfully");
-      expect(response.user).to.exist;
-      expect(response.user.name).to.equal(mockUserUpdate.name);
-      expect(response.user.email).to.equal(mockUserUpdate.email);
-      expect(response.user.age).to.equal(mockUserUpdate.age);
+      expect(response.user!.name).to.equal(mockUserUpdate.name);
+      expect(response.user!.email).to.equal(mockUserUpdate.email);
+      expect(response.user!.age).to.equal(mockUserUpdate.age);
     });
   });
 
