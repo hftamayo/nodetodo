@@ -11,7 +11,6 @@ import {
   UserIdRequest,
   UpdateUserRequest,
 } from "../../src/types/user.interface";
-import { mock } from "node:test";
 
 describe("UserService Unit Tests", () => {
   afterEach(function () {
@@ -67,8 +66,8 @@ describe("UserService Unit Tests", () => {
 
       const response = await userService.signUpUser(requestBody);
 
-      expect(response.httpStatusCode).to.equal(400);
-      expect(response.message).to.equal("Email already exists");
+      expect(response.httpStatusCode).toBe(400);
+      expect(response.message).toBe("Email already exists");
     });
   });
 
@@ -99,10 +98,10 @@ describe("UserService Unit Tests", () => {
       expect(response.httpStatusCode).toBe(200);
       expect(response.tokenCreated).toBeDefined();
       expect(response.user).toBeDefined();
-      expect(response.message).to.equal("User login successfully");
-      expect(response.user!.name).to.equal(mockUserRoleUser.name);
-      expect(response.user!.email).to.equal(mockUserRoleUser.email);
-      expect(response.user!.age).to.equal(mockUserRoleUser.age);
+      expect(response.message).toBe("User login successfully");
+      expect(response.user!.name).toBe(mockUserRoleUser.name);
+      expect(response.user!.email).toBe(mockUserRoleUser.email);
+      expect(response.user!.age).toBe(mockUserRoleUser.age);
     });
 
     it("should not login if user does not exist", async () => {
@@ -121,7 +120,7 @@ describe("UserService Unit Tests", () => {
       const response = await userService.loginUser(requestBody);
 
       expect(response.httpStatusCode).toBe(404);
-      expect(response.message).to.equal("User or Password does not match");
+      expect(response.message).toBe("User or Password does not match");
     });
 
     it("should return an error if the password is incorrect", async () => {
@@ -140,7 +139,7 @@ describe("UserService Unit Tests", () => {
       const response = await userService.loginUser(requestBody);
 
       expect(response.httpStatusCode).toBe(404);
-      expect(response.message).to.equal("User or Password does not match");
+      expect(response.message).toBe("User or Password does not match");
     });
   });
 
@@ -164,10 +163,10 @@ describe("UserService Unit Tests", () => {
 
       expect(response.httpStatusCode).toBe(200);
       expect(response.user).toBeDefined();
-      expect(response.message).to.equal("User Found");
-      expect(response.user!.name).to.equal(mockUserRoleUser.name);
-      expect(response.user!.email).to.equal(mockUserRoleUser.email);
-      expect(response.user!.age).to.equal(mockUserRoleUser.age);
+      expect(response.message).toBe("User Found");
+      expect(response.user!.name).toBe(mockUserRoleUser.name);
+      expect(response.user!.email).toBe(mockUserRoleUser.email);
+      expect(response.user!.age).toBe(mockUserRoleUser.age);
     });
 
     it("should return an error if the user id is invalid", async () => {
@@ -182,12 +181,12 @@ describe("UserService Unit Tests", () => {
         message: "User Not Found",
       };
 
-      sinon.stub(userService, "listUserByID").resolves(mockResponse);
+      jest.spyOn(userService, "listUserByID").mockResolvedValue(mockResponse);
 
       const response = await userService.listUserByID(userIdRequest);
 
       expect(response.httpStatusCode).toBe(404);
-      expect(response.message).to.equal("User Not Found");
+      expect(response.message).toBe("User Not Found");
     });
   });
 
@@ -222,10 +221,10 @@ describe("UserService Unit Tests", () => {
 
       expect(response.httpStatusCode).toBe(200);
       expect(response.user).toBeDefined();
-      expect(response.message).to.equal("User updated successfully");
-      expect(response.user!.name).to.equal(mockUserUpdate.name);
-      expect(response.user!.email).to.equal(mockUserUpdate.email);
-      expect(response.user!.age).to.equal(mockUserUpdate.age);
+      expect(response.message).toBe("User updated successfully");
+      expect(response.user!.name).toBe(mockUserUpdate.name);
+      expect(response.user!.email).toBe(mockUserUpdate.email);
+      expect(response.user!.age).toBe(mockUserUpdate.age);
     });
 
     it("should not update if the user has already taken", async () => {
@@ -250,7 +249,7 @@ describe("UserService Unit Tests", () => {
       const response = await userService.updateUserDetailsByID(requestBody);
 
       expect(response.httpStatusCode).toBe(400);
-      expect(response.message).to.equal("Email already taken");
+      expect(response.message).toBe("Email already taken");
     });
 
     it("should not update if current passwod did not match", async () => {
@@ -274,7 +273,7 @@ describe("UserService Unit Tests", () => {
       const response = await userService.updateUserPasswordByID(requestBody);
 
       expect(response.httpStatusCode).toBe(400);
-      expect(response.message).to.equal("Password does not match");
+      expect(response.message).toBe("Password does not match");
     });
 
     it("should update the password of a valid user", async () => {
@@ -297,16 +296,16 @@ describe("UserService Unit Tests", () => {
         user: mockUser as any,
       };
 
-      sinon.stub(userService, "updateUserPasswordByID").resolves(mockResponse);
+      jest.spyOn(userService, "updateUserPasswordByID").mockResolvedValue(mockResponse);
 
       const response = await userService.updateUserPasswordByID(requestBody);
 
       expect(response.httpStatusCode).toBe(200);
       expect(response.user).toBeDefined();
-      expect(response.message).to.equal("Password updated successfully");
-      expect(response.user!.name).to.equal(mockUserUpdate.name);
-      expect(response.user!.email).to.equal(mockUserUpdate.email);
-      expect(response.user!.age).to.equal(mockUserUpdate.age);
+      expect(response.message).toBe("Password updated successfully");
+      expect(response.user!.name).toBe(mockUserUpdate.name);
+      expect(response.user!.email).toBe(mockUserUpdate.email);
+      expect(response.user!.age).toBe(mockUserUpdate.age);
     });
   });
 
@@ -328,7 +327,7 @@ describe("UserService Unit Tests", () => {
       const response = await userService.deleteUserByID(userIdRequest);
 
       expect(response.httpStatusCode).toBe(200);
-      expect(response.message).to.equal("User deleted successfully");
+      expect(response.message).toBe("User deleted successfully");
     });
 
     it("should return an error if the user id is invalid", async () => {
@@ -348,7 +347,7 @@ describe("UserService Unit Tests", () => {
       const response = await userService.deleteUserByID(userIdRequest);
 
       expect(response.httpStatusCode).toBe(404);
-      expect(response.message).to.equal("User Not Found");
+      expect(response.message).toBe("User Not Found");
     });
   });
 });
