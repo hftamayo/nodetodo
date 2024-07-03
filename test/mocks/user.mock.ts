@@ -1,5 +1,4 @@
 import { mongo } from "mongoose";
-import User from "../../src/models/User";
 
 const getRandomInt = (max: number) => {
   return Math.floor(Math.random() * Math.floor(max));
