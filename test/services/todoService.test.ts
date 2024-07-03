@@ -1,11 +1,16 @@
-const expect = require("chai").expect;
-const sinon = require("sinon");
-const { newTodo, todoSupervisor, updateTodo } = require("../mocks/todo.mock");
-const todoService = require("../../src/services/todoService");
+import {
+  newStandardTodo,
+  newTodoSupervisor,
+  todoForUpdate,
+  deleteTodo,
+} from "../mocks/todo.mock";
+import todoService from "../../src/services/todoService";
+import { NewTodoRequest, TodoResult } from "../../src/types/todo.interface";
+
 
 describe("TodoService Unit Tests", () => {
   afterEach(function () {
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   describe("listActiveTodos()", () => {
@@ -13,18 +18,18 @@ describe("TodoService Unit Tests", () => {
       const mockResponse = {
         httpStatusCode: 200,
         message: "Tasks found",
-        todos: [todoSupervisor],
+        todos: [newTodoSupervisor],
       };
 
-      sinon.stub(todoService, "listActiveTodos").resolves(mockResponse);
+      jest.spyOn(todoService, "listActiveTodos").mockResolvedValue(mockResponse);
 
       const response = await todoService.listActiveTodos();
 
-      expect(response.httpStatusCode).to.equal(200);
-      expect(response.message).to.equal("Tasks found");
-      expect(response.todos).to.exist;
-      expect(response.todos).to.be.an("array");
-      expect(response.todos).to.have.lengthOf(1);
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.todos).toBeDefined();
+      expect(response.message).toEqual("Tasks found");
+      expect(response.todos).toBe("array");
+      expect(response.todos).toHaveLength(1);
     });
 
     it("should return if no todos are found", async () => {
