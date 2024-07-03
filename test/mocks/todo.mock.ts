@@ -20,12 +20,12 @@ export const newTodoSupervisor = {
   user: "5f7f8b1e9f3f9c1d6c1e4d1f",
 };
 
-const todoForUpdate = {
+export const todoForUpdate = {
   title: "Update Todo",
   description: "Update Todo Description",
   completed: true,
 };
 
-const deleteTodo = {
+export const deleteTodo = {
   id: "222222222",
 }
