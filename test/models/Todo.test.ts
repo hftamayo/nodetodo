@@ -1,5 +1,5 @@
 import Todo from "../../src/models/Todo";
-import { newStandardTodo, todoSupervisor } from "../mocks/todo.mock";
+import { newStandardTodo } from "../mocks/todo.mock";
 
 describe("Todo Model", () => {
   beforeEach(() => {
