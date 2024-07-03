@@ -12,10 +12,20 @@ export const newStandardTodo = {
   user: new mongoose.Types.ObjectId(),
 };
 
-export const todoSupervisor = {
+export const newTodoSupervisor = {
   id: new mongoose.Types.ObjectId(),
   title: "Gym",
   description: "To exercise",
   completed: false,
   user: "5f7f8b1e9f3f9c1d6c1e4d1f",
 };
+
+const todoForUpdate = {
+  title: "Update Todo",
+  description: "Update Todo Description",
+  completed: true,
+};
+
+const deleteTodo = {
+  id: "222222222",
+}
