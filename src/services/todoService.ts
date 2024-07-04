@@ -1,3 +1,4 @@
+import { title } from "process";
 import Todo from "../models/Todo";
 import {
   OwnerTodoIdRequest,
@@ -14,13 +15,22 @@ const listActiveTodos = async function (requestUserId: UserIdRequest) {
       completed: false,
     }).exec();
 
-    if (!activeTodos) {
+    if (!activeTodos || activeTodos.length === 0) {
       return {
         httpStatusCode: 404,
         message: "No active tasks found for active user",
       };
     }
-    return { httpStatusCode: 200, message: "Tasks found", todos: activeTodos };
+
+    const todoMapped = activeTodos.map((todo) => ({
+      id: todo._id.toString(),
+      title: todo.title,
+      description: todo.description,
+      completed: todo.completed,
+      user: todo.user.toString(),
+    }));
+
+    return { httpStatusCode: 200, message: "Tasks found", todos: todoMapped };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, listActiveTodos: " + error.message);
