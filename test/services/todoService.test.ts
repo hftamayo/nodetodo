@@ -4,9 +4,15 @@ import {
   todoForUpdate,
   deleteTodo,
 } from "../mocks/todo.mock";
+import { mockUserRoleUser } from "../mocks/user.mock";
+import {
+  NewTodoRequest,
+  UpdateTodoRequest,
+  OwnerTodoIdRequest,
+  TodoResult,
+} from "../../src/types/todo.interface";
+import { UserIdRequest } from "../../src/types/user.interface";
 import todoService from "../../src/services/todoService";
-import { NewTodoRequest, TodoResult } from "../../src/types/todo.interface";
-
 
 describe("TodoService Unit Tests", () => {
   afterEach(function () {
@@ -15,15 +21,23 @@ describe("TodoService Unit Tests", () => {
 
   describe("listActiveTodos()", () => {
     it("should return a list of todos", async () => {
+      const userId = mockUserRoleUser._id.toString();
+
+      const userIdRequest: UserIdRequest = {
+        userId: userId,
+      };
+
       const mockResponse = {
         httpStatusCode: 200,
         message: "Tasks found",
-        todos: [newTodoSupervisor],
+        todos: [newStandardTodo],
       };
 
-      jest.spyOn(todoService, "listActiveTodos").mockResolvedValue(mockResponse);
+      jest
+        .spyOn(todoService, "listActiveTodos")
+        .mockResolvedValue(mockResponse);
 
-      const response = await todoService.listActiveTodos();
+      const response = await todoService.listActiveTodos(userIdRequest);
 
       expect(response.httpStatusCode).toBe(200);
       expect(response.todos).toBeDefined();
