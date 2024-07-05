@@ -4,7 +4,7 @@ import {
   todoForUpdate,
   deleteTodo,
 } from "../mocks/todo.mock";
-import { mockUserRoleUser } from "../mocks/user.mock";
+import { mockUserInvalid, mockUserRoleUser } from "../mocks/user.mock";
 import {
   NewTodoRequest,
   UpdateTodoRequest,
@@ -47,7 +47,7 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if no todos are found", async () => {
-      const userId = mockUserRoleUser._id.toString();
+      const userId = mockUserInvalid.id;
 
       const userIdRequest: UserIdRequest = {
         userId: userId,
