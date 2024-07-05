@@ -71,31 +71,34 @@ describe("TodoService Unit Tests", () => {
 
   describe("listTodoByID()", () => {
     it("should return a todo with valid data", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
+      const mockRequest: OwnerTodoIdRequest = {
+        user: { userId: newTodoSupervisor.user},
+        params: {
+          todoId: newTodoSupervisor.id,
+        },
+      };
 
       const mockResponse = {
         httpStatusCode: 200,
         message: "Todo found",
-        todo: todoSupervisor,
+        todo: newTodoSupervisor,
       };
 
-      sinon.stub(todoService, "listTodoByID").resolves(mockResponse);
+      jest.spyOn(todoService, "listTodoByID").mockResolvedValue(mockResponse);
 
       const response = await todoService.listTodoByID(
-        requestUserId,
-        requestTodoId
+        mockRequest
       );
 
-      expect(response.httpStatusCode).to.equal(200);
-      expect(response.message).to.equal("Todo found");
-      expect(response.todo).to.exist;
-      expect(response.todo.title).to.equal(todoSupervisor.title);
-      expect(response.todo.description).to.equal(todoSupervisor.description);
-      expect(response.todo.user.toString()).to.equal(
-        todoSupervisor.user.toString()
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.todo).toBeDefined();
+      expect(response.message).toBe("Todo found");
+      expect(response.todo!.title).toBe(newTodoSupervisor.title);
+      expect(response.todo!.description).toBe(newTodoSupervisor.description);
+      expect(response.todo!.user.toString()).toBe(
+        newTodoSupervisor.user.toString()
       );
-      expect(response.todo.completed).to.equal(todoSupervisor.completed);
+      expect(response.todo!.completed).toBe(newTodoSupervisor.completed);
     });
 
     it("should return if the todo does not exist", async () => {
