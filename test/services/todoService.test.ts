@@ -47,19 +47,25 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if no todos are found", async () => {
+      const userId = mockUserRoleUser._id.toString();
+
+      const userIdRequest: UserIdRequest = {
+        userId: userId,
+      };
+
       const mockResponse = {
         httpStatusCode: 404,
         message: "No active tasks found for active user",
       };
 
-      sinon.stub(todoService, "listActiveTodos").resolves(mockResponse);
+      jest
+        .spyOn(todoService, "listActiveTodos")
+        .mockResolvedValue(mockResponse);
 
-      const response = await todoService.listActiveTodos();
+      const response = await todoService.listActiveTodos(userIdRequest);
 
-      expect(response.httpStatusCode).to.equal(404);
-      expect(response.message).to.equal(
-        "No active tasks found for active user"
-      );
+      expect(response.httpStatusCode).toBe(404);
+      expect(response.message).toBe("No active tasks found for active user");
     });
   });
 
