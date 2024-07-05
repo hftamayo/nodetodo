@@ -5,13 +5,12 @@ const getRandomInt = (max: number) => {
 };
 
 export const newStandardTodo = {
-  _id: new mongoose.Types.ObjectId().toString(), 
+  id: new mongoose.Types.ObjectId().toString(), 
   title: `New Todo${getRandomInt(1000000)}`,
   description: "New Todo Description",
   completed: false,
   user: new mongoose.Types.ObjectId().toString(), 
-  createdAt: new Date(),
-  updatedAt: new Date(),
+
 };
 
 
