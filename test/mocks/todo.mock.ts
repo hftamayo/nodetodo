@@ -1,3 +1,4 @@
+import { create } from "domain";
 import mongoose from "mongoose";
 
 const getRandomInt = (max: number) => {
@@ -13,13 +14,14 @@ export const newStandardTodo = {
 
 };
 
-
 export const newTodoSupervisor = {
-  id: new mongoose.Types.ObjectId(),
+  _id: new mongoose.Types.ObjectId,
   title: "Gym",
   description: "To exercise",
   completed: false,
   user: "5f7f8b1e9f3f9c1d6c1e4d1f",
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 export const todoForUpdate = {
