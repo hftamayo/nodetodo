@@ -71,12 +71,12 @@ describe("TodoService Unit Tests", () => {
 
   describe("listTodoByID()", () => {
     it("should return a todo with valid data", async () => {
-      const mockRequest: OwnerTodoIdRequest = {
-        user: { userId: newTodoSupervisor.user},
+      const mockRequest = {
+        user: { userId: newTodoSupervisor.user.toString()},
         params: {
-          todoId: newTodoSupervisor.id,
+          todoId: newTodoSupervisor.id.toString(),
         },
-      };
+      } as OwnerTodoIdRequest;
 
       const mockResponse = {
         httpStatusCode: 200,
