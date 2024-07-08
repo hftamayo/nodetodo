@@ -14,6 +14,17 @@ import {
 import { UserIdRequest } from "../../src/types/user.interface";
 import todoService from "../../src/services/todoService";
 
+jest.mock('../path/to/todoService', () => ({
+  listTodoByID: jest.fn().mockResolvedValue({
+    httpStatusCode: 200,
+    message: "Todo found",
+    todo: {
+      ...newTodoSupervisor,
+      _id: newTodoSupervisor._id.toString(),
+    },
+  })
+}));
+
 describe("TodoService Unit Tests", () => {
   afterEach(function () {
     jest.restoreAllMocks();
@@ -74,31 +85,23 @@ describe("TodoService Unit Tests", () => {
       const mockRequest = {
         user: { userId: newTodoSupervisor.user.toString()},
         params: {
-          todoId: newTodoSupervisor.id.toString(),
+          todoId: newTodoSupervisor._id.toString(),
         },
       } as OwnerTodoIdRequest;
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "Todo found",
-        todo: newTodoSupervisor,
-      };
-
-      jest.spyOn(todoService, "listTodoByID").mockResolvedValue(mockResponse);
-
-      const response = await todoService.listTodoByID(
-        mockRequest
-      );
-
+  
+      // Since todoService is mocked, this call will use the mock implementation
+      const response = await todoService.listTodoByID(mockRequest);
+  
       expect(response.httpStatusCode).toBe(200);
       expect(response.todo).toBeDefined();
       expect(response.message).toBe("Todo found");
       expect(response.todo!.title).toBe(newTodoSupervisor.title);
       expect(response.todo!.description).toBe(newTodoSupervisor.description);
-      expect(response.todo!.user.toString()).toBe(
-        newTodoSupervisor.user.toString()
-      );
+      expect(response.todo!.user.toString()).toBe(newTodoSupervisor.user.toString());
       expect(response.todo!.completed).toBe(newTodoSupervisor.completed);
+    });
+
+      
     });
 
     it("should return if the todo does not exist", async () => {
