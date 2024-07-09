@@ -53,7 +53,7 @@ describe("TodoService Unit Tests", () => {
       expect(response.httpStatusCode).toBe(200);
       expect(response.todos).toBeDefined();
       expect(response.message).toEqual("Tasks found");
-      expect(response.todos).toBe("array");
+      expect(Array.isArray(response.todos)).toBe(true);
       expect(response.todos).toHaveLength(1);
     });
 
