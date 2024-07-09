@@ -14,7 +14,7 @@ import {
 import { UserIdRequest } from "../../src/types/user.interface";
 import todoService from "../../src/services/todoService";
 
-jest.mock('../path/to/todoService', () => ({
+jest.mock('../../src/services/todoService', () => ({
   listTodoByID: jest.fn().mockResolvedValue({
     httpStatusCode: 200,
     message: "Todo found",
