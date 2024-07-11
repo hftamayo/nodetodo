@@ -22,7 +22,22 @@ jest.mock('../../src/services/todoService', () => ({
       ...newTodoSupervisor,
       _id: newTodoSupervisor._id.toString(),
     },
-  })
+  }),
+  listActiveTodos: jest.fn((userIdRequest) =>{
+    if(userIdRequest.userId === mockUserInvalid.id){
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "No active tasks found for active user",
+        todos: [],
+      });
+    } else {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Tasks found",
+        todos: [newStandardTodo],
+      });
+    }
+}),
 }));
 
 describe("TodoService Unit Tests", () => {
