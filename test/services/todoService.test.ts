@@ -53,16 +53,6 @@ describe("TodoService Unit Tests", () => {
         userId: userId,
       };
 
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "Tasks found",
-        todos: [newStandardTodo],
-      };
-
-      jest
-        .spyOn(todoService, "listActiveTodos")
-        .mockResolvedValue(mockResponse);
-
       const response = await todoService.listActiveTodos(userIdRequest);
 
       expect(response.httpStatusCode).toBe(200);
