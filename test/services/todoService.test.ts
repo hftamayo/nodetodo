@@ -69,15 +69,6 @@ describe("TodoService Unit Tests", () => {
         userId: userId,
       };
 
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "No active tasks found for active user",
-      };
-
-      jest
-        .spyOn(todoService, "listActiveTodos")
-        .mockResolvedValue(mockResponse);
-
       const response = await todoService.listActiveTodos(userIdRequest);
 
       expect(response.httpStatusCode).toBe(404);
