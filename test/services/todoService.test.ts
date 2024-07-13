@@ -15,14 +15,24 @@ import { UserIdRequest } from "../../src/types/user.interface";
 import todoService from "../../src/services/todoService";
 
 jest.mock('../../src/services/todoService', () => ({
-  listTodoByID: jest.fn().mockResolvedValue({
-    httpStatusCode: 200,
-    message: "Todo found",
-    todo: {
-      ...newTodoSupervisor,
-      _id: newTodoSupervisor._id.toString(),
-    },
+  listTodoByID: jest.fn((mockRequest) => {
+    if (mockRequest.user.userId === newTodoSupervisor._id.toString()) {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo found",
+        todo: {
+          ...newTodoSupervisor,
+          _id: newTodoSupervisor._id.toString(),
+        },
+      });
+    } else {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "Task Not Found",
+      });
+    }
   }),
+
   listActiveTodos: jest.fn((userIdRequest) =>{
     if(userIdRequest.userId === mockUserInvalid.id){
       return Promise.resolve({
@@ -100,24 +110,18 @@ describe("TodoService Unit Tests", () => {
       
     });
 
-    it("should return if the todo does not exist", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
+    it("should not return a todo does not exist", async () => {
+      const mockRequest = {
+        user: { userId: mockUserInvalid.id},
+        params: {
+          todoId: newTodoSupervisor._id.toString(),
+        },
+      } as OwnerTodoIdRequest;
 
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "Task Not Found",
-      };
+      const response = await todoService.listTodoByID(mockRequest);
 
-      sinon.stub(todoService, "listTodoByID").resolves(mockResponse);
-
-      const response = await todoService.listTodoByID(
-        requestUserId,
-        requestTodoId
-      );
-
-      expect(response.httpStatusCode).to.equal(404);
-      expect(response.message).to.equal("Task Not Found");
+      expect(response.httpStatusCode).toBe(404);
+      expect(response.message).toBe("Task Not Found");
     });
 
     it("should return if the user is not the owner of the todo", async () => {
