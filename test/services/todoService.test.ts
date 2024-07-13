@@ -3,6 +3,7 @@ import {
   newTodoSupervisor,
   todoForUpdate,
   deleteTodo,
+  invalidStandardTodo,
 } from "../mocks/todo.mock";
 import { mockUserInvalid, mockUserRoleUser } from "../mocks/user.mock";
 import {
@@ -28,7 +29,13 @@ jest.mock('../../src/services/todoService', () => ({
     } else {
       return Promise.resolve({
         httpStatusCode: 404,
-        message: "Task Not Found",
+        message: "Invalid credentials",
+      });
+    }
+    if(mockRequest.params.todoId === invalidStandardTodo.id){
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "Todo Not Found",
       });
     }
   }),
@@ -112,6 +119,20 @@ describe("TodoService Unit Tests", () => {
 
     it("should not return a todo does not exist", async () => {
       const mockRequest = {
+        user: { userId: newTodoSupervisor.user.toString()},
+        params: {
+          todoId: invalidStandardTodo.id,
+        },
+      } as OwnerTodoIdRequest;
+
+      const response = await todoService.listTodoByID(mockRequest);
+
+      expect(response.httpStatusCode).toBe(404);
+      expect(response.message).toBe("Todo Not Found");
+    });
+
+    it("should return if the user is not the owner of the todo", async () => {
+      const mockRequest = {
         user: { userId: mockUserInvalid.id},
         params: {
           todoId: newTodoSupervisor._id.toString(),
@@ -121,29 +142,9 @@ describe("TodoService Unit Tests", () => {
       const response = await todoService.listTodoByID(mockRequest);
 
       expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("Task Not Found");
-    });
+      expect(response.message).toBe("Invalid credentials");
 
-    it("should return if the user is not the owner of the todo", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
 
-      const mockResponse = {
-        httpStatusCode: 400,
-        message: "There's a problem with your credentials",
-      };
-
-      sinon.stub(todoService, "listTodoByID").resolves(mockResponse);
-
-      const response = await todoService.listTodoByID(
-        requestUserId,
-        requestTodoId
-      );
-
-      expect(response.httpStatusCode).to.equal(400);
-      expect(response.message).to.equal(
-        "There's a problem with your credentials"
-      );
     });
   });
 
