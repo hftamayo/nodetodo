@@ -194,19 +194,25 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if the title already exists", async () => {
-      const requestBody = newStandardTodo;
-
-      const mockResponse = {
-        httpStatusCode: 400,
-        message: "Title already taken",
+      const owner = {
+        userId: newStandardTodo.user,
+      };
+      const todoDetails = {
+        title: "this tile already exists",
+        description: newStandardTodo.description,
+        completed: newStandardTodo.completed,
+        user: newStandardTodo.user,
       };
 
-      sinon.stub(todoService, "createTodo").resolves(mockResponse);
+      const requestBody: NewTodoRequest = {
+        owner,
+        todo: todoDetails,
+      };
 
       const response = await todoService.createTodo(requestBody);
 
-      expect(response.httpStatusCode).to.equal(400);
-      expect(response.message).to.equal("Title already taken");
+      expect(response.httpStatusCode).toBe(400);
+      expect(response.message).toBe("Title already taken");
     });
   });
 
