@@ -13,6 +13,10 @@ export const newStandardTodo = {
 
 };
 
+export const invalidStandardTodo = {
+  id: "ABC123456", 
+};
+
 export const newTodoSupervisor = {
   _id: new mongoose.Types.ObjectId,
   title: "Gym",
