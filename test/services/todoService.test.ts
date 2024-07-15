@@ -16,30 +16,6 @@ import { UserIdRequest } from "../../src/types/user.interface";
 import todoService from "../../src/services/todoService";
 
 jest.mock('../../src/services/todoService', () => ({
-  listTodoByID: jest.fn((mockRequest) => {
-    if (mockRequest.user.userId === newTodoSupervisor._id.toString()) {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Todo found",
-        todo: {
-          ...newTodoSupervisor,
-          _id: newTodoSupervisor._id.toString(),
-        },
-      });
-    } else {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "Invalid credentials",
-      });
-    }
-    if(mockRequest.params.todoId === invalidStandardTodo.id){
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "Todo Not Found",
-      });
-    }
-  }),
-
   listActiveTodos: jest.fn((userIdRequest) =>{
     if(userIdRequest.userId === mockUserInvalid.id){
       return Promise.resolve({
@@ -55,6 +31,45 @@ jest.mock('../../src/services/todoService', () => ({
       });
     }
 }),
+
+  listTodoByID: jest.fn((mockRequest) => {
+    if (mockRequest.user.userId === newTodoSupervisor._id.toString()) {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo found",
+        todo: {
+          ...newTodoSupervisor,
+          _id: newTodoSupervisor._id.toString(),
+        },
+      });
+    } else if (mockRequest.params.todoId === invalidStandardTodo.id) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "Todo Not Found",
+      });
+    } else {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "Invalid credentials",
+      });
+    }
+  }),
+
+  createTodo: jest.fn((requestBody: NewTodoRequest) => {
+    if (requestBody.todo.title === newStandardTodo.title) {
+      return Promise.resolve({
+        httpStatusCode: 400,
+        message: "Title already taken",
+      });
+    } else {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo created successfully",
+      }); 
+    }
+  }),
+
+
 }));
 
 describe("TodoService Unit Tests", () => {
@@ -150,31 +165,36 @@ describe("TodoService Unit Tests", () => {
 
   describe("createTodo()", () => {
     it("should create a new todo with valid data", async () => {
-      const requestBody = newTodo();
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "Todo created successfully",
-        todo: requestBody,
+      const owner = {
+        userId: newStandardTodo.user,
+      };
+      const todoDetails = {
+        title: newStandardTodo.title,
+        description: newStandardTodo.description,
+        completed: newStandardTodo.completed,
+        user: newStandardTodo.user,
       };
 
-      sinon.stub(todoService, "createTodo").resolves(mockResponse);
+      const requestBody: NewTodoRequest = {
+        owner,
+        todo: todoDetails,
+      };
 
       const response = await todoService.createTodo(requestBody);
 
-      expect(response.httpStatusCode).to.equal(200);
-      expect(response.message).to.equal("Todo created successfully");
-      expect(response.todo).to.exist;
-      expect(response.todo.title).to.equal(requestBody.title);
-      expect(response.todo.description).to.equal(requestBody.description);
-      expect(response.todo.user.toString()).to.equal(
-        requestBody.user.toString()
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.todo).toBeDefined();
+      expect(response.message).toBe("Todo created successfully");
+      expect(response.todo!.title).toBe(todoDetails.title);
+      expect(response.todo!.description).toBe(todoDetails.description);
+      expect(response.todo!.user.toString()).toBe(
+        todoDetails.user
       );
-      expect(response.todo.completed).to.equal(requestBody.completed);
+      expect(response.todo!.completed).toBe(todoDetails.completed);
     });
 
     it("should return if the title already exists", async () => {
-      const requestBody = newTodo();
+      const requestBody = newStandardTodo;
 
       const mockResponse = {
         httpStatusCode: 400,
