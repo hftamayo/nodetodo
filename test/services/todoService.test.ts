@@ -68,6 +68,24 @@ jest.mock('../../src/services/todoService', () => ({
       }); 
     }
   }),
+  deleteTodoByID: jest.fn((requestUserId, requestTodoId) => {
+    if (requestUserId === todoSupervisor.user) {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo Deleted Successfully",
+      });
+    } else if (requestUserId === todoSupervisor.user) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "Todo Not Found",
+      });
+    } else {
+      return Promise.resolve({
+        httpStatusCode: 401,
+        message: "You're not the owner of this Todo",
+      });
+    }
+  }
 
 
 }));
