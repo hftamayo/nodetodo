@@ -304,19 +304,15 @@ describe("TodoService Unit Tests", () => {
 
   describe("deleteTodoByID()", () => {
     it("should delete a todo with valid data", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "Todo Deleted Successfully",
-      };
-
-      sinon.stub(todoService, "deleteTodoByID").resolves(mockResponse);
+      const mockRequest = {
+        user: { userId: todoSupervisor.user },
+        params: {
+          todoId: todoSupervisor._id,
+        },
+      } as OwnerTodoIdRequest;
 
       const response = await todoService.deleteTodoByID(
-        requestUserId,
-        requestTodoId
+        mockRequest
       );
 
       expect(response.httpStatusCode).to.equal(200);
