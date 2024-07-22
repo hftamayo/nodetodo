@@ -12,6 +12,22 @@ export const mockUserRoleUser = {
   age: 30,
 };
 
+export const mockUserRoleAdmin = {
+  _id: new mongo.ObjectId("123456789013"),
+  name: "Jane Doe",
+  email: "jane@example.com",
+  password: "securePassword123",
+  age: 30,
+};
+
+export const mockUserRoleSupervisor = {
+  _id: new mongo.ObjectId("123456789014"),
+  name: "Jaden Smith",
+  email: "jaden@example.com",
+  password: "securePassword123",
+  age: 30,
+};
+
 export const mockUserInvalid = {
   id: "123123123AAA",
   name: "Herbert Fernandez",
