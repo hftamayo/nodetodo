@@ -36,5 +36,5 @@ export const todoForUpdate = {
 };
 
 export const deleteTodo = {
-  id: "222222222",
+  _id: "222222222",
 }
