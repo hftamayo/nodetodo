@@ -69,17 +69,17 @@ jest.mock('../../src/services/todoService', () => ({
     }
   }),
   deleteTodoByID: jest.fn((requestUserId, requestTodoId) => {
-    if (requestUserId === todoSupervisor.user) {
+    if (requestTodoId === deleteTodo._id) {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Todo Deleted Successfully",
       });
-    } else if (requestUserId === todoSupervisor.user) {
+    } else if (requestTodoId === invalidStandardTodo._id) {
       return Promise.resolve({
         httpStatusCode: 404,
         message: "Todo Not Found",
       });
-    } else {
+    } else if(requestUserId === mockUserInvalid.id){
       return Promise.resolve({
         httpStatusCode: 401,
         message: "You're not the owner of this Todo",
@@ -307,7 +307,7 @@ describe("TodoService Unit Tests", () => {
       const mockRequest = {
         user: { userId: mockUserRoleSupervisor._id.toString()},
         params: {
-          todoId: todoForUpdate._id,
+          todoId: deleteTodo._id,
         },
       } as OwnerTodoIdRequest;
 
@@ -320,43 +320,41 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if the todo does not exist", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
+      const mockRequest = {
+        user: { userId: mockUserRoleSupervisor._id.toString()},
+        params: {
+          todoId: invalidStandardTodo._id,
+        },
+      } as OwnerTodoIdRequest;
 
       const mockResponse = {
         httpStatusCode: 404,
         message: "Todo Not Found",
       };
 
-      sinon.stub(todoService, "deleteTodoByID").resolves(mockResponse);
+      const response = await todoService.deleteTodoByID(mockRequest);
 
-      const response = await todoService.deleteTodoByID(
-        requestUserId,
-        requestTodoId
-      );
-
-      expect(response.httpStatusCode).to.equal(404);
-      expect(response.message).to.equal("Todo Not Found");
+      expect(response.httpStatusCode).toBe(404);
+      expect(response.message).toBe("Todo Not Found");
     });
 
     it("should return if the user is not the owner of the todo", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
+      const mockRequest = {
+        user: { userId: mockUserInvalid.id},
+        params: {
+          todoId: invalidStandardTodo._id,
+        },
+      } as OwnerTodoIdRequest;
 
       const mockResponse = {
         httpStatusCode: 401,
         message: "You're not the owner of this Todo",
       };
 
-      sinon.stub(todoService, "deleteTodoByID").resolves(mockResponse);
+      const response = await todoService.deleteTodoByID(mockRequest);
 
-      const response = await todoService.deleteTodoByID(
-        requestUserId,
-        requestTodoId
-      );
-
-      expect(response.httpStatusCode).to.equal(401);
-      expect(response.message).to.equal("You're not the owner of this Todo");
+      expect(response.httpStatusCode).toBe(401);
+      expect(response.message).toBe("You're not the owner of this Todo");
     });
   });
 });
