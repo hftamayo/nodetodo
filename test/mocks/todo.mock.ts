@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { mockUserRoleUser } from "./user.mock";
 
 const getRandomInt = (max: number) => {
   return Math.floor(Math.random() * Math.floor(max));
@@ -28,6 +29,7 @@ export const newTodoSupervisor = {
 };
 
 export const todoForUpdate = {
+  _id: "5f7f8b1e9f3f9c1d6c1e4d1f",
   title: "Update Todo",
   description: "Update Todo Description",
   completed: true,
