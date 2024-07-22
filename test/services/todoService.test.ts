@@ -5,7 +5,7 @@ import {
   deleteTodo,
   invalidStandardTodo,
 } from "../mocks/todo.mock";
-import { mockUserInvalid, mockUserRoleUser } from "../mocks/user.mock";
+import { mockUserInvalid, mockUserRoleUser, mockUserRoleSupervisor } from "../mocks/user.mock";
 import {
   NewTodoRequest,
   UpdateTodoRequest,
@@ -305,9 +305,9 @@ describe("TodoService Unit Tests", () => {
   describe("deleteTodoByID()", () => {
     it("should delete a todo with valid data", async () => {
       const mockRequest = {
-        user: { userId: todoSupervisor.user },
+        user: { userId: mockUserRoleSupervisor._id.toString()},
         params: {
-          todoId: todoSupervisor._id,
+          todoId: todoForUpdate._id,
         },
       } as OwnerTodoIdRequest;
 
@@ -315,8 +315,8 @@ describe("TodoService Unit Tests", () => {
         mockRequest
       );
 
-      expect(response.httpStatusCode).to.equal(200);
-      expect(response.message).to.equal("Todo Deleted Successfully");
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.message).toBe("Todo Deleted Successfully");
     });
 
     it("should return if the todo does not exist", async () => {
