@@ -236,25 +236,25 @@ describe("TodoService Unit Tests", () => {
 
   describe("updateTodoByID()", () => {
     it("should update a todo with valid data", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
-      const requestBody = updateTodo;
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "Todo updated successfully",
+      const owner = {
+        userId: newStandardTodo.user,
+      };
+      const todoUpdateDetails = {
+        id: todoForUpdate._id,
+        title: todoForUpdate.title,
+        description: todoForUpdate.description,
+        completed: todoForUpdate.completed,
       };
 
-      sinon.stub(todoService, "updateTodoByID").resolves(mockResponse);
+      const requestBody: UpdateTodoRequest = {
+        owner,
+        todo: todoUpdateDetails,
+      };
 
-      const response = await todoService.updateTodoByID(
-        requestUserId,
-        requestTodoId,
-        requestBody
-      );
+      const response = await todoService.updateTodoByID(requestBody);
 
-      expect(response.httpStatusCode).to.equal(200);
-      expect(response.message).to.equal("Todo updated successfully");
+      expect(response.httpStatusCode).toBe(200);
+      expect(response.message).toBe("Todo updated successfully");
     });
 
     it("should return if the todo does not exist", async () => {
@@ -357,4 +357,3 @@ describe("TodoService Unit Tests", () => {
       expect(response.message).toBe("You're not the owner of this Todo");
     });
   });
-});
