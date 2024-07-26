@@ -329,11 +329,6 @@ describe("TodoService Unit Tests", () => {
         },
       } as OwnerTodoIdRequest;
 
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "Todo Not Found",
-      };
-
       const response = await todoService.deleteTodoByID(mockRequest);
 
       expect(response.httpStatusCode).toBe(404);
@@ -347,11 +342,6 @@ describe("TodoService Unit Tests", () => {
           todoId: invalidStandardTodo._id,
         },
       } as OwnerTodoIdRequest;
-
-      const mockResponse = {
-        httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
-      };
 
       const response = await todoService.deleteTodoByID(mockRequest);
 
