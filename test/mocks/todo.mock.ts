@@ -16,6 +16,9 @@ export const newStandardTodo = {
 
 export const invalidStandardTodo = {
   _id: "ABC123456", 
+  title: "invalid title",
+  description: "invalid description",
+  completed: false,
 };
 
 export const newTodoSupervisor = {
