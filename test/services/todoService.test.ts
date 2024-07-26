@@ -280,7 +280,7 @@ describe("updateTodoByID()", () => {
 
   it("should return error if the user is not the owner of the todo", async () => {
     const owner = {
-      userId: mockUserRoleUser._id.toString(),
+      userId: mockUserInvalid.id,
     };
     const todoUpdateDetails = {
       id: todoForUpdate._id,
