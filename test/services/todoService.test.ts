@@ -257,7 +257,7 @@ describe("TodoService Unit Tests", () => {
       expect(response.message).toBe("Todo updated successfully");
     });
 
-    it("should return if the todo does not exist", async () => {
+    it("should return error if the todo does not exist", async () => {
       const owner = {
         userId: newStandardTodo.user,
       };
@@ -281,26 +281,29 @@ describe("TodoService Unit Tests", () => {
       expect(response.message).toBe("Todo Not Found");
     });
 
-    it("should return if the user is not the owner of the todo", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
-      const requestBody = updateTodo;
-
-      const mockResponse = {
-        httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
+    it("should return error if the user is not the owner of the todo", async () => {
+      const owner = {
+        userId: mockUserRoleUser._id.toString(),
+      };
+      const todoUpdateDetails = {
+        id: todoForUpdate._id,
+        title: todoForUpdate.title,
+        description: todoForUpdate.description,
+        completed: todoForUpdate.completed,
       };
 
-      sinon.stub(todoService, "updateTodoByID").resolves(mockResponse);
+      const requestBody: UpdateTodoRequest = {
+        owner,
+        todo: todoUpdateDetails,
+      };
+
 
       const response = await todoService.updateTodoByID(
-        requestUserId,
-        requestTodoId,
         requestBody
       );
 
-      expect(response.httpStatusCode).to.equal(401);
-      expect(response.message).to.equal("You're not the owner of this Todo");
+      expect(response.httpStatusCode).toBe(401);
+      expect(response.message).toBe("You're not the owner of this Todo");
     });
   });
 
