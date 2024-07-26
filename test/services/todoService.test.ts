@@ -258,25 +258,27 @@ describe("TodoService Unit Tests", () => {
     });
 
     it("should return if the todo does not exist", async () => {
-      const requestUserId = todoSupervisor.user;
-      const requestTodoId = todoSupervisor._id;
-      const requestBody = updateTodo;
-
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "Todo Not Found",
+      const owner = {
+        userId: newStandardTodo.user,
+      };
+      const todoUpdateDetails = {
+        id: invalidStandardTodo._id,
+        title: invalidStandardTodo.title,
+        description: invalidStandardTodo.description,
+        completed: invalidStandardTodo.completed,
       };
 
-      sinon.stub(todoService, "updateTodoByID").resolves(mockResponse);
+      const requestBody: UpdateTodoRequest = {
+        owner,
+        todo: todoUpdateDetails,
+      };
 
       const response = await todoService.updateTodoByID(
-        requestUserId,
-        requestTodoId,
         requestBody
       );
 
-      expect(response.httpStatusCode).to.equal(404);
-      expect(response.message).to.equal("Todo Not Found");
+      expect(response.httpStatusCode).toBe(404);
+      expect(response.message).toBe("Todo Not Found");
     });
 
     it("should return if the user is not the owner of the todo", async () => {
