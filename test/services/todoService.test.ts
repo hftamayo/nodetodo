@@ -68,24 +68,6 @@ jest.mock('../../src/services/todoService', () => ({
       }); 
     }
   }),
-  deleteTodoByID: jest.fn((requestUserId, requestTodoId) => {
-    if (requestTodoId === deleteTodo._id) {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Todo Deleted Successfully",
-      });
-    } else if (requestTodoId === invalidStandardTodo._id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "Todo Not Found",
-      });
-    } else if(requestUserId === mockUserInvalid.id){
-      return Promise.resolve({
-        httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
-      });
-    }
-  }
 
 
 }));
@@ -154,7 +136,7 @@ describe("TodoService Unit Tests", () => {
       const mockRequest = {
         user: { userId: newTodoSupervisor.user.toString()},
         params: {
-          todoId: invalidStandardTodo.id,
+          todoId: invalidStandardTodo._id,
         },
       } as OwnerTodoIdRequest;
 
