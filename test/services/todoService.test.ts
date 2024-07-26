@@ -73,6 +73,25 @@ jest.mock("../../src/services/todoService", () => ({
     }
   }),
 
+  updateTodoByID: jest.fn((requestBody: UpdateTodoRequest) => {
+    if (requestBody.todo.id === todoForUpdate._id) {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo updated successfully",
+      });
+    } else if (requestBody.todo.id === invalidStandardTodo._id) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "Todo Not Found",
+      });
+    } else {
+      return Promise.resolve({
+        httpStatusCode: 401,
+        message: "You're not the owner of this Todo",
+      });
+    }
+  }),
+
   deleteTodoByID: jest.fn((requestUserId, requestTodoId) => {
     if (requestTodoId === deleteTodo._id) {
       return Promise.resolve({
