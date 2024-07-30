@@ -31,7 +31,34 @@ jest.mock("../../src/services/userService", () => ({
     }
   }),
   updateUserDetailsByID: jest.fn(),
-  updateUserPasswordByID: jest.fn(),
+  updateUserPasswordByID: jest.fn((updateUserRequest: UpdateUserRequest) => {
+    const userId = updateUserRequest.userId;
+    const user = updateUserRequest.user;
+    if (userId === mockUserUpdate.id) {
+      if (user.password === mockUserUpdate.oldPassword) {
+        return Promise.resolve({
+          httpStatusCode: 200,
+          message: "Password updated successfully",
+          user: mockUserUpdate,
+        });
+      } else if (user.password || user.newPassword) {
+        return Promise.resolve({
+          httpStatusCode: 400,
+          message: "Please fill all required fields",
+        });
+      } else if (user.id === mockUserInvalid.id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "User Not Found",
+        });
+      } else {
+        return Promise.resolve({
+          httpStatusCode: 400,
+          message: "The entered credentials are not valid",
+        });
+      }
+    }
+  }),
   deleteUserByID: jest.fn((requestUserId: UserIdRequest) => {
     const userId = requestUserId.userId;
     if (userId === mockUserDelete.id) {
@@ -211,7 +238,7 @@ describe("UserService Unit Tests", () => {
     });
   });
 
-  describe("updateUser()", () => {
+  describe("updateUserDetailsByID()", () => {
     it("should update a user with valid data", async () => {
       const requestBody: UpdateUserRequest = {
         userId: mockUserUpdate.id,
@@ -221,22 +248,6 @@ describe("UserService Unit Tests", () => {
           age: mockUserUpdate.age,
         },
       };
-
-      const mockUser: Partial<UserRequest> = {
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.email,
-        age: mockUserUpdate.age,
-      };
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "User updated successfully",
-        user: mockUser as any,
-      };
-
-      jest
-        .spyOn(userService, "updateUserDetailsByID")
-        .mockResolvedValue(mockResponse);
 
       const response = await userService.updateUserDetailsByID(requestBody);
 
@@ -258,21 +269,14 @@ describe("UserService Unit Tests", () => {
         },
       };
 
-      const mockResponse = {
-        httpStatusCode: 400,
-        message: "Email already taken",
-      };
-
-      jest
-        .spyOn(userService, "updateUserDetailsByID")
-        .mockResolvedValue(mockResponse);
-
       const response = await userService.updateUserDetailsByID(requestBody);
 
       expect(response.httpStatusCode).toBe(400);
       expect(response.message).toBe("Email already taken");
     });
+  });
 
+  describe("updateUserPasswordByID()", () => {
     it("should not update if current passwod did not match", async () => {
       const requestBody = {
         userId: mockUserUpdate.id,
@@ -281,15 +285,6 @@ describe("UserService Unit Tests", () => {
           newPassword: mockUserUpdate.newPassword,
         },
       };
-
-      const mockResponse = {
-        httpStatusCode: 400,
-        message: "Password does not match",
-      };
-
-      jest
-        .spyOn(userService, "updateUserPasswordByID")
-        .mockResolvedValue(mockResponse);
 
       const response = await userService.updateUserPasswordByID(requestBody);
 
@@ -305,21 +300,6 @@ describe("UserService Unit Tests", () => {
           newPassword: mockUserUpdate.newPassword,
         },
       };
-
-      const mockUser: Partial<UserRequest> = {
-        password: mockUserUpdate.oldPassword,
-        newPassword: mockUserUpdate.newPassword,
-      };
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "Password updated successfully",
-        user: mockUser as any,
-      };
-
-      jest
-        .spyOn(userService, "updateUserPasswordByID")
-        .mockResolvedValue(mockResponse);
 
       const response = await userService.updateUserPasswordByID(requestBody);
 
