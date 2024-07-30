@@ -30,7 +30,29 @@ jest.mock("../../src/services/userService", () => ({
       });
     }
   }),
-  updateUserDetailsByID: jest.fn(),
+  updateUserDetailsByID: jest.fn((updateUserRequest: UpdateUserRequest) => {
+    const userId = updateUserRequest.userId;
+    const user = updateUserRequest.user;
+    if (userId === mockUserUpdate.id) {
+      if (user.email === mockUserUpdate.email) {
+        return Promise.resolve({
+          httpStatusCode: 400,
+          message: "Email already taken",
+        });
+      } else if (user.id === mockUserInvalid.id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "User Not Found",
+        });
+      } else {
+        return Promise.resolve({
+          httpStatusCode: 200,
+          message: "User updated successfully",
+          user: mockUserUpdate,
+        });
+      }
+    }
+  }),
   updateUserPasswordByID: jest.fn((updateUserRequest: UpdateUserRequest) => {
     const userId = updateUserRequest.userId;
     const user = updateUserRequest.user;
