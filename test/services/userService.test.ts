@@ -18,7 +18,19 @@ jest.mock("../../src/services/userService", () => ({
   listUserByID: jest.fn(),
   updateUserDetailsByID: jest.fn(),
   updateUserPasswordByID: jest.fn(),
-  deleteUserByID: jest.fn(),
+  deleteUserByID: jest.fn((UserIdRequest) => {
+    if (UserIdRequest.userId === mockUserDelete.id) {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "User deleted successfully",
+      });
+    } else if (UserIdRequest.userId === mockUserInvalid.id) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+    }
+  }),
 }));
 
 describe("UserService Unit Tests", () => {
