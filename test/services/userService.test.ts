@@ -15,7 +15,21 @@ import userService from "../../src/services/userService";
 jest.mock("../../src/services/userService", () => ({
   signUpUser: jest.fn(),
   loginUser: jest.fn(),
-  listUserByID: jest.fn(),
+  listUserByID: jest.fn((requestUserId: UserIdRequest) => {
+    const userId = requestUserId.userId;
+    if (userId === mockUserRoleUser._id.toString()) {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "User Found",
+        user: mockUserRoleUser,
+      });
+    } else if (userId === mockUserInvalid.id) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+    }
+  }),
   updateUserDetailsByID: jest.fn(),
   updateUserPasswordByID: jest.fn(),
   deleteUserByID: jest.fn((requestUserId: UserIdRequest) => {
