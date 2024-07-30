@@ -305,7 +305,9 @@ describe("UserService Unit Tests", () => {
         user: mockUser as any,
       };
 
-      jest.spyOn(userService, "updateUserPasswordByID").mockResolvedValue(mockResponse);
+      jest
+        .spyOn(userService, "updateUserPasswordByID")
+        .mockResolvedValue(mockResponse);
 
       const response = await userService.updateUserPasswordByID(requestBody);
 
@@ -326,13 +328,6 @@ describe("UserService Unit Tests", () => {
         userId: userId,
       };
 
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "User deleted successfully",
-      };
-
-      jest.spyOn(userService, "deleteUserByID").mockResolvedValue(mockResponse);
-
       const response = await userService.deleteUserByID(userIdRequest);
 
       expect(response.httpStatusCode).toBe(200);
@@ -345,13 +340,6 @@ describe("UserService Unit Tests", () => {
       const userIdRequest: UserIdRequest = {
         userId: userId,
       };
-
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "User Not Found",
-      };
-
-      jest.spyOn(userService, "deleteUserByID").mockResolvedValue(mockResponse);
 
       const response = await userService.deleteUserByID(userIdRequest);
 
