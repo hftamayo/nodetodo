@@ -14,7 +14,6 @@ import {
   NewTodoRequest,
   UpdateTodoRequest,
   OwnerTodoIdRequest,
-  TodoResult,
 } from "../../src/types/todo.interface";
 import { UserIdRequest } from "../../src/types/user.interface";
 import todoService from "../../src/services/todoService";
