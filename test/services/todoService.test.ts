@@ -348,7 +348,7 @@ describe("deleteTodoByID()", () => {
     expect(response.message).toBe("Todo Not Found");
   });
 
-  it("should return if the user is not the owner of the todo", async () => {
+  it("should return error if the user is not the owner of the todo", async () => {
     const mockRequest = {
       user: { userId: mockUserInvalid.id },
       params: {
