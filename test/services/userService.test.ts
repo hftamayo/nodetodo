@@ -5,12 +5,21 @@ import {
   mockUserUpdate,
   mockUserDelete,
 } from "../mocks/user.mock";
-import userService from "../../src/services/userService";
 import {
   UserRequest,
   UserIdRequest,
   UpdateUserRequest,
 } from "../../src/types/user.interface";
+import userService from "../../src/services/userService";
+
+jest.mock("../../src/services/userService", () => ({
+  signUpUser: jest.fn(),
+  loginUser: jest.fn(),
+  listUserByID: jest.fn(),
+  updateUserDetailsByID: jest.fn(),
+  updateUserPasswordByID: jest.fn(),
+  deleteUserByID: jest.fn(),
+}));
 
 describe("UserService Unit Tests", () => {
   afterEach(function () {
