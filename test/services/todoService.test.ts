@@ -91,7 +91,9 @@ jest.mock("../../src/services/todoService", () => ({
     }
   }),
 
-  deleteTodoByID: jest.fn((requestUserId, requestTodoId) => {
+  deleteTodoByID: jest.fn((owner: OwnerTodoIdRequest) => {
+    const requestUserId = owner.user.userId;
+    const requestTodoId = owner.params.todoId;
     if (requestTodoId === deleteTodo._id) {
       return Promise.resolve({
         httpStatusCode: 200,
@@ -171,7 +173,7 @@ describe("TodoService Unit Tests", () => {
     });
   });
 
-  it("should not return a todo does not exist", async () => {
+  it("should return error if todo does not exist", async () => {
     const mockRequest = {
       user: { userId: newTodoSupervisor.user.toString() },
       params: {
