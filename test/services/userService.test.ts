@@ -4,6 +4,7 @@ import {
   mockUserInvalid,
   mockUserUpdate,
   mockUserDelete,
+  mockUserRoleAdmin,
 } from "../mocks/user.mock";
 import {
   UserRequest,
@@ -13,7 +14,21 @@ import {
 import userService from "../../src/services/userService";
 
 jest.mock("../../src/services/userService", () => ({
-  signUpUser: jest.fn(),
+  signUpUser: jest.fn((requestBody: UserRequest) => {
+    const email = requestBody.email;
+    if (email === mockUserRoleAdmin.email) {
+      return Promise.resolve({
+        httpStatusCode: 400,
+        message: "Email already exists",
+      });
+    } else {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "User created successfully",
+        user: mockUserRoleUser,
+      });
+    }
+  }),
   loginUser: jest.fn(),
   listUserByID: jest.fn((requestUserId: UserIdRequest) => {
     const userId = requestUserId.userId;
@@ -111,19 +126,6 @@ describe("UserService Unit Tests", () => {
         age: mockUserRoleUser.age,
       };
 
-      const mockUser: Partial<UserRequest & Document> = {
-        ...requestBody,
-        id: "123456789",
-      };
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "User created successfully",
-        user: mockUser as any, //please improve this
-      };
-
-      jest.spyOn(userService, "signUpUser").mockResolvedValue(mockResponse);
-
       const response = await userService.signUpUser(requestBody);
 
       expect(response.httpStatusCode).toBe(200);
@@ -141,13 +143,6 @@ describe("UserService Unit Tests", () => {
         password: mockUserRoleUser.password,
         age: mockUserRoleUser.age,
       };
-
-      const mockResponse = {
-        httpStatusCode: 400,
-        message: "Email already exists",
-      };
-
-      jest.spyOn(userService, "signUpUser").mockResolvedValue(mockResponse);
 
       const response = await userService.signUpUser(requestBody);
 
