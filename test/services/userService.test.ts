@@ -1,4 +1,3 @@
-import { Document } from "mongoose";
 import {
   mockUserRoleUser,
   mockUserInvalid,
@@ -10,6 +9,7 @@ import {
   UserRequest,
   UserIdRequest,
   UpdateUserRequest,
+  LoginRequest,
 } from "../../src/types/user.interface";
 import userService from "../../src/services/userService";
 
@@ -29,7 +29,26 @@ jest.mock("../../src/services/userService", () => ({
       });
     }
   }),
-  loginUser: jest.fn(),
+  loginUser: jest.fn((requestBody: LoginRequest) => {
+    const email = requestBody.email;
+    const password = requestBody.password;
+    if (email === mockUserRoleUser.email) {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        tokenCreated: "token",
+        message: "User login successfully",
+        user: mockUserRoleUser,
+      });
+    } else if (
+      email === mockUserInvalid.email ||
+      password === mockUserInvalid.password
+    ) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "User or Password does not match",
+      });
+    }
+  }),
   listUserByID: jest.fn((requestUserId: UserIdRequest) => {
     const userId = requestUserId.userId;
     if (userId === mockUserRoleUser._id.toString()) {
@@ -157,21 +176,6 @@ describe("UserService Unit Tests", () => {
         email: mockUserRoleUser.email,
         password: mockUserRoleUser.password,
       };
-
-      const mockUser: Partial<UserRequest & Document> = {
-        ...requestBody,
-        name: mockUserRoleUser.name,
-        age: mockUserRoleUser.age,
-      };
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        tokenCreated: "token",
-        message: "User login successfully",
-        user: mockUser as any,
-      };
-
-      jest.spyOn(userService, "loginUser").mockResolvedValue(mockResponse);
 
       const response = await userService.loginUser(requestBody);
 
