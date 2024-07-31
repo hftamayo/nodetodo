@@ -1,35 +1,35 @@
-const sinon = require("sinon");
-const {
-  getNewUser,
-  mockUserUser,
-  mockUserInvalid,
-  mockUserUpdate,
-  mockUserDelete,
-} = require("../mocks/user.mock");
-const userController = require("../../src/api/controllers/userController");
-const { get } = require("superagent");
+import {
+mockUserRoleUser,
+mockUserInvalid,
+mockUserUpdate,
+mockUserDelete,
+mockUserRoleAdmin,
+} from "../mocks/user.mock";
+import {
+  UserRequest,
+  UserIdRequest,
+  LoginRequest,
+  UpdateUserRequest,
+} from "../../src/types/user.interface";
+import userController from "../../src/api/controllers/userController";
 
 describe("userController Unit Test", () => {
+  afterEach(function () {
+    jest.restoreAllMocks();
+  })
+
   describe("register method", () => {
-    let req, res, json, sandbox, signUpUserStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
+    let req, res, json, signUpUserStub;
 
     it.only("should register a new user", async () => {
       req = {
-        body: getNewUser,
+        body: UserRequest,
       };
       res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
+      json = jest.fn();
+      res.status = jest.fn().mockReturnValue({ json });
 
-      signUpUserStub = sandbox.stub().resolves({
+      signUpUserStub = jest.fn().mockResolvedValue({
         httpStatusCode: 200,
         message: "User created successfully",
         user: getNewUser,
@@ -41,12 +41,12 @@ describe("userController Unit Test", () => {
 
       const { password, ...filteredMockUser } = getNewUser._doc;
 
-      sinon.assert.calledOnce(signUpUserStub);
-      sinon.assert.calledWith(signUpUserStub, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+     expect(signUpUserStub).toHaveBeenCalledTimes(1);
+      expect(signUpUserStub).toHaveBeenCalledWith(req.body);
+      expect(res.status).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User created successfully",
         newUser: filteredMockUser,
       });
