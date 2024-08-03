@@ -10,6 +10,7 @@ import {
   UserIdRequest,
   LoginRequest,
   UpdateUserRequest,
+  UserServices,
 } from "../../src/types/user.interface";
 import userController from "../../src/api/controllers/userController";
 
@@ -19,7 +20,7 @@ describe("userController Unit Test", () => {
   })
 
   describe("register method", () => {
-    let req, res, json, signUpUserStub;
+    let req, res, json, signUpUserStub, controller;
 
     it.only("should register a new user", async () => {
       req = {
@@ -34,10 +35,19 @@ describe("userController Unit Test", () => {
         message: "User created successfully",
         user: mockUserRoleUser,
       });
+      const mockUserService: UserServices = {
+        signUpUser: signUpUserStub,
+        loginUser: jest.fn(),
+        logoutUser: jest.fn(),
+        listUserByID: jest.fn(),
+        updateUserDetailsByID: jest.fn(),
+        updateUserPasswordByID: jest.fn(),
+        deleteUserByID: jest.fn(),
+      };
 
-      userController.setSignUpUser(signUpUserStub);
+      controller = userController(mockUserService);
 
-      await userController.registerHandler(req, res);
+      await controller.registerHandler(req, res);
 
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
