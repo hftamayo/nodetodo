@@ -23,23 +23,23 @@ describe("userController Unit Test", () => {
 
     it.only("should register a new user", async () => {
       req = {
-        body: UserRequest,
+        body: mockUserRoleUser,
       };
       res = {};
       json = jest.fn();
-      res.status = jest.fn().mockReturnValue({ json });
+      res = {status : jest.fn().mockReturnValue({ json })};
 
       signUpUserStub = jest.fn().mockResolvedValue({
         httpStatusCode: 200,
         message: "User created successfully",
-        user: getNewUser,
+        user: mockUserRoleUser,
       });
 
       userController.setSignUpUser(signUpUserStub);
 
       await userController.registerHandler(req, res);
 
-      const { password, ...filteredMockUser } = getNewUser._doc;
+      const { password, ...filteredMockUser } = mockUserRoleUser;
 
      expect(signUpUserStub).toHaveBeenCalledTimes(1);
       expect(signUpUserStub).toHaveBeenCalledWith(req.body);
