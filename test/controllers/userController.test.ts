@@ -15,7 +15,7 @@ import {
 import userController from "../../src/api/controllers/userController";
 
 describe("userController Unit Test", () => {
-  let req: { body?: UserRequest};
+  let req: { body: UserRequest};
   let res: { status?: jest.Mock };
   let json: jest.Mock;
   let signUpUserStub: jest.Mock;
@@ -23,16 +23,24 @@ describe("userController Unit Test", () => {
   let mockUserService: UserServices;
 
   beforeEach(() => {
-    req = {};
+    req = { body: {} as UserRequest };
     json = jest.fn();
     res = {
       status : jest.fn().mockReturnValue({ json }),
     };
 
-  signUpUserStub = jest.fn().mockResolvedValue({
+  signUpUserStub = jest.fn((user) => {
+    if(user === mockUserInvalid) {
+      return Promise.resolve({
+        httpStatusCode: 400,
+        message: "Email already exists",
+      });
+    }
+    return Promise.resolve({
     httpStatusCode: 200,
     message: "User created successfully",
     user: mockUserRoleUser,
+  });
   });
 
   mockUserService = {
@@ -55,7 +63,7 @@ describe("userController Unit Test", () => {
   describe("register method", () => {
     it.only("should register a new user", async () => {
       const { _id, ...userWithoutId} = mockUserRoleUser;
-      req.body = userWithoutId;
+      req.body = userWithoutId as UserRequest;
 
       await controller.registerHandler(req, res);
 
@@ -73,33 +81,16 @@ describe("userController Unit Test", () => {
     });
 
     it("should restrict to register an existing user", async () => {
-      req = {
-        body: {
-          name: mockUserInvalid.name,
-          email: mockUserInvalid.email,
-          password: mockUserInvalid.password,
-          age: mockUserInvalid.age,
-        },
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
+      req.body = mockUserInvalid;
 
-      signUpUserStub = sandbox.stub().resolves({
-        httpStatusCode: 400,
-        message: "Email already exists",
-      });
+      await controller.registerHandler(req, res);
 
-      userController.setSignUpUser(signUpUserStub);
-
-      await userController.registerHandler(req, res);
-
-      sinon.assert.calledOnce(signUpUserStub);
-      sinon.assert.calledWith(signUpUserStub, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 400);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(signUpUserStub).toHaveBeenCalledTimes(1);
+      expect(signUpUserStub).toHaveBeenCalledWith(req.body);
+      expect(res.status).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "Email already exists",
       });
     });
