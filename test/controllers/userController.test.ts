@@ -15,39 +15,47 @@ import {
 import userController from "../../src/api/controllers/userController";
 
 describe("userController Unit Test", () => {
+  let req: { body?: UserRequest};
+  let res: { status?: jest.Mock };
+  let json: jest.Mock;
+  let signUpUserStub: jest.Mock;
+  let controller: ReturnType<typeof userController>;
+  let mockUserService: UserServices;
 
+  beforeEach(() => {
+    req = {};
+    json = jest.fn();
+    res = {
+      status : jest.fn().mockReturnValue({ json }),
+    };
+
+  signUpUserStub = jest.fn().mockResolvedValue({
+    httpStatusCode: 200,
+    message: "User created successfully",
+    user: mockUserRoleUser,
+  });
+
+  mockUserService = {
+    signUpUser: signUpUserStub,
+    loginUser: jest.fn(),
+    logoutUser: jest.fn(),
+    listUserByID: jest.fn(),
+    updateUserDetailsByID: jest.fn(),
+    updateUserPasswordByID: jest.fn(),
+    deleteUserByID: jest.fn(),
+  };
+
+  controller = userController(mockUserService);  
+});
   
-  afterEach(function () {
+  afterEach(() => {
     jest.restoreAllMocks();
-  })
+  });
 
   describe("register method", () => {
-    let req, res, json, signUpUserStub, controller;
-
     it.only("should register a new user", async () => {
-      req = {
-        body: mockUserRoleUser,
-      };
-      res = {};
-      json = jest.fn();
-      res = {status : jest.fn().mockReturnValue({ json })};
-
-      signUpUserStub = jest.fn().mockResolvedValue({
-        httpStatusCode: 200,
-        message: "User created successfully",
-        user: mockUserRoleUser,
-      });
-      const mockUserService: UserServices = {
-        signUpUser: signUpUserStub,
-        loginUser: jest.fn(),
-        logoutUser: jest.fn(),
-        listUserByID: jest.fn(),
-        updateUserDetailsByID: jest.fn(),
-        updateUserPasswordByID: jest.fn(),
-        deleteUserByID: jest.fn(),
-      };
-
-      controller = userController(mockUserService);
+      const { _id, ...userWithoutId} = mockUserRoleUser;
+      req.body = userWithoutId;
 
       await controller.registerHandler(req, res);
 
