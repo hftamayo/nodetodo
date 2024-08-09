@@ -15,7 +15,7 @@ import {
 import userController from "../../src/api/controllers/userController";
 
 describe("userController Unit Test", () => {
-  let req: { body: UserRequest};
+  let req: UserRequest;
   let res: { status?: jest.Mock };
   let json: jest.Mock;
   let signUpUserStub: jest.Mock;
@@ -23,7 +23,7 @@ describe("userController Unit Test", () => {
   let mockUserService: UserServices;
 
   beforeEach(() => {
-    req = { body: {} as UserRequest };
+    req = {} as UserRequest;
     json = jest.fn();
     res = {
       status : jest.fn().mockReturnValue({ json }),
@@ -63,7 +63,7 @@ describe("userController Unit Test", () => {
   describe("register method", () => {
     it.only("should register a new user", async () => {
       const { _id, ...userWithoutId} = mockUserRoleUser;
-      req.body = userWithoutId as UserRequest;
+      req = userWithoutId as UserRequest;
 
       await controller.registerHandler(req, res);
 
@@ -81,7 +81,7 @@ describe("userController Unit Test", () => {
     });
 
     it("should restrict to register an existing user", async () => {
-      req.body = mockUserInvalid;
+      req = mockUserInvalid as UserRequest;
 
       await controller.registerHandler(req, res);
 
