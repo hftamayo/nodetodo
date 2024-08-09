@@ -1,3 +1,4 @@
+import { Response } from "express";
 import {
 mockUserRoleUser,
 mockUserInvalid,
@@ -16,7 +17,7 @@ import userController from "../../src/api/controllers/userController";
 
 describe("userController Unit Test", () => {
   let req: UserRequest;
-  let res: { status?: jest.Mock };
+  let res: Response<any, Record<string, any>>;
   let json: jest.Mock;
   let signUpUserStub: jest.Mock;
   let controller: ReturnType<typeof userController>;
@@ -26,8 +27,9 @@ describe("userController Unit Test", () => {
     req = {} as UserRequest;
     json = jest.fn();
     res = {
-      status : jest.fn().mockReturnValue({ json }),
-    };
+      status : jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as Response<any, Record<string, any>>;
 
   signUpUserStub = jest.fn((user) => {
     if(user === mockUserInvalid) {
