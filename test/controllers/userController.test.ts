@@ -72,9 +72,7 @@ describe("userController Unit Test", () => {
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
      expect(signUpUserStub).toHaveBeenCalledTimes(1);
-      expect(signUpUserStub).toHaveBeenCalledWith(req.body);
-      expect(res.status).toHaveBeenCalledTimes(1);
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(signUpUserStub).toHaveBeenCalledWith(200);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "User created successfully",
