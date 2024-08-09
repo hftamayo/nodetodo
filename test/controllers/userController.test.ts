@@ -14,6 +14,7 @@ import {
   UserServices,
 } from "../../src/types/user.interface";
 import userController from "../../src/api/controllers/userController";
+import { cookie } from "express-validator";
 
 describe("userController Unit Test", () => {
   let req: UserRequest;
@@ -95,16 +96,6 @@ describe("userController Unit Test", () => {
   });
 
   describe("login method", () => {
-    let req, res, json, cookie, sandbox, loginStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should login a valid user", async () => {
       req = {
         body: {
@@ -126,23 +117,19 @@ describe("userController Unit Test", () => {
         token: "token",
       });
 
-      userController.setLoginUser(loginStub);
+      await controller.loginHandler(req, res);
 
-      await userController.loginHandler(req, res);
+      const { password, ...filteredMockUser } = mockUserRoleUser;
 
-      const { password, ...filteredMockUser } = mockUserUser._doc;
-
-      sinon.assert.calledOnce(loginStub);
-      sinon.assert.calledWith(loginStub, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(loginStub).toHaveBeenCalledTimes(1);
+      expect(loginStub).toHaveBeenCalledWith(200);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User login successfully",
         loggedUser: filteredMockUser,
       });
-      sinon.assert.calledOnce(cookie);
-      sinon.assert.calledWith(cookie, "nodetodo", "token", {
+      expect(cookie).toHaveBeenCalledTimes(1);
+      expect(cookie).toHaveBeenCalledWith("nodetodo", "token",{
         httpOnly: true,
         expiresIn: 360000,
       });
