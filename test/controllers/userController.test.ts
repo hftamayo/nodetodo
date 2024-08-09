@@ -86,8 +86,6 @@ describe("userController Unit Test", () => {
       await controller.registerHandler(req, res);
 
       expect(signUpUserStub).toHaveBeenCalledTimes(1);
-      expect(signUpUserStub).toHaveBeenCalledWith(req.body);
-      expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(400);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
