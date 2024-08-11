@@ -17,15 +17,17 @@ import userController from "../../src/api/controllers/userController";
 import { cookie } from "express-validator";
 
 describe("userController Unit Test", () => {
-  let req: UserRequest;
+  let req: UserRequest | LoginRequest;
   let res: Response<any, Record<string, any>>;
   let json: jest.Mock;
-  let signUpUserStub: jest.Mock;
+  let signUpUserStub: jest.Mock<any, any, any>;
+  let loginStub: jest.Mock<any, any, any>;
+  let listUserByIDStub: jest.Mock<any, any, any>;
   let controller: ReturnType<typeof userController>;
   let mockUserService: UserServices;
 
   beforeEach(() => {
-    req = {} as UserRequest;
+    req = {} as UserRequest | LoginRequest;
     json = jest.fn();
     res = {
       status : jest.fn().mockReturnThis(),
@@ -44,13 +46,44 @@ describe("userController Unit Test", () => {
     message: "User created successfully",
     user: mockUserRoleUser,
   });
+});
+
+  loginStub = jest.fn((user) => {
+    if(user.email === mockUserInvalid.email) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "User or Password does not match",
+      });
+    }
+    return Promise.resolve({
+      httpStatusCode: 200,
+      message: "User login successfully",
+      user: mockUserRoleUser,
+      tokenCreated: "token",
+      token: "token",
+    });
   });
+
+  listUserByIDStub = jest.fn((user) => {
+    if(user.id === mockUserInvalid.id) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+    }
+    return Promise.resolve({
+      httpStatusCode: 200,
+      message: "User Found",
+      user: mockUserRoleUser,
+    });
+  });
+
 
   mockUserService = {
     signUpUser: signUpUserStub,
-    loginUser: jest.fn(),
+    loginUser: loginStub,
     logoutUser: jest.fn(),
-    listUserByID: jest.fn(),
+    listUserByID: listUserByIDStub,
     updateUserDetailsByID: jest.fn(),
     updateUserPasswordByID: jest.fn(),
     deleteUserByID: jest.fn(),
@@ -97,25 +130,8 @@ describe("userController Unit Test", () => {
 
   describe("login method", () => {
     it("should login a valid user", async () => {
-      req = {
-        body: {
-          email: mockUserUser.email,
-          password: mockUserUser.password,
-        },
-      };
-      res = {};
-      json = sandbox.spy();
-      cookie = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
-
-      loginStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        tokenCreated: "token",
-        message: "User login successfully",
-        user: mockUserUser,
-        token: "token",
-      });
+      const {email, password} = mockUserRoleUser;
+      req = {email, password } as LoginRequest;
 
       await controller.loginHandler(req, res);
 
