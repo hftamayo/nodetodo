@@ -135,7 +135,7 @@ describe("userController Unit Test", () => {
 
       await controller.loginHandler(req, res);
 
-      const { password, ...filteredMockUser } = mockUserRoleUser;
+      const { password: _, ...filteredMockUser } = mockUserRoleUser;
 
       expect(loginStub).toHaveBeenCalledTimes(1);
       expect(loginStub).toHaveBeenCalledWith(200);
