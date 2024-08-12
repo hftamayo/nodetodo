@@ -149,36 +149,17 @@ describe("userController Unit Test", () => {
         httpOnly: true,
         expiresIn: 360000,
       });
-    });
 
     it("should restrict login an invalid user", async () => {
-      req = {
-        body: {
-          email: mockUserInvalid.email,
-          password: mockUserInvalid.password,
-        },
-      };
-      res = {};
-      json = sandbox.spy();
-      cookie = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
+      const {email, password} = mockUserInvalid;
+      req = {email, password } as LoginRequest;
 
-      loginStub = sandbox.stub().resolves({
-        httpStatusCode: 404,
-        message: "User or Password does not match",
-      });
+      await controller.loginHandler(req, res);
 
-      userController.setLoginUser(loginStub);
-
-      await userController.loginHandler(req, res);
-
-      sinon.assert.calledOnce(loginStub);
-      sinon.assert.calledWith(loginStub, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 404);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(loginStub).toHaveBeenCalledTimes(1);
+      expect(loginStub).toHaveBeenCalledWith(404);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User or Password does not match",
       });
     });
