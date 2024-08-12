@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import {
 mockUserRoleUser,
 mockUserInvalid,
@@ -17,17 +17,18 @@ import userController from "../../src/api/controllers/userController";
 import { cookie } from "express-validator";
 
 describe("userController Unit Test", () => {
-  let req: UserRequest | LoginRequest;
+  let req: UserRequest | LoginRequest | Request;
   let res: Response<any, Record<string, any>>;
   let json: jest.Mock;
   let signUpUserStub: jest.Mock<any, any, any>;
   let loginStub: jest.Mock<any, any, any>;
+  let logoutStub: jest.Mock<any, any, any>;
   let listUserByIDStub: jest.Mock<any, any, any>;
   let controller: ReturnType<typeof userController>;
   let mockUserService: UserServices;
 
   beforeEach(() => {
-    req = {} as UserRequest | LoginRequest;
+    req = {} as UserRequest | LoginRequest | Request;
     json = jest.fn();
     res = {
       status : jest.fn().mockReturnThis(),
@@ -64,6 +65,13 @@ describe("userController Unit Test", () => {
     });
   });
 
+  logoutStub = jest.fn(() => {
+    return Promise.resolve({
+      httpStatusCode: 200,
+      message: "User logged out successfully",
+    });
+  });  
+
   listUserByIDStub = jest.fn((user) => {
     if(user.id === mockUserInvalid.id) {
       return Promise.resolve({
@@ -82,7 +90,7 @@ describe("userController Unit Test", () => {
   mockUserService = {
     signUpUser: signUpUserStub,
     loginUser: loginStub,
-    logoutUser: jest.fn(),
+    logoutUser: logoutStub,
     listUserByID: listUserByIDStub,
     updateUserDetailsByID: jest.fn(),
     updateUserPasswordByID: jest.fn(),
@@ -166,29 +174,13 @@ describe("userController Unit Test", () => {
   });
 
   describe("logout method", () => {
-    let req, res, clearCookie, sandbox;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should logout a user", async () => {
-      req = {};
-      res = {};
-      clearCookie = sandbox.spy();
-      res.status = sandbox.stub().returns({ json: sandbox.spy() });
-      res.clearCookie = clearCookie;
+      await controller.logoutHandler(req as Request, res);
 
-      await userController.logoutHandler(req, res);
-
-      sinon.assert.calledOnce(res.clearCookie);
-      sinon.assert.calledWith(res.clearCookie, "nodetodo");
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
+      expect(res.clearCookie).toHaveBeenCalledTimes(1);
+      expect(res.clearCookie).toHaveBeenCalledWith("nodetodo");
+      expect(res.status).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(200);
     });
   });
 
