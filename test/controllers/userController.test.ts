@@ -17,7 +17,7 @@ import userController from "../../src/api/controllers/userController";
 import { cookie } from "express-validator";
 
 describe("userController Unit Test", () => {
-  let req: UserRequest | LoginRequest | Request;
+  let req: UserRequest | LoginRequest | Request | UserIdRequest;
   let res: Response<any, Record<string, any>>;
   let json: jest.Mock;
   let signUpUserStub: jest.Mock<any, any, any>;
@@ -28,7 +28,7 @@ describe("userController Unit Test", () => {
   let mockUserService: UserServices;
 
   beforeEach(() => {
-    req = {} as UserRequest | LoginRequest | Request;
+    req = {} as UserRequest | LoginRequest | Request | UserIdRequest;
     json = jest.fn();
     res = {
       status : jest.fn().mockReturnThis(),
@@ -185,43 +185,17 @@ describe("userController Unit Test", () => {
   });
 
   describe("listUser method", () => {
-    let req, res, json, cookie, sandbox, getMeStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should get details of a valid user", async () => {
-      req = {
-        user: mockUserUser,
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
+      const id = mockUserRoleUser._id;
+      req = {id} as UserIdRequest;
 
-      getMeStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        message: "User Found",
-        user: mockUserUser,
-      });
+      await controller.listUserHandler(req as UserIdRequest, res);
 
-      userController.setListUser(getMeStub);
+      const { password, ...filteredMockUser } = mockUserRoleUser;
 
-      await userController.listUserHandler(req, res);
-
-      const { password, ...filteredMockUser } = mockUser._doc;
-
-      sinon.assert.calledOnce(getMeStub);
-      sinon.assert.calledWith(getMeStub, req.user);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(listUserByIDStub).toHaveBeenCalledTimes(1);
+      expect(listUserByIDStub).toHaveBeenCalledWith(200);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User Found",
         searchUser: filteredMockUser,
       });
