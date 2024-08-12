@@ -101,7 +101,7 @@ describe("userController Unit Test", () => {
       const { _id, ...userWithoutId} = mockUserRoleUser;
       req = userWithoutId as UserRequest;
 
-      await controller.registerHandler(req, res);
+      await controller.registerHandler(req as UserRequest, res);
 
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
@@ -117,7 +117,7 @@ describe("userController Unit Test", () => {
     it("should restrict to register an existing user", async () => {
       req = mockUserInvalid as UserRequest;
 
-      await controller.registerHandler(req, res);
+      await controller.registerHandler(req as UserRequest, res);
 
       expect(signUpUserStub).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(400);
