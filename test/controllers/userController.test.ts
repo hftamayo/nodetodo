@@ -186,15 +186,15 @@ describe("userController Unit Test", () => {
 
   describe("listUser method", () => {
     it("should get details of a valid user", async () => {
-      const id = mockUserRoleUser._id;
-      req = {id} as UserIdRequest;
+      const userId = mockUserRoleUser._id.toString();
+      req = {userId} as UserIdRequest;
 
-      await controller.listUserHandler(req as UserIdRequest, res);
+      await controller.listUserHandler(req, res);
 
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
       expect(listUserByIDStub).toHaveBeenCalledTimes(1);
-      expect(listUserByIDStub).toHaveBeenCalledWith(200);
+      expect(listUserByIDStub).toHaveBeenCalledWith(userId);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "User Found",
         searchUser: filteredMockUser,
