@@ -448,33 +448,15 @@ describe("userController Unit Test", () => {
     });
 
     it("should restrict to delete an invalid user", async () => {
-      req = {
-        user: {
-          id: mockUserInvalid._id,
-        },
-      };
-      res = {
-        status: sandbox.stub().returns({ json: sandbox.spy() }),
-        cookie: cookie,
-        clearCookie: sandbox.spy(),
-      };
+      const userId = mockUserInvalid.id;
+      req = {userId} as UserIdRequest;
 
-      deleteUserStub = sandbox.stub().resolves({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
+      await controller.deleteUserHandler(req, res);
 
-      userController.setDeleteUser(deleteUserStub);
-
-      await userController.deleteUserHandler(req, res);
-
-      sinon.assert.calledOnce(deleteUserStub);
-      sinon.assert.calledWith(deleteUserStub, req.user);
-      sinon.assert.notCalled(res.clearCookie);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 404);
-      sinon.assert.calledOnce(res.status().json);
-      sinon.assert.calledWith(res.status().json, {
+      expect(deleteUserByIDStub).toHaveBeenCalledTimes(1);
+      expect(deleteUserByIDStub).toHaveBeenCalledWith(userId);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
       });
     });
