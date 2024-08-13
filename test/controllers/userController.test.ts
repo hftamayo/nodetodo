@@ -202,32 +202,17 @@ describe("userController Unit Test", () => {
     });
 
     it("should restrict to get details of an invalid user", async () => {
-      req = {
-        user: mockUserInvalid,
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
+      const userId = mockUserInvalid.id;
+      req = {userId} as UserIdRequest;
 
-      getMeStub = sandbox.stub().resolves({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
+      await controller.listUserHandler(req, res);
 
-      userController.setListUser(getMeStub);
-
-      await userController.listUserHandler(req, res);
-
-      sinon.assert.calledOnce(getMeStub);
-      sinon.assert.calledWith(getMeStub, req.user);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 404);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(listUserByIDStub).toHaveBeenCalledTimes(1);
+      expect(listUserByIDStub).toHaveBeenCalledWith(userId);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
       });
-    });
   });
 
   describe("updateDetails method", () => {
