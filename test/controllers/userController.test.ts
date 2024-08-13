@@ -24,6 +24,7 @@ describe("userController Unit Test", () => {
   let loginStub: jest.Mock<any, any, any>;
   let logoutStub: jest.Mock<any, any, any>;
   let listUserByIDStub: jest.Mock<any, any, any>;
+  let deleteUserByIDStub: jest.Mock<any, any, any>;
   let controller: ReturnType<typeof userController>;
   let mockUserService: UserServices;
 
@@ -83,6 +84,19 @@ describe("userController Unit Test", () => {
       httpStatusCode: 200,
       message: "User Found",
       user: mockUserRoleUser,
+    });
+  });
+
+  deleteUserByIDStub = jest.fn((user) => {
+    if(user.id === mockUserInvalid.id) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+    }
+    return Promise.resolve({
+      httpStatusCode: 200,
+      message: "User deleted successfully",
     });
   });
 
