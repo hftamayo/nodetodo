@@ -108,7 +108,7 @@ describe("userController Unit Test", () => {
     listUserByID: listUserByIDStub,
     updateUserDetailsByID: jest.fn(),
     updateUserPasswordByID: jest.fn(),
-    deleteUserByID: jest.fn(),
+    deleteUserByID: deleteUserByIDStub,
   };
 
   controller = userController(mockUserService);  
@@ -434,45 +434,15 @@ describe("userController Unit Test", () => {
   });
 
   describe("deleteUser method", () => {
-    let req, res, sandbox, cookie, deleteUserStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should delete a valid user", async () => {
-      req = {
-        user: {
-          id: mockUserDelete._id,
-        },
-      };
-      res = {
-        status: sandbox.stub().returns({ json: sandbox.spy() }),
-        cookie: cookie,
-        clearCookie: sandbox.spy(),
-      };
+      const userId = mockUserDelete.id;
+      req = {userId} as UserIdRequest;
 
-      deleteUserStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        message: "User deleted successfully",
-      });
+      await controller.deleteUserHandler(req, res);
 
-      userController.setDeleteUser(deleteUserStub);
-
-      await userController.deleteUserHandler(req, res);
-
-      sinon.assert.calledOnce(deleteUserStub);
-      sinon.assert.calledWith(deleteUserStub, req.user);
-      sinon.assert.calledOnce(res.clearCookie);
-      sinon.assert.calledWith(res.clearCookie, "nodetodo");
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(res.status().json);
-      sinon.assert.calledWith(res.status().json, {
+      expect(deleteUserByIDStub).toHaveBeenCalledTimes(1);
+      expect(deleteUserByIDStub).toHaveBeenCalledWith(userId);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User deleted successfully",
       });
     });
