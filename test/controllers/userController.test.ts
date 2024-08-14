@@ -24,13 +24,14 @@ describe("userController Unit Test", () => {
   let loginStub: jest.Mock<any, any, any>;
   let logoutStub: jest.Mock<any, any, any>;
   let listUserByIDStub: jest.Mock<any, any, any>;
-  let updateUserDetailsByIDStub: jest.Mock<any, any, any>;
+  let updateUserDetailsStub: jest.Mock<any, any, any>;
+  let updateUserPasswordStub: jest.Mock<any, any, any>;
   let deleteUserByIDStub: jest.Mock<any, any, any>;
   let controller: ReturnType<typeof userController>;
   let mockUserService: UserServices;
 
   beforeEach(() => {
-    req = {} as UserRequest | LoginRequest | Request | UserIdRequest;
+    req = {} as UserRequest | LoginRequest | Request | UserIdRequest | UpdateUserRequest;
     json = jest.fn();
     res = {
       status : jest.fn().mockReturnThis(),
@@ -48,8 +49,8 @@ describe("userController Unit Test", () => {
     httpStatusCode: 200,
     message: "User created successfully",
     user: mockUserRoleUser,
+    });
   });
-});
 
   loginStub = jest.fn((user) => {
     if(user.email === mockUserInvalid.email) {
@@ -84,6 +85,40 @@ describe("userController Unit Test", () => {
     return Promise.resolve({
       httpStatusCode: 200,
       message: "User Found",
+      user: mockUserRoleUser,
+    });
+  });
+
+  updateUserDetailsStub = jest.fn((user) => {
+    if(user.id === mockUserInvalid.id) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+    }
+    return Promise.resolve({
+      httpStatusCode: 200,
+      message: "Data updated successfully",
+      user: mockUserRoleUser,
+    });
+  });
+
+  updateUserPasswordStub = jest.fn((user) => {
+    if(user.id === mockUserInvalid.id) {
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "User Not Found",
+      });
+    }
+    if(user.password === mockUserUpdate.notMatchPassword) {
+      return Promise.resolve({
+        httpStatusCode: 400,
+        message: "The entered credentials are not valid",
+      });
+    }
+    return Promise.resolve({
+      httpStatusCode: 200,
+      message: "Password updated successfully",
       user: mockUserRoleUser,
     });
   });
@@ -269,9 +304,9 @@ describe("userController Unit Test", () => {
 
       const { password, ...filteredMockUser } = mockUser._doc;
 
-      expect(updateDetailsStub).toHaveBeenCalledTimes(1);
-      expect(updateDetailsStub).toHaveBeenCalledWith(200);
-      expect(updateDetailsStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
+      expect(updateUserDetailsStub).toHaveBeenCalledTimes(1);
+      expect(updateUserDetailsStub).toHaveBeenCalledWith(200);
+      expect(updateUserDetailsStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Data updated successfully",
@@ -304,8 +339,8 @@ describe("userController Unit Test", () => {
 
       await userController.updateUserDetailsHandler(req, res);
 
-      expect(updateDetailsStub).toHaveBeenCalledTimes(1);
-      expect(updateDetailsStub).toHaveBeenCalledWith(404);
+      expect(updateUserDetailsStub).toHaveBeenCalledTimes(1);
+      expect(updateUserDetailsStub).toHaveBeenCalledWith(404);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
