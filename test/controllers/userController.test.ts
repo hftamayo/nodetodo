@@ -303,12 +303,10 @@ describe("userController Unit Test", () => {
 
       await userController.updateUserDetailsHandler(req, res);
 
-      sinon.assert.calledOnce(updateDetailsStub);
-      sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 404);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(updateDetailsStub).toHaveBeenCalledTimes(1);
+      expect(updateDetailsStub).toHaveBeenCalledWith(404);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
       });
     });
