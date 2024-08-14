@@ -24,8 +24,8 @@ describe("userController Unit Test", () => {
   let loginStub: jest.Mock<any, any, any>;
   let logoutStub: jest.Mock<any, any, any>;
   let listUserByIDStub: jest.Mock<any, any, any>;
-  let updateUserDetailsStub: jest.Mock<any, any, any>;
-  let updateUserPasswordStub: jest.Mock<any, any, any>;
+  let updateUserDetailsByIDStub: jest.Mock<any, any, any>;
+  let updateUserPasswordByIDStub: jest.Mock<any, any, any>;
   let deleteUserByIDStub: jest.Mock<any, any, any>;
   let controller: ReturnType<typeof userController>;
   let mockUserService: UserServices;
@@ -89,7 +89,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  updateUserDetailsStub = jest.fn((user) => {
+  updateUserDetailsByIDStub = jest.fn((user) => {
     if(user.id === mockUserInvalid.id) {
       return Promise.resolve({
         httpStatusCode: 404,
@@ -103,7 +103,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  updateUserPasswordStub = jest.fn((user) => {
+  updateUserPasswordByIDStub = jest.fn((user) => {
     if(user.id === mockUserInvalid.id) {
       return Promise.resolve({
         httpStatusCode: 404,
@@ -142,8 +142,8 @@ describe("userController Unit Test", () => {
     loginUser: loginStub,
     logoutUser: logoutStub,
     listUserByID: listUserByIDStub,
-    updateUserDetailsByID: jest.fn(),
-    updateUserPasswordByID: jest.fn(),
+    updateUserDetailsByID: updateUserDetailsByIDStub,
+    updateUserPasswordByID: updateUserPasswordByIDStub,
     deleteUserByID: deleteUserByIDStub,
   };
 
@@ -304,9 +304,9 @@ describe("userController Unit Test", () => {
 
       const { password, ...filteredMockUser } = mockUser._doc;
 
-      expect(updateUserDetailsStub).toHaveBeenCalledTimes(1);
-      expect(updateUserDetailsStub).toHaveBeenCalledWith(200);
-      expect(updateUserDetailsStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
+      expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
+      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(200);
+      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Data updated successfully",
@@ -339,8 +339,8 @@ describe("userController Unit Test", () => {
 
       await userController.updateUserDetailsHandler(req, res);
 
-      expect(updateUserDetailsStub).toHaveBeenCalledTimes(1);
-      expect(updateUserDetailsStub).toHaveBeenCalledWith(404);
+      expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
+      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(404);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
@@ -386,9 +386,9 @@ describe("userController Unit Test", () => {
 
       const { password, ...filteredMockUser } = mockUserUser._doc;
 
-      expect(updateUserPasswordStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordStub).toHaveBeenCalledWith(200);
-      expect(updateUserPasswordStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(200);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Password updated successfully",
@@ -420,8 +420,8 @@ describe("userController Unit Test", () => {
 
       await userController.updateUserPasswordHandler(req, res);
 
-      expect(updateUserPasswordStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordStub).toHaveBeenCalledWith(404);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(404);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
@@ -452,8 +452,8 @@ describe("userController Unit Test", () => {
 
       await userController.updateUserPasswordHandler(req, res);
 
-      expect(updateUserPasswordStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordStub).toHaveBeenCalledWith(400);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(400);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "The entered credentials are not valid",
