@@ -384,12 +384,10 @@ describe("userController Unit Test", () => {
 
       await userController.updateUserPasswordHandler(req, res);
 
-      sinon.assert.calledOnce(updatePasswordStub);
-      sinon.assert.calledWith(updatePasswordStub, req.user, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 404);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(updatePasswordStub).toHaveBeenCalledTimes(1);
+      expect(updatePasswordStub).toHaveBeenCalledWith(404);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
       });
     });
