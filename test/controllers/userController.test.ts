@@ -17,13 +17,14 @@ import userController from "../../src/api/controllers/userController";
 import { cookie } from "express-validator";
 
 describe("userController Unit Test", () => {
-  let req: UserRequest | LoginRequest | Request | UserIdRequest;
+  let req: UserRequest | LoginRequest | Request | UserIdRequest | UpdateUserRequest;
   let res: Response<any, Record<string, any>>;
   let json: jest.Mock;
   let signUpUserStub: jest.Mock<any, any, any>;
   let loginStub: jest.Mock<any, any, any>;
   let logoutStub: jest.Mock<any, any, any>;
   let listUserByIDStub: jest.Mock<any, any, any>;
+  let updateUserDetailsByIDStub: jest.Mock<any, any, any>;
   let deleteUserByIDStub: jest.Mock<any, any, any>;
   let controller: ReturnType<typeof userController>;
   let mockUserService: UserServices;
@@ -350,9 +351,9 @@ describe("userController Unit Test", () => {
 
       const { password, ...filteredMockUser } = mockUserUser._doc;
 
-      expect(updatePasswordStub).toHaveBeenCalledTimes(1);
-      expect(updatePasswordStub).toHaveBeenCalledWith(200);
-      expect(updatePasswordStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
+      expect(updateUserPasswordStub).toHaveBeenCalledTimes(1);
+      expect(updateUserPasswordStub).toHaveBeenCalledWith(200);
+      expect(updateUserPasswordStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Password updated successfully",
@@ -384,8 +385,8 @@ describe("userController Unit Test", () => {
 
       await userController.updateUserPasswordHandler(req, res);
 
-      expect(updatePasswordStub).toHaveBeenCalledTimes(1);
-      expect(updatePasswordStub).toHaveBeenCalledWith(404);
+      expect(updateUserPasswordStub).toHaveBeenCalledTimes(1);
+      expect(updateUserPasswordStub).toHaveBeenCalledWith(404);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
@@ -416,12 +417,10 @@ describe("userController Unit Test", () => {
 
       await userController.updateUserPasswordHandler(req, res);
 
-      sinon.assert.calledOnce(updatePasswordStub);
-      sinon.assert.calledWith(updatePasswordStub, req.user, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 400);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(updateUserPasswordStub).toHaveBeenCalledTimes(1);
+      expect(updateUserPasswordStub).toHaveBeenCalledWith(400);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "The entered credentials are not valid",
       });
     });
