@@ -268,12 +268,11 @@ describe("userController Unit Test", () => {
 
       const { password, ...filteredMockUser } = mockUser._doc;
 
-      sinon.assert.calledOnce(updateDetailsStub);
-      sinon.assert.calledWith(updateDetailsStub, req.user, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(updateDetailsStub).toHaveBeenCalledTimes(1);
+      expect(updateDetailsStub).toHaveBeenCalledWith(200);
+      expect(updateDetailsStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "Data updated successfully",
         updatedUser: filteredMockUser,
       });
