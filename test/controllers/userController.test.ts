@@ -266,16 +266,6 @@ describe("userController Unit Test", () => {
   });
 
   describe("updateDetails method", () => {
-    let req, res, json, cookie, sandbox, updateDetailsStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should update details of a valid user", async () => {
       const expectedUpdateProperties = {
         name: mockUserUpdate.name,
@@ -283,26 +273,14 @@ describe("userController Unit Test", () => {
         age: mockUserUpdate.age,
       };
 
-      req = {
-        user: mockUserUser,
-        body: expectedUpdateProperties,
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
+      const req = {
+        userId: mockUserRoleUser._id.toString(),
+        user: expectedUpdateProperties,
+      } as UpdateUserRequest;
 
-      updateDetailsStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        message: "Data updated successfully",
-        user: mockUserUser,
-      });
+      await controller.updateUserDetailsHandler(req, res);
 
-      userController.setUpdateUserDetails(updateDetailsStub);
-
-      await userController.updateUserDetailsHandler(req, res);
-
-      const { password, ...filteredMockUser } = mockUser._doc;
+      const { password, ...filteredMockUser } = mockUserRoleUser;
 
       expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
       expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(200);
