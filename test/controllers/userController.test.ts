@@ -34,136 +34,135 @@ describe("userController Unit Test", () => {
     req = {} as UserRequest | LoginRequest | Request | UserIdRequest | UpdateUserRequest;
     json = jest.fn();
     res = {
-      status : jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     } as unknown as Response<any, Record<string, any>>;
 
-  signUpUserStub = jest.fn((user) => {
-    if(user === mockUserInvalid) {
+    signUpUserStub = jest.fn((user) => {
+      if (user === mockUserInvalid) {
+        return Promise.resolve({
+          httpStatusCode: 400,
+          message: "Email already exists",
+        });
+      }
       return Promise.resolve({
-        httpStatusCode: 400,
-        message: "Email already exists",
+        httpStatusCode: 200,
+        message: "User created successfully",
+        user: mockUserRoleUser,
       });
-    }
-    return Promise.resolve({
-    httpStatusCode: 200,
-    message: "User created successfully",
-    user: mockUserRoleUser,
     });
+
+    loginStub = jest.fn((user) => {
+      if (user.email === mockUserInvalid.email) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "User or Password does not match",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "User login successfully",
+        user: mockUserRoleUser,
+        tokenCreated: "token",
+        token: "token",
+      });
+    });
+
+    logoutStub = jest.fn(() => {
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "User logged out successfully",
+      });
+    });
+
+    listUserByIDStub = jest.fn((user) => {
+      if (user.id === mockUserInvalid.id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "User Not Found",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "User Found",
+        user: mockUserRoleUser,
+      });
+    });
+
+    updateUserDetailsByIDStub = jest.fn((user) => {
+      if (user.id === mockUserInvalid.id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "User Not Found",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Data updated successfully",
+        user: mockUserRoleUser,
+      });
+    });
+
+    updateUserPasswordByIDStub = jest.fn((user) => {
+      if (user.id === mockUserInvalid.id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "User Not Found",
+        });
+      }
+      if (user.password === mockUserUpdate.notMatchPassword) {
+        return Promise.resolve({
+          httpStatusCode: 400,
+          message: "The entered credentials are not valid",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Password updated successfully",
+        user: mockUserRoleUser,
+      });
+    });
+
+    deleteUserByIDStub = jest.fn((user) => {
+      if (user.id === mockUserInvalid.id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "User Not Found",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "User deleted successfully",
+      });
+    });
+
+    mockUserService = {
+      signUpUser: signUpUserStub,
+      loginUser: loginStub,
+      logoutUser: logoutStub,
+      listUserByID: listUserByIDStub,
+      updateUserDetailsByID: updateUserDetailsByIDStub,
+      updateUserPasswordByID: updateUserPasswordByIDStub,
+      deleteUserByID: deleteUserByIDStub,
+    };
+
+    controller = userController(mockUserService);
   });
 
-  loginStub = jest.fn((user) => {
-    if(user.email === mockUserInvalid.email) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "User or Password does not match",
-      });
-    }
-    return Promise.resolve({
-      httpStatusCode: 200,
-      message: "User login successfully",
-      user: mockUserRoleUser,
-      tokenCreated: "token",
-      token: "token",
-    });
-  });
-
-  logoutStub = jest.fn(() => {
-    return Promise.resolve({
-      httpStatusCode: 200,
-      message: "User logged out successfully",
-    });
-  });  
-
-  listUserByIDStub = jest.fn((user) => {
-    if(user.id === mockUserInvalid.id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
-    }
-    return Promise.resolve({
-      httpStatusCode: 200,
-      message: "User Found",
-      user: mockUserRoleUser,
-    });
-  });
-
-  updateUserDetailsByIDStub = jest.fn((user) => {
-    if(user.id === mockUserInvalid.id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
-    }
-    return Promise.resolve({
-      httpStatusCode: 200,
-      message: "Data updated successfully",
-      user: mockUserRoleUser,
-    });
-  });
-
-  updateUserPasswordByIDStub = jest.fn((user) => {
-    if(user.id === mockUserInvalid.id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
-    }
-    if(user.password === mockUserUpdate.notMatchPassword) {
-      return Promise.resolve({
-        httpStatusCode: 400,
-        message: "The entered credentials are not valid",
-      });
-    }
-    return Promise.resolve({
-      httpStatusCode: 200,
-      message: "Password updated successfully",
-      user: mockUserRoleUser,
-    });
-  });
-
-  deleteUserByIDStub = jest.fn((user) => {
-    if(user.id === mockUserInvalid.id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
-    }
-    return Promise.resolve({
-      httpStatusCode: 200,
-      message: "User deleted successfully",
-    });
-  });
-
-
-  mockUserService = {
-    signUpUser: signUpUserStub,
-    loginUser: loginStub,
-    logoutUser: logoutStub,
-    listUserByID: listUserByIDStub,
-    updateUserDetailsByID: updateUserDetailsByIDStub,
-    updateUserPasswordByID: updateUserPasswordByIDStub,
-    deleteUserByID: deleteUserByIDStub,
-  };
-
-  controller = userController(mockUserService);  
-});
-  
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   describe("register method", () => {
     it.only("should register a new user", async () => {
-      const { _id, ...userWithoutId} = mockUserRoleUser;
+      const { _id, ...userWithoutId } = mockUserRoleUser;
       req = userWithoutId as UserRequest;
 
       await controller.registerHandler(req as UserRequest, res);
 
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
-     expect(signUpUserStub).toHaveBeenCalledTimes(1);
+      expect(signUpUserStub).toHaveBeenCalledTimes(1);
       expect(signUpUserStub).toHaveBeenCalledWith(200);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
@@ -188,8 +187,8 @@ describe("userController Unit Test", () => {
 
   describe("login method", () => {
     it("should login a valid user", async () => {
-      const {email, password} = mockUserRoleUser;
-      req = {email, password } as LoginRequest;
+      const { email, password } = mockUserRoleUser;
+      req = { email, password } as LoginRequest;
 
       await controller.loginHandler(req, res);
 
@@ -203,14 +202,15 @@ describe("userController Unit Test", () => {
         loggedUser: filteredMockUser,
       });
       expect(cookie).toHaveBeenCalledTimes(1);
-      expect(cookie).toHaveBeenCalledWith("nodetodo", "token",{
+      expect(cookie).toHaveBeenCalledWith("nodetodo", "token", {
         httpOnly: true,
         expiresIn: 360000,
       });
+    });
 
     it("should restrict login an invalid user", async () => {
-      const {email, password} = mockUserInvalid;
-      req = {email, password } as LoginRequest;
+      const { email, password } = mockUserInvalid;
+      req = { email, password } as LoginRequest;
 
       await controller.loginHandler(req, res);
 
@@ -237,7 +237,7 @@ describe("userController Unit Test", () => {
   describe("listUser method", () => {
     it("should get details of a valid user", async () => {
       const userId = mockUserRoleUser._id.toString();
-      req = {userId} as UserIdRequest;
+      req = { userId } as UserIdRequest;
 
       await controller.listUserHandler(req, res);
 
@@ -253,7 +253,7 @@ describe("userController Unit Test", () => {
 
     it("should restrict to get details of an invalid user", async () => {
       const userId = mockUserInvalid.id;
-      req = {userId} as UserIdRequest;
+      req = { userId } as UserIdRequest;
 
       await controller.listUserHandler(req, res);
 
@@ -263,6 +263,7 @@ describe("userController Unit Test", () => {
       expect(json).toHaveBeenCalledWith({
         resultMessage: "User Not Found",
       });
+    });
   });
 
   describe("updateDetails method", () => {
@@ -316,42 +317,20 @@ describe("userController Unit Test", () => {
   });
 
   describe("updatePassword method", () => {
-    let req, res, json, cookie, sandbox, updatePasswordStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should update password of a valid user", async () => {
       const expectedUpdateProperties = {
         password: mockUserUpdate.oldPassword,
         newPassword: mockUserUpdate.newPassword,
       };
 
-      req = {
-        user: mockUserUser,
-        body: expectedUpdateProperties,
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
+      const req = {
+        userId: mockUserRoleUser._id.toString(),
+        user: expectedUpdateProperties,
+      } as UpdateUserRequest;
 
-      updatePasswordStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        message: "Password updated successfully",
-        user: mockUserUser,
-      });
+      await controller.updateUserPasswordHandler(req, res);
 
-      userController.setUpdateUserPassword(updatePasswordStub);
-
-      await userController.updateUserPasswordHandler(req, res);
-
-      const { password, ...filteredMockUser } = mockUserUser._doc;
+      const { password, ...filteredMockUser } = mockUserRoleUser;
 
       expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
       expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(200);
@@ -369,23 +348,12 @@ describe("userController Unit Test", () => {
         newPassword: mockUserUpdate.newPassword,
       };
 
-      req = {
-        user: mockUserInvalid,
-        body: expectedUpdateProperties,
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
+      const req = {
+        userId: mockUserInvalid.id,
+        user: expectedUpdateProperties,
+      } as UpdateUserRequest;
 
-      updatePasswordStub = sandbox.stub().resolves({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
-
-      userController.setUpdateUserPassword(updatePasswordStub);
-
-      await userController.updateUserPasswordHandler(req, res);
+      await controller.updateUserPasswordHandler(req, res);
 
       expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
       expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(404);
@@ -401,23 +369,12 @@ describe("userController Unit Test", () => {
         newPassword: mockUserUpdate.newPassword,
       };
 
-      req = {
-        user: mockUserUser,
-        body: expectedUpdateProperties,
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
+      const req = {
+        userId: mockUserRoleUser._id.toString(),
+        user: expectedUpdateProperties,
+      } as UpdateUserRequest;
 
-      updatePasswordStub = sandbox.stub().resolves({
-        httpStatusCode: 400,
-        message: "The entered credentials are not valid",
-      });
-
-      userController.setUpdateUserPassword(updatePasswordStub);
-
-      await userController.updateUserPasswordHandler(req, res);
+      await controller.updateUserPasswordHandler(req, res);
 
       expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
       expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(400);
@@ -431,7 +388,7 @@ describe("userController Unit Test", () => {
   describe("deleteUser method", () => {
     it("should delete a valid user", async () => {
       const userId = mockUserDelete.id;
-      req = {userId} as UserIdRequest;
+      req = { userId } as UserIdRequest;
 
       await controller.deleteUserHandler(req, res);
 
@@ -444,7 +401,7 @@ describe("userController Unit Test", () => {
 
     it("should restrict to delete an invalid user", async () => {
       const userId = mockUserInvalid.id;
-      req = {userId} as UserIdRequest;
+      req = { userId } as UserIdRequest;
 
       await controller.deleteUserHandler(req, res);
 
