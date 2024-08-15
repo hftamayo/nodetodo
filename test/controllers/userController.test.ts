@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import {
-mockUserRoleUser,
-mockUserInvalid,
-mockUserUpdate,
-mockUserDelete,
-mockUserRoleAdmin,
+  mockUserRoleUser,
+  mockUserInvalid,
+  mockUserUpdate,
+  mockUserDelete,
+  mockUserRoleAdmin,
 } from "../mocks/user.mock";
 import {
   UserRequest,
@@ -17,7 +17,12 @@ import userController from "../../src/api/controllers/userController";
 import { cookie } from "express-validator";
 
 describe("userController Unit Test", () => {
-  let req: UserRequest | LoginRequest | Request | UserIdRequest | UpdateUserRequest;
+  let req:
+    | UserRequest
+    | LoginRequest
+    | Request
+    | UserIdRequest
+    | UpdateUserRequest;
   let res: Response<any, Record<string, any>>;
   let json: jest.Mock;
   let signUpUserStub: jest.Mock<any, any, any>;
@@ -31,7 +36,12 @@ describe("userController Unit Test", () => {
   let mockUserService: UserServices;
 
   beforeEach(() => {
-    req = {} as UserRequest | LoginRequest | Request | UserIdRequest | UpdateUserRequest;
+    req = {} as
+      | UserRequest
+      | LoginRequest
+      | Request
+      | UserIdRequest
+      | UpdateUserRequest;
     json = jest.fn();
     res = {
       status: jest.fn().mockReturnThis(),
@@ -285,7 +295,10 @@ describe("userController Unit Test", () => {
 
       expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
       expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(200);
-      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
+      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(
+        mockUserRoleUser,
+        expectedUpdateProperties
+      );
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Data updated successfully",
@@ -334,7 +347,10 @@ describe("userController Unit Test", () => {
 
       expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
       expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(200);
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(mockUserRoleUser, expectedUpdateProperties);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(
+        mockUserRoleUser,
+        expectedUpdateProperties
+      );
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Password updated successfully",
