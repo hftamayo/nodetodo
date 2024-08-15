@@ -299,23 +299,12 @@ describe("userController Unit Test", () => {
         age: mockUserUpdate.age,
       };
 
-      req = {
-        user: mockUserInvalid,
-        body: expectedUpdateProperties,
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-      res.cookie = cookie;
+      const req = {
+        userId: mockUserInvalid.id,
+        user: expectedUpdateProperties,
+      } as UpdateUserRequest;
 
-      updateDetailsStub = sandbox.stub().resolves({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
-
-      userController.setUpdateUserDetails(updateDetailsStub);
-
-      await userController.updateUserDetailsHandler(req, res);
+      await controller.updateUserDetailsHandler(req, res);
 
       expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
       expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(404);
