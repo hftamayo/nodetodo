@@ -1,15 +1,43 @@
-const sinon = require("sinon");
-const {
-  newTodo,
-  todoSupervisor,
+import {Request, Response} from "express";
+import {
+  newStandardTodo,
+  newTodoSupervisor,
   todoForUpdate,
   deleteTodo,
-} = require("../mocks/todo.mock");
-const { mockUserSupervisor } = require("../mocks/user.mock");
-
-const todoController = require("../../src/api/controllers/todoController");
+  invalidStandardTodo,
+} from "../mocks/todo.mock";
+import {
+  mockUserInvalid,
+  mockUserRoleUser,
+  mockUserRoleSupervisor,
+} from "../mocks/user.mock";
+import {
+  NewTodoRequest,
+  UpdateTodoRequest,
+  OwnerTodoIdRequest,
+  TodoServices,
+} from "../../src/types/todo.interface";
+import { UserIdRequest } from "../../src/types/user.interface";
+import todoController from "../../src/api/controllers/todoController";
+import { cookie } from "express-validator";
 
 describe("todoController Unit Tests", () => {
+  let req: NewTodoRequest | UpdateTodoRequest | OwnerTodoIdRequest | UserIdRequest;
+  let res: Response<any, Record<string, any>>;
+  let json: jest.Mock;
+  let listActiveTodosStub: jest.Mock<any, any, any>;
+  let listActiveTodoStub: jest.Mock<any, any, any>;
+  let newTodoStub: jest.Mock<any, any, any>;
+  let updateTodoStub: jest.Mock<any, any, any>;
+  let deleteTodoStub: jest.Mock<any, any, any>;
+  let controller: ReturnType<typeof todoController>;
+  let mockTodoService: TodoServices;
+
+  
+
+
+
+
   describe("getTodos method", () => {
     let req, res, json, sandbox, listActiveTodosStub;
 
