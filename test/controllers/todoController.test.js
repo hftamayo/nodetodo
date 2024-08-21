@@ -89,10 +89,13 @@ describe("todoController Unit Tests", () => {
         activeTodos: todos,
       });
     });
+
+    it("should return empty list when no tasks are associated with an active user", async () => {
+    });
   });
 
   describe("getTodo method", () => {
-    it("should return a todo", async () => {
+    it("should return an existing todo", async () => {
       req = {
         user: mockUserSupervisor.id,
         params: { id: todoSupervisor._id },
@@ -117,6 +120,8 @@ describe("todoController Unit Tests", () => {
         resultMessage: "Todo found",
         searchTodo: todoSupervisor,
       });
+    });
+    it("should return an error message when todo is not found", async () => {
     });
   });
 
@@ -147,6 +152,8 @@ describe("todoController Unit Tests", () => {
         resultMessage: "Todo created successfully",
         newTodo: newTodo,
       });
+    });
+    it("should restrict create an existing todo", async () => {
     });
   });
 
@@ -191,6 +198,8 @@ describe("todoController Unit Tests", () => {
         updateTodo: todoSupervisor,
       });
     });
+    it("should restrict update of a todo associated to another user", async () => {
+    });
   });
 
   describe("deleteTodo method", () => {
@@ -217,6 +226,8 @@ describe("todoController Unit Tests", () => {
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo Deleted Successfully",
       });
+    });
+    it("should restrict delete of a todo associated to another user", async () => {
     });
   });
 });
