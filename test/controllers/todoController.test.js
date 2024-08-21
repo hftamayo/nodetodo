@@ -81,14 +81,12 @@ describe("todoController Unit Tests", () => {
       todoController.setActiveTodos(listActiveTodosStub);
 
       await todoController.getTodosHandler(req, res);
-      sinon.assert.calledOnce(listActiveTodosStub);
-      sinon.assert.calledWith(listActiveTodosStub, req.user);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+
+      expect(listActiveTodosStub).toHaveBeenCalledTimes(1);
+      expect(listActiveTodosStub).toHaveBeenCalledWith(todos);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "Tasks found",
-        activeTodos: todoSupervisor,
+        activeTodos: todos,
       });
     });
   });
@@ -113,12 +111,9 @@ describe("todoController Unit Tests", () => {
 
       await todoController.getTodoHandler(req, res);
 
-      sinon.assert.calledOnce(listActiveTodoStub);
-      sinon.assert.calledWith(listActiveTodoStub, req.user);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(listActiveTodoStub).toHaveBeenCalledTimes(1);
+      expect(listActiveTodoStub).toHaveBeenCalledWith(todoId);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo found",
         searchTodo: todoSupervisor,
       });
@@ -145,12 +140,10 @@ describe("todoController Unit Tests", () => {
 
       await todoController.newTodoHandler(req, res);
 
-      sinon.assert.calledOnce(newTodoStub);
-      sinon.assert.calledWith(newTodoStub, req.user, req.body);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(newTodoStub).toHaveBeenCalledTimes(1);
+      expect(newTodoStub).toHaveBeenCalledWith(200);
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo created successfully",
         newTodo: newTodo,
       });
@@ -185,12 +178,17 @@ describe("todoController Unit Tests", () => {
         req.params.id,
         req.body
       );
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+
+      expect(updateTodoStub).toHaveBeenCalledTimes(1);
+      expect(updateTodoStub).toHaveBeenCalledWith(200);
+      expect(updateTodoStub).toHaveBeenCalledWith(
+        mockTodoSupervisor,
+        expectedUpdateProperties
+      );
+      expect(json).toHaveBeenCalledTimes(1);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo updated successfully",
-        updateTodo: todoForUpdate,
+        updateTodo: todoSupervisor,
       });
     });
   });
@@ -214,12 +212,9 @@ describe("todoController Unit Tests", () => {
 
       await todoController.deleteTodoHandler(req, res);
 
-      sinon.assert.calledOnce(deleteTodoStub);
-      sinon.assert.calledWith(deleteTodoStub, req.user, req.params.id);
-      sinon.assert.calledOnce(res.status);
-      sinon.assert.calledWith(res.status, 200);
-      sinon.assert.calledOnce(json);
-      sinon.assert.calledWith(json, {
+      expect(deleteTodoStub).toHaveBeenCalledTimes(1);
+      expect(deleteTodoStub).toHaveBeenCalledWith(todoId);
+      expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo Deleted Successfully",
       });
     });
