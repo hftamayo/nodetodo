@@ -62,19 +62,7 @@ describe("todoController Unit Tests", () => {
     jest.clearAllMocks();
   });
 
-
-
   describe("getTodos method", () => {
-    let req, res, json, sandbox, listActiveTodosStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should return a list of todos associated to an active user", async () => {
       req = {
         user: mockUserSupervisor.id,
@@ -106,16 +94,6 @@ describe("todoController Unit Tests", () => {
   });
 
   describe("getTodo method", () => {
-    let req, res, json, sandbox, listActiveTodoStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should return a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
@@ -148,16 +126,6 @@ describe("todoController Unit Tests", () => {
   });
 
   describe("createTodo method", () => {
-    let req, res, json, sandbox, newTodoStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should create a new todo", async () => {
       req = {
         user: mockUserSupervisor.id,
@@ -190,17 +158,7 @@ describe("todoController Unit Tests", () => {
   });
 
   describe("updateTodo method", () => {
-    let req, res, json, sandbox, updateTodoStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    it.skip("should update a todo", async () => {
+    it("should update a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
         params: { id: todoSupervisor.id },
@@ -238,16 +196,6 @@ describe("todoController Unit Tests", () => {
   });
 
   describe("deleteTodo method", () => {
-    let req, res, json, sandbox, deleteTodoStub;
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should delete a todo", async () => {
       req = {
         user: mockUserSupervisor.id,
