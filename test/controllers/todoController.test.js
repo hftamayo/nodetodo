@@ -58,8 +58,9 @@ describe("todoController Unit Tests", () => {
     controller = todoController(mockTodoService);
   });
 
-  
-
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
 
 
