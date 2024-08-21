@@ -33,6 +33,31 @@ describe("todoController Unit Tests", () => {
   let controller: ReturnType<typeof todoController>;
   let mockTodoService: TodoServices;
 
+  beforeEach(() => {
+    req = {} as NewTodoRequest | UpdateTodoRequest | OwnerTodoIdRequest | UserIdRequest;
+    json = jest.fn();
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as Response<any, Record<string, any>>;
+
+    listActiveTodosStub = jest.fn();
+    listActiveTodoStub = jest.fn();
+    newTodoStub = jest.fn();
+    updateTodoStub = jest.fn();
+    deleteTodoStub = jest.fn();
+
+    mockTodoService = {
+      listActiveTodos: listActiveTodosStub,
+      listActiveTodo: listActiveTodoStub,
+      createTodo: newTodoStub,
+      updateTodo: updateTodoStub,
+      deleteTodo: deleteTodoStub,
+    };
+
+    controller = todoController(mockTodoService);
+  });
+
   
 
 
