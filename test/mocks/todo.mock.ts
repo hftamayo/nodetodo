@@ -1,43 +1,48 @@
-import mongoose from "mongoose";
-import { mockUserRoleUser } from "./user.mock";
+import { mongo } from "mongoose";
+import { mockUserRoleUser, mockUserRoleSupervisor } from "./user.mock";
+import { create } from "domain";
 
 const getRandomInt = (max: number) => {
   return Math.floor(Math.random() * Math.floor(max));
 };
 
 export const newStandardTodo = {
-  id: new mongoose.Types.ObjectId().toString(), 
+  id: new mongo.ObjectId("123456789012"),
   title: `New Todo${getRandomInt(1000000)}`,
   description: "New Todo Description",
   completed: false,
-  user: new mongoose.Types.ObjectId().toString(), 
-
+  user: mockUserRoleUser._id,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 export const invalidStandardTodo = {
-  _id: "ABC123456", 
+  _id: "ABC123456",
   title: "invalid title",
   description: "invalid description",
   completed: false,
+  user: mockUserRoleUser._id,
 };
 
 export const newTodoSupervisor = {
-  _id: new mongoose.Types.ObjectId,
+  _id: new mongo.ObjectId("123456789013"),
   title: "Gym",
   description: "To exercise",
   completed: false,
-  user: "5f7f8b1e9f3f9c1d6c1e4d1f",
+  user: mockUserRoleSupervisor._id,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
 
 export const todoForUpdate = {
-  _id: "5f7f8b1e9f3f9c1d6c1e4d1f",
+  _id: new mongo.ObjectId("123456789014"),
   title: "Update Todo",
   description: "Update Todo Description",
   completed: true,
+  user: mockUserRoleUser._id,
+  updatedAt: new Date(),
 };
 
 export const deleteTodo = {
-  _id: "222222222",
-}
+  _id: new mongo.ObjectId("123456789015"),
+};
