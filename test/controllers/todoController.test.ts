@@ -1,16 +1,12 @@
 import {Request, Response} from "express";
 import {
-  newStandardTodo,
-  newTodoSupervisor,
-  todoForUpdate,
-  deleteTodo,
-  invalidStandardTodo,
+  mockTodos,
+  mockTodoRoleUser,
+  mockInvalidTodo,
+  mockTodoSupervisor,
+  mockTodoForUpdate,
+  mockDeleteTodo,
 } from "../mocks/todo.mock";
-import {
-  mockUserInvalid,
-  mockUserRoleUser,
-  mockUserRoleSupervisor,
-} from "../mocks/user.mock";
 import {
   NewTodoRequest,
   UpdateTodoRequest,
@@ -59,7 +55,7 @@ describe("todoController Unit Tests", () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe("getTodos method", () => {
@@ -96,23 +92,13 @@ describe("todoController Unit Tests", () => {
 
   describe("getTodo method", () => {
     it("should return an existing todo", async () => {
+      const todoId = mockTodoRoleUser._id.toString();
       req = {
         user: mockUserSupervisor.id,
         params: { id: todoSupervisor._id },
       };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
 
-      listActiveTodoStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        message: "Todo found",
-        todo: todoSupervisor,
-      });
-
-      todoController.setTodoByID(listActiveTodoStub);
-
-      await todoController.getTodoHandler(req, res);
+      await controller.getTodoHandler(req, res);
 
       expect(listActiveTodoStub).toHaveBeenCalledTimes(1);
       expect(listActiveTodoStub).toHaveBeenCalledWith(todoId);
