@@ -189,25 +189,15 @@ describe("todoController Unit Tests", () => {
 
   describe("deleteTodo method", () => {
     it("should delete a todo", async () => {
-      req = {
-        user: mockUserSupervisor.id,
-        params: { id: deleteTodo.id },
-      };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
+      const req: OwnerTodoIdRequest = {
+        user: {userId: mockTodoRoleUser.user.toString()},
+        params: { todoId: mockTodoRoleUser._id.toString() },
+      } as OwnerTodoIdRequest;
 
-      deleteTodoStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        message: "Todo Deleted Successfully",
-      });
-
-      todoController.setDeleteTodoByID(deleteTodoStub);
-
-      await todoController.deleteTodoHandler(req, res);
+      await controller.deleteTodoHandler(req, res);
 
       expect(deleteTodoStub).toHaveBeenCalledTimes(1);
-      expect(deleteTodoStub).toHaveBeenCalledWith(todoId);
+      expect(deleteTodoStub).toHaveBeenCalledWith(req.params.todoId);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo Deleted Successfully",
       });
