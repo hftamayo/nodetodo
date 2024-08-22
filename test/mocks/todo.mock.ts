@@ -25,7 +25,7 @@ export const mockTodos = [
 ];
 
 export const mockTodoRoleUser = {
-  id: new mongo.ObjectId("123456789012"),
+  _id: new mongo.ObjectId("123456789012"),
   title: `New Todo${getRandomInt(1000000)}`,
   description: "New Todo Description",
   completed: false,
