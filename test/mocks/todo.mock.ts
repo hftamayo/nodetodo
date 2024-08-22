@@ -1,12 +1,30 @@
 import { mongo } from "mongoose";
 import { mockUserRoleUser, mockUserRoleSupervisor } from "./user.mock";
-import { create } from "domain";
 
 const getRandomInt = (max: number) => {
   return Math.floor(Math.random() * Math.floor(max));
 };
 
-export const newStandardTodo = {
+export const mockTodos = [
+  {
+    _id: new mongo.ObjectId("123456789001"),
+    title: "Task 1",
+    description: "Description for Task 1",
+    completed: false,
+    user: mockUserRoleUser._id,
+    updatedAt: new Date(),
+  },
+  {
+    _id: new mongo.ObjectId("123456789002"),
+    title: "Task 2",
+    description: "Description for Task 2",
+    completed: true,
+    user: mockUserRoleUser._id,
+    updatedAt: new Date(),
+  },
+];
+
+export const mockTodoRoleUser = {
   id: new mongo.ObjectId("123456789012"),
   title: `New Todo${getRandomInt(1000000)}`,
   description: "New Todo Description",
@@ -16,7 +34,7 @@ export const newStandardTodo = {
   updatedAt: new Date(),
 };
 
-export const invalidStandardTodo = {
+export const mockInvalidTodo = {
   _id: "ABC123456",
   title: "invalid title",
   description: "invalid description",
@@ -24,7 +42,7 @@ export const invalidStandardTodo = {
   user: mockUserRoleUser._id,
 };
 
-export const newTodoSupervisor = {
+export const mockTodoRoleSupervisor = {
   _id: new mongo.ObjectId("123456789013"),
   title: "Gym",
   description: "To exercise",
@@ -34,7 +52,7 @@ export const newTodoSupervisor = {
   updatedAt: new Date(),
 };
 
-export const todoForUpdate = {
+export const mockTodoForUpdate = {
   _id: new mongo.ObjectId("123456789014"),
   title: "Update Todo",
   description: "Update Todo Description",
@@ -43,6 +61,6 @@ export const todoForUpdate = {
   updatedAt: new Date(),
 };
 
-export const deleteTodo = {
+export const mockDeleteTodo = {
   _id: new mongo.ObjectId("123456789015"),
 };
