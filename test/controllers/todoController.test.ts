@@ -92,19 +92,18 @@ describe("todoController Unit Tests", () => {
 
   describe("getTodo method", () => {
     it("should return an existing todo", async () => {
-      const todoId = mockTodoRoleUser._id.toString();
-      req = {
-        user: mockUserSupervisor.id,
-        params: { id: todoSupervisor._id },
-      };
+      const req: OwnerTodoIdRequest = {
+        user: {userId: mockTodoRoleUser.user.toString()},
+        params: { todoId: mockTodoRoleUser._id.toString() },
+      } as OwnerTodoIdRequest;
 
       await controller.getTodoHandler(req, res);
 
       expect(listActiveTodoStub).toHaveBeenCalledTimes(1);
-      expect(listActiveTodoStub).toHaveBeenCalledWith(todoId);
+      expect(listActiveTodoStub).toHaveBeenCalledWith(req.params.todoId);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo found",
-        searchTodo: todoSupervisor,
+        searchTodo: mockTodoRoleUser,
       });
     });
     it("should return an error message when todo is not found", async () => {
