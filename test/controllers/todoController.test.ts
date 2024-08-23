@@ -3,10 +3,10 @@ import {
   mockTodos,
   mockTodoRoleUser,
   mockInvalidTodo,
-  mockTodoSupervisor,
   mockTodoForUpdate,
   mockDeleteTodo,
 } from "../mocks/todo.mock";
+import { mockUserRoleUser } from "../mocks/user.mock";
 import {
   NewTodoRequest,
   UpdateTodoRequest,
@@ -60,29 +60,15 @@ describe("todoController Unit Tests", () => {
 
   describe("getTodos method", () => {
     it("should return a list of todos associated to an active user", async () => {
-      req = {
-        user: mockUserSupervisor.id,
-      };
+      const req: UserIdRequest = {userId: mockUserRoleUser._id.toString()} ;
 
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
-
-      listActiveTodosStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        message: "Tasks found",
-        todos: todoSupervisor,
-      });
-
-      todoController.setActiveTodos(listActiveTodosStub);
-
-      await todoController.getTodosHandler(req, res);
+      await controller.getTodosHandler(req, res);
 
       expect(listActiveTodosStub).toHaveBeenCalledTimes(1);
-      expect(listActiveTodosStub).toHaveBeenCalledWith(todos);
+      expect(listActiveTodosStub).toHaveBeenCalledWith(req.userId);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Tasks found",
-        activeTodos: todos,
+        activeTodos: mockTodos,
       });
     });
 
