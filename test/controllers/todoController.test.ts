@@ -132,27 +132,8 @@ describe("todoController Unit Tests", () => {
         params: { id: todoSupervisor.id },
         body: todoForUpdate,
       };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
 
-      updateTodoStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        resultMessage: "Todo updated successfully",
-        updateTodo: todoSupervisor,
-      });
-
-      todoController.setUpdateTodoByID(updateTodoStub);
-
-      await todoController.updateTodoHandler(req, res);
-
-      sinon.assert.calledOnce(updateTodoStub);
-      sinon.assert.calledWith(
-        updateTodoStub,
-        req.user,
-        req.params.id,
-        req.body
-      );
+      await controller.updateTodoHandler(req, res);
 
       expect(updateTodoStub).toHaveBeenCalledTimes(1);
       expect(updateTodoStub).toHaveBeenCalledWith(200);
@@ -163,7 +144,7 @@ describe("todoController Unit Tests", () => {
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo updated successfully",
-        updateTodo: todoSupervisor,
+        updateTodo: mockTodoForUpdate,
       });
     });
     it("should restrict update of a todo associated to another user", async () => {
