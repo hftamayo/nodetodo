@@ -16,6 +16,7 @@ import {
 import { UserIdRequest } from "../../src/types/user.interface";
 import todoController from "../../src/api/controllers/todoController";
 import { cookie } from "express-validator";
+import { mock } from "node:test";
 
 describe("todoController Unit Tests", () => {
   let req: NewTodoRequest | UpdateTodoRequest | OwnerTodoIdRequest | UserIdRequest;
@@ -98,30 +99,26 @@ describe("todoController Unit Tests", () => {
 
   describe("createTodo method", () => {
     it("should create a new todo", async () => {
-      req = {
-        user: mockUserSupervisor.id,
-        body: newTodo,
+
+      const convertTodoRoleUser = {
+        ...mockTodoRoleUser,
+        _id: mockTodoRoleUser._id.toString(),
+        user: mockTodoRoleUser.user.toString(),
+      }
+
+      const req: NewTodoRequest = {
+        owner: {userId: mockUserRoleUser._id.toString()},
+        todo: convertTodoRoleUser,
       };
-      res = {};
-      json = sandbox.spy();
-      res.status = sandbox.stub().returns({ json });
 
-      newTodoStub = sandbox.stub().resolves({
-        httpStatusCode: 200,
-        message: "Todo created successfully",
-        todo: newTodo,
-      });
-
-      todoController.setCreateTodo(newTodoStub);
-
-      await todoController.newTodoHandler(req, res);
+      await controller.newTodoHandler(req, res);
 
       expect(newTodoStub).toHaveBeenCalledTimes(1);
       expect(newTodoStub).toHaveBeenCalledWith(200);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo created successfully",
-        newTodo: newTodo,
+        newTodo: mockTodoRoleUser,
       });
     });
     it("should restrict create an existing todo", async () => {
