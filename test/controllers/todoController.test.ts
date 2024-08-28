@@ -83,7 +83,18 @@ describe("todoController Unit Tests", () => {
         message: "Todo created Successfully",
       });
     });
-    updateTodoStub = jest.fn();
+    updateTodoStub = jest.fn((todo) => {
+      if (todo._id === mockInvalidTodo._id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "Todo Not Found",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo updated successfully",
+      });
+    });
     deleteTodoStub = jest.fn((todo) => {
       if (todo._id === mockInvalidTodo._id) {
         return Promise.resolve({
