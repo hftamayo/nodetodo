@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import {
   mockTodos,
   mockTodoRoleUser,
@@ -18,7 +18,11 @@ import todoController from "../../src/api/controllers/todoController";
 import { cookie } from "express-validator";
 
 describe("todoController Unit Tests", () => {
-  let req: NewTodoRequest | UpdateTodoRequest | OwnerTodoIdRequest | UserIdRequest;
+  let req:
+    | NewTodoRequest
+    | UpdateTodoRequest
+    | OwnerTodoIdRequest
+    | UserIdRequest;
   let res: Response<any, Record<string, any>>;
   let json: jest.Mock;
   let listActiveTodosStub: jest.Mock<any, any, any>;
@@ -30,18 +34,68 @@ describe("todoController Unit Tests", () => {
   let mockTodoService: TodoServices;
 
   beforeEach(() => {
-    req = {} as NewTodoRequest | UpdateTodoRequest | OwnerTodoIdRequest | UserIdRequest;
+    req = {} as
+      | NewTodoRequest
+      | UpdateTodoRequest
+      | OwnerTodoIdRequest
+      | UserIdRequest;
     json = jest.fn();
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     } as unknown as Response<any, Record<string, any>>;
 
-    listActiveTodosStub = jest.fn();
-    listActiveTodoStub = jest.fn();
-    newTodoStub = jest.fn();
+    listActiveTodosStub = jest.fn((userId) => {
+      if (userId === mockUserRoleUser._id.toString()) {
+        return Promise.resolve({
+          httpStatusCode: 200,
+          message: "Tasks found",
+          todos: mockTodos,
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 404,
+        message: "No active tasks found for active user",
+      });
+    });
+
+    listActiveTodoStub = jest.fn((todo) => {
+      if (todo._id === mockInvalidTodo._id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "Task Not Found",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo found",
+      });
+    });
+    newTodoStub = jest.fn((todo) => {
+      if (todo._id === mockInvalidTodo._id) {
+        return Promise.resolve({
+          httpStatusCode: 400,
+          message: "Title already taken",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo created Successfully",
+      });
+    });
     updateTodoStub = jest.fn();
-    deleteTodoStub = jest.fn();
+    deleteTodoStub = jest.fn((todo) => {
+      if (todo._id === mockInvalidTodo._id) {
+        return Promise.resolve({
+          httpStatusCode: 404,
+          message: "Todo Not Found",
+        });
+      }
+      return Promise.resolve({
+        httpStatusCode: 200,
+        message: "Todo Deleted Successfully",
+      });
+    });
 
     mockTodoService = {
       listActiveTodos: listActiveTodosStub,
@@ -60,7 +114,7 @@ describe("todoController Unit Tests", () => {
 
   describe("getTodos method", () => {
     it("should return a list of todos associated to an active user", async () => {
-      const req: UserIdRequest = {userId: mockUserRoleUser._id.toString()} ;
+      const req: UserIdRequest = { userId: mockUserRoleUser._id.toString() };
 
       await controller.getTodosHandler(req, res);
 
@@ -72,14 +126,13 @@ describe("todoController Unit Tests", () => {
       });
     });
 
-    it("should return empty list when no tasks are associated with an active user", async () => {
-    });
+    it("should return empty list when no tasks are associated with an active user", async () => {});
   });
 
   describe("getTodo method", () => {
     it("should return an existing todo", async () => {
       const req: OwnerTodoIdRequest = {
-        user: {userId: mockTodoRoleUser.user.toString()},
+        user: { userId: mockTodoRoleUser.user.toString() },
         params: { todoId: mockTodoRoleUser._id.toString() },
       } as OwnerTodoIdRequest;
 
@@ -92,21 +145,19 @@ describe("todoController Unit Tests", () => {
         searchTodo: mockTodoRoleUser,
       });
     });
-    it("should return an error message when todo is not found", async () => {
-    });
+    it("should return an error message when todo is not found", async () => {});
   });
 
   describe("createTodo method", () => {
     it("should create a new todo", async () => {
-
       const convertTodoRoleUser = {
         ...mockTodoRoleUser,
         _id: mockTodoRoleUser._id.toString(),
         user: mockTodoRoleUser.user.toString(),
-      }
+      };
 
       const req: NewTodoRequest = {
-        owner: {userId: mockUserRoleUser._id.toString()},
+        owner: { userId: mockUserRoleUser._id.toString() },
         todo: convertTodoRoleUser,
       };
 
@@ -120,20 +171,19 @@ describe("todoController Unit Tests", () => {
         newTodo: mockTodoRoleUser,
       });
     });
-    it("should restrict create an existing todo", async () => {
-    });
+    it("should restrict create an existing todo", async () => {});
   });
 
   describe("updateTodo method", () => {
     it("should update a todo", async () => {
       req = {
-        owner: {userId: mockTodoRoleUser.user.toString()},
+        owner: { userId: mockTodoRoleUser.user.toString() },
         todo: {
           ...mockTodoForUpdate,
           _id: mockTodoForUpdate._id.toString(),
           user: mockTodoForUpdate.user.toString(),
         },
-      }
+      };
 
       await controller.updateTodoHandler(req, res);
 
@@ -157,14 +207,13 @@ describe("todoController Unit Tests", () => {
         },
       });
     });
-    it("should restrict update of a todo associated to another user", async () => {
-    });
+    it("should restrict update of a todo associated to another user", async () => {});
   });
 
   describe("deleteTodo method", () => {
     it("should delete a todo", async () => {
       const req: OwnerTodoIdRequest = {
-        user: {userId: mockTodoRoleUser.user.toString()},
+        user: { userId: mockTodoRoleUser.user.toString() },
         params: { todoId: mockTodoRoleUser._id.toString() },
       } as OwnerTodoIdRequest;
 
@@ -176,7 +225,6 @@ describe("todoController Unit Tests", () => {
         resultMessage: "Todo Deleted Successfully",
       });
     });
-    it("should restrict delete of a todo associated to another user", async () => {
-    });
+    it("should restrict delete of a todo associated to another user", async () => {});
   });
 });
