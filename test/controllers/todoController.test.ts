@@ -128,23 +128,34 @@ describe("todoController Unit Tests", () => {
   describe("updateTodo method", () => {
     it("should update a todo", async () => {
       req = {
-        user: mockUserSupervisor.id,
-        params: { id: todoSupervisor.id },
-        body: todoForUpdate,
-      };
+        owner: {userId: mockTodoRoleUser.user.toString()},
+        todo: {
+          ...mockTodoForUpdate,
+          _id: mockTodoForUpdate._id.toString(),
+          user: mockTodoForUpdate.user.toString(),
+        },
+      }
 
       await controller.updateTodoHandler(req, res);
 
       expect(updateTodoStub).toHaveBeenCalledTimes(1);
       expect(updateTodoStub).toHaveBeenCalledWith(200);
-      expect(updateTodoStub).toHaveBeenCalledWith(
-        mockTodoSupervisor,
-        expectedUpdateProperties
-      );
+      expect(updateTodoStub).toHaveBeenCalledWith({
+        owner: { userId: mockTodoRoleUser.user.toString() },
+        todo: {
+          ...mockTodoForUpdate,
+          _id: mockTodoForUpdate._id?.toString(),
+          user: mockTodoForUpdate.user.toString(),
+        },
+      });
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
         resultMessage: "Todo updated successfully",
-        updateTodo: mockTodoForUpdate,
+        updateTodo: {
+          ...mockTodoForUpdate,
+          _id: mockTodoForUpdate._id?.toString(),
+          user: mockTodoForUpdate.user.toString(),
+        },
       });
     });
     it("should restrict update of a todo associated to another user", async () => {
