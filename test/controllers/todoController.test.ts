@@ -16,7 +16,6 @@ import {
 import { UserIdRequest } from "../../src/types/user.interface";
 import todoController from "../../src/api/controllers/todoController";
 import { cookie } from "express-validator";
-import { mock } from "node:test";
 
 describe("todoController Unit Tests", () => {
   let req: NewTodoRequest | UpdateTodoRequest | OwnerTodoIdRequest | UserIdRequest;
@@ -46,10 +45,10 @@ describe("todoController Unit Tests", () => {
 
     mockTodoService = {
       listActiveTodos: listActiveTodosStub,
-      listActiveTodo: listActiveTodoStub,
+      listTodoByID: listActiveTodoStub,
       createTodo: newTodoStub,
-      updateTodo: updateTodoStub,
-      deleteTodo: deleteTodoStub,
+      updateTodoByID: updateTodoStub,
+      deleteTodoByID: deleteTodoStub,
     };
 
     controller = todoController(mockTodoService);
