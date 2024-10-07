@@ -100,7 +100,7 @@ const createTodo = async function (req: NewTodoRequest) {
 
 const updateTodoByID = async function (req: UpdateTodoRequest) {
   const owner = req.owner;
-  const todoId = req.todo.id;
+  const todoId = req.todo._id;
   const { title, description, completed } = req.todo;
 
   try {
