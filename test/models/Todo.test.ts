@@ -1,32 +1,31 @@
 import Todo from "../../src/models/Todo";
-import { newStandardTodo } from "../mocks/todo.mock";
+import { mockTodoRoleUser } from "../mocks/todo.mock";
 
 describe("Todo Model", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  
+
   it("should create a new todo with valid data", async () => {
     const saveMock = jest
       .spyOn(Todo.prototype, "save")
-      .mockResolvedValue(newStandardTodo);
+      .mockResolvedValue(mockTodoRoleUser);
 
-      const todo = new Todo(newStandardTodo);
+    const todo = new Todo(mockTodoRoleUser);
 
-      await todo.save();
+    await todo.save();
 
-      expect(todo).toBeDefined();
-      expect(todo.title).toEqual(newStandardTodo.title);
-      expect(todo.description).toEqual(newStandardTodo.description);
-      expect(todo.completed).toEqual(newStandardTodo.completed);
-      expect(todo.user.toString()).toEqual(newStandardTodo.user.toString());
+    expect(todo).toBeDefined();
+    expect(todo.title).toEqual(mockTodoRoleUser.title);
+    expect(todo.description).toEqual(mockTodoRoleUser.description);
+    expect(todo.completed).toEqual(mockTodoRoleUser.completed);
+    expect(todo.user.toString()).toEqual(mockTodoRoleUser.user.toString());
 
-      saveMock.mockRestore();
+    saveMock.mockRestore();
   });
 
-
   it("should throw an error if the todo's title is missing", async () => {
-    const { title, ...todoWithoutTitle } = newStandardTodo;
+    const { title, ...todoWithoutTitle } = mockTodoRoleUser;
     const saveMock = jest
       .spyOn(Todo.prototype, "save")
       .mockRejectedValue(
@@ -43,7 +42,7 @@ describe("Todo Model", () => {
   });
 
   it("should throw an error if the todo's description is missing", async () => {
-    const { description, ...todoWithoutDesc } = newStandardTodo;
+    const { description, ...todoWithoutDesc } = mockTodoRoleUser;
     const saveMock = jest
       .spyOn(Todo.prototype, "save")
       .mockRejectedValue(
@@ -57,11 +56,10 @@ describe("Todo Model", () => {
     );
 
     saveMock.mockRestore();
-
   });
 
   it("should throw an error if the todo's completed status is missing", async () => {
-    const { completed, ...todoWithoutStatus } = newStandardTodo;
+    const { completed, ...todoWithoutStatus } = mockTodoRoleUser;
     const saveMock = jest
       .spyOn(Todo.prototype, "save")
       .mockRejectedValue(
@@ -76,5 +74,4 @@ describe("Todo Model", () => {
 
     saveMock.mockRestore();
   });
-
 });
