@@ -1,9 +1,9 @@
 import {
-  newStandardTodo,
-  newTodoSupervisor,
-  todoForUpdate,
-  deleteTodo,
-  invalidStandardTodo,
+  mockTodoRoleUser,
+  mockTodoRoleSupervisor,
+  mockTodoForUpdate,
+  mockDeleteTodo,
+  mockInvalidTodo,
 } from "../mocks/todo.mock";
 import {
   mockUserInvalid,
@@ -30,22 +30,22 @@ jest.mock("../../src/services/todoService", () => ({
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Tasks found",
-        todos: [newStandardTodo],
+        todos: [mockTodoRoleUser],
       });
     }
   }),
 
   listTodoByID: jest.fn((mockRequest) => {
-    if (mockRequest.user.userId === newTodoSupervisor._id.toString()) {
+    if (mockRequest.user.userId === mockTodoRoleSupervisor._id.toString()) {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Todo found",
         todo: {
-          ...newTodoSupervisor,
-          _id: newTodoSupervisor._id.toString(),
+          ...mockTodoRoleSupervisor,
+          _id: mockTodoRoleSupervisor._id.toString(),
         },
       });
-    } else if (mockRequest.params.todoId === invalidStandardTodo._id) {
+    } else if (mockRequest.params.todoId === mockInvalidTodo._id) {
       return Promise.resolve({
         httpStatusCode: 404,
         message: "Todo Not Found",
@@ -59,7 +59,7 @@ jest.mock("../../src/services/todoService", () => ({
   }),
 
   createTodo: jest.fn((requestBody: NewTodoRequest) => {
-    if (requestBody.todo.title === newStandardTodo.title) {
+    if (requestBody.todo.title === mockTodoRoleUser.title) {
       return Promise.resolve({
         httpStatusCode: 400,
         message: "Title already taken",
@@ -73,12 +73,12 @@ jest.mock("../../src/services/todoService", () => ({
   }),
 
   updateTodoByID: jest.fn((requestBody: UpdateTodoRequest) => {
-    if (requestBody.todo.id === todoForUpdate._id) {
+    if (requestBody.todo._id === mockTodoForUpdate._id) {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Todo updated successfully",
       });
-    } else if (requestBody.todo.id === invalidStandardTodo._id) {
+    } else if (requestBody.todo._id === mockInvalidTodo._id) {
       return Promise.resolve({
         httpStatusCode: 404,
         message: "Todo Not Found",
@@ -94,12 +94,12 @@ jest.mock("../../src/services/todoService", () => ({
   deleteTodoByID: jest.fn((owner: OwnerTodoIdRequest) => {
     const requestUserId = owner.user.userId;
     const requestTodoId = owner.params.todoId;
-    if (requestTodoId === deleteTodo._id) {
+    if (requestTodoId === mockDeleteTodo._id) {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Todo Deleted Successfully",
       });
-    } else if (requestTodoId === invalidStandardTodo._id) {
+    } else if (requestTodoId === mockInvalidTodo._id) {
       return Promise.resolve({
         httpStatusCode: 404,
         message: "Todo Not Found",
@@ -152,9 +152,9 @@ describe("TodoService Unit Tests", () => {
   describe("listTodoByID()", () => {
     it("should return a todo with valid data", async () => {
       const mockRequest = {
-        user: { userId: newTodoSupervisor.user.toString() },
+        user: { userId: mockTodoRoleSupervisor.user.toString() },
         params: {
-          todoId: newTodoSupervisor._id.toString(),
+          todoId: mockTodoRoleSupervisor._id.toString(),
         },
       } as OwnerTodoIdRequest;
 
@@ -164,20 +164,22 @@ describe("TodoService Unit Tests", () => {
       expect(response.httpStatusCode).toBe(200);
       expect(response.todo).toBeDefined();
       expect(response.message).toBe("Todo found");
-      expect(response.todo!.title).toBe(newTodoSupervisor.title);
-      expect(response.todo!.description).toBe(newTodoSupervisor.description);
-      expect(response.todo!.user.toString()).toBe(
-        newTodoSupervisor.user.toString()
+      expect(response.todo!.title).toBe(mockTodoRoleSupervisor.title);
+      expect(response.todo!.description).toBe(
+        mockTodoRoleSupervisor.description
       );
-      expect(response.todo!.completed).toBe(newTodoSupervisor.completed);
+      expect(response.todo!.user.toString()).toBe(
+        mockTodoRoleSupervisor.user.toString()
+      );
+      expect(response.todo!.completed).toBe(mockTodoRoleSupervisor.completed);
     });
   });
 
   it("should return error if todo does not exist", async () => {
     const mockRequest = {
-      user: { userId: newTodoSupervisor.user.toString() },
+      user: { userId: mockTodoRoleSupervisor.user.toString() },
       params: {
-        todoId: invalidStandardTodo._id,
+        todoId: mockInvalidTodo._id,
       },
     } as OwnerTodoIdRequest;
 
@@ -191,7 +193,7 @@ describe("TodoService Unit Tests", () => {
     const mockRequest = {
       user: { userId: mockUserInvalid.id },
       params: {
-        todoId: newTodoSupervisor._id.toString(),
+        todoId: mockTodoRoleSupervisor._id.toString(),
       },
     } as OwnerTodoIdRequest;
 
@@ -205,13 +207,13 @@ describe("TodoService Unit Tests", () => {
 describe("createTodo()", () => {
   it("should create a new todo with valid data", async () => {
     const owner = {
-      userId: newStandardTodo.user,
+      userId: mockTodoRoleUser.user,
     };
     const todoDetails = {
-      title: newStandardTodo.title,
-      description: newStandardTodo.description,
-      completed: newStandardTodo.completed,
-      user: newStandardTodo.user,
+      title: mockTodoRoleUser.title,
+      description: mockTodoRoleUser.description,
+      completed: mockTodoRoleUser.completed,
+      user: mockTodoRoleUser.user,
     };
 
     const requestBody: NewTodoRequest = {
@@ -232,13 +234,13 @@ describe("createTodo()", () => {
 
   it("should return if the title already exists", async () => {
     const owner = {
-      userId: newStandardTodo.user,
+      userId: mockTodoRoleUser.user,
     };
     const todoDetails = {
       title: "this tile already exists",
-      description: newStandardTodo.description,
-      completed: newStandardTodo.completed,
-      user: newStandardTodo.user,
+      description: mockTodoRoleUser.description,
+      completed: mockTodoRoleUser.completed,
+      user: mockTodoRoleUser.user,
     };
 
     const requestBody: NewTodoRequest = {
@@ -256,13 +258,13 @@ describe("createTodo()", () => {
 describe("updateTodoByID()", () => {
   it("should update a todo with valid data", async () => {
     const owner = {
-      userId: newStandardTodo.user,
+      userId: mockTodoRoleUser.user,
     };
     const todoUpdateDetails = {
-      id: todoForUpdate._id,
-      title: todoForUpdate.title,
-      description: todoForUpdate.description,
-      completed: todoForUpdate.completed,
+      id: mockTodoForUpdate._id,
+      title: mockTodoForUpdate.title,
+      description: mockTodoForUpdate.description,
+      completed: mockTodoForUpdate.completed,
     };
 
     const requestBody: UpdateTodoRequest = {
@@ -278,13 +280,13 @@ describe("updateTodoByID()", () => {
 
   it("should return error if the todo does not exist", async () => {
     const owner = {
-      userId: newStandardTodo.user,
+      userId: mockTodoRoleUser.user,
     };
     const todoUpdateDetails = {
-      id: invalidStandardTodo._id,
-      title: invalidStandardTodo.title,
-      description: invalidStandardTodo.description,
-      completed: invalidStandardTodo.completed,
+      id: mockInvalidTodo._id,
+      title: mockInvalidTodo.title,
+      description: mockInvalidTodo.description,
+      completed: mockInvalidTodo.completed,
     };
 
     const requestBody: UpdateTodoRequest = {
@@ -303,10 +305,10 @@ describe("updateTodoByID()", () => {
       userId: mockUserInvalid.id,
     };
     const todoUpdateDetails = {
-      id: todoForUpdate._id,
-      title: todoForUpdate.title,
-      description: todoForUpdate.description,
-      completed: todoForUpdate.completed,
+      id: mockTodoForUpdate._id,
+      title: mockTodoForUpdate.title,
+      description: mockTodoForUpdate.description,
+      completed: mockTodoForUpdate.completed,
     };
 
     const requestBody: UpdateTodoRequest = {
@@ -326,7 +328,7 @@ describe("deleteTodoByID()", () => {
     const mockRequest = {
       user: { userId: mockUserRoleSupervisor._id.toString() },
       params: {
-        todoId: deleteTodo._id,
+        todoId: mockDeleteTodo._id,
       },
     } as OwnerTodoIdRequest;
 
@@ -340,7 +342,7 @@ describe("deleteTodoByID()", () => {
     const mockRequest = {
       user: { userId: mockUserRoleSupervisor._id.toString() },
       params: {
-        todoId: invalidStandardTodo._id,
+        todoId: mockInvalidTodo._id,
       },
     } as OwnerTodoIdRequest;
 
@@ -354,7 +356,7 @@ describe("deleteTodoByID()", () => {
     const mockRequest = {
       user: { userId: mockUserInvalid.id },
       params: {
-        todoId: invalidStandardTodo._id,
+        todoId: mockInvalidTodo._id,
       },
     } as OwnerTodoIdRequest;
 
