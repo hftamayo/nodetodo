@@ -73,7 +73,7 @@ jest.mock("../../src/services/todoService", () => ({
   }),
 
   updateTodoByID: jest.fn((requestBody: UpdateTodoRequest) => {
-    if (requestBody.todo._id === mockTodoForUpdate._id) {
+    if (requestBody.todo._id === mockTodoForUpdate._id.toString()) {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Todo updated successfully",
@@ -94,7 +94,7 @@ jest.mock("../../src/services/todoService", () => ({
   deleteTodoByID: jest.fn((owner: OwnerTodoIdRequest) => {
     const requestUserId = owner.user.userId;
     const requestTodoId = owner.params.todoId;
-    if (requestTodoId === mockDeleteTodo._id) {
+    if (requestTodoId === mockDeleteTodo._id.toString()) {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Todo Deleted Successfully",
@@ -207,13 +207,13 @@ describe("TodoService Unit Tests", () => {
 describe("createTodo()", () => {
   it("should create a new todo with valid data", async () => {
     const owner = {
-      userId: mockTodoRoleUser.user,
+      userId: mockTodoRoleUser.user.toString(),
     };
     const todoDetails = {
       title: mockTodoRoleUser.title,
       description: mockTodoRoleUser.description,
       completed: mockTodoRoleUser.completed,
-      user: mockTodoRoleUser.user,
+      user: mockTodoRoleUser.user.toString(),
     };
 
     const requestBody: NewTodoRequest = {
@@ -234,13 +234,13 @@ describe("createTodo()", () => {
 
   it("should return if the title already exists", async () => {
     const owner = {
-      userId: mockTodoRoleUser.user,
+      userId: mockTodoRoleUser.user.toString(),
     };
     const todoDetails = {
       title: "this tile already exists",
       description: mockTodoRoleUser.description,
       completed: mockTodoRoleUser.completed,
-      user: mockTodoRoleUser.user,
+      user: mockTodoRoleUser.user.toString(),
     };
 
     const requestBody: NewTodoRequest = {
@@ -258,10 +258,10 @@ describe("createTodo()", () => {
 describe("updateTodoByID()", () => {
   it("should update a todo with valid data", async () => {
     const owner = {
-      userId: mockTodoRoleUser.user,
+      userId: mockTodoRoleUser.user.toString(),
     };
     const todoUpdateDetails = {
-      id: mockTodoForUpdate._id,
+      id: mockTodoForUpdate._id.toString(),
       title: mockTodoForUpdate.title,
       description: mockTodoForUpdate.description,
       completed: mockTodoForUpdate.completed,
@@ -280,10 +280,10 @@ describe("updateTodoByID()", () => {
 
   it("should return error if the todo does not exist", async () => {
     const owner = {
-      userId: mockTodoRoleUser.user,
+      userId: mockTodoRoleUser.user.toString(),
     };
     const todoUpdateDetails = {
-      id: mockInvalidTodo._id,
+      id: mockInvalidTodo._id.toString(),
       title: mockInvalidTodo.title,
       description: mockInvalidTodo.description,
       completed: mockInvalidTodo.completed,
@@ -328,7 +328,7 @@ describe("deleteTodoByID()", () => {
     const mockRequest = {
       user: { userId: mockUserRoleSupervisor._id.toString() },
       params: {
-        todoId: mockDeleteTodo._id,
+        todoId: mockDeleteTodo._id.toString(),
       },
     } as OwnerTodoIdRequest;
 
