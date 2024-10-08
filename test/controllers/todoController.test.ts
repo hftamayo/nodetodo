@@ -23,7 +23,7 @@ describe("todoController Unit Tests", () => {
     | UpdateTodoRequest
     | OwnerTodoIdRequest
     | UserIdRequest;
-  let res: Response<any, Record<string, any>>;
+  let res: Response<any, Record<string, unknown>>;
   let json: jest.Mock;
   let listActiveTodosStub: jest.Mock<any, any, any>;
   let listActiveTodoStub: jest.Mock<any, any, any>;
