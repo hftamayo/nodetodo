@@ -1,13 +1,13 @@
-import { validationResult } from "express-validator";
+import { validationResult, ValidationChain } from "express-validator";
 import request from "supertest";
-import express from "express";
+import express, { Request, Response } from "express";
 import validator from "../../src/api/middleware/validator";
 
 const app = express();
 app.use(express.json());
 
-const testValidationRules = (rules: any[]) => {
-  return async (req: any, res: any) => {
+const testValidationRules = (rules: ValidationChain[]) => {
+  return async (req: Request, res: Response) => {
     await Promise.all(rules.map((rule) => rule.run(req)));
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
