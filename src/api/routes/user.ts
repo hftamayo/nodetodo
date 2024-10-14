@@ -13,7 +13,7 @@ import {
   UserServices,
 } from "../../types/user.interface";
 
-const router = express.Router();
+const userRouter = express.Router();
 
 const controller = userController(userService as UserServices);
 
@@ -51,36 +51,36 @@ const deleteUserHandler = (req: Request, res: Response) => {
   controller.deleteUserHandler(userIdRequest, res);
 };
 
-router.post(
+userRouter.post(
   "/register",
   rateLimiter.signUpLimiter,
   validator.registerRules,
   validateResult,
   registerHandler
 );
-router.post(
+userRouter.post(
   "/login",
   rateLimiter.loginLimiter,
   validator.loginRules,
   validateResult,
   loginHandler
 );
-router.post("/logout", authorize, logoutHandler);
-router.get("/me", authorize, listUserHandler);
-router.put(
+userRouter.post("/logout", authorize, logoutHandler);
+userRouter.get("/me", authorize, listUserHandler);
+userRouter.put(
   "/updatedetails",
   authorize,
   validator.updateDetailsRules,
   validateResult,
   updateUserDetailsHandler
 );
-router.put(
+userRouter.put(
   "/updatepassword",
   authorize,
   validator.updatePasswordRules,
   validateResult,
   updateUserPasswordHandler
 );
-router.delete("/deleteuser", authorize, deleteUserHandler);
+userRouter.delete("/deleteuser", authorize, deleteUserHandler);
 
-export default router;
+export default userRouter;

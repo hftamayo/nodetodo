@@ -12,7 +12,7 @@ import {
 } from "../../types/todo.interface";
 import { UserIdRequest } from "../../types/user.interface";
 
-const router = express.Router();
+const todoRouter = express.Router();
 
 const controller = todoController(todoService as TodoServices);
 
@@ -40,7 +40,7 @@ const updateTodoHandler = (req: Request, res: Response) => {
   const updateTodoRequest = req.body as UpdateTodoRequest;
   updateTodoRequest.owner = { userId: req.body.userId };
   updateTodoRequest.todo = req.body.todo;
-  updateTodoRequest.todo.id = req.params.id;
+  updateTodoRequest.todo._id = req.params.id;
 
   controller.updateTodoHandler(updateTodoRequest, res);
 };
@@ -52,22 +52,22 @@ const deleteTodoHandler = (req: Request, res: Response) => {
   controller.deleteTodoHandler(ownerTodoIdRequest, res);
 };
 
-router.get("/list", authorize, getTodosHandler);
-router.get("/task/:id", authorize, getTodoHandler);
-router.post(
+todoRouter.get("/list", authorize, getTodosHandler);
+todoRouter.get("/task/:id", authorize, getTodoHandler);
+todoRouter.post(
   "/create",
   authorize,
   validator.createTodoRules,
   validateResult,
   newTodoHandler
 );
-router.patch(
+todoRouter.patch(
   "/update/:id",
   authorize,
   validator.updateTodoRules,
   validateResult,
   updateTodoHandler
 );
-router.delete("/delete/:id", authorize, deleteTodoHandler);
+todoRouter.delete("/delete/:id", authorize, deleteTodoHandler);
 
-export default router;
+export default todoRouter;
