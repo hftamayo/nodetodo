@@ -40,7 +40,7 @@ const updateTodoHandler = (req: Request, res: Response) => {
   const updateTodoRequest = req.body as UpdateTodoRequest;
   updateTodoRequest.owner = { userId: req.body.userId };
   updateTodoRequest.todo = req.body.todo;
-  updateTodoRequest.todo.id = req.params.id;
+  updateTodoRequest.todo._id = req.params.id;
 
   controller.updateTodoHandler(updateTodoRequest, res);
 };
