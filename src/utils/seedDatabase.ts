@@ -2,6 +2,10 @@ import { mode, dataseeddev, dataseedprod } from "../config/envvars";
 import seedUsers from "./seedUsers";
 import todoUsers from "./seedTodos";
 
+/*
+modules related to datasseeding just require integration testing
+*/
+
 async function seedDatabase() {
   const shouldSeedDatabase = dataseeddev === "true" || dataseedprod === "true";
 
