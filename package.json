@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "nodemon --exec ts-node server.ts",
     "lint": "eslint .",
+    "testenviro": "jest 'test/testframeenviro.test.js'",
     "test": "jest --findRelatedTests 'test/**/*.ts'",
     "integrationcontroller": "jest 'test/controllers/intcontroller.test.js'",
     "integrationservice": "jest 'test/services/intservice.test.js'",
