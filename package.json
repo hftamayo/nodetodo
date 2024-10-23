@@ -8,9 +8,9 @@
     "dev": "nodemon --exec ts-node server.ts",
     "lint": "eslint .",
     "testenviro": "jest 'test/testframeenviro.test.ts'",
-    "test": "jest --findRelatedTests 'test/**/*.ts'",
-    "integrationcontroller": "jest 'test/controllers/intcontroller.test.js'",
-    "integrationservice": "jest 'test/services/intservice.test.js'",
+    "test": "jest",
+    "integrationcontroller": "jest 'test/controllers/intcontroller.test.ts'",
+    "integrationservice": "jest 'test/services/intservice.test.ts'",
     "e2e": "jest 'test/e2e/**/*.ts'",
     "build": "tsc",  
     "start": "ts-node server.ts"
