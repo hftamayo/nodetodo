@@ -275,6 +275,19 @@ describe("UserService Unit Tests", () => {
         },
       };
 
+      const mockUser = {
+        _id: mockUserUpdate.id,
+        name: mockUserUpdate.name,
+        email: mockUserUpdate.email,
+        age: mockUserUpdate.age,
+      };
+
+      (userService.updateUserDetailsByID as jest.Mock).mockResolvedValueOnce({
+        httpStatusCode: 200,
+        message: "User updated successfully",
+        user: mockUser,
+      });
+
       const response = await userService.updateUserDetailsByID(requestBody);
 
       expect(response.httpStatusCode).toBe(200);
