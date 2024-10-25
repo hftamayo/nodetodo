@@ -312,6 +312,11 @@ describe("UserService Unit Tests", () => {
         },
       };
 
+      (userService.updateUserPasswordByID as jest.Mock).mockResolvedValueOnce({
+        httpStatusCode: 400,
+        message: "Password does not match",
+      });
+
       const response = await userService.updateUserPasswordByID(requestBody);
 
       expect(response.httpStatusCode).toBe(400);
