@@ -163,6 +163,11 @@ describe("UserService Unit Tests", () => {
         age: mockUserRoleUser.age,
       };
 
+      (userService.signUpUser as jest.Mock).mockResolvedValueOnce({
+        httpStatusCode: 400,
+        message: "Email already exists",
+      });
+
       const response = await userService.signUpUser(requestBody);
 
       expect(response.httpStatusCode).toBe(400);
