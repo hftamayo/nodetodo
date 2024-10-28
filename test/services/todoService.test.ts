@@ -158,7 +158,14 @@ describe("TodoService Unit Tests", () => {
         },
       } as OwnerTodoIdRequest;
 
-      // Since todoService is mocked, this call will use the mock implementation
+      const mockResponse = {
+        httpStatusCode: 200,
+        message: "Todo found",
+        todo: mockTodoRoleSupervisor,
+      };
+
+      (todoService.listTodoByID as jest.Mock).mockResolvedValue(mockResponse);
+
       const response = await todoService.listTodoByID(mockRequest);
 
       expect(response.httpStatusCode).toBe(200);
@@ -359,6 +366,13 @@ describe("deleteTodoByID()", () => {
         todoId: mockInvalidTodo._id,
       },
     } as OwnerTodoIdRequest;
+
+    const mockResponse = {
+      httpStatusCode: 401,
+      message: "You're not the owner of this Todo",
+    };
+
+    (todoService.deleteTodoByID as jest.Mock).mockResolvedValue(mockResponse);
 
     const response = await todoService.deleteTodoByID(mockRequest);
 
