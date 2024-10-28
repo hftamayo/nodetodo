@@ -301,6 +301,15 @@ describe("updateTodoByID()", () => {
       todo: todoUpdateDetails,
     };
 
+    const mockResponse = {
+      httpStatusCode: 404,
+      message: "Todo Not Found",
+    };
+
+    (todoService.updateTodoByID as jest.Mock).mockResolvedValueOnce(
+      mockResponse
+    );
+
     const response = await todoService.updateTodoByID(requestBody);
 
     expect(response.httpStatusCode).toBe(404);
