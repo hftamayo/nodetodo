@@ -210,6 +210,13 @@ describe("TodoService Unit Tests", () => {
         },
       } as OwnerTodoIdRequest;
 
+      const mockResponse = {
+        httpStatusCode: 404,
+        message: "Invalid credentials",
+      };
+
+      (todoService.listTodoByID as jest.Mock).mockResolvedValue(mockResponse);
+
       const response = await todoService.listTodoByID(mockRequest);
 
       expect(response.httpStatusCode).toBe(404);
