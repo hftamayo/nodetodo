@@ -17,6 +17,7 @@ import {
 } from "../../src/types/todo.interface";
 import { UserIdRequest } from "../../src/types/user.interface";
 import todoService from "../../src/services/todoService";
+import { todo } from "node:test";
 
 jest.mock("../../src/services/todoService", () => ({
   listActiveTodos: jest.fn((userIdRequest) => {
@@ -241,6 +242,16 @@ describe("TodoService Unit Tests", () => {
         todo: todoDetails,
       };
 
+      const createResponse = {
+        httpStatusCode: 200,
+        message: "Todo created successfully",
+        todo: todoDetails,
+      };
+
+      (todoService.createTodo as jest.Mock).mockResolvedValueOnce(
+        createResponse
+      );
+
       const response = await todoService.createTodo(requestBody);
 
       expect(response.httpStatusCode).toBe(200);
@@ -252,7 +263,7 @@ describe("TodoService Unit Tests", () => {
       expect(response.todo!.completed).toBe(todoDetails.completed);
     });
 
-    it("should return if the title already exists", async () => {
+    it("should return error if the title already exists", async () => {
       const owner = {
         userId: mockTodoRoleUser.user.toString(),
       };
@@ -267,6 +278,15 @@ describe("TodoService Unit Tests", () => {
         owner,
         todo: todoDetails,
       };
+
+      const createResponse = {
+        httpStatusCode: 400,
+        message: "Title already taken",
+      };
+
+      (todoService.createTodo as jest.Mock).mockResolvedValueOnce(
+        createResponse
+      );
 
       const response = await todoService.createTodo(requestBody);
 
