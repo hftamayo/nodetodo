@@ -292,6 +292,15 @@ describe("TodoService Unit Tests", () => {
         todo: todoUpdateDetails,
       };
 
+      const updateResponse = {
+        httpStatusCode: 200,
+        message: "Todo updated successfully",
+      };
+
+      (todoService.updateTodoByID as jest.Mock).mockResolvedValue(
+        updateResponse
+      );
+
       const response = await todoService.updateTodoByID(requestBody);
 
       expect(response.httpStatusCode).toBe(200);
@@ -344,6 +353,15 @@ describe("TodoService Unit Tests", () => {
         owner,
         todo: todoUpdateDetails,
       };
+
+      const mockResponse = {
+        httpStatusCode: 401,
+        message: "You're not the owner of this Todo",
+      };
+
+      (todoService.updateTodoByID as jest.Mock).mockResolvedValueOnce(
+        mockResponse
+      );
 
       const response = await todoService.updateTodoByID(requestBody);
 
