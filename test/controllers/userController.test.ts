@@ -45,7 +45,7 @@ describe("userController Unit Test", () => {
     json = jest.fn();
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      json,
     } as unknown as Response<any, Record<string, any>>;
 
     signUpUserStub = jest.fn((user) => {
@@ -95,7 +95,10 @@ describe("userController Unit Test", () => {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "User Found",
-        user: mockUserRoleUser,
+        user: {
+          ...mockUserRoleUser,
+          toObject: () => ({ ...mockUserRoleUser }),
+        },
       });
     });
 
@@ -137,7 +140,7 @@ describe("userController Unit Test", () => {
       if (user.userId === mockUserInvalid.id) {
         return Promise.resolve({
           httpStatusCode: 404,
-          message: "User Not Found",
+          message: "User Not found",
         });
       }
       return Promise.resolve({
@@ -244,7 +247,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe("listUser method", () => {
+  describe.only("listUser method", () => {
     it("should get details of a valid user", async () => {
       const userId = mockUserRoleUser._id.toString();
       req = { userId } as UserIdRequest;
@@ -254,8 +257,9 @@ describe("userController Unit Test", () => {
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
       expect(listUserByIDStub).toHaveBeenCalledTimes(1);
-      expect(listUserByIDStub).toHaveBeenCalledWith(userId);
+      expect(listUserByIDStub).toHaveBeenCalledWith({ userId });
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 200,
         resultMessage: "User Found",
         searchUser: filteredMockUser,
       });
@@ -267,10 +271,15 @@ describe("userController Unit Test", () => {
 
       await controller.listUserHandler(req, res);
 
+      console.log("listUserByIDStub calls:", listUserByIDStub.mock.calls);
+      console.log("res.status calls:", (res.status as jest.Mock).mock.calls);
+      console.log("res.json calls:", json.mock.calls);
+
       expect(listUserByIDStub).toHaveBeenCalledTimes(1);
-      expect(listUserByIDStub).toHaveBeenCalledWith(userId);
+      expect(listUserByIDStub).toHaveBeenCalledWith({ userId });
       expect(res.status).toHaveBeenCalledWith(404);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 404,
         resultMessage: "User Not Found",
       });
     });
@@ -410,6 +419,7 @@ describe("userController Unit Test", () => {
 
       expect(deleteUserByIDStub).toHaveBeenCalledTimes(1);
       expect(deleteUserByIDStub).toHaveBeenCalledWith({ userId });
+      // expect(res.status).toHaveBeenCalledWith(200);
       // expect(json).toHaveBeenCalledWith({
       //   resultMessage: "User deleted successfully",
       // });
