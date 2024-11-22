@@ -86,12 +86,13 @@ describe("userController Unit Test", () => {
     });
 
     listUserByIDStub = jest.fn((user) => {
-      if (user.id === mockUserInvalid.id) {
+      if (user.userId === mockUserInvalid.id) {
         return Promise.resolve({
           httpStatusCode: 404,
           message: "User Not Found",
         });
       }
+
       return Promise.resolve({
         httpStatusCode: 200,
         message: "User Found",
@@ -270,10 +271,6 @@ describe("userController Unit Test", () => {
       req = { userId } as UserIdRequest;
 
       await controller.listUserHandler(req, res);
-
-      console.log("listUserByIDStub calls:", listUserByIDStub.mock.calls);
-      console.log("res.status calls:", (res.status as jest.Mock).mock.calls);
-      console.log("res.json calls:", json.mock.calls);
 
       expect(listUserByIDStub).toHaveBeenCalledTimes(1);
       expect(listUserByIDStub).toHaveBeenCalledWith({ userId });
