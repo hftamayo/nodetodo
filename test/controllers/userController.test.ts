@@ -27,6 +27,7 @@ describe("userController Unit Test", () => {
   let json: jest.Mock;
   let signUpUserStub: jest.Mock<any, any, any>;
   let loginStub: jest.Mock<any, any, any>;
+  let clearCookie: jest.Mock;
   let logoutStub: jest.Mock<any, any, any>;
   let listUserByIDStub: jest.Mock<any, any, any>;
   let updateUserDetailsByIDStub: jest.Mock<any, any, any>;
@@ -43,9 +44,11 @@ describe("userController Unit Test", () => {
       | UserIdRequest
       | UpdateUserRequest;
     json = jest.fn();
+    clearCookie = jest.fn();
     res = {
       status: jest.fn().mockReturnThis(),
       json,
+      clearCookie,
     } as unknown as Response<any, Record<string, any>>;
 
     signUpUserStub = jest.fn((user) => {
@@ -199,7 +202,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe("login method", () => {
+  describe.only("login method", () => {
     it("should login a valid user", async () => {
       const { email, password } = mockUserRoleUser;
       req = { email, password } as LoginRequest;
@@ -248,7 +251,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe.only("listUser method", () => {
+  describe("listUser method", () => {
     it("should get details of a valid user", async () => {
       const userId = mockUserRoleUser._id.toString();
       req = { userId } as UserIdRequest;
