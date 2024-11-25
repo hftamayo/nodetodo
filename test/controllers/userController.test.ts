@@ -14,7 +14,7 @@ import {
   UserServices,
 } from "../../src/types/user.interface";
 import userController from "../../src/api/controllers/userController";
-import { cookie } from "express-validator";
+import { cors_secure, cors_samesite } from "../../src/config/envvars";
 
 describe("userController Unit Test", () => {
   let req:
@@ -28,6 +28,7 @@ describe("userController Unit Test", () => {
   let signUpUserStub: jest.Mock<any, any, any>;
   let loginStub: jest.Mock<any, any, any>;
   let clearCookie: jest.Mock;
+  let cookie: jest.Mock;
   let logoutStub: jest.Mock<any, any, any>;
   let listUserByIDStub: jest.Mock<any, any, any>;
   let updateUserDetailsByIDStub: jest.Mock<any, any, any>;
@@ -45,10 +46,12 @@ describe("userController Unit Test", () => {
       | UpdateUserRequest;
     json = jest.fn();
     clearCookie = jest.fn();
+    cookie = jest.fn();
     res = {
       status: jest.fn().mockReturnThis(),
       json,
       clearCookie,
+      cookie,
     } as unknown as Response<any, Record<string, any>>;
 
     signUpUserStub = jest.fn((user) => {
@@ -72,10 +75,14 @@ describe("userController Unit Test", () => {
           message: "User or Password does not match",
         });
       }
+      const userWithToObject = {
+        ...mockUserRoleUser,
+        toObject: () => ({ ...mockUserRoleUser }),
+      };
       return Promise.resolve({
         httpStatusCode: 200,
         message: "User login successfully",
-        user: mockUserRoleUser,
+        user: userWithToObject,
         tokenCreated: "token",
         token: "token",
       });
@@ -212,16 +219,20 @@ describe("userController Unit Test", () => {
       const { password: _, ...filteredMockUser } = mockUserRoleUser;
 
       expect(loginStub).toHaveBeenCalledTimes(1);
-      expect(loginStub).toHaveBeenCalledWith(200);
+      expect(loginStub).toHaveBeenCalledWith({ email, password });
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 200,
         resultMessage: "User login successfully",
         loggedUser: filteredMockUser,
       });
       expect(cookie).toHaveBeenCalledTimes(1);
       expect(cookie).toHaveBeenCalledWith("nodetodo", "token", {
         httpOnly: true,
-        expiresIn: 360000,
+        maxAge: 360000,
+        secure: cors_secure,
+        sameSite: cors_samesite,
+        path: "/",
       });
     });
 
