@@ -209,7 +209,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe.only("login method", () => {
+  describe("login method", () => {
     it("should login a valid user", async () => {
       const { email, password } = mockUserRoleUser;
       req = { email, password } as LoginRequest;
@@ -243,11 +243,13 @@ describe("userController Unit Test", () => {
       await controller.loginHandler(req, res);
 
       expect(loginStub).toHaveBeenCalledTimes(1);
-      expect(loginStub).toHaveBeenCalledWith(404);
+      expect(loginStub).toHaveBeenCalledWith({ email, password });
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 404,
         resultMessage: "User or Password does not match",
       });
+      expect(res.cookie).not.toHaveBeenCalled();
     });
   });
 
