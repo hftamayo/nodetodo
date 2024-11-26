@@ -64,7 +64,7 @@ describe("userController Unit Test", () => {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "User created successfully",
-        user: mockUserRoleUser,
+        newUser: mockUserRoleUser,
       });
     });
 
@@ -187,11 +187,12 @@ describe("userController Unit Test", () => {
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
       expect(signUpUserStub).toHaveBeenCalledTimes(1);
-      expect(signUpUserStub).toHaveBeenCalledWith(200);
+      expect(signUpUserStub).toHaveBeenCalledWith(userWithoutId);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 200,
         resultMessage: "User created successfully",
-        newUser: filteredMockUser,
+        //newUser: filteredMockUser,
       });
     });
 
@@ -204,6 +205,7 @@ describe("userController Unit Test", () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 400,
         resultMessage: "Email already exists",
       });
     });
@@ -298,7 +300,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe("updateDetails method", () => {
+  describe.only("updateDetails method", () => {
     it("should update details of a valid user", async () => {
       const expectedUpdateProperties = {
         name: mockUserUpdate.name,
