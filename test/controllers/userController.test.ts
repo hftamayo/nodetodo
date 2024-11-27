@@ -114,7 +114,7 @@ describe("userController Unit Test", () => {
     });
 
     updateUserDetailsByIDStub = jest.fn((user) => {
-      if (user.id === mockUserInvalid.id) {
+      if (user.userId === mockUserInvalid.id) {
         return Promise.resolve({
           httpStatusCode: 404,
           message: "User Not Found",
@@ -123,7 +123,10 @@ describe("userController Unit Test", () => {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Data updated successfully",
-        user: mockUserRoleUser,
+        user: {
+          ...mockUserRoleUser,
+          toObject: () => ({ ...mockUserRoleUser }),
+        },
       });
     });
 
@@ -345,9 +348,13 @@ describe("userController Unit Test", () => {
       await controller.updateUserDetailsHandler(req, res);
 
       expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(404);
+      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith({
+        userId: mockUserInvalid.id,
+        user: expectedUpdateProperties,
+      });
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 404,
         resultMessage: "User Not Found",
       });
     });
