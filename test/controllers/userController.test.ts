@@ -321,13 +321,13 @@ describe("userController Unit Test", () => {
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
       expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(200);
-      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith(
-        mockUserRoleUser,
-        expectedUpdateProperties
-      );
+      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith({
+        userId: mockUserRoleUser._id.toString(),
+        user: expectedUpdateProperties,
+      });
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 200,
         resultMessage: "Data updated successfully",
         updatedUser: filteredMockUser,
       });
