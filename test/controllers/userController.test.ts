@@ -363,7 +363,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe.only("updatePassword method", () => {
+  describe("updatePassword method", () => {
     it("should update password of a valid user", async () => {
       const expectedUpdateProperties = {
         password: mockUserUpdate.oldPassword,
@@ -380,13 +380,13 @@ describe("userController Unit Test", () => {
       const { password, ...filteredMockUser } = mockUserRoleUser;
 
       expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(200);
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(
-        mockUserRoleUser,
-        expectedUpdateProperties
-      );
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith({
+        userId: mockUserRoleUser._id.toString(),
+        user: expectedUpdateProperties,
+      });
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 200,
         resultMessage: "Password updated successfully",
         updatedUser: filteredMockUser,
       });
@@ -406,9 +406,13 @@ describe("userController Unit Test", () => {
       await controller.updateUserPasswordHandler(req, res);
 
       expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(404);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith({
+        userId: mockUserInvalid.id,
+        user: expectedUpdateProperties,
+      });
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 404,
         resultMessage: "User Not Found",
       });
     });
