@@ -131,13 +131,13 @@ describe("userController Unit Test", () => {
     });
 
     updateUserPasswordByIDStub = jest.fn((user) => {
-      if (user.id === mockUserInvalid.id) {
+      if (user.userId === mockUserInvalid.id) {
         return Promise.resolve({
           httpStatusCode: 404,
           message: "User Not Found",
         });
       }
-      if (user.password === mockUserUpdate.notMatchPassword) {
+      if (user.user.password === mockUserUpdate.notMatchPassword) {
         return Promise.resolve({
           httpStatusCode: 400,
           message: "The entered credentials are not valid",
@@ -146,7 +146,10 @@ describe("userController Unit Test", () => {
       return Promise.resolve({
         httpStatusCode: 200,
         message: "Password updated successfully",
-        user: mockUserRoleUser,
+        user: {
+          ...mockUserRoleUser,
+          toObject: () => ({ ...mockUserRoleUser }),
+        },
       });
     });
 
@@ -303,7 +306,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe.only("updateDetails method", () => {
+  describe("updateDetails method", () => {
     it("should update details of a valid user", async () => {
       const expectedUpdateProperties = {
         name: mockUserUpdate.name,
@@ -360,7 +363,7 @@ describe("userController Unit Test", () => {
     });
   });
 
-  describe("updatePassword method", () => {
+  describe.only("updatePassword method", () => {
     it("should update password of a valid user", async () => {
       const expectedUpdateProperties = {
         password: mockUserUpdate.oldPassword,
@@ -424,9 +427,13 @@ describe("userController Unit Test", () => {
       await controller.updateUserPasswordHandler(req, res);
 
       expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith(400);
+      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith({
+        userId: mockUserRoleUser._id.toString(),
+        user: expectedUpdateProperties,
+      });
       expect(json).toHaveBeenCalledTimes(1);
       expect(json).toHaveBeenCalledWith({
+        httpStatusCode: 400,
         resultMessage: "The entered credentials are not valid",
       });
     });
