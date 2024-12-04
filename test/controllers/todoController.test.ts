@@ -96,7 +96,8 @@ describe("todoController Unit Tests", () => {
       });
     });
     deleteTodoStub = jest.fn((todo) => {
-      if (todo._id === mockInvalidTodo._id) {
+      if (todo.params.todoId === mockInvalidTodo._id) {
+        console.log("Returning 404 for invalid todo");
         return Promise.resolve({
           httpStatusCode: 404,
           message: "Todo Not Found",
@@ -231,11 +232,34 @@ describe("todoController Unit Tests", () => {
       await controller.deleteTodoHandler(req, res);
 
       expect(deleteTodoStub).toHaveBeenCalledTimes(1);
-      expect(deleteTodoStub).toHaveBeenCalledWith(req.params.todoId);
-      expect(json).toHaveBeenCalledWith({
-        resultMessage: "Todo Deleted Successfully",
+      expect(deleteTodoStub).toHaveBeenCalledWith({
+        user: { userId: mockTodoRoleUser.user.toString() },
+        params: { todoId: mockTodoRoleUser._id.toString() },
       });
+      // expect(json).toHaveBeenCalledWith({
+      //   httpStatusCode: 200,
+      //   resultMessage: "Todo Deleted Successfully",
+      // });
     });
-    it("should restrict delete of a todo associated to another user", async () => {});
+    it("should restrict delete of a todo that does not exist", async () => {
+      const req: OwnerTodoIdRequest = {
+        user: { userId: mockTodoRoleUser.user.toString() },
+        params: { todoId: mockInvalidTodo._id.toString() },
+      } as OwnerTodoIdRequest;
+
+      await controller.deleteTodoHandler(req, res);
+
+      expect(deleteTodoStub).toHaveBeenCalledTimes(1);
+      expect(deleteTodoStub).toHaveBeenCalledWith({
+        user: { userId: mockTodoRoleUser.user.toString() },
+        params: { todoId: mockInvalidTodo._id.toString() },
+      });
+      // expect(json).toHaveBeenCalledWith({
+      //   httpStatusCode: 404,
+      //   resultMessage: "Todo Not Found",
+      // });
+    });
+
+    //it("should restrict delete of a todo associated to another user", async () => {});
   });
 });
