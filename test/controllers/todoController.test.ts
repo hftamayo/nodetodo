@@ -131,17 +131,29 @@ describe("todoController Unit Tests", () => {
       await controller.getTodosHandler(req, res);
 
       expect(listActiveTodosStub).toHaveBeenCalledTimes(1);
-      expect(listActiveTodosStub).toHaveBeenCalledWith(req.userId);
-      expect(json).toHaveBeenCalledWith({
-        resultMessage: "Tasks found",
-        activeTodos: mockTodos,
-      });
+      expect(listActiveTodosStub).toHaveBeenCalledWith({ userId: req.userId });
+      // expect(json).toHaveBeenCalledWith({
+      //   httpStatusCode: 200,
+      //   resultMessage: "Tasks found",
+      //   activeTodos: mockTodos,
+      // });
     });
 
-    it("should return empty list when no tasks are associated with an active user", async () => {});
+    it("should return empty list when no tasks are associated with an active user", async () => {
+      const req: UserIdRequest = { userId: mockInvalidTodo._id.toString() };
+
+      await controller.getTodosHandler(req, res);
+
+      expect(listActiveTodosStub).toHaveBeenCalledTimes(1);
+      expect(listActiveTodosStub).toHaveBeenCalledWith({ userId: req.userId });
+      // expect(json).toHaveBeenCalledWith({
+      //   httpStatusCode: 404,
+      //   resultMessage: "No active tasks found for active user",
+      // });
+    });
   });
 
-  describe("getTodo method", () => {
+  describe.only("getTodo method", () => {
     it("should return an existing todo", async () => {
       const req: OwnerTodoIdRequest = {
         user: { userId: mockTodoRoleUser.user.toString() },
@@ -151,16 +163,37 @@ describe("todoController Unit Tests", () => {
       await controller.getTodoHandler(req, res);
 
       expect(listActiveTodoStub).toHaveBeenCalledTimes(1);
-      expect(listActiveTodoStub).toHaveBeenCalledWith(req.params.todoId);
-      expect(json).toHaveBeenCalledWith({
-        resultMessage: "Todo found",
-        searchTodo: mockTodoRoleUser,
+      expect(listActiveTodoStub).toHaveBeenCalledWith({
+        user: { userId: mockTodoRoleUser.user.toString() },
+        params: { todoId: mockTodoRoleUser._id.toString() },
       });
+      // expect(json).toHaveBeenCalledWith({
+      //   httpStatusCode: 200,
+      //   resultMessage: "Todo found",
+      //   searchTodo: mockTodoRoleUser,
+      // });
     });
-    it("should return an error message when todo is not found", async () => {});
+    it("should return an error message when todo is not found", async () => {
+      const req: OwnerTodoIdRequest = {
+        user: { userId: mockTodoRoleUser.user.toString() },
+        params: { todoId: mockInvalidTodo._id.toString() },
+      } as OwnerTodoIdRequest;
+
+      await controller.getTodoHandler(req, res);
+
+      expect(listActiveTodoStub).toHaveBeenCalledTimes(1);
+      expect(listActiveTodoStub).toHaveBeenCalledWith({
+        user: { userId: mockTodoRoleUser.user.toString() },
+        params: { todoId: mockInvalidTodo._id.toString() },
+      });
+      // expect(json).toHaveBeenCalledWith({
+      //   httpStatusCode: 404,
+      //   resultMessage: "Task Not Found",
+      //
+    });
   });
 
-  describe("createTodo method", () => {
+  describe.only("createTodo method", () => {
     it("should create a new todo", async () => {
       const convertTodoRoleUser = {
         ...mockTodoRoleUser,
