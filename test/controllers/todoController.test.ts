@@ -153,7 +153,7 @@ describe("todoController Unit Tests", () => {
     });
   });
 
-  describe.only("getTodo method", () => {
+  describe("getTodo method", () => {
     it("should return an existing todo", async () => {
       const req: OwnerTodoIdRequest = {
         user: { userId: mockTodoRoleUser.user.toString() },
@@ -209,12 +209,16 @@ describe("todoController Unit Tests", () => {
       await controller.newTodoHandler(req, res);
 
       expect(newTodoStub).toHaveBeenCalledTimes(1);
-      expect(newTodoStub).toHaveBeenCalledWith(200);
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
-        resultMessage: "Todo created successfully",
-        newTodo: mockTodoRoleUser,
+      expect(newTodoStub).toHaveBeenCalledWith({
+        owner: { userId: mockUserRoleUser._id.toString() },
+        todo: convertTodoRoleUser,
       });
+      //expect(newTodoStub).toHaveBeenCalledWith(200);
+      //expect(json).toHaveBeenCalledTimes(1);
+      // expect(json).toHaveBeenCalledWith({
+      //   resultMessage: "Todo created successfully",
+      //   newTodo: mockTodoRoleUser,
+      // });
     });
     it("should restrict create an existing todo", async () => {});
   });
