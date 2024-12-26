@@ -220,7 +220,30 @@ describe("todoController Unit Tests", () => {
       //   newTodo: mockTodoRoleUser,
       // });
     });
-    it("should restrict create an existing todo", async () => {});
+    it("should restrict create an existing todo", async () => {
+      const convertTodoRoleUser = {
+        ...mockInvalidTodo,
+        _id: mockInvalidTodo._id.toString(),
+        user: mockInvalidTodo.user.toString(),
+      };
+
+      const req: NewTodoRequest = {
+        owner: { userId: mockUserRoleUser._id.toString() },
+        todo: convertTodoRoleUser,
+      };
+
+      await controller.newTodoHandler(req, res);
+
+      expect(newTodoStub).toHaveBeenCalledTimes(1);
+      expect(newTodoStub).toHaveBeenCalledWith({
+        owner: { userId: mockUserRoleUser._id.toString() },
+        todo: convertTodoRoleUser,
+      });
+      // expect(json).toHaveBeenCalledWith({
+      //   httpStatusCode: 400,
+      //   resultMessage: "Title already taken",
+      // });
+    });
   });
 
   describe("updateTodo method", () => {
