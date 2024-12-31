@@ -63,6 +63,9 @@ describe("authorize Middleware", () => {
       .set("Cookie", "nodetodo=valid-token")
       .send();
 
+    console.log("response.status:", response.status);
+    console.log("response.body:", response.body);
+
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("Authorized");
   });
