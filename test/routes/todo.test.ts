@@ -5,7 +5,7 @@ import todoController from "../../src/api/controllers/todoController";
 import todoService from "../../src/services/todoService";
 import { TodoServices } from "../../src/types/todo.interface";
 
-jest.mock("../../src/controllers/todoController");
+jest.mock("../../src/api/controllers/todoController");
 jest.mock("../../src/services/todoService");
 
 const app = express();
