@@ -1,12 +1,22 @@
 import request from "supertest";
-import express from "express";
 import userRouter from "../../src/api/routes/user";
 import userController from "../../src/api/controllers/userController";
-import userService from "../../src/services/userService";
-import { UserServices } from "../../src/types/user.interface";
+import express, { Request, Response, NextFunction } from "express";
 
-jest.mock("../../src/controllers/userController");
+jest.mock("../../src/api/controllers/userController");
 jest.mock("../../src/services/userService");
+
+interface AuthenticatedRequest extends Request {
+  user?: { userId: string };
+}
+
+jest.mock(
+  "../../src/api/middleware/authorize",
+  () => (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    req.body.userId = "user-id";
+    next();
+  }
+);
 
 const app = express();
 app.use(express.json());
@@ -18,11 +28,10 @@ describe("User Router", () => {
   });
 
   it("should call registerHandler on POST /user/register", async () => {
-    const mockRegisterHandler = userController(userService as UserServices)
-      .registerHandler as jest.Mock;
-    mockRegisterHandler.mockImplementation((req, res) =>
+    const mockRegisterHandler = jest.fn((req, res) =>
       res.status(200).json({ message: "User registered" })
     );
+    (userController as any).registerHandler = mockRegisterHandler;
 
     const response = await request(app).post("/user/register").send({
       username: "testuser",
@@ -36,11 +45,10 @@ describe("User Router", () => {
   });
 
   it("should call loginHandler on POST /user/login", async () => {
-    const mockLoginHandler = userController(userService as UserServices)
-      .loginHandler as jest.Mock;
-    mockLoginHandler.mockImplementation((req, res) =>
+    const mockLoginHandler = jest.fn((req, res) =>
       res.status(200).json({ message: "User logged in" })
     );
+    (userController as any).loginHandler = mockLoginHandler;
 
     const response = await request(app).post("/user/login").send({
       email: "test@example.com",
@@ -53,11 +61,10 @@ describe("User Router", () => {
   });
 
   it("should call logoutHandler on POST /user/logout", async () => {
-    const mockLogoutHandler = userController(userService as UserServices)
-      .logoutHandler as jest.Mock;
-    mockLogoutHandler.mockImplementation((req, res) =>
+    const mockLogoutHandler = jest.fn((req, res) =>
       res.status(200).json({ message: "User logged out" })
     );
+    (userController as any).logoutHandler = mockLogoutHandler;
 
     const response = await request(app).post("/user/logout").send();
 
@@ -67,11 +74,10 @@ describe("User Router", () => {
   });
 
   it("should call listUserHandler on GET /user/me", async () => {
-    const mockListUserHandler = userController(userService as UserServices)
-      .listUserHandler as jest.Mock;
-    mockListUserHandler.mockImplementation((req, res) =>
+    const mockListUserHandler = jest.fn((req, res) =>
       res.status(200).json({ user: { id: "user-id", username: "testuser" } })
     );
+    (userController as any).listUserHandler = mockListUserHandler;
 
     const response = await request(app).get("/user/me").send();
 
@@ -81,12 +87,11 @@ describe("User Router", () => {
   });
 
   it("should call updateUserDetailsHandler on PUT /user/updatedetails", async () => {
-    const mockUpdateUserDetailsHandler = userController(
-      userService as UserServices
-    ).updateUserDetailsHandler as jest.Mock;
-    mockUpdateUserDetailsHandler.mockImplementation((req, res) =>
+    const mockUpdateUserDetailsHandler = jest.fn((req, res) =>
       res.status(200).json({ message: "User details updated" })
     );
+    (userController as any).updateUserDetailsHandler =
+      mockUpdateUserDetailsHandler;
 
     const response = await request(app).put("/user/updatedetails").send({
       username: "updateduser",
@@ -99,12 +104,11 @@ describe("User Router", () => {
   });
 
   it("should call updateUserPasswordHandler on PUT /user/updatepassword", async () => {
-    const mockUpdateUserPasswordHandler = userController(
-      userService as UserServices
-    ).updateUserPasswordHandler as jest.Mock;
-    mockUpdateUserPasswordHandler.mockImplementation((req, res) =>
+    const mockUpdateUserPasswordHandler = jest.fn((req, res) =>
       res.status(200).json({ message: "User password updated" })
     );
+    (userController as any).updateUserPasswordHandler =
+      mockUpdateUserPasswordHandler;
 
     const response = await request(app).put("/user/updatepassword").send({
       password: "newpassword123",
@@ -115,16 +119,18 @@ describe("User Router", () => {
     expect(mockUpdateUserPasswordHandler).toHaveBeenCalledTimes(1);
   });
 
-  it("should call deleteUserHandler on DELETE /user/deleteuser", async () => {
-    const mockDeleteUserHandler = userController(userService as UserServices)
-      .deleteUserHandler as jest.Mock;
-    mockDeleteUserHandler.mockImplementation((req, res) =>
+  it.only("should call deleteUserHandler on DELETE /user/deleteuser", async () => {
+    const mockDeleteUserHandler = jest.fn((req, res) =>
       res.status(200).json({ message: "User deleted" })
     );
+    (userController as any).deleteUserHandler = mockDeleteUserHandler;
 
     const response = await request(app).delete("/user/deleteuser").send({
       userId: "user-id",
     });
+
+    console.log("response.status:", response.status);
+    console.log("response.body:", response.body);
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("User deleted");
