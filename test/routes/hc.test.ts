@@ -3,7 +3,7 @@ import express from "express";
 import hcController from "../../src/api/controllers/hcController";
 import hcRouter from "../../src/api/routes/hc"; // Adjust the import path as necessary
 
-jest.mock("../../src/controllers/hcController");
+jest.mock("../../src/api/controllers/hcController");
 
 const app = express();
 app.use("/healthcheck", hcRouter);
