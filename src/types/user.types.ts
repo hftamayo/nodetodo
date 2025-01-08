@@ -1,57 +1,57 @@
-import mongoose, {Document} from "mongoose";
+import mongoose, { Document } from "mongoose";
 import { JwtPayload } from "jsonwebtoken";
 
 export enum UserRole {
-  ADMIN = "admin",
+  ADMIN = "administrator",
   SUPERVISOR = "supervisor",
-  USER = "user",
+  USER = "finaluser",
 }
 
-export interface UserSeed {
+export type UserSeed = {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password: string;
   age: number;
   role: UserRole;
-}
+};
 
-export interface UserRequest {
+export type UserRequest = {
   id?: string;
   name: string;
   email: string;
   age: number;
   password: string;
   newPassword?: string;
-}
+};
 
-export interface LoginRequest {
+export type LoginRequest = {
   email: string;
   password: string;
-}
+};
 
-export interface JwtPayloadWithUserId extends JwtPayload {
+export type JwtPayloadWithUserId = JwtPayload & {
   userId: string;
-}
+};
 
-export interface UserIdRequest {
+export type UserIdRequest = {
   userId: string;
-}
+};
 
-export interface UpdateUserRequest {
+export type UpdateUserRequest = {
   userId: string;
   user: Partial<UserRequest>;
-}
+};
 
-export interface UserResult {
+export type UserResult = {
   httpStatusCode: number;
   message: string;
   tokenCreated?: string;
   user?: Partial<UserRequest & Document>;
-}
+};
 
 //interfaces for dependency injection pattern
-export interface UserServices {
+export type UserServices = {
   signUpUser: (newSignUpUser: UserRequest) => Promise<UserResult>;
   loginUser: (newLoginUser: LoginRequest) => Promise<UserResult>;
   logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
@@ -59,4 +59,4 @@ export interface UserServices {
   updateUserDetailsByID: (params: UpdateUserRequest) => Promise<UserResult>;
   updateUserPasswordByID: (params: UpdateUserRequest) => Promise<UserResult>;
   deleteUserByID: (newDeleteUser: UserIdRequest) => Promise<UserResult>;
-}
+};
