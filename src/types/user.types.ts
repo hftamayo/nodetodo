@@ -50,6 +50,15 @@ export type UserResult = {
   user?: Partial<UserRequest & Document>;
 };
 
+export type SignUpUserResponse = {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  age: number;
+  role: UserRole;
+  createdAt: Date;
+};
+
 //interfaces for dependency injection pattern
 export type UserServices = {
   signUpUser: (newSignUpUser: UserRequest) => Promise<UserResult>;
