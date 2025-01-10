@@ -35,7 +35,7 @@ const signUpUser = async function (requestBody: UserRequest) {
     const { password: _, updatedAt, ...filteredUser } = searchUser.toObject();
 
     return {
-      httpStatusCode: 200,
+      httpStatusCode: 201,
       message: "User created successfully",
       user: filteredUser,
     };
