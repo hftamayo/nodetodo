@@ -31,10 +31,13 @@ const signUpUser = async function (requestBody: UserRequest) {
       age,
     });
     await searchUser.save();
+
+    const { password: _, updatedAt, ...filteredUser } = searchUser.toObject();
+
     return {
       httpStatusCode: 200,
       message: "User created successfully",
-      user: searchUser,
+      user: filteredUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
