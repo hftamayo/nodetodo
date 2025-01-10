@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Todo from "../models/Todo";
-import { TodoSeed } from "../types/todo.interface";
-
+import { TodoSeed } from "../types/todo.types";
 
 const todos: TodoSeed[] = [
   {
@@ -19,7 +18,7 @@ async function seedTodos() {
     const todosCreated = await Todo.create(todos);
     console.log("Todos created: ", todosCreated);
   } catch (error: unknown) {
-    if (error instanceof Error){
+    if (error instanceof Error) {
       console.error("seedTodos: ", error.message);
     } else {
       console.error("seedTodos: ", error);

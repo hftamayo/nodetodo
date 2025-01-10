@@ -6,8 +6,8 @@ import {
   UpdateTodoRequest,
   TodoResult,
   TodoServices,
-} from "../../types/todo.interface";
-import { UserIdRequest } from "../../types/user.interface";
+} from "../../types/todo.types";
+import { UserIdRequest } from "../../types/user.types";
 
 export default function todoController(todoService: TodoServices) {
   return {

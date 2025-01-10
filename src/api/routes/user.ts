@@ -11,7 +11,7 @@ import {
   UserIdRequest,
   UpdateUserRequest,
   UserServices,
-} from "../../types/user.interface";
+} from "../../types/user.types";
 
 const userRouter = express.Router();
 

@@ -3,8 +3,8 @@ import {
   OwnerTodoIdRequest,
   NewTodoRequest,
   UpdateTodoRequest,
-} from "../types/todo.interface";
-import { UserIdRequest } from "../types/user.interface";
+} from "../types/todo.types";
+import { UserIdRequest } from "../types/user.types";
 
 const listActiveTodos = async function (requestUserId: UserIdRequest) {
   const userId = requestUserId.userId;

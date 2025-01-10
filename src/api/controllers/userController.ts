@@ -6,7 +6,7 @@ import {
   UserIdRequest,
   UserResult,
   UserServices,
-} from "../../types/user.interface";
+} from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
 export default function userController(userService: UserServices) {

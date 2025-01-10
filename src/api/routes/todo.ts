@@ -9,8 +9,8 @@ import {
   OwnerTodoIdRequest,
   UpdateTodoRequest,
   TodoServices,
-} from "../../types/todo.interface";
-import { UserIdRequest } from "../../types/user.interface";
+} from "../../types/todo.types";
+import { UserIdRequest } from "../../types/user.types";
 
 const todoRouter = express.Router();
 

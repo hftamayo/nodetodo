@@ -8,7 +8,7 @@ import {
   LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
-} from "../types/user.interface";
+} from "../types/user.types";
 
 const signUpUser = async function (requestBody: UserRequest) {
   const { name, email, password, age } = requestBody;
