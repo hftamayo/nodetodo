@@ -7,13 +7,15 @@ export enum UserRole {
   USER = "finaluser",
 }
 
-export type UserSeed = {
+export type FullUser = {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password: string;
   age: number;
   role: UserRole;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export type UserRequest = {
@@ -50,24 +52,13 @@ export type UserResult = {
   user?: Partial<UserRequest & Document>;
 };
 
-export type FullUser = {
-  _id: mongoose.Types.ObjectId;
-  name: string;
-  email: string;
-  password: string;
-  age: number;
-  role: UserRole;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 // Define a type for the filtered user object
-export type FilteredUser = Omit<FullUser, "password" | "updatedAt">;
+export type FilteredSignUpUser = Omit<FullUser, "password" | "updatedAt">;
 
 export type SignUpUserResponse = {
   httpStatusCode: number;
   message: string;
-  user: FilteredUser;
+  user: FilteredSignUpUser;
 };
 
 //interfaces for dependency injection pattern
