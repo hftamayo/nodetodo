@@ -72,7 +72,7 @@ export type SignUpUserResponse = {
 
 //interfaces for dependency injection pattern
 export type UserServices = {
-  signUpUser: (newSignUpUser: UserRequest) => Promise<UserResult>;
+  signUpUser: (newSignUpUser: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (newLoginUser: LoginRequest) => Promise<UserResult>;
   logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
   listUserByID: (newListUser: UserIdRequest) => Promise<UserResult>;
