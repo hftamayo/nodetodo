@@ -50,13 +50,24 @@ export type UserResult = {
   user?: Partial<UserRequest & Document>;
 };
 
-export type SignUpUserResponse = {
+export type FullUser = {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
+  password: string;
   age: number;
   role: UserRole;
   createdAt: Date;
+  updatedAt: Date;
+};
+
+// Define a type for the filtered user object
+export type FilteredUser = Omit<FullUser, "password" | "updatedAt">;
+
+export type SignUpUserResponse = {
+  httpStatusCode: number;
+  message: string;
+  user: FilteredUser;
 };
 
 //interfaces for dependency injection pattern
