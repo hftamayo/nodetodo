@@ -10,7 +10,7 @@ import {
   UserIdRequest,
   FullUser,
   SignUpUserResponse,
-  FilteredUser,
+  FilteredSignUpUser,
 } from "../types/user.types";
 
 const signUpUser = async function (
@@ -50,7 +50,7 @@ const signUpUser = async function (
     return {
       httpStatusCode: 201,
       message: "User created successfully",
-      user: filteredUser as FilteredUser,
+      user: filteredUser as FilteredSignUpUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
