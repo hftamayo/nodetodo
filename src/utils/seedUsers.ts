@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import User from "../models/User";
-import { UserRole, UserSeed } from "../types/user.types";
+import { UserRole, FullUser } from "../types/user.types";
 
-const users: UserSeed[] = [
+const users: FullUser[] = [
   {
     _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1e"),
     name: "Administrator",
