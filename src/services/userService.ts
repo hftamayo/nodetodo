@@ -8,22 +8,35 @@ import {
   LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
+  FullUser,
+  SignUpUserResponse,
+  FilteredUser,
 } from "../types/user.types";
 
-const signUpUser = async function (requestBody: UserRequest) {
-  const { name, email, password, age } = requestBody;
+const signUpUser = async function (
+  requestBody: UserRequest
+): Promise<SignUpUserResponse> {
+  const { name, email, password: plainPassword, age } = requestBody;
 
-  if (!name || !email || !password || !age) {
-    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  if (!name || !email || !plainPassword || !age) {
+    return {
+      httpStatusCode: 400,
+      message: "Please fill all required fields",
+      user: null as any,
+    };
   }
 
   try {
     let searchUser = await User.findOne({ email }).exec();
     if (searchUser) {
-      return { httpStatusCode: 400, message: "Email already exists" };
+      return {
+        httpStatusCode: 400,
+        message: "Email already exists",
+        user: null as any,
+      };
     }
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(plainPassword, salt);
     searchUser = new User({
       name,
       email,
@@ -32,12 +45,12 @@ const signUpUser = async function (requestBody: UserRequest) {
     });
     await searchUser.save();
 
-    const { password: _, updatedAt, ...filteredUser } = searchUser.toObject();
-
+    const { password, updatedAt, ...filteredUser } =
+      searchUser.toObject() as FullUser;
     return {
       httpStatusCode: 201,
       message: "User created successfully",
-      user: filteredUser,
+      user: filteredUser as FilteredUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -45,7 +58,11 @@ const signUpUser = async function (requestBody: UserRequest) {
     } else {
       console.error("userService, signUpUser: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return {
+      httpStatusCode: 500,
+      message: "Internal Server Error",
+      user: null as any,
+    };
   }
 };
 
