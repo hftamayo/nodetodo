@@ -5,6 +5,7 @@ import {
   UpdateUserRequest,
   UserIdRequest,
   UserResult,
+  SignUpUserResponse,
   UserServices,
 } from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
@@ -13,21 +14,14 @@ export default function userController(userService: UserServices) {
   return {
     registerHandler: async function (req: UserRequest, res: Response) {
       try {
-        const result: UserResult = await userService.signUpUser(req);
+        const result: SignUpUserResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, user } = result;
-        if (httpStatusCode === 200 && user?.toObject) {
-          const userObject = user.toObject();
-          const { password, updatedAt, ...filteredUser } = userObject;
-          res.status(httpStatusCode).json({
-            httpStatusCode,
-            resultMessage: message,
-            newUser: filteredUser,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
-        }
+
+        res.status(httpStatusCode).json({
+          code: httpStatusCode,
+          resultMessage: message,
+          signUpUser: user,
+        });
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, register: " + error.message);
@@ -37,6 +31,7 @@ export default function userController(userService: UserServices) {
         res.status(500).json({
           httpStatusCode: 500,
           resultMessage: "Internal Server Error",
+          signUpUser: null,
         });
       }
     },
