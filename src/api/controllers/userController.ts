@@ -6,6 +6,7 @@ import {
   UserIdRequest,
   UserResult,
   SignUpUserResponse,
+  LoginResponse,
   UserServices,
 } from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
@@ -17,30 +18,32 @@ export default function userController(userService: UserServices) {
         const result: SignUpUserResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, user } = result;
 
-        res.status(httpStatusCode).json({
-          code: httpStatusCode,
-          resultMessage: message,
-          signUpUser: user,
-        });
+        if (httpStatusCode === 201) {
+          res.status(httpStatusCode).json({
+            code: httpStatusCode,
+            resultMessage: message,
+            signUpUser: user,
+          });
+        } else {
+          res.status(httpStatusCode).json({
+            code: httpStatusCode,
+            resultMessage: message,
+          });
+        }
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, register: " + error.message);
         } else {
           console.error("userController, register: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-          signUpUser: null,
-        });
       }
     },
 
     loginHandler: async function (req: LoginRequest, res: Response) {
       try {
-        const result: UserResult = await userService.loginUser(req);
+        const result: LoginResponse = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, user } = result;
-        if (httpStatusCode === 200 && user?.toObject) {
+        if (httpStatusCode === 200) {
           res.cookie("nodetodo", tokenCreated, {
             httpOnly: true,
             maxAge: 360000,
@@ -48,18 +51,16 @@ export default function userController(userService: UserServices) {
             sameSite: cors_samesite,
             path: "/",
           });
-          const userObject = user.toObject();
-          //filtering password for not showing during the output
-          const { password, ...filteredUser } = userObject;
           res.status(httpStatusCode).json({
-            httpStatusCode,
+            code: httpStatusCode,
             resultMessage: message,
-            loggedUser: filteredUser,
+            loggedUser: user,
           });
         } else {
-          res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
+          res.status(httpStatusCode).json({
+            code: httpStatusCode,
+            resultMessage: message,
+          });
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -67,10 +68,6 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, login: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
