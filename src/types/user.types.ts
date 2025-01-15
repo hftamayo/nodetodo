@@ -56,16 +56,28 @@ export type UserResult = {
 // Define a type for the filtered user object
 export type FilteredSignUpUser = Omit<FullUser, "password" | "updatedAt">;
 
+export type FilteredLoginUser = Omit<
+  FullUser,
+  "password" | "createdAt" | "updatedAt"
+>;
+
 export type SignUpUserResponse = {
   httpStatusCode: number;
-  errorCode?: string;
-  user: FilteredSignUpUser;
+  message: string;
+  user?: FilteredSignUpUser;
+};
+
+export type LoginResponse = {
+  httpStatusCode: number;
+  message: string;
+  tokenCreated?: string;
+  user?: FilteredLoginUser;
 };
 
 //interfaces for dependency injection pattern
 export type UserServices = {
   signUpUser: (newSignUpUser: UserRequest) => Promise<SignUpUserResponse>;
-  loginUser: (newLoginUser: LoginRequest) => Promise<UserResult>;
+  loginUser: (newLoginUser: LoginRequest) => Promise<LoginResponse>;
   logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
   listUserByID: (newListUser: UserIdRequest) => Promise<UserResult>;
   updateUserDetailsByID: (params: UpdateUserRequest) => Promise<UserResult>;
