@@ -14,6 +14,7 @@ export type FullUser = {
   password: string;
   age: number;
   role: UserRole;
+  status?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 };
