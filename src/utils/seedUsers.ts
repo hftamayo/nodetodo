@@ -16,6 +16,7 @@ const users: FullUser[] = [
     password: adminpword,
     age: 30,
     role: UserRole.ADMIN,
+    status: true,
   },
   {
     _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1f"),
@@ -24,6 +25,7 @@ const users: FullUser[] = [
     password: supervisorpword,
     age: 20,
     role: UserRole.SUPERVISOR,
+    status: true,
   },
   {
     _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d20"),
@@ -32,6 +34,7 @@ const users: FullUser[] = [
     password: userpword,
     age: 25,
     role: UserRole.USER,
+    status: true,
   },
 ];
 
