@@ -10,7 +10,9 @@ import {
   UserIdRequest,
   FullUser,
   SignUpUserResponse,
+  LoginResponse,
   FilteredSignUpUser,
+  FilteredLoginUser,
 } from "../types/user.types";
 
 const signUpUser = async function (
@@ -21,8 +23,7 @@ const signUpUser = async function (
   if (!name || !email || !plainPassword || !age) {
     return {
       httpStatusCode: 400,
-      message: "Please fill all required fields",
-      user: null as any,
+      message: "MISSING_FIELDS",
     };
   }
 
@@ -31,8 +32,7 @@ const signUpUser = async function (
     if (searchUser) {
       return {
         httpStatusCode: 400,
-        message: "Email already exists",
-        user: null as any,
+        message: "EMAIL_EXISTS",
       };
     }
     const salt = await bcrypt.genSalt(10);
@@ -49,7 +49,7 @@ const signUpUser = async function (
       searchUser.toObject() as FullUser;
     return {
       httpStatusCode: 201,
-      message: "User created successfully",
+      message: "USER_CREATED",
       user: filteredUser as FilteredSignUpUser,
     };
   } catch (error: unknown) {
@@ -60,33 +60,40 @@ const signUpUser = async function (
     }
     return {
       httpStatusCode: 500,
-      message: "Internal Server Error",
-      user: null as any,
+      message: "UNKNOWN_ERROR",
     };
   }
 };
 
-const loginUser = async function (requestBody: LoginRequest) {
-  const { email, password } = requestBody;
+const loginUser = async function (
+  requestBody: LoginRequest
+): Promise<LoginResponse> {
+  const { email, password: plainPassword } = requestBody;
 
-  if (!email || !password) {
-    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  if (!email || !plainPassword) {
+    return {
+      httpStatusCode: 400,
+      message: "MISSING_FIELDS",
+    };
   }
 
   try {
     let searchUser = await User.findOne({ email }).exec();
     if (!searchUser) {
       return {
-        httpStatusCode: 404,
-        message: "User or Password does not match",
+        httpStatusCode: 401,
+        message: "BAD_CREDENTIALS",
       };
     }
-    const passwordMatch = await bcrypt.compare(password, searchUser.password);
+    const passwordMatch = await bcrypt.compare(
+      plainPassword,
+      searchUser.password
+    );
     if (!passwordMatch) {
       //update in global log the password did not match
       return {
-        httpStatusCode: 404,
-        message: "User or Password does not match",
+        httpStatusCode: 402,
+        message: "BAD_CREDENTIALS",
       };
     }
     const payload = { searchUser: searchUser._id };
@@ -96,11 +103,15 @@ const loginUser = async function (requestBody: LoginRequest) {
     const token = jwt.sign(payload, secretKey, {
       expiresIn: 360000,
     });
+
+    const { password, createdAt, updatedAt, ...filteredUser } =
+      searchUser.toObject() as FullUser;
+
     return {
       httpStatusCode: 200,
       tokenCreated: token,
-      message: "User login successfully",
-      user: searchUser,
+      message: "LOGIN_SUCCESS",
+      user: filteredUser as FilteredLoginUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -108,7 +119,7 @@ const loginUser = async function (requestBody: LoginRequest) {
     } else {
       console.error("userService, loginUser: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
