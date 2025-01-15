@@ -58,7 +58,7 @@ export type FilteredSignUpUser = Omit<FullUser, "password" | "updatedAt">;
 
 export type SignUpUserResponse = {
   httpStatusCode: number;
-  message: string;
+  errorCode?: string;
   user: FilteredSignUpUser;
 };
 
