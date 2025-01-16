@@ -79,6 +79,11 @@ export type LoginResponse = {
   user?: FilteredLoginUser;
 };
 
+export type LogoutResponse = {
+  httpStatusCode: number;
+  message: string;
+};
+
 export type SearchUserByIdResponse = {
   httpStatusCode: number;
   message: string;
@@ -89,7 +94,7 @@ export type SearchUserByIdResponse = {
 export type UserServices = {
   signUpUser: (newSignUpUser: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (newLoginUser: LoginRequest) => Promise<LoginResponse>;
-  logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
+  logoutUser: (newLogoutUser: Request) => Promise<LogoutResponse>;
   listUserByID: (newListUser: UserIdRequest) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (params: UpdateUserRequest) => Promise<UserResult>;
   updateUserPasswordByID: (params: UpdateUserRequest) => Promise<UserResult>;
