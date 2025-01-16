@@ -61,6 +61,11 @@ export type FilteredLoginUser = Omit<
   "password" | "createdAt" | "updatedAt"
 >;
 
+export type FilteredSearchUserById = Pick<
+  FullUser,
+  "name" | "email" | "role" | "status"
+>;
+
 export type SignUpUserResponse = {
   httpStatusCode: number;
   message: string;
@@ -74,12 +79,18 @@ export type LoginResponse = {
   user?: FilteredLoginUser;
 };
 
+export type SearchUserByIdResponse = {
+  httpStatusCode: number;
+  message: string;
+  user?: FilteredSearchUserById;
+};
+
 //interfaces for dependency injection pattern
 export type UserServices = {
   signUpUser: (newSignUpUser: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (newLoginUser: LoginRequest) => Promise<LoginResponse>;
   logoutUser: (newLogoutUser: Request) => Promise<UserResult>;
-  listUserByID: (newListUser: UserIdRequest) => Promise<UserResult>;
+  listUserByID: (newListUser: UserIdRequest) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (params: UpdateUserRequest) => Promise<UserResult>;
   updateUserPasswordByID: (params: UpdateUserRequest) => Promise<UserResult>;
   deleteUserByID: (newDeleteUser: UserIdRequest) => Promise<UserResult>;

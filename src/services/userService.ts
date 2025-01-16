@@ -11,8 +11,10 @@ import {
   FullUser,
   SignUpUserResponse,
   LoginResponse,
+  SearchUserByIdResponse,
   FilteredSignUpUser,
   FilteredLoginUser,
+  FilteredSearchUserById,
 } from "../types/user.types";
 
 const signUpUser = async function (
@@ -123,21 +125,30 @@ const loginUser = async function (
   }
 };
 
-const listUserByID = async function (requestUserId: UserIdRequest) {
+const listUserByID = async function (
+  requestUserId: UserIdRequest
+): Promise<SearchUserByIdResponse> {
   const userId = requestUserId.userId;
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    return { httpStatusCode: 200, message: "User Found", user: searchUser };
+    const filteredUser: FilteredSearchUserById = {
+      name: searchUser.name,
+      email: searchUser.email,
+      role: searchUser.role,
+      status: searchUser.status,
+    };
+
+    return { httpStatusCode: 200, message: "ENTITY_FOUND", user: filteredUser };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, listItemByID: " + error.message);
     } else {
       console.error("userService, listItemByID: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
