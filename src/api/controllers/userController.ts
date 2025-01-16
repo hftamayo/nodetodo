@@ -8,6 +8,7 @@ import {
   SignUpUserResponse,
   LoginResponse,
   UserServices,
+  SearchUserByIdResponse,
 } from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
@@ -22,7 +23,7 @@ export default function userController(userService: UserServices) {
           res.status(httpStatusCode).json({
             code: httpStatusCode,
             resultMessage: message,
-            signUpUser: user,
+            entity: user,
           });
         } else {
           res.status(httpStatusCode).json({
@@ -54,7 +55,7 @@ export default function userController(userService: UserServices) {
           res.status(httpStatusCode).json({
             code: httpStatusCode,
             resultMessage: message,
-            loggedUser: user,
+            entity: user,
           });
         } else {
           res.status(httpStatusCode).json({
@@ -93,15 +94,15 @@ export default function userController(userService: UserServices) {
 
     listUserHandler: async function (req: UserIdRequest, res: Response) {
       try {
-        const result: UserResult = await userService.listUserByID(req);
+        const result: SearchUserByIdResponse = await userService.listUserByID(
+          req
+        );
         const { httpStatusCode, message, user } = result;
-        if (httpStatusCode === 200 && user?.toObject) {
-          const userObject = user.toObject();
-          const { password, ...filteredUser } = userObject;
+        if (httpStatusCode === 200) {
           res.status(httpStatusCode).json({
             httpStatusCode,
             resultMessage: message,
-            searchUser: filteredUser,
+            entity: user,
           });
         } else {
           res
@@ -114,10 +115,6 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, listUser: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
