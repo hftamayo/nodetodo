@@ -79,10 +79,10 @@ const loginUser = async function (
 
   try {
     let searchUser = await User.findOne({ email }).exec();
-    if (!searchUser) {
+    if (!searchUser || !searchUser.status) {
       return {
         httpStatusCode: 401,
-        message: "BAD_CREDENTIALS",
+        message: !searchUser ? "BAD_CREDENTIALS" : "ACCOUNT_DISABLED",
       };
     }
     const passwordMatch = await bcrypt.compare(
