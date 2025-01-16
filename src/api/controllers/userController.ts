@@ -76,7 +76,7 @@ export default function userController(userService: UserServices) {
         res.clearCookie("nodetodo");
         res.status(200).json({
           httpStatusCode: 200,
-          resultMessage: "User logged out successfully",
+          resultMessage: "LOGOUT_SUCCESFUL",
         });
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -86,7 +86,7 @@ export default function userController(userService: UserServices) {
         }
         res.status(500).json({
           httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
+          resultMessage: "UNKNOWN_ERROR",
         });
       }
     },
