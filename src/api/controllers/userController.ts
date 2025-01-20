@@ -10,6 +10,7 @@ import {
   UserServices,
   SearchUserByIdResponse,
   DeleteUserByIdResponse,
+  UpdateUserDetailsResponse,
 } from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
@@ -124,32 +125,28 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const result: UserResult = await userService.updateUserDetailsByID(req);
+        const result: UpdateUserDetailsResponse =
+          await userService.updateUserDetailsByID(req);
         const { httpStatusCode, message, user } = result;
 
-        if (!user?.toObject) {
-          return res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
+        if (httpStatusCode === 200) {
+          res.status(httpStatusCode).json({
+            code: httpStatusCode,
+            resultMessage: message,
+            entity: user,
+          });
+        } else {
+          res.status(httpStatusCode).json({
+            code: httpStatusCode,
+            resultMessage: message,
+          });
         }
-        const userObject = user.toObject();
-        const { password, ...filteredUSer } = userObject;
-        res.status(httpStatusCode).json({
-          httpStatusCode,
-          resultMessage: message,
-          updatedUser: filteredUSer,
-        });
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, updateDetails: " + error.message);
         } else {
           console.error("userController, updateDetails: " + error);
         }
-
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
