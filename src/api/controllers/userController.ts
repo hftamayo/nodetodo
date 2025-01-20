@@ -9,6 +9,7 @@ import {
   LoginResponse,
   UserServices,
   SearchUserByIdResponse,
+  DeleteUserByIdResponse,
 } from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
@@ -191,7 +192,9 @@ export default function userController(userService: UserServices) {
 
     deleteUserHandler: async function (req: UserIdRequest, res: Response) {
       try {
-        const result: UserResult = await userService.deleteUserByID(req);
+        const result: DeleteUserByIdResponse = await userService.deleteUserByID(
+          req
+        );
         const { httpStatusCode, message } = result;
 
         if (httpStatusCode === 200) {
@@ -206,10 +209,6 @@ export default function userController(userService: UserServices) {
         } else {
           console.error("userController, deleteUser: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
   };
