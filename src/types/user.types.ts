@@ -90,6 +90,11 @@ export type SearchUserByIdResponse = {
   user?: FilteredSearchUserById;
 };
 
+export type DeleteUserByIdResponse = {
+  httpStatusCode: number;
+  message: string;
+};
+
 //interfaces for dependency injection pattern
 export type UserServices = {
   signUpUser: (newSignUpUser: UserRequest) => Promise<SignUpUserResponse>;
@@ -98,5 +103,7 @@ export type UserServices = {
   listUserByID: (newListUser: UserIdRequest) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (params: UpdateUserRequest) => Promise<UserResult>;
   updateUserPasswordByID: (params: UpdateUserRequest) => Promise<UserResult>;
-  deleteUserByID: (newDeleteUser: UserIdRequest) => Promise<UserResult>;
+  deleteUserByID: (
+    newDeleteUser: UserIdRequest
+  ) => Promise<DeleteUserByIdResponse>;
 };
