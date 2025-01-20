@@ -16,6 +16,8 @@ import {
   FilteredLoginUser,
   FilteredSearchUserById,
   DeleteUserByIdResponse,
+  UpdateUserDetailsResponse,
+  FilteredUpdateUser,
 } from "../types/user.types";
 
 const signUpUser = async function (
@@ -155,25 +157,25 @@ const listUserByID = async function (
 
 const updateUserDetailsByID = async function (
   updateUserRequest: UpdateUserRequest
-) {
+): Promise<UpdateUserDetailsResponse> {
   const { userId, user } = updateUserRequest;
   const { name, email, age } = user;
 
   if (!name || !email || !age) {
-    return { httpStatusCode: 400, message: "Please fill all required fields" };
+    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
     let checkIfUpdateEmailExists = await User.findOne({ email }).exec();
     if (
       checkIfUpdateEmailExists &&
       checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()
     ) {
-      return { httpStatusCode: 400, message: "Email already taken" };
+      return { httpStatusCode: 400, message: "EMAIL_EXISTS" };
     }
     searchUser.name = name;
     searchUser.email = email;
@@ -181,10 +183,13 @@ const updateUserDetailsByID = async function (
 
     await searchUser.save();
 
+    const { password, createdAt, ...filteredUser } =
+      searchUser.toObject() as FullUser;
+
     return {
       httpStatusCode: 200,
-      message: "Data updated successfully",
-      user: searchUser,
+      message: "ENTITY_UPDATED",
+      user: filteredUser as FilteredUpdateUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -192,7 +197,7 @@ const updateUserDetailsByID = async function (
     } else {
       console.error("userService, updateUserByID: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 

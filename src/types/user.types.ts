@@ -66,6 +66,8 @@ export type FilteredSearchUserById = Pick<
   "name" | "email" | "role" | "status"
 >;
 
+export type FilteredUpdateUser = Omit<FullUser, "password" | "createdAt">;
+
 export type SignUpUserResponse = {
   httpStatusCode: number;
   message: string;
@@ -90,6 +92,12 @@ export type SearchUserByIdResponse = {
   user?: FilteredSearchUserById;
 };
 
+export type UpdateUserDetailsResponse = {
+  httpStatusCode: number;
+  message: string;
+  user?: FilteredUpdateUser;
+};
+
 export type DeleteUserByIdResponse = {
   httpStatusCode: number;
   message: string;
@@ -101,7 +109,9 @@ export type UserServices = {
   loginUser: (newLoginUser: LoginRequest) => Promise<LoginResponse>;
   logoutUser: (newLogoutUser: Request) => Promise<LogoutResponse>;
   listUserByID: (newListUser: UserIdRequest) => Promise<SearchUserByIdResponse>;
-  updateUserDetailsByID: (params: UpdateUserRequest) => Promise<UserResult>;
+  updateUserDetailsByID: (
+    params: UpdateUserRequest
+  ) => Promise<UpdateUserDetailsResponse>;
   updateUserPasswordByID: (params: UpdateUserRequest) => Promise<UserResult>;
   deleteUserByID: (
     newDeleteUser: UserIdRequest
