@@ -15,6 +15,7 @@ import {
   FilteredSignUpUser,
   FilteredLoginUser,
   FilteredSearchUserById,
+  DeleteUserByIdResponse,
 } from "../types/user.types";
 
 const signUpUser = async function (
@@ -235,26 +236,28 @@ const updateUserPasswordByID = async function (
   }
 };
 
-const deleteUserByID = async function (requestUserId: UserIdRequest) {
+const deleteUserByID = async function (
+  requestUserId: UserIdRequest
+): Promise<DeleteUserByIdResponse> {
   const userId = requestUserId.userId;
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "User not found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
     const todo = await Todo.find({ user: searchUser }).exec();
     if (todo) {
       await Todo.deleteMany({ user: searchUser }).exec();
     }
     await searchUser.deleteOne();
-    return { httpStatusCode: 200, message: "User deleted successfully" };
+    return { httpStatusCode: 200, message: "ENTITY_DELETED" };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, deleteUserByID: " + error.message);
     } else {
       console.error("userService, deleteUserByID: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
