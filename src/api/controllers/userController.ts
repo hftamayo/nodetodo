@@ -4,7 +4,6 @@ import {
   LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
-  UserResult,
   SignUpUserResponse,
   LoginResponse,
   UserServices,
@@ -155,35 +154,29 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const result: UserResult = await userService.updateUserPasswordByID(
-          req
-        );
+        const result: UpdateUserDetailsResponse =
+          await userService.updateUserPasswordByID(req);
 
         const { httpStatusCode, message, user } = result;
 
-        if (!user?.toObject) {
-          return res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
+        if (httpStatusCode === 200) {
+          res.status(httpStatusCode).json({
+            code: httpStatusCode,
+            resultMessage: message,
+            entity: user,
+          });
+        } else {
+          res.status(httpStatusCode).json({
+            code: httpStatusCode,
+            resultMessage: message,
+          });
         }
-
-        const userObject = user.toObject();
-        const { password, ...filteredUser } = userObject;
-        res.status(httpStatusCode).json({
-          httpStatusCode,
-          resultMessage: message,
-          updatedUser: filteredUser,
-        });
       } catch (error: unknown) {
         if (error instanceof Error) {
-          console.error("userController, updatePassword: " + error.message);
+          console.error("userController, updateDetails: " + error.message);
         } else {
-          console.error("userController, updatePassword: " + error);
+          console.error("userController, updateDetails: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
