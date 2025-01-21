@@ -203,33 +203,37 @@ const updateUserDetailsByID = async function (
 
 const updateUserPasswordByID = async function (
   updateUserRequest: UpdateUserRequest
-) {
+): Promise<UpdateUserDetailsResponse> {
   const { userId, user } = updateUserRequest;
-  const { password, newPassword } = user;
+  const { password: plainPassword, newPassword } = user;
 
-  if (!password || !newPassword) {
-    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  if (!plainPassword || !newPassword) {
+    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    const isMatch = await bcrypt.compare(password, searchUser.password);
+    const isMatch = await bcrypt.compare(plainPassword, searchUser.password);
     if (!isMatch) {
       return {
         httpStatusCode: 400,
-        message: "The entered credentials are not valid",
+        message: "BAD_CREDENTIALS",
       };
     }
     const salt = await bcrypt.genSalt(10);
     searchUser.password = await bcrypt.hash(newPassword, salt);
     await searchUser.save();
+
+    const { password, createdAt, ...filteredUser } =
+      searchUser.toObject() as FullUser;
+
     return {
       httpStatusCode: 200,
-      message: "Password updated successfully",
-      user: searchUser,
+      message: "ENTITY UPDATED",
+      user: filteredUser as FilteredUpdateUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -237,7 +241,7 @@ const updateUserPasswordByID = async function (
     } else {
       console.error("userService, updateUserPassword: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
