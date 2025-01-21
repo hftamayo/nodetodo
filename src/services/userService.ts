@@ -9,8 +9,10 @@ import {
   UpdateUserRequest,
   UserIdRequest,
   FullUser,
+  FilteredSearchUsers,
   SignUpUserResponse,
   LoginResponse,
+  SearchUsersResponse,
   SearchUserByIdResponse,
   FilteredSignUpUser,
   FilteredLoginUser,
@@ -125,6 +127,35 @@ const loginUser = async function (
       console.error("userService, loginUser: " + error);
     }
     return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+  }
+};
+
+const searchUsers = async function (): Promise<SearchUsersResponse> {
+  try {
+    const users = await User.find().exec();
+    const filteredUsers: FilteredSearchUsers[] = users.map((user) => ({
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    }));
+
+    return {
+      httpStatusCode: 200,
+      message: "USERS_FOUND",
+      users: filteredUsers,
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("userService, searchUsers: " + error.message);
+    } else {
+      console.error("userService, searchUsers: " + error);
+    }
+    return {
+      httpStatusCode: 500,
+      message: "UNKNOWN_ERROR",
+    };
   }
 };
 
@@ -273,6 +304,7 @@ const deleteUserByID = async function (
 export default {
   signUpUser,
   loginUser,
+  searchUsers,
   listUserByID,
   updateUserDetailsByID,
   updateUserPasswordByID,
