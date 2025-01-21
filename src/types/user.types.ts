@@ -90,7 +90,7 @@ export type LogoutResponse = {
 export type SearchUsersResponse = {
   httpStatusCode: number;
   message: string;
-  users: FilteredSearchUsers[];
+  users?: FilteredSearchUsers[];
 };
 
 export type SearchUserByIdResponse = {
