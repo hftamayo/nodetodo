@@ -1,4 +1,4 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import { JwtPayload } from "jsonwebtoken";
 
 export enum UserRole {
@@ -54,6 +54,14 @@ export type FilteredLoginUser = Omit<
   "password" | "createdAt" | "updatedAt"
 >;
 
+export type FilteredSearchUsers = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  status: boolean;
+};
+
 export type FilteredSearchUserById = Pick<
   FullUser,
   "name" | "email" | "role" | "status"
@@ -79,6 +87,12 @@ export type LogoutResponse = {
   message: string;
 };
 
+export type SearchUsersResponse = {
+  httpStatusCode: number;
+  message: string;
+  users: FilteredSearchUsers[];
+};
+
 export type SearchUserByIdResponse = {
   httpStatusCode: number;
   message: string;
@@ -101,6 +115,7 @@ export type UserServices = {
   signUpUser: (newSignUpUser: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (newLoginUser: LoginRequest) => Promise<LoginResponse>;
   logoutUser: (newLogoutUser: Request) => Promise<LogoutResponse>;
+  listUsers: () => Promise<SearchUsersResponse>;
   listUserByID: (newListUser: UserIdRequest) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (
     params: UpdateUserRequest
