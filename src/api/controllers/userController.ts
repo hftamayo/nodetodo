@@ -10,6 +10,7 @@ import {
   SearchUserByIdResponse,
   DeleteUserByIdResponse,
   UpdateUserDetailsResponse,
+  SearchUsersResponse,
 } from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
@@ -90,6 +91,30 @@ export default function userController(userService: UserServices) {
           httpStatusCode: 500,
           resultMessage: "UNKNOWN_ERROR",
         });
+      }
+    },
+
+    listUsersHandler: async function (req: Request, res: Response) {
+      try {
+        const result: SearchUsersResponse = await userService.listUsers();
+        const { httpStatusCode, message, users } = result;
+        if (httpStatusCode === 200) {
+          res.status(httpStatusCode).json({
+            httpStatusCode,
+            resultMessage: message,
+            entities: users,
+          });
+        } else {
+          res
+            .status(httpStatusCode)
+            .json({ httpStatusCode, resultMessage: message });
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("userController, listUsers: " + error.message);
+        } else {
+          console.error("userController, listUsers: " + error);
+        }
       }
     },
 
