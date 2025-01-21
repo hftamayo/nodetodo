@@ -46,13 +46,6 @@ export type UpdateUserRequest = {
   user: Partial<UserRequest>;
 };
 
-export type UserResult = {
-  httpStatusCode: number;
-  message: string;
-  tokenCreated?: string;
-  user?: Partial<UserRequest & Document>;
-};
-
 // Define a type for the filtered user object
 export type FilteredSignUpUser = Omit<FullUser, "password" | "updatedAt">;
 
@@ -112,7 +105,9 @@ export type UserServices = {
   updateUserDetailsByID: (
     params: UpdateUserRequest
   ) => Promise<UpdateUserDetailsResponse>;
-  updateUserPasswordByID: (params: UpdateUserRequest) => Promise<UserResult>;
+  updateUserPasswordByID: (
+    params: UpdateUserRequest
+  ) => Promise<UpdateUserDetailsResponse>;
   deleteUserByID: (
     newDeleteUser: UserIdRequest
   ) => Promise<DeleteUserByIdResponse>;
