@@ -11,6 +11,7 @@ import {
   DeleteUserByIdResponse,
   UpdateUserDetailsResponse,
   SearchUsersResponse,
+  ListUsersRequest,
 } from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
@@ -94,9 +95,14 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    listUsersHandler: async function (res: Response) {
+    listUsersHandler: async function (req: Request, res: Response) {
       try {
-        const result: SearchUsersResponse = await userService.listUsers();
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const listUsersRequest: ListUsersRequest = { page, limit };
+        const result: SearchUsersResponse = await userService.listUsers(
+          listUsersRequest
+        );
         const { httpStatusCode, message, users } = result;
         if (httpStatusCode === 200) {
           res.status(httpStatusCode).json({

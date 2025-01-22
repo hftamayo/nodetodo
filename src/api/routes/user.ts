@@ -31,8 +31,8 @@ const logoutHandler = (req: Request, res: Response) => {
   controller.logoutHandler(req, res);
 };
 
-const listUsersHandler = (res: Response) => {
-  controller.listUsersHandler(res);
+const listUsersHandler = (req: Request, res: Response) => {
+  controller.listUsersHandler(req, res);
 };
 
 const listUserHandler = (req: Request, res: Response) => {
