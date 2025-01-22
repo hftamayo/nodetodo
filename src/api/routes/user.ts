@@ -31,6 +31,10 @@ const logoutHandler = (req: Request, res: Response) => {
   controller.logoutHandler(req, res);
 };
 
+const listUsersHandler = (res: Response) => {
+  controller.listUsersHandler(res);
+};
+
 const listUserHandler = (req: Request, res: Response) => {
   const userIdRequest: UserIdRequest = { userId: req.body.userId };
   controller.listUserHandler(userIdRequest, res);
@@ -66,6 +70,7 @@ userRouter.post(
   loginHandler
 );
 userRouter.post("/logout", authorize, logoutHandler);
+userRouter.get("/list", authorize, listUsersHandler);
 userRouter.get("/me", authorize, listUserHandler);
 userRouter.put(
   "/updatedetails",
@@ -81,6 +86,6 @@ userRouter.put(
   validateResult,
   updateUserPasswordHandler
 );
-userRouter.delete("/deleteuser", authorize, deleteUserHandler);
+userRouter.delete("/delete", authorize, deleteUserHandler);
 
 export default userRouter;
