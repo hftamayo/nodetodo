@@ -130,9 +130,17 @@ const loginUser = async function (
   }
 };
 
-const listUsers = async function (): Promise<SearchUsersResponse> {
+const listUsers = async function (
+  page: number,
+  limit: number
+): Promise<SearchUsersResponse> {
   try {
-    const users = await User.find().exec();
+    const skip = (page - 1) * limit;
+    const users = await User.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
     const filteredUsers: FilteredSearchUsers[] = users.map((user) => ({
       id: user._id.toString(),
       name: user.name,
