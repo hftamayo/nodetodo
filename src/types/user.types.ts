@@ -37,6 +37,11 @@ export type JwtPayloadWithUserId = JwtPayload & {
   userId: string;
 };
 
+export type ListUsersRequest = {
+  page: number;
+  limit: number;
+};
+
 export type UserIdRequest = {
   userId: string;
 };
@@ -115,7 +120,7 @@ export type UserServices = {
   signUpUser: (newSignUpUser: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (newLoginUser: LoginRequest) => Promise<LoginResponse>;
   logoutUser: (newLogoutUser: Request) => Promise<LogoutResponse>;
-  listUsers: () => Promise<SearchUsersResponse>;
+  listUsers: (params: ListUsersRequest) => Promise<SearchUsersResponse>;
   listUserByID: (newListUser: UserIdRequest) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (
     params: UpdateUserRequest
