@@ -20,6 +20,7 @@ import {
   DeleteUserByIdResponse,
   UpdateUserDetailsResponse,
   FilteredUpdateUser,
+  ListUsersRequest,
 } from "../types/user.types";
 
 const signUpUser = async function (
@@ -131,9 +132,9 @@ const loginUser = async function (
 };
 
 const listUsers = async function (
-  page: number,
-  limit: number
+  listUsersRequest: ListUsersRequest
 ): Promise<SearchUsersResponse> {
+  const { page, limit } = listUsersRequest;
   try {
     const skip = (page - 1) * limit;
     const users = await User.find()
