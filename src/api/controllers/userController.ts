@@ -94,7 +94,7 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    listUsersHandler: async function (req: Request, res: Response) {
+    listUsersHandler: async function (res: Response) {
       try {
         const result: SearchUsersResponse = await userService.listUsers();
         const { httpStatusCode, message, users } = result;

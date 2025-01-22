@@ -130,7 +130,7 @@ const loginUser = async function (
   }
 };
 
-const searchUsers = async function (): Promise<SearchUsersResponse> {
+const listUsers = async function (): Promise<SearchUsersResponse> {
   try {
     const users = await User.find().exec();
     const filteredUsers: FilteredSearchUsers[] = users.map((user) => ({
@@ -304,7 +304,7 @@ const deleteUserByID = async function (
 export default {
   signUpUser,
   loginUser,
-  searchUsers,
+  listUsers,
   listUserByID,
   updateUserDetailsByID,
   updateUserPasswordByID,
