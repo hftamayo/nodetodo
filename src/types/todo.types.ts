@@ -1,4 +1,4 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import { UserIdRequest } from "./user.types";
 
 export type TodoSeed = {
@@ -6,7 +6,7 @@ export type TodoSeed = {
   title: string;
   description: string;
   completed: boolean;
-  user: mongoose.Types.ObjectId;
+  owner: mongoose.Types.ObjectId;
 };
 
 type TodoRequest = {
@@ -14,7 +14,7 @@ type TodoRequest = {
   title: string;
   description: string;
   completed: boolean;
-  user: string;
+  owner: string;
 };
 
 export type NewTodoRequest = {
@@ -27,24 +27,58 @@ export type UpdateTodoRequest = {
   todo: Partial<TodoRequest>;
 };
 
-export type OwnerTodoIdRequest = Request & {
-  user: UserIdRequest;
+export type ListTodosByOwnerRequest = {
+  owner: UserIdRequest;
+  page: number;
+  limit: number;
+};
+
+export type ListTodoByOwnerRequest = {
+  owner: UserIdRequest;
   params: {
     todoId: string;
   };
 };
 
-export type TodoResult = {
+export type CreateTodoResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: Partial<TodoRequest & Document>;
-  todos?: Partial<TodoRequest & Document>[];
+  todo?: TodoRequest;
+};
+
+export type ListTodosByOwnerResponse = {
+  httpStatusCode: number;
+  message: string;
+  todos?: TodoRequest[];
+};
+
+export type ListTodoByOwnerResponse = {
+  httpStatusCode: number;
+  message: string;
+  todo?: TodoRequest;
+};
+
+export type UpdateTodoResponse = {
+  httpStatusCode: number;
+  message: string;
+  todo?: TodoRequest;
+};
+
+export type DeleteTodoByIdResponse = {
+  httpStatusCode: number;
+  message: string;
 };
 
 export type TodoServices = {
-  listActiveTodos: (req: UserIdRequest) => Promise<TodoResult>;
-  listTodoByID: (req: OwnerTodoIdRequest) => Promise<TodoResult>;
-  createTodo: (req: NewTodoRequest) => Promise<TodoResult>;
-  updateTodoByID: (req: UpdateTodoRequest) => Promise<TodoResult>;
-  deleteTodoByID: (req: OwnerTodoIdRequest) => Promise<TodoResult>;
+  listActiveTodos: (
+    params: ListTodosByOwnerRequest
+  ) => Promise<ListTodosByOwnerResponse>;
+  listTodoByID: (
+    params: ListTodoByOwnerRequest
+  ) => Promise<ListTodoByOwnerResponse>;
+  createTodo: (newTodo: NewTodoRequest) => Promise<CreateTodoResponse>;
+  updateTodoByID: (params: UpdateTodoRequest) => Promise<UpdateTodoResponse>;
+  deleteTodoByID: (
+    deleteTodo: ListTodoByOwnerRequest
+  ) => Promise<DeleteTodoByIdResponse>;
 };
