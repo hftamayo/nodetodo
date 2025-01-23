@@ -79,7 +79,7 @@ export default function userController(userService: UserServices) {
       try {
         res.clearCookie("nodetodo");
         res.status(200).json({
-          httpStatusCode: 200,
+          code: 200,
           resultMessage: "LOGOUT_SUCCESFUL",
         });
       } catch (error: unknown) {
@@ -89,7 +89,7 @@ export default function userController(userService: UserServices) {
           console.error("userController, logout: " + error);
         }
         res.status(500).json({
-          httpStatusCode: 500,
+          code: 500,
           resultMessage: "UNKNOWN_ERROR",
         });
       }
@@ -106,14 +106,14 @@ export default function userController(userService: UserServices) {
         const { httpStatusCode, message, users } = result;
         if (httpStatusCode === 200) {
           res.status(httpStatusCode).json({
-            httpStatusCode,
+            code: httpStatusCode,
             resultMessage: message,
-            entities: users,
+            users: users,
           });
         } else {
           res
             .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
+            .json({ code: httpStatusCode, resultMessage: message });
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -132,14 +132,14 @@ export default function userController(userService: UserServices) {
         const { httpStatusCode, message, user } = result;
         if (httpStatusCode === 200) {
           res.status(httpStatusCode).json({
-            httpStatusCode,
+            code: httpStatusCode,
             resultMessage: message,
-            entity: user,
+            user: user,
           });
         } else {
           res
             .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
+            .json({ code: httpStatusCode, resultMessage: message });
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -223,7 +223,7 @@ export default function userController(userService: UserServices) {
         }
         res
           .status(httpStatusCode)
-          .json({ httpStatusCode, resultMessage: message });
+          .json({ code: httpStatusCode, resultMessage: message });
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, deleteUser: " + error.message);
