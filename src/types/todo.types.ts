@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { UserIdRequest } from "./user.types";
 
-export type TodoSeed = {
+export type FullTodo = {
   _id: mongoose.Types.ObjectId;
   title: string;
   description: string;
@@ -43,25 +43,25 @@ export type ListTodoByOwnerRequest = {
 export type CreateTodoResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: TodoRequest;
+  todo?: FullTodo;
 };
 
 export type ListTodosByOwnerResponse = {
   httpStatusCode: number;
   message: string;
-  todos?: TodoRequest[];
+  todos?: FullTodo[];
 };
 
 export type ListTodoByOwnerResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: TodoRequest;
+  todo?: FullTodo;
 };
 
 export type UpdateTodoResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: TodoRequest;
+  todo?: FullTodo;
 };
 
 export type DeleteTodoByIdResponse = {
@@ -79,6 +79,6 @@ export type TodoServices = {
   createTodo: (newTodo: NewTodoRequest) => Promise<CreateTodoResponse>;
   updateTodoByID: (params: UpdateTodoRequest) => Promise<UpdateTodoResponse>;
   deleteTodoByID: (
-    deleteTodo: ListTodoByOwnerRequest
+    params: ListTodoByOwnerRequest
   ) => Promise<DeleteTodoByIdResponse>;
 };
