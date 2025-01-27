@@ -24,9 +24,9 @@ import {
 } from "../types/user.types";
 
 const signUpUser = async function (
-  requestBody: UserRequest
+  params: UserRequest
 ): Promise<SignUpUserResponse> {
-  const { name, email, password: plainPassword, age } = requestBody;
+  const { name, email, password: plainPassword, age } = params;
 
   if (!name || !email || !plainPassword || !age) {
     return {
@@ -74,9 +74,9 @@ const signUpUser = async function (
 };
 
 const loginUser = async function (
-  requestBody: LoginRequest
+  params: LoginRequest
 ): Promise<LoginResponse> {
-  const { email, password: plainPassword } = requestBody;
+  const { email, password: plainPassword } = params;
 
   if (!email || !plainPassword) {
     return {
@@ -132,9 +132,9 @@ const loginUser = async function (
 };
 
 const listUsers = async function (
-  listUsersRequest: ListUsersRequest
+  params: ListUsersRequest
 ): Promise<SearchUsersResponse> {
-  const { page, limit } = listUsersRequest;
+  const { page, limit } = params;
   try {
     const skip = (page - 1) * limit;
     const users = await User.find()
@@ -169,9 +169,9 @@ const listUsers = async function (
 };
 
 const listUserByID = async function (
-  requestUserId: UserIdRequest
+  params: UserIdRequest
 ): Promise<SearchUserByIdResponse> {
-  const userId = requestUserId.userId;
+  const userId = params.userId;
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
@@ -196,9 +196,9 @@ const listUserByID = async function (
 };
 
 const updateUserDetailsByID = async function (
-  updateUserRequest: UpdateUserRequest
+  params: UpdateUserRequest
 ): Promise<UpdateUserDetailsResponse> {
-  const { userId, user } = updateUserRequest;
+  const { userId, user } = params;
   const { name, email, age } = user;
 
   if (!name || !email || !age) {
@@ -242,9 +242,9 @@ const updateUserDetailsByID = async function (
 };
 
 const updateUserPasswordByID = async function (
-  updateUserRequest: UpdateUserRequest
+  params: UpdateUserRequest
 ): Promise<UpdateUserDetailsResponse> {
-  const { userId, user } = updateUserRequest;
+  const { userId, user } = params;
   const { password: plainPassword, newPassword } = user;
 
   if (!plainPassword || !newPassword) {
@@ -286,9 +286,9 @@ const updateUserPasswordByID = async function (
 };
 
 const deleteUserByID = async function (
-  requestUserId: UserIdRequest
+  params: UserIdRequest
 ): Promise<DeleteUserByIdResponse> {
-  const userId = requestUserId.userId;
+  const userId = params.userId;
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {
