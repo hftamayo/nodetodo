@@ -77,7 +77,7 @@ export type TodoServices = {
   listTodoByID: (
     params: ListTodoByOwnerRequest
   ) => Promise<ListTodoByOwnerResponse>;
-  createTodo: (newTodo: NewTodoRequest) => Promise<CreateTodoResponse>;
+  createTodo: (params: NewTodoRequest) => Promise<CreateTodoResponse>;
   updateTodoByID: (params: UpdateTodoRequest) => Promise<UpdateTodoResponse>;
   deleteTodoByID: (
     params: ListTodoByOwnerRequest
