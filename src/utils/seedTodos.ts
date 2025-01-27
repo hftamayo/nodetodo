@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 import Todo from "../models/Todo";
-import { TodoSeed } from "../types/todo.types";
+import { FullTodo } from "../types/todo.types";
 
-const todos: TodoSeed[] = [
+const todos: FullTodo[] = [
   {
     _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1d"),
     title: "Foreign language class",
     description: "To learn a new language",
     completed: false,
-    user: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1e"),
+    owner: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1e"),
   },
 ];
 
