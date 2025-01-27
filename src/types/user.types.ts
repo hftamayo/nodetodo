@@ -117,11 +117,11 @@ export type DeleteUserByIdResponse = {
 
 //interfaces for dependency injection pattern
 export type UserServices = {
-  signUpUser: (newSignUpUser: UserRequest) => Promise<SignUpUserResponse>;
-  loginUser: (newLoginUser: LoginRequest) => Promise<LoginResponse>;
-  logoutUser: (newLogoutUser: Request) => Promise<LogoutResponse>;
+  signUpUser: (params: UserRequest) => Promise<SignUpUserResponse>;
+  loginUser: (params: LoginRequest) => Promise<LoginResponse>;
+  logoutUser: (params: Request) => Promise<LogoutResponse>;
   listUsers: (params: ListUsersRequest) => Promise<SearchUsersResponse>;
-  listUserByID: (newListUser: UserIdRequest) => Promise<SearchUserByIdResponse>;
+  listUserByID: (params: UserIdRequest) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (
     params: UpdateUserRequest
   ) => Promise<UpdateUserDetailsResponse>;
