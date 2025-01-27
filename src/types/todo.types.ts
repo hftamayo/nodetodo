@@ -70,7 +70,7 @@ export type DeleteTodoByIdResponse = {
 };
 
 export type TodoServices = {
-  listActiveTodos: (
+  listTodos: (
     params: ListTodosByOwnerRequest
   ) => Promise<ListTodosByOwnerResponse>;
   listTodoByID: (
