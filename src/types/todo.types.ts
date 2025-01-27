@@ -31,6 +31,7 @@ export type ListTodosByOwnerRequest = {
   owner: UserIdRequest;
   page: number;
   limit: number;
+  activeOnly?: boolean;
 };
 
 export type ListTodoByOwnerRequest = {
