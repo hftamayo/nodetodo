@@ -14,7 +14,7 @@ const TodoSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
-    user: {
+    owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
