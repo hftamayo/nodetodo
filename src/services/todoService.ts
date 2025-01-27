@@ -1,42 +1,61 @@
 import Todo from "../models/Todo";
 import {
-  OwnerTodoIdRequest,
+  FullTodo,
   NewTodoRequest,
   UpdateTodoRequest,
+  ListTodosByOwnerRequest,
+  ListTodoByOwnerRequest,
+  CreateTodoResponse,
+  ListTodosByOwnerResponse,
+  ListTodoByOwnerResponse,
+  UpdateTodoResponse,
+  DeleteTodoByIdResponse,
 } from "../types/todo.types";
 import { UserIdRequest } from "../types/user.types";
 
-const listActiveTodos = async function (requestUserId: UserIdRequest) {
-  const userId = requestUserId.userId;
+const listTodos = async function (
+  params: ListTodosByOwnerRequest
+): Promise<ListTodosByOwnerResponse> {
+  const { owner, page, limit, activeOnly } = params;
   try {
-    let activeTodos = await Todo.find({
-      user: userId,
-      completed: false,
-    }).exec();
+    const skip = (page - 1) * limit;
+    const query: { owner: string; completed?: boolean } = {
+      owner: owner.userId,
+    };
 
-    if (!activeTodos || activeTodos.length === 0) {
-      return {
-        httpStatusCode: 404,
-        message: "No active tasks found for active user",
-      };
+    if (activeOnly) {
+      query["completed"] = false;
+    }
+    const todos = await Todo.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    if (!todos || todos.length === 0) {
+      return { httpStatusCode: 404, message: "TASKS_NOT_FOUND" };
     }
 
-    const todoMapped = activeTodos.map((todo) => ({
-      id: todo._id.toString(),
+    const fetchedTodos: FullTodo[] = todos.map((todo) => ({
+      _id: todo._id,
       title: todo.title,
       description: todo.description,
       completed: todo.completed,
-      user: todo.user.toString(),
+      owner: todo.owner,
     }));
 
-    return { httpStatusCode: 200, message: "Tasks found", todos: todoMapped };
+    return {
+      httpStatusCode: 200,
+      message: "TASKS_FOUND",
+      todos: fetchedTodos,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("todoService, listActiveTodos: " + error.message);
+      console.error("todoService, listTodos: " + error.message);
     } else {
-      console.error("todoService, listActiveTodos: " + error);
+      console.error("todoService, listTodos: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
