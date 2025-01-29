@@ -60,7 +60,9 @@ const listTodos = async function (
   }
 };
 
-const listTodoByID = async function (params: ListTodoByOwnerRequest) {
+const listTodoByID = async function (
+  params: ListTodoByOwnerRequest
+): Promise<ListTodoByOwnerResponse> {
   const owner = params.owner.userId;
   const todoId = params.params.todoId;
 
@@ -162,31 +164,33 @@ const updateTodoByID = async function (req: UpdateTodoRequest) {
   }
 };
 
-const deleteTodoByID = async function (req: OwnerTodoIdRequest) {
-  const owner = req.user;
-  const todoId = req.params.todoId;
+const deleteTodoByID = async function (
+  params: ListTodoByOwnerRequest
+): Promise<DeleteTodoByIdResponse> {
+  const owner = params.owner;
+  const todoId = params.params.todoId;
 
   try {
     const deleteTodo = await Todo.findById(todoId);
     if (!deleteTodo) {
-      return { httpStatusCode: 404, message: "Todo not found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    if (deleteTodo.user.toString() !== owner.userId.toString()) {
+    if (deleteTodo.owner.toString() !== owner.userId.toString()) {
       return {
         httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
+        message: "FORBIDDEN",
       };
     }
 
     await deleteTodo.deleteOne();
-    return { httpStatusCode: 200, message: "Todo Deleted Successfully" };
+    return { httpStatusCode: 200, message: "ENTITY_DELETED" };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, deleteTodo: " + error.message);
     } else {
       console.error("todoService, deleteTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
