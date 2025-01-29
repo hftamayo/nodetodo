@@ -178,6 +178,7 @@ const listUserByID = async function (
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
     const filteredUser: FilteredSearchUserById = {
+      _id: searchUser._id,
       name: searchUser.name,
       email: searchUser.email,
       role: searchUser.role,
