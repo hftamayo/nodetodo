@@ -191,7 +191,7 @@ const deleteTodoByID = async function (req: OwnerTodoIdRequest) {
 };
 
 export default {
-  listActiveTodos,
+  listTodos,
   listTodoByID,
   createTodo,
   updateTodoByID,
