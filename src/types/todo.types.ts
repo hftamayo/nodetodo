@@ -7,6 +7,8 @@ export type FullTodo = {
   description: string;
   completed: boolean;
   owner: mongoose.Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 type TodoRequest = {
