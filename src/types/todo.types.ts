@@ -43,6 +43,8 @@ export type ListTodoByOwnerRequest = {
   };
 };
 
+export type FilteredTodo = Omit<FullTodo, "createdAt" | "updatedAt">;
+
 export type CreateTodoResponse = {
   httpStatusCode: number;
   message: string;

@@ -69,7 +69,7 @@ export type FilteredSearchUsers = {
 
 export type FilteredSearchUserById = Pick<
   FullUser,
-  "name" | "email" | "role" | "status"
+  "_id" | "name" | "email" | "role" | "status"
 >;
 
 export type FilteredUpdateUser = Omit<FullUser, "password" | "createdAt">;
