@@ -10,6 +10,7 @@ import {
   ListTodoByOwnerResponse,
   UpdateTodoResponse,
   DeleteTodoByIdResponse,
+  FilteredTodo,
 } from "../types/todo.types";
 import { UserIdRequest } from "../types/user.types";
 
@@ -59,31 +60,40 @@ const listTodos = async function (
   }
 };
 
-const listTodoByID = async function (req: OwnerTodoIdRequest) {
-  const userId = req.user.userId;
-  const todoId = req.params.todoId;
+const listTodoByID = async function (params: ListTodoByOwnerRequest) {
+  const owner = params.owner.userId;
+  const todoId = params.params.todoId;
 
   try {
     let searchTodo = await Todo.findById(todoId).exec();
 
     if (!searchTodo) {
-      return { httpStatusCode: 404, message: "Task Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
 
-    if (searchTodo.user.toString() !== userId) {
+    if (searchTodo.owner.toString() !== owner.toString()) {
       return {
-        httpStatusCode: 400,
-        message: "There's a problem with your credentials",
+        httpStatusCode: 401,
+        message: "FORBIDDEN",
       };
     }
-    return { httpStatusCode: 200, message: "Todo found", todo: searchTodo };
+
+    const filteredTodo: FilteredTodo = {
+      _id: searchTodo._id,
+      title: searchTodo.title,
+      description: searchTodo.description,
+      completed: searchTodo.completed,
+      owner: searchTodo.owner,
+    };
+
+    return { httpStatusCode: 200, message: "ENTITY_FOUND", todo: filteredTodo };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, listTodoByID: " + error.message);
     } else {
       console.error("todoService, listTodoByID: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
