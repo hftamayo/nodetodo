@@ -99,25 +99,41 @@ const listTodoByID = async function (
   }
 };
 
-const createTodo = async function (req: NewTodoRequest) {
-  const owner = req.owner;
-  const { title, description } = req.todo;
+const createTodo = async function (
+  params: NewTodoRequest
+): Promise<CreateTodoResponse> {
+  const owner = params.owner.userId;
+  const { title, description } = params.todo;
+
+  if (!owner || !title || !description) {
+    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+  }
+
   try {
     let newTodo = await Todo.findOne({ title }).exec();
     if (newTodo) {
-      return { httpStatusCode: 400, message: "Title already taken" };
+      return { httpStatusCode: 400, message: "TITLE_ALREADY_TAKEN" };
     }
     newTodo = new Todo({
       title,
       description,
       completed: false,
-      user: owner.userId,
+      owner: owner,
     });
     await newTodo.save();
+
+    const filteredTodo: FilteredTodo = {
+      _id: newTodo._id,
+      title: newTodo.title,
+      description: newTodo.description,
+      completed: newTodo.completed,
+      owner: newTodo.owner,
+    };
+
     return {
       httpStatusCode: 200,
-      message: "Todo created successfully",
-      todo: newTodo,
+      message: "TODO_CREATED",
+      todo: filteredTodo,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -125,7 +141,7 @@ const createTodo = async function (req: NewTodoRequest) {
     } else {
       console.error("todoService, createTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
