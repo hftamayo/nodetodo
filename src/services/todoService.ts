@@ -145,30 +145,45 @@ const createTodo = async function (
   }
 };
 
-const updateTodoByID = async function (req: UpdateTodoRequest) {
-  const owner = req.owner;
-  const todoId = req.todo._id;
-  const { title, description, completed } = req.todo;
+const updateTodoByID = async function (
+  params: UpdateTodoRequest
+): Promise<UpdateTodoResponse> {
+  const owner = params.owner.userId;
+  const todoId = params.todo._id;
+  const { title, description, completed } = params.todo;
+
+  if (!owner || !todoId || (!title && !description && !completed)) {
+    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+  }
 
   try {
-    let updateTodo = await Todo.findById(todoId);
+    let updateTodo = await Todo.findById(todoId).exec();
     if (!updateTodo) {
-      return { httpStatusCode: 404, message: "Todo Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    if (updateTodo.user.toString() !== owner.userId.toString()) {
+    if (updateTodo.owner.toString() !== owner.toString()) {
       return {
         httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
+        message: "FORBIDDEN",
       };
     }
     updateTodo.title = title ?? "";
     updateTodo.description = description ?? "";
     updateTodo.completed = completed ?? false;
     await updateTodo.save();
+
+    const filteredTodo: FilteredTodo = {
+      _id: updateTodo._id,
+      title: updateTodo.title,
+      description: updateTodo.description,
+      completed: updateTodo.completed,
+      owner: updateTodo.owner,
+    };
+
     return {
       httpStatusCode: 200,
-      message: "Todo updated successfully",
-      todo: updateTodo,
+      message: "ENTITY_UPDATED",
+      todo: filteredTodo,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -176,7 +191,7 @@ const updateTodoByID = async function (req: UpdateTodoRequest) {
     } else {
       console.error("todoService, updateTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
