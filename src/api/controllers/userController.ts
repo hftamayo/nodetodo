@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
 import {
+  ListUsersRequest,
   UserRequest,
   LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
   SignUpUserResponse,
   LoginResponse,
-  UserServices,
   SearchUserByIdResponse,
   DeleteUserByIdResponse,
   UpdateUserDetailsResponse,
   SearchUsersResponse,
-  ListUsersRequest,
+  UserServices,
 } from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
