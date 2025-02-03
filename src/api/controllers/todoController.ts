@@ -115,23 +115,24 @@ export default function todoController(todoService: TodoServices) {
       }
     },
 
-    deleteTodoHandler: async function (req: OwnerTodoIdRequest, res: Response) {
+    deleteTodoHandler: async function (
+      req: ListTodoByOwnerRequest,
+      res: Response
+    ) {
       try {
-        const result: TodoResult = await todoService.deleteTodoByID(req);
+        const result: DeleteTodoByIdResponse = await todoService.deleteTodoByID(
+          req
+        );
         const { httpStatusCode, message } = result;
         res
           .status(httpStatusCode)
-          .json({ httpStatusCode, resultMessage: message });
+          .json({ code: httpStatusCode, resultMessage: message });
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, deleteTodo: " + error.message);
         } else {
           console.error("todoController, deleteTodo: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
   };
