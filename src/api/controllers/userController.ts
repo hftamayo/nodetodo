@@ -80,7 +80,7 @@ export default function userController(userService: UserServices) {
         res.clearCookie("nodetodo");
         res.status(200).json({
           code: 200,
-          resultMessage: "LOGOUT_SUCCESFUL",
+          resultMessage: "LOGOUT_SUCCESSFUL",
         });
       } catch (error: unknown) {
         if (error instanceof Error) {
