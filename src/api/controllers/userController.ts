@@ -26,7 +26,7 @@ export default function userController(userService: UserServices) {
           res.status(httpStatusCode).json({
             code: httpStatusCode,
             resultMessage: message,
-            entity: user,
+            user: user,
           });
         } else {
           res.status(httpStatusCode).json({
@@ -58,7 +58,7 @@ export default function userController(userService: UserServices) {
           res.status(httpStatusCode).json({
             code: httpStatusCode,
             resultMessage: message,
-            entity: user,
+            user: user,
           });
         } else {
           res.status(httpStatusCode).json({
@@ -163,7 +163,7 @@ export default function userController(userService: UserServices) {
           res.status(httpStatusCode).json({
             code: httpStatusCode,
             resultMessage: message,
-            entity: user,
+            user: user,
           });
         } else {
           res.status(httpStatusCode).json({
@@ -194,7 +194,7 @@ export default function userController(userService: UserServices) {
           res.status(httpStatusCode).json({
             code: httpStatusCode,
             resultMessage: message,
-            entity: user,
+            user: user,
           });
         } else {
           res.status(httpStatusCode).json({
