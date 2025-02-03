@@ -80,21 +80,18 @@ export default function todoController(todoService: TodoServices) {
 
     newTodoHandler: async function (req: NewTodoRequest, res: Response) {
       try {
-        const result: TodoResult = await todoService.createTodo(req);
-
+        const result: CreateTodoResponse = await todoService.createTodo(req);
         const { httpStatusCode, message, todo } = result;
-        if (httpStatusCode === 200 && todo?.toObject) {
-          // const todoObject = todo.toObject();
-          // const { user, ...filteredTodo } = todoObject;
+        if (httpStatusCode === 201) {
           return res.status(httpStatusCode).json({
-            httpStatusCode,
+            code: httpStatusCode,
             resultMessage: message,
-            newTodo: todo,
+            todo: todo,
           });
         } else {
           res
             .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
+            .json({ code: httpStatusCode, resultMessage: message });
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -102,10 +99,6 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, newTodo: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
