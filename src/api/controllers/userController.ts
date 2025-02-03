@@ -17,7 +17,7 @@ import { cors_secure, cors_samesite } from "../../config/envvars";
 
 export default function userController(userService: UserServices) {
   return {
-    registerHandler: async function (req: UserRequest, res: Response) {
+    signUpHandler: async function (req: UserRequest, res: Response) {
       try {
         const result: SignUpUserResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, user } = result;
