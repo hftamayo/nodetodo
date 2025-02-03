@@ -29,17 +29,14 @@ export default function todoController(todoService: TodoServices) {
           ListTodosByOwnerRequest
         );
         const { httpStatusCode, message, todos } = result;
-        if (httpStatusCode === 200) {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            todos: todos,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ code: httpStatusCode, resultMessage: message });
-        }
+
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, todos: todos }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, getTodos: " + error.message);
@@ -58,17 +55,14 @@ export default function todoController(todoService: TodoServices) {
           req
         );
         const { httpStatusCode, message, todo } = result;
-        if (httpStatusCode === 200) {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            todo: todo,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ code: httpStatusCode, resultMessage: message });
-        }
+
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, todo: todo }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, getTodo: " + error.message);
@@ -82,17 +76,14 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: CreateTodoResponse = await todoService.createTodo(req);
         const { httpStatusCode, message, todo } = result;
-        if (httpStatusCode === 201) {
-          return res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            todo: todo,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ code: httpStatusCode, resultMessage: message });
-        }
+
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 201
+              ? { code: httpStatusCode, resultMessage: message, todo: todo }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, newTodo: " + error.message);
