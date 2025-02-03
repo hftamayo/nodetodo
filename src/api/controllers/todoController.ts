@@ -10,25 +10,34 @@ import {
   CreateTodoResponse,
   UpdateTodoResponse,
   DeleteTodoByIdResponse,
+  TodoServices,
 } from "../../types/todo.types";
 import { UserIdRequest } from "../../types/user.types";
 
 export default function todoController(todoService: TodoServices) {
   return {
-    getTodosHandler: async function (req: UserIdRequest, res: Response) {
+    getTodosHandler: async function (req: Request, res: Response) {
       try {
-        const result: TodoResult = await todoService.listActiveTodos(req);
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const ListTodosByOwnerRequest: ListTodosByOwnerRequest = {
+          page,
+          limit,
+        };
+        const result: ListTodosByOwnerResponse = await todoService.listTodos(
+          ListTodosByOwnerRequest
+        );
         const { httpStatusCode, message, todos } = result;
-        if (httpStatusCode === 200 && todos?.length) {
+        if (httpStatusCode === 200) {
           res.status(httpStatusCode).json({
-            httpStatusCode,
+            code: httpStatusCode,
             resultMessage: message,
-            activeTodos: todos,
+            todos: todos,
           });
         } else {
           res
             .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
+            .json({ code: httpStatusCode, resultMessage: message });
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -36,10 +45,6 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, getTodos: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
