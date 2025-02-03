@@ -43,6 +43,16 @@ export default function userController(userService: UserServices) {
         const result: LoginResponse = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, user } = result;
 
+        if (httpStatusCode === 200) {
+          res.cookie("nodetodo", tokenCreated, {
+            httpOnly: true,
+            maxAge: 360000,
+            secure: cors_secure, // sent the cookie only if https is enabled
+            sameSite: cors_samesite,
+            path: "/",
+          });
+        }
+
         res
           .status(httpStatusCode)
           .json(
@@ -50,26 +60,6 @@ export default function userController(userService: UserServices) {
               ? { code: httpStatusCode, resultMessage: message, user: user }
               : { code: httpStatusCode, resultMessage: message }
           );
-
-        if (httpStatusCode === 200) {
-          res.cookie("nodetodo", tokenCreated, {
-            httpOnly: true,
-            maxAge: 360000,
-            secure: cors_secure, //sent the cookie only if https is enabled
-            sameSite: cors_samesite,
-            path: "/",
-          });
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            user: user,
-          });
-        } else {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-          });
-        }
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, login: " + error.message);
