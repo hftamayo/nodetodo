@@ -1,5 +1,4 @@
-import { Response } from "express";
-
+import { Request, Response } from "express";
 import {
   ListTodosByOwnerRequest,
   ListTodoByOwnerRequest,
@@ -20,9 +19,11 @@ export default function todoController(todoService: TodoServices) {
       try {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
+        const owner = parseInt(req.query.owner as string);
         const ListTodosByOwnerRequest: ListTodosByOwnerRequest = {
           page,
           limit,
+          owner,
         };
         const result: ListTodosByOwnerResponse = await todoService.listTodos(
           ListTodosByOwnerRequest
@@ -48,22 +49,25 @@ export default function todoController(todoService: TodoServices) {
       }
     },
 
-    getTodoHandler: async function (req: OwnerTodoIdRequest, res: Response) {
+    getTodoHandler: async function (
+      req: ListTodoByOwnerRequest,
+      res: Response
+    ) {
       try {
-        const result: TodoResult = await todoService.listTodoByID(req);
+        const result: ListTodoByOwnerResponse = await todoService.listTodoByID(
+          req
+        );
         const { httpStatusCode, message, todo } = result;
-        if (httpStatusCode === 200 && todo?.toObject) {
-          // const todoObject = todo.toObject();
-          // const { user, ...filteredTodo } = todoObject;
+        if (httpStatusCode === 200) {
           res.status(httpStatusCode).json({
-            httpStatusCode,
+            code: httpStatusCode,
             resultMessage: message,
-            searchTodo: todo,
+            todo: todo,
           });
         } else {
           res
             .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
+            .json({ code: httpStatusCode, resultMessage: message });
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -71,10 +75,6 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, getTodo: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
