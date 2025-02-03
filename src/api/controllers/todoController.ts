@@ -104,7 +104,9 @@ export default function todoController(todoService: TodoServices) {
 
     updateTodoHandler: async function (req: UpdateTodoRequest, res: Response) {
       try {
-        const result: TodoResult = await todoService.updateTodoByID(req);
+        const result: UpdateTodoResponse = await todoService.updateTodoByID(
+          req
+        );
         const { httpStatusCode, message, todo } = result;
         res
           .status(httpStatusCode)
@@ -119,10 +121,6 @@ export default function todoController(todoService: TodoServices) {
         } else {
           console.error("todoController, updateTodo: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
