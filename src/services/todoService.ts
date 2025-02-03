@@ -12,7 +12,6 @@ import {
   DeleteTodoByIdResponse,
   FilteredTodo,
 } from "../types/todo.types";
-import { UserIdRequest } from "../types/user.types";
 
 const listTodos = async function (
   params: ListTodosByOwnerRequest
