@@ -19,7 +19,7 @@ const controller = userController(userService as UserServices);
 
 const registerHandler = (req: Request, res: Response) => {
   const userRequest: UserRequest = req.body;
-  controller.registerHandler(userRequest, res);
+  controller.signUpHandler(userRequest, res);
 };
 
 const loginHandler = (req: Request, res: Response) => {
