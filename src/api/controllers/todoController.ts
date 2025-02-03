@@ -1,11 +1,15 @@
 import { Response } from "express";
 
 import {
-  OwnerTodoIdRequest,
+  ListTodosByOwnerRequest,
+  ListTodoByOwnerRequest,
   NewTodoRequest,
   UpdateTodoRequest,
-  TodoResult,
-  TodoServices,
+  ListTodosByOwnerResponse,
+  ListTodoByOwnerResponse,
+  CreateTodoResponse,
+  UpdateTodoResponse,
+  DeleteTodoByIdResponse,
 } from "../../types/todo.types";
 import { UserIdRequest } from "../../types/user.types";
 
