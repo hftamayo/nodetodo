@@ -22,18 +22,13 @@ export default function userController(userService: UserServices) {
         const result: SignUpUserResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, user } = result;
 
-        if (httpStatusCode === 201) {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            user: user,
-          });
-        } else {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-          });
-        }
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 201
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, register: " + error.message);
@@ -47,6 +42,15 @@ export default function userController(userService: UserServices) {
       try {
         const result: LoginResponse = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, user } = result;
+
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
+
         if (httpStatusCode === 200) {
           res.cookie("nodetodo", tokenCreated, {
             httpOnly: true,
@@ -104,17 +108,13 @@ export default function userController(userService: UserServices) {
           listUsersRequest
         );
         const { httpStatusCode, message, users } = result;
-        if (httpStatusCode === 200) {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            users: users,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ code: httpStatusCode, resultMessage: message });
-        }
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, users: users }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, listUsers: " + error.message);
@@ -130,17 +130,13 @@ export default function userController(userService: UserServices) {
           req
         );
         const { httpStatusCode, message, user } = result;
-        if (httpStatusCode === 200) {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            user: user,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ code: httpStatusCode, resultMessage: message });
-        }
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, listUser: " + error.message);
@@ -158,19 +154,13 @@ export default function userController(userService: UserServices) {
         const result: UpdateUserDetailsResponse =
           await userService.updateUserDetailsByID(req);
         const { httpStatusCode, message, user } = result;
-
-        if (httpStatusCode === 200) {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            user: user,
-          });
-        } else {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-          });
-        }
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, updateDetails: " + error.message);
@@ -190,18 +180,13 @@ export default function userController(userService: UserServices) {
 
         const { httpStatusCode, message, user } = result;
 
-        if (httpStatusCode === 200) {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-            user: user,
-          });
-        } else {
-          res.status(httpStatusCode).json({
-            code: httpStatusCode,
-            resultMessage: message,
-          });
-        }
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, updateDetails: " + error.message);
