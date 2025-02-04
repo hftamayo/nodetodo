@@ -5,9 +5,9 @@ import { dbConnection, setCorsEnviro } from "./config/setup";
 import { port, mode } from "./config/envvars";
 
 import seedDatabase from "./utils/seedDatabase";
-import todosRoutes from "./api/routes/todo";
-import usersRoutes from "./api/routes/user";
-import healthCheckRoutes from "./api/routes/hc";
+import todosRoutes from "./api/routes/todo.routes";
+import usersRoutes from "./api/routes/user.routes";
+import healthCheckRoutes from "./api/routes/hc.routes";
 
 const app = express();
 
