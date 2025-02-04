@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import {
   ListTodosByOwnerRequest,
   ListTodoByOwnerRequest,
@@ -14,20 +14,20 @@ import {
 
 export default function todoController(todoService: TodoServices) {
   return {
-    getTodosHandler: async function (req: Request, res: Response) {
+    getTodosHandler: async function (
+      req: ListTodosByOwnerRequest,
+      res: Response
+    ) {
       try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
-        const owner = { userId: req.query.owner as string };
-        const activeOnly = req.query.activeOnly === "true";
-        const ListTodosByOwnerRequest: ListTodosByOwnerRequest = {
+        const { page, limit, owner, activeOnly } = req;
+        const listTodosByOwnerRequest: ListTodosByOwnerRequest = {
           page,
           limit,
           owner,
           activeOnly,
         };
         const result: ListTodosByOwnerResponse = await todoService.listTodos(
-          ListTodosByOwnerRequest
+          listTodosByOwnerRequest
         );
         const { httpStatusCode, message, todos } = result;
 
