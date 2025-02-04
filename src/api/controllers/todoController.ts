@@ -11,7 +11,6 @@ import {
   DeleteTodoByIdResponse,
   TodoServices,
 } from "../../types/todo.types";
-import { UserIdRequest } from "../../types/user.types";
 
 export default function todoController(todoService: TodoServices) {
   return {
@@ -19,11 +18,13 @@ export default function todoController(todoService: TodoServices) {
       try {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
-        const owner = parseInt(req.query.owner as string);
+        const owner = { userId: req.query.owner as string };
+        const activeOnly = req.query.activeOnly === "true";
         const ListTodosByOwnerRequest: ListTodosByOwnerRequest = {
           page,
           limit,
           owner,
+          activeOnly,
         };
         const result: ListTodosByOwnerResponse = await todoService.listTodos(
           ListTodosByOwnerRequest
