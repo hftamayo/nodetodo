@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import User from "../models/User";
 import { UserRole, FullUser } from "../types/user.types";
-import { adminpword, supervisorpword, userpword } from "@/config/envvars";
+import { adminpword, supervisorpword, userpword } from "../config/envvars";
 
 if (!adminpword || !supervisorpword || !userpword) {
   throw new Error("No passwords found in the environment variables");

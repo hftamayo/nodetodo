@@ -23,9 +23,9 @@ const backend =
 const dataseeddev = process.env.SEED_DEVELOPER;
 const dataseedprod = process.env.SEED_PRODUCTION;
 
-const adminpword = process.env.ADMIN_PASSWORD;
-const supervisorpword = process.env.SUPERVISOR_PASSWORD;
-const userpword = process.env.USER1_PASSWORD;
+const adminpword = process.env.ADMIN_PWORD;
+const supervisorpword = process.env.SUPERVISOR_PWORD;
+const userpword = process.env.USER1_PWORD;
 
 export {
   port,
