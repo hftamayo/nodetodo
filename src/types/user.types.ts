@@ -1,19 +1,13 @@
 import mongoose from "mongoose";
 import { JwtPayload } from "jsonwebtoken";
 
-export enum UserRole {
-  ADMIN = "administrator",
-  SUPERVISOR = "supervisor",
-  USER = "finaluser",
-}
-
 export type FullUser = {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password: string;
   age: number;
-  role: UserRole;
+  role: mongoose.Types.ObjectId;
   status?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -63,7 +57,7 @@ export type FilteredSearchUsers = {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: mongoose.Types.ObjectId;
   status: boolean;
 };
 
