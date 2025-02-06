@@ -8,22 +8,43 @@ import {
   LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
-} from "../types/user.interface";
+  FullUser,
+  FilteredSearchUsers,
+  SignUpUserResponse,
+  LoginResponse,
+  SearchUsersResponse,
+  SearchUserByIdResponse,
+  FilteredSignUpUser,
+  FilteredLoginUser,
+  FilteredSearchUserById,
+  DeleteUserByIdResponse,
+  UpdateUserDetailsResponse,
+  FilteredUpdateUser,
+  ListUsersRequest,
+} from "../types/user.types";
 
-const signUpUser = async function (requestBody: UserRequest) {
-  const { name, email, password, age } = requestBody;
+const signUpUser = async function (
+  params: UserRequest
+): Promise<SignUpUserResponse> {
+  const { name, email, password: plainPassword, age } = params;
 
-  if (!name || !email || !password || !age) {
-    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  if (!name || !email || !plainPassword || !age) {
+    return {
+      httpStatusCode: 400,
+      message: "MISSING_FIELDS",
+    };
   }
 
   try {
     let searchUser = await User.findOne({ email }).exec();
     if (searchUser) {
-      return { httpStatusCode: 400, message: "Email already exists" };
+      return {
+        httpStatusCode: 400,
+        message: "EMAIL_EXISTS",
+      };
     }
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(plainPassword, salt);
     searchUser = new User({
       name,
       email,
@@ -31,10 +52,13 @@ const signUpUser = async function (requestBody: UserRequest) {
       age,
     });
     await searchUser.save();
+
+    const { password, updatedAt, ...filteredUser } =
+      searchUser.toObject() as FullUser;
     return {
-      httpStatusCode: 200,
-      message: "User created successfully",
-      user: searchUser,
+      httpStatusCode: 201,
+      message: "USER_CREATED",
+      user: filteredUser as FilteredSignUpUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -42,31 +66,42 @@ const signUpUser = async function (requestBody: UserRequest) {
     } else {
       console.error("userService, signUpUser: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return {
+      httpStatusCode: 500,
+      message: "UNKNOWN_ERROR",
+    };
   }
 };
 
-const loginUser = async function (requestBody: LoginRequest) {
-  const { email, password } = requestBody;
+const loginUser = async function (
+  params: LoginRequest
+): Promise<LoginResponse> {
+  const { email, password: plainPassword } = params;
 
-  if (!email || !password) {
-    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  if (!email || !plainPassword) {
+    return {
+      httpStatusCode: 400,
+      message: "MISSING_FIELDS",
+    };
   }
 
   try {
     let searchUser = await User.findOne({ email }).exec();
-    if (!searchUser) {
+    if (!searchUser || !searchUser.status) {
       return {
-        httpStatusCode: 404,
-        message: "User or Password does not match",
+        httpStatusCode: 401,
+        message: !searchUser ? "BAD_CREDENTIALS" : "ACCOUNT_DISABLED",
       };
     }
-    const passwordMatch = await bcrypt.compare(password, searchUser.password);
+    const passwordMatch = await bcrypt.compare(
+      plainPassword,
+      searchUser.password
+    );
     if (!passwordMatch) {
       //update in global log the password did not match
       return {
-        httpStatusCode: 404,
-        message: "User or Password does not match",
+        httpStatusCode: 402,
+        message: "BAD_CREDENTIALS",
       };
     }
     const payload = { searchUser: searchUser._id };
@@ -76,11 +111,15 @@ const loginUser = async function (requestBody: LoginRequest) {
     const token = jwt.sign(payload, secretKey, {
       expiresIn: 360000,
     });
+
+    const { password, createdAt, updatedAt, ...filteredUser } =
+      searchUser.toObject() as FullUser;
+
     return {
       httpStatusCode: 200,
       tokenCreated: token,
-      message: "User login successfully",
-      user: searchUser,
+      message: "LOGIN_SUCCESS",
+      user: filteredUser as FilteredLoginUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -88,49 +127,96 @@ const loginUser = async function (requestBody: LoginRequest) {
     } else {
       console.error("userService, loginUser: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
-const listUserByID = async function (requestUserId: UserIdRequest) {
-  const userId = requestUserId.userId;
+const listUsers = async function (
+  params: ListUsersRequest
+): Promise<SearchUsersResponse> {
+  const { page, limit } = params;
+  try {
+    const skip = (page - 1) * limit;
+    const users = await User.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+    const filteredUsers: FilteredSearchUsers[] = users.map((user) => ({
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    }));
+
+    return {
+      httpStatusCode: 200,
+      message: "USERS_FOUND",
+      users: filteredUsers,
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("userService, searchUsers: " + error.message);
+    } else {
+      console.error("userService, searchUsers: " + error);
+    }
+    return {
+      httpStatusCode: 500,
+      message: "UNKNOWN_ERROR",
+    };
+  }
+};
+
+const listUserByID = async function (
+  params: UserIdRequest
+): Promise<SearchUserByIdResponse> {
+  const userId = params.userId;
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    return { httpStatusCode: 200, message: "User Found", user: searchUser };
+    const filteredUser: FilteredSearchUserById = {
+      _id: searchUser._id,
+      name: searchUser.name,
+      email: searchUser.email,
+      role: searchUser.role,
+      status: searchUser.status,
+    };
+
+    return { httpStatusCode: 200, message: "ENTITY_FOUND", user: filteredUser };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, listItemByID: " + error.message);
     } else {
       console.error("userService, listItemByID: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
 const updateUserDetailsByID = async function (
-  updateUserRequest: UpdateUserRequest
-) {
-  const { userId, user } = updateUserRequest;
+  params: UpdateUserRequest
+): Promise<UpdateUserDetailsResponse> {
+  const { userId, user } = params;
   const { name, email, age } = user;
 
   if (!name || !email || !age) {
-    return { httpStatusCode: 400, message: "Please fill all required fields" };
+    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
     let checkIfUpdateEmailExists = await User.findOne({ email }).exec();
     if (
       checkIfUpdateEmailExists &&
       checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()
     ) {
-      return { httpStatusCode: 400, message: "Email already taken" };
+      return { httpStatusCode: 400, message: "EMAIL_EXISTS" };
     }
     searchUser.name = name;
     searchUser.email = email;
@@ -138,10 +224,13 @@ const updateUserDetailsByID = async function (
 
     await searchUser.save();
 
+    const { password, createdAt, ...filteredUser } =
+      searchUser.toObject() as FullUser;
+
     return {
       httpStatusCode: 200,
-      message: "Data updated successfully",
-      user: searchUser,
+      message: "ENTITY_UPDATED",
+      user: filteredUser as FilteredUpdateUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -149,39 +238,43 @@ const updateUserDetailsByID = async function (
     } else {
       console.error("userService, updateUserByID: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
 const updateUserPasswordByID = async function (
-  updateUserRequest: UpdateUserRequest
-) {
-  const { userId, user } = updateUserRequest;
-  const { password, newPassword } = user;
+  params: UpdateUserRequest
+): Promise<UpdateUserDetailsResponse> {
+  const { userId, user } = params;
+  const { password: plainPassword, newPassword } = user;
 
-  if (!password || !newPassword) {
-    return { httpStatusCode: 400, message: "Please fill all required fields" };
+  if (!plainPassword || !newPassword) {
+    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "User Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    const isMatch = await bcrypt.compare(password, searchUser.password);
+    const isMatch = await bcrypt.compare(plainPassword, searchUser.password);
     if (!isMatch) {
       return {
         httpStatusCode: 400,
-        message: "The entered credentials are not valid",
+        message: "BAD_CREDENTIALS",
       };
     }
     const salt = await bcrypt.genSalt(10);
     searchUser.password = await bcrypt.hash(newPassword, salt);
     await searchUser.save();
+
+    const { password, createdAt, ...filteredUser } =
+      searchUser.toObject() as FullUser;
+
     return {
       httpStatusCode: 200,
-      message: "Password updated successfully",
-      user: searchUser,
+      message: "ENTITY UPDATED",
+      user: filteredUser as FilteredUpdateUser,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -189,36 +282,39 @@ const updateUserPasswordByID = async function (
     } else {
       console.error("userService, updateUserPassword: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
-const deleteUserByID = async function (requestUserId: UserIdRequest) {
-  const userId = requestUserId.userId;
+const deleteUserByID = async function (
+  params: UserIdRequest
+): Promise<DeleteUserByIdResponse> {
+  const userId = params.userId;
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "User not found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
     const todo = await Todo.find({ user: searchUser }).exec();
     if (todo) {
       await Todo.deleteMany({ user: searchUser }).exec();
     }
     await searchUser.deleteOne();
-    return { httpStatusCode: 200, message: "User deleted successfully" };
+    return { httpStatusCode: 200, message: "ENTITY_DELETED" };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, deleteUserByID: " + error.message);
     } else {
       console.error("userService, deleteUserByID: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
 export default {
   signUpUser,
   loginUser,
+  listUsers,
   listUserByID,
   updateUserDetailsByID,
   updateUserPasswordByID,

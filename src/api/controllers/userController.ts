@@ -1,81 +1,71 @@
 import { Request, Response } from "express";
 import {
+  ListUsersRequest,
   UserRequest,
   LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
-  UserResult,
+  SignUpUserResponse,
+  LoginResponse,
+  SearchUserByIdResponse,
+  DeleteUserByIdResponse,
+  UpdateUserDetailsResponse,
+  SearchUsersResponse,
   UserServices,
-} from "../../types/user.interface";
+} from "../../types/user.types";
 import { cors_secure, cors_samesite } from "../../config/envvars";
 
 export default function userController(userService: UserServices) {
   return {
-    registerHandler: async function (req: UserRequest, res: Response) {
+    signUpHandler: async function (req: UserRequest, res: Response) {
       try {
-        const result: UserResult = await userService.signUpUser(req);
+        const result: SignUpUserResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, user } = result;
-        if (httpStatusCode === 200 && user?.toObject) {
-          const userObject = user.toObject();
-          const { password, updatedAt, ...filteredUser } = userObject;
-          res.status(httpStatusCode).json({
-            httpStatusCode,
-            resultMessage: message,
-            newUser: filteredUser,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
-        }
+
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 201
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, register: " + error.message);
         } else {
           console.error("userController, register: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
     loginHandler: async function (req: LoginRequest, res: Response) {
       try {
-        const result: UserResult = await userService.loginUser(req);
+        const result: LoginResponse = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, user } = result;
-        if (httpStatusCode === 200 && user?.toObject) {
+
+        if (httpStatusCode === 200) {
           res.cookie("nodetodo", tokenCreated, {
             httpOnly: true,
             maxAge: 360000,
-            secure: cors_secure, //sent the cookie only if https is enabled
+            secure: cors_secure, // sent the cookie only if https is enabled
             sameSite: cors_samesite,
             path: "/",
           });
-          const userObject = user.toObject();
-          //filtering password for not showing during the output
-          const { password, ...filteredUser } = userObject;
-          res.status(httpStatusCode).json({
-            httpStatusCode,
-            resultMessage: message,
-            loggedUser: filteredUser,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
         }
+
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, login: " + error.message);
         } else {
           console.error("userController, login: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
@@ -83,8 +73,8 @@ export default function userController(userService: UserServices) {
       try {
         res.clearCookie("nodetodo");
         res.status(200).json({
-          httpStatusCode: 200,
-          resultMessage: "User logged out successfully",
+          code: 200,
+          resultMessage: "LOGOUT_SUCCESSFUL",
         });
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -93,39 +83,56 @@ export default function userController(userService: UserServices) {
           console.error("userController, logout: " + error);
         }
         res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
+          code: 500,
+          resultMessage: "UNKNOWN_ERROR",
         });
+      }
+    },
+
+    listUsersHandler: async function (req: Request, res: Response) {
+      try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const listUsersRequest: ListUsersRequest = { page, limit };
+        const result: SearchUsersResponse = await userService.listUsers(
+          listUsersRequest
+        );
+        const { httpStatusCode, message, users } = result;
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, users: users }
+              : { code: httpStatusCode, resultMessage: message }
+          );
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("userController, listUsers: " + error.message);
+        } else {
+          console.error("userController, listUsers: " + error);
+        }
       }
     },
 
     listUserHandler: async function (req: UserIdRequest, res: Response) {
       try {
-        const result: UserResult = await userService.listUserByID(req);
+        const result: SearchUserByIdResponse = await userService.listUserByID(
+          req
+        );
         const { httpStatusCode, message, user } = result;
-        if (httpStatusCode === 200 && user?.toObject) {
-          const userObject = user.toObject();
-          const { password, ...filteredUser } = userObject;
-          res.status(httpStatusCode).json({
-            httpStatusCode,
-            resultMessage: message,
-            searchUser: filteredUser,
-          });
-        } else {
-          res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
-        }
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, listUser: " + error.message);
         } else {
           console.error("userController, listUser: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
@@ -134,32 +141,22 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const result: UserResult = await userService.updateUserDetailsByID(req);
+        const result: UpdateUserDetailsResponse =
+          await userService.updateUserDetailsByID(req);
         const { httpStatusCode, message, user } = result;
-
-        if (!user?.toObject) {
-          return res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
-        }
-        const userObject = user.toObject();
-        const { password, ...filteredUSer } = userObject;
-        res.status(httpStatusCode).json({
-          httpStatusCode,
-          resultMessage: message,
-          updatedUser: filteredUSer,
-        });
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, updateDetails: " + error.message);
         } else {
           console.error("userController, updateDetails: " + error);
         }
-
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
@@ -168,41 +165,32 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const result: UserResult = await userService.updateUserPasswordByID(
-          req
-        );
+        const result: UpdateUserDetailsResponse =
+          await userService.updateUserPasswordByID(req);
 
         const { httpStatusCode, message, user } = result;
 
-        if (!user?.toObject) {
-          return res
-            .status(httpStatusCode)
-            .json({ httpStatusCode, resultMessage: message });
-        }
-
-        const userObject = user.toObject();
-        const { password, ...filteredUser } = userObject;
-        res.status(httpStatusCode).json({
-          httpStatusCode,
-          resultMessage: message,
-          updatedUser: filteredUser,
-        });
+        res
+          .status(httpStatusCode)
+          .json(
+            httpStatusCode === 200
+              ? { code: httpStatusCode, resultMessage: message, user: user }
+              : { code: httpStatusCode, resultMessage: message }
+          );
       } catch (error: unknown) {
         if (error instanceof Error) {
-          console.error("userController, updatePassword: " + error.message);
+          console.error("userController, updateDetails: " + error.message);
         } else {
-          console.error("userController, updatePassword: " + error);
+          console.error("userController, updateDetails: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
 
     deleteUserHandler: async function (req: UserIdRequest, res: Response) {
       try {
-        const result: UserResult = await userService.deleteUserByID(req);
+        const result: DeleteUserByIdResponse = await userService.deleteUserByID(
+          req
+        );
         const { httpStatusCode, message } = result;
 
         if (httpStatusCode === 200) {
@@ -210,17 +198,13 @@ export default function userController(userService: UserServices) {
         }
         res
           .status(httpStatusCode)
-          .json({ httpStatusCode, resultMessage: message });
+          .json({ code: httpStatusCode, resultMessage: message });
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, deleteUser: " + error.message);
         } else {
           console.error("userController, deleteUser: " + error);
         }
-        res.status(500).json({
-          httpStatusCode: 500,
-          resultMessage: "Internal Server Error",
-        });
       }
     },
   };

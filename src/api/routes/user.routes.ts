@@ -11,7 +11,7 @@ import {
   UserIdRequest,
   UpdateUserRequest,
   UserServices,
-} from "../../types/user.interface";
+} from "../../types/user.types";
 
 const userRouter = express.Router();
 
@@ -19,7 +19,7 @@ const controller = userController(userService as UserServices);
 
 const registerHandler = (req: Request, res: Response) => {
   const userRequest: UserRequest = req.body;
-  controller.registerHandler(userRequest, res);
+  controller.signUpHandler(userRequest, res);
 };
 
 const loginHandler = (req: Request, res: Response) => {
@@ -29,6 +29,10 @@ const loginHandler = (req: Request, res: Response) => {
 
 const logoutHandler = (req: Request, res: Response) => {
   controller.logoutHandler(req, res);
+};
+
+const listUsersHandler = (req: Request, res: Response) => {
+  controller.listUsersHandler(req, res);
 };
 
 const listUserHandler = (req: Request, res: Response) => {
@@ -66,6 +70,7 @@ userRouter.post(
   loginHandler
 );
 userRouter.post("/logout", authorize, logoutHandler);
+userRouter.get("/list", authorize, listUsersHandler);
 userRouter.get("/me", authorize, listUserHandler);
 userRouter.put(
   "/updatedetails",
@@ -81,6 +86,6 @@ userRouter.put(
   validateResult,
   updateUserPasswordHandler
 );
-userRouter.delete("/deleteuser", authorize, deleteUserHandler);
+userRouter.delete("/delete", authorize, deleteUserHandler);
 
 export default userRouter;

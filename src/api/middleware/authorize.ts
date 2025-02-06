@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { masterKey } from "../../config/envvars";
-import { JwtPayloadWithUserId } from "../../types/user.interface";
+import { JwtPayloadWithUserId } from "../../types/user.types";
 
 const authorize = (req: Request, res: Response, next: NextFunction) => {
   const { cookies } = req;

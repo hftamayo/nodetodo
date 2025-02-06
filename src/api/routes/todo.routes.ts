@@ -5,25 +5,37 @@ import validateResult from "../middleware/validationResults";
 import todoService from "../../services/todoService";
 import todoController from "../controllers/todoController";
 import {
+  ListTodosByOwnerRequest,
+  ListTodoByOwnerRequest,
   NewTodoRequest,
-  OwnerTodoIdRequest,
   UpdateTodoRequest,
   TodoServices,
-} from "../../types/todo.interface";
-import { UserIdRequest } from "../../types/user.interface";
+} from "../../types/todo.types";
+import { UserIdRequest } from "../../types/user.types";
 
 const todoRouter = express.Router();
 
 const controller = todoController(todoService as TodoServices);
 
 const getTodosHandler = (req: Request, res: Response) => {
-  const userIdRequest: UserIdRequest = { userId: req.body.userId };
-  controller.getTodosHandler(userIdRequest, res);
+  const owner: UserIdRequest = { userId: req.body.userId };
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const activeOnly = req.query.activeOnly === "true";
+
+  const listTodosByOwnerRequest: ListTodosByOwnerRequest = {
+    owner,
+    page,
+    limit,
+    activeOnly,
+  };
+
+  controller.getTodosHandler(listTodosByOwnerRequest, res);
 };
 
 const getTodoHandler = (req: Request, res: Response) => {
-  const ownerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
-  ownerTodoIdRequest.user = { userId: req.body.userId };
+  const ownerTodoIdRequest = req as unknown as ListTodoByOwnerRequest;
+  ownerTodoIdRequest.owner = { userId: req.body.userId };
   ownerTodoIdRequest.params = { todoId: req.params.id };
   controller.getTodoHandler(ownerTodoIdRequest, res);
 };
@@ -46,8 +58,8 @@ const updateTodoHandler = (req: Request, res: Response) => {
 };
 
 const deleteTodoHandler = (req: Request, res: Response) => {
-  const ownerTodoIdRequest = req as unknown as OwnerTodoIdRequest;
-  ownerTodoIdRequest.user = { userId: req.body.userId };
+  const ownerTodoIdRequest = req as unknown as ListTodoByOwnerRequest;
+  ownerTodoIdRequest.owner = { userId: req.body.userId };
   ownerTodoIdRequest.params = { todoId: req.params.id };
   controller.deleteTodoHandler(ownerTodoIdRequest, res);
 };

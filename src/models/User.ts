@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { UserRole } from "../types/user.types";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -18,6 +19,17 @@ const UserSchema = new mongoose.Schema(
     age: {
       type: Number,
       required: true,
+    },
+    role: {
+      type: String,
+      enum: Object.values(UserRole),
+      required: true,
+      default: UserRole.USER,
+    },
+    status: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     // isAdmin: {
     //   type: Boolean,
