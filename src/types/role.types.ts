@@ -70,7 +70,7 @@ export type DeleteRoleResponse = {
 export type RoleServices = {
   createRole: (params: NewRoleRequest) => Promise<CreateRoleResponse>;
   listRoles: (params: ListRolesRequest) => Promise<ListRolesResponse>;
-  listRole: (params: RoleIdRequest) => Promise<ListRoleResponse>;
-  updateRole: (params: UpdateRoleRequest) => Promise<UpdateRoleResponse>;
-  deleteRole: (params: RoleIdRequest) => Promise<DeleteRoleResponse>;
+  listRoleByID: (params: RoleIdRequest) => Promise<ListRoleResponse>;
+  updateRoleByID: (params: UpdateRoleRequest) => Promise<UpdateRoleResponse>;
+  deleteRoleByID: (params: RoleIdRequest) => Promise<DeleteRoleResponse>;
 };

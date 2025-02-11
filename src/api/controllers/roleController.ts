@@ -41,7 +41,7 @@ export default function roleController(roleService: RoleServices) {
 
     getRoleHandler: async function (req: RoleIdRequest, res: Response) {
       try {
-        const result: ListRoleResponse = await roleService.listRole(req);
+        const result: ListRoleResponse = await roleService.listRoleByID(req);
         const { httpStatusCode, message, role } = result;
 
         res
@@ -83,7 +83,9 @@ export default function roleController(roleService: RoleServices) {
 
     updateRoleHandler: async function (req: UpdateRoleRequest, res: Response) {
       try {
-        const result: UpdateRoleResponse = await roleService.updateRole(req);
+        const result: UpdateRoleResponse = await roleService.updateRoleByID(
+          req
+        );
         const { httpStatusCode, message, role } = result;
         res
           .status(httpStatusCode)
@@ -103,7 +105,9 @@ export default function roleController(roleService: RoleServices) {
 
     deleteRoleHandler: async function (req: RoleIdRequest, res: Response) {
       try {
-        const result: DeleteRoleResponse = await roleService.deleteRole(req);
+        const result: DeleteRoleResponse = await roleService.deleteRoleByID(
+          req
+        );
         const { httpStatusCode, message } = result;
         res
           .status(httpStatusCode)
