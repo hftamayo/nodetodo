@@ -68,7 +68,7 @@ export type DeleteRoleResponse = {
 };
 
 export type RoleServices = {
-  createRole: (params: RoleRequest) => Promise<CreateRoleResponse>;
+  createRole: (params: NewRoleRequest) => Promise<CreateRoleResponse>;
   listRoles: (params: ListRolesRequest) => Promise<ListRolesResponse>;
   listRole: (params: RoleIdRequest) => Promise<ListRoleResponse>;
   updateRole: (params: UpdateRoleRequest) => Promise<UpdateRoleResponse>;
