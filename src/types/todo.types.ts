@@ -48,25 +48,25 @@ export type FilteredTodo = Omit<FullTodo, "createdAt" | "updatedAt">;
 export type CreateTodoResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: FullTodo;
+  todo?: FilteredTodo;
 };
 
 export type ListTodosByOwnerResponse = {
   httpStatusCode: number;
   message: string;
-  todos?: FullTodo[];
+  todos?: FilteredTodo[];
 };
 
 export type ListTodoByOwnerResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: FullTodo;
+  todo?: FilteredTodo;
 };
 
 export type UpdateTodoResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: FullTodo;
+  todo?: FilteredTodo;
 };
 
 export type DeleteTodoByIdResponse = {
