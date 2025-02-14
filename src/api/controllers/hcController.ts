@@ -1,11 +1,15 @@
 import { Request, Response } from "express";
 import { dbConnection } from "../../config/setup";
-import { HealthCheckResponse } from "@/types/hc.types";
+import {
+  HealthCheckResponse,
+  AppHealthDetails,
+  DbHealthDetails,
+} from "@/types/hc.types";
 import os from "os";
 
 const hcController = {
   appHealthCheck: async function (req: Request, res: Response) {
-    const result: HealthCheckResponse = {
+    const result: HealthCheckResponse<AppHealthDetails> = {
       status: "pass",
       message: "Application is up and running",
       details: {
@@ -26,7 +30,7 @@ const hcController = {
       await dbConnection();
       const queryTime = Date.now() - startTime;
 
-      const result: HealthCheckResponse = {
+      const result: HealthCheckResponse<DbHealthDetails> = {
         status: queryTime < 100 ? "pass" : "warn",
         message: "Database connection successful",
         details: {
@@ -38,7 +42,7 @@ const hcController = {
 
       res.status(200).json(result);
     } catch (error: unknown) {
-      const result: HealthCheckResponse = {
+      const result: HealthCheckResponse<DbHealthDetails> = {
         status: "fail",
         message: "Database connection failed",
         details: {
