@@ -27,7 +27,7 @@ const listRoles = async function (
     if (!roles || roles.length === 0) {
       return { httpStatusCode: 404, message: "ROLES_NOT_FOUND" };
     }
-    const fetchedRoles: FullRole[] = roles.map((role) => ({
+    const fetchedRoles: FilteredRole[] = roles.map((role) => ({
       _id: role._id,
       name: role.name,
       description: role.description,

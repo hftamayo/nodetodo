@@ -41,25 +41,25 @@ export type FilteredRole = Omit<FullRole, "createdAt" | "updatedAt">;
 export type CreateRoleResponse = {
   httpStatusCode: number;
   message: string;
-  role?: FullRole;
+  role?: FilteredRole;
 };
 
 export type ListRolesResponse = {
   httpStatusCode: number;
   message: string;
-  roles?: FullRole[];
+  roles?: FilteredRole[];
 };
 
 export type ListRoleResponse = {
   httpStatusCode: number;
   message: string;
-  role?: FullRole;
+  role?: FilteredRole;
 };
 
 export type UpdateRoleResponse = {
   httpStatusCode: number;
   message: string;
-  role?: FullRole;
+  role?: FilteredRole;
 };
 
 export type DeleteRoleResponse = {
