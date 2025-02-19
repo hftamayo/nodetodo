@@ -48,6 +48,15 @@ async function seedUsers() {
         role: userRole._id,
         status: true,
       },
+      {
+        _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d21"),
+        name: "Mary Doe",
+        email: "mary@tamayo.com",
+        password: userpword!,
+        age: 22,
+        role: userRole._id,
+        status: true,
+      },
     ];
 
     await User.deleteMany({});

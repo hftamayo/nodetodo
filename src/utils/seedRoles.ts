@@ -5,7 +5,7 @@ import { FullRole } from "@/types/role.types";
 const roles: FullRole[] = [
   {
     _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1f"),
-    name: "admin",
+    name: "administrator",
     description: "Admin role",
     status: true,
     permissions: ["read", "write", "delete"],
@@ -19,7 +19,7 @@ const roles: FullRole[] = [
   },
   {
     _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d20"),
-    name: "user",
+    name: "finaluser",
     description: "User role",
     status: true,
     permissions: ["read", "write"],
