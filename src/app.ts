@@ -6,6 +6,7 @@ import { port, mode } from "./config/envvars";
 
 import seedDatabase from "./utils/seedDatabase";
 import todosRoutes from "./api/routes/todo.routes";
+import rolesRoutes from "./api/routes/role.routes";
 import usersRoutes from "./api/routes/user.routes";
 import healthCheckRoutes from "./api/routes/hc.routes";
 
@@ -31,10 +32,10 @@ async function startApp() {
 
     await seedDatabase();
 
-    app.use("/nodetodo/todos", todosRoutes);
-    app.use("/nodetodo/users", usersRoutes);
     app.use("/nodetodo/healthcheck", healthCheckRoutes);
-
+    app.use("/nodetodo/roles", rolesRoutes);
+    app.use("/nodetodo/users", usersRoutes);
+    app.use("/nodetodo/todos", todosRoutes);
     // Error handling middleware
     app.use((error: any, res: Response) => {
       console.error("Error middleware: ", error.message);
