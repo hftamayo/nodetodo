@@ -26,10 +26,13 @@ const roles: Omit<FullRole, "_id">[] = [
 async function seedRoles(session: mongoose.ClientSession) {
   try {
     await Role.deleteMany({}).session(session);
+    const createdRoles = [];
     for (const role of roles) {
-      await Role.create([role], { session });
-      console.log("Role created: ", role);
+      const createdRole = await Role.create([role], { session });
+      createdRoles.push(createdRole[0]);
+      console.log("Role created: ", createdRole[0]);
     }
+    return createdRoles;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("seedRoles: ", error.message);

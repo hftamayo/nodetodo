@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import User from "../models/User";
-import Role from "../models/Role";
 import { FullUser } from "../types/user.types";
 import { adminpword, supervisorpword, userpword } from "../config/envvars";
+import seedRoles from "./seedRoles";
 
 if (!adminpword || !supervisorpword || !userpword) {
   throw new Error("No passwords found in the environment variables");
@@ -11,10 +11,14 @@ if (!adminpword || !supervisorpword || !userpword) {
 
 async function seedUsers(session: mongoose.ClientSession) {
   try {
-    // Ensure roles are seeded first
-    const adminRole = await Role.findOne({ name: "admin" }).exec();
-    const supervisorRole = await Role.findOne({ name: "supervisor" }).exec();
-    const userRole = await Role.findOne({ name: "user" }).exec();
+    const roles = await seedRoles(session);
+    // Get roles ids
+    if (!roles) {
+      throw new Error("Roles not found in the database");
+    }
+    const adminRole = roles.find((role) => role.name === "administrator");
+    const supervisorRole = roles.find((role) => role.name === "supervisor");
+    const userRole = roles.find((role) => role.name === "finaluser");
 
     if (!adminRole || !supervisorRole || !userRole) {
       throw new Error("Roles not found in the database");
@@ -56,12 +60,15 @@ async function seedUsers(session: mongoose.ClientSession) {
     ];
 
     await User.deleteMany({}).session(session);
+    const createdUsers = [];
     for (const user of users) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(user.password, salt);
-      await User.create([user], { session });
-      console.log("User created: ", user);
+      const createdUser = await User.create([user], { session });
+      createdUsers.push(createdUser[0]);
+      console.log("User created: ", createdUser[0]);
     }
+    return createdUsers;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("seedUsers: ", error.message);
