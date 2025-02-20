@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 import { mode, dataseeddev, dataseedprod } from "../config/envvars";
-import seedRoles from "./seedRoles";
-import seedUsers from "./seedUsers";
 import todoUsers from "./seedTodos";
 
 /*
@@ -15,8 +13,6 @@ async function seedDatabase() {
   try {
     if (shouldSeedDatabase) {
       console.log(`Seeding the database in ${mode} environment...`);
-      await seedRoles(session);
-      await seedUsers(session);
       await todoUsers(session);
       await session.commitTransaction();
     } else {
