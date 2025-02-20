@@ -9,7 +9,7 @@ if (!adminpword || !supervisorpword || !userpword) {
   throw new Error("No passwords found in the environment variables");
 }
 
-async function seedUsers() {
+async function seedUsers(session: mongoose.ClientSession) {
   try {
     // Ensure roles are seeded first
     const adminRole = await Role.findOne({ name: "admin" }).exec();
@@ -20,9 +20,8 @@ async function seedUsers() {
       throw new Error("Roles not found in the database");
     }
 
-    const users: FullUser[] = [
+    const users: Omit<FullUser, "_id">[] = [
       {
-        _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1e"),
         name: "Administrator",
         email: "administrador@tamayo.com",
         password: adminpword!,
@@ -31,7 +30,6 @@ async function seedUsers() {
         status: true,
       },
       {
-        _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1f"),
         name: "Sebastian Fernandez",
         email: "supervisor@tamayo.com",
         password: supervisorpword!,
@@ -40,7 +38,6 @@ async function seedUsers() {
         status: true,
       },
       {
-        _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d20"),
         name: "Bob Doe",
         email: "bob@tamayo.com",
         password: userpword!,
@@ -49,7 +46,6 @@ async function seedUsers() {
         status: true,
       },
       {
-        _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d21"),
         name: "Mary Doe",
         email: "mary@tamayo.com",
         password: userpword!,
@@ -59,11 +55,11 @@ async function seedUsers() {
       },
     ];
 
-    await User.deleteMany({});
+    await User.deleteMany({}).session(session);
     for (const user of users) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(user.password, salt);
-      await User.create(user);
+      await User.create([user], { session });
       console.log("User created: ", user);
     }
   } catch (error: unknown) {

@@ -2,23 +2,20 @@ import mongoose from "mongoose";
 import Role from "../models/Role";
 import { FullRole } from "@/types/role.types";
 
-const roles: FullRole[] = [
+const roles: Omit<FullRole, "_id">[] = [
   {
-    _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1f"),
     name: "administrator",
     description: "Admin role",
     status: true,
     permissions: ["read", "write", "delete"],
   },
   {
-    _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1f"),
     name: "supervisor",
     description: "Supervisor role",
     status: true,
     permissions: ["read", "delete"],
   },
   {
-    _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d20"),
     name: "finaluser",
     description: "User role",
     status: true,
@@ -26,11 +23,11 @@ const roles: FullRole[] = [
   },
 ];
 
-async function seedRoles() {
+async function seedRoles(session: mongoose.ClientSession) {
   try {
-    await Role.deleteMany({});
+    await Role.deleteMany({}).session(session);
     for (const role of roles) {
-      await Role.create(role);
+      await Role.create([role], { session });
       console.log("Role created: ", role);
     }
   } catch (error: unknown) {
