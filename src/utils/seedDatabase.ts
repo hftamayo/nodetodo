@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { mode, dataseeddev, dataseedprod } from "../config/envvars";
-import todoUsers from "./seedTodos";
+import seedTodos from "./seedTodos";
 
 /*
 modules related to datasseeding just require integration testing
@@ -13,7 +13,7 @@ async function seedDatabase() {
   try {
     if (shouldSeedDatabase) {
       console.log(`Seeding the database in ${mode} environment...`);
-      await todoUsers(session);
+      await seedTodos(session);
       await session.commitTransaction();
     } else {
       console.log("No seeding required");

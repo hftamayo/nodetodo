@@ -24,7 +24,7 @@ async function seedTodos(session: mongoose.ClientSession) {
     ];
 
     await Todo.deleteMany({}).session(session);
-    const todosCreated = await Todo.create([todos], { session });
+    const todosCreated = await Todo.create(todos, { session });
     console.log("Todos created: ", todosCreated);
   } catch (error: unknown) {
     if (error instanceof Error) {
