@@ -15,7 +15,8 @@ export type DbHealthDetails = {
 };
 
 export type HealthCheckResponse<T> = {
+  code: number;
   status: "pass" | "warn" | "fail";
-  message: string;
+  resultMessage: string;
   details?: T;
 };
