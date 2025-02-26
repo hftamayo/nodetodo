@@ -6,7 +6,7 @@ import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
 import rateLimiter from "../middleware/rateLimiter";
 import {
-  UserRequest,
+  SignUpRequest,
   LoginRequest,
   UserIdRequest,
   UpdateUserRequest,
@@ -18,7 +18,7 @@ const userRouter = express.Router();
 const controller = userController(userService as UserServices);
 
 const registerHandler = (req: Request, res: Response) => {
-  const userRequest: UserRequest = req.body;
+  const userRequest: SignUpRequest = req.body;
   controller.signUpHandler(userRequest, res);
 };
 
