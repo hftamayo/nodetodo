@@ -17,7 +17,9 @@ type RoleRequest = {
   name: string;
   description: string;
   status: boolean;
-  permissions: string[];
+  permissions: {
+    [domain: string]: number;
+  };
 };
 
 export type NewRoleRequest = {
