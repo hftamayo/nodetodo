@@ -17,7 +17,8 @@ const RoleSchema = new mongoose.Schema(
       default: true,
     },
     permissions: {
-      type: [String],
+      type: Map,
+      of: Number,
       required: true,
     },
   },
