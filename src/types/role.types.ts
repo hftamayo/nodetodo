@@ -1,11 +1,13 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 export type FullRole = {
   _id: mongoose.Types.ObjectId;
   name: string;
   description: string;
   status: boolean;
-  permissions: string[];
+  permissions: {
+    [domain: string]: number;
+  };
   createdAt?: Date;
   updatedAt?: Date;
 };
