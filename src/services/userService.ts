@@ -1,10 +1,11 @@
+import Role from "../models/Role";
 import User from "../models/User";
 import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {
-  UserRequest,
+  SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
@@ -24,14 +25,21 @@ import {
 } from "../types/user.types";
 
 const signUpUser = async function (
-  params: UserRequest
+  params: SignUpRequest
 ): Promise<SignUpUserResponse> {
-  const { name, email, password: plainPassword, age } = params;
+  const { name, email, password: plainPassword, repeatPassword, age } = params;
 
-  if (!name || !email || !plainPassword || !age) {
+  if (!name || !email || !plainPassword || !repeatPassword || !age) {
     return {
       httpStatusCode: 400,
       message: "MISSING_FIELDS",
+    };
+  }
+
+  if (plainPassword !== repeatPassword) {
+    return {
+      httpStatusCode: 400,
+      message: "PASSWORD_MISMATCH",
     };
   }
 
@@ -43,6 +51,15 @@ const signUpUser = async function (
         message: "EMAIL_EXISTS",
       };
     }
+
+    const finalUserRole = await Role.findOne({ name: "finaluser" }).exec();
+    if (!finalUserRole) {
+      return {
+        httpStatusCode: 500,
+        message: "ROLE_NOT_FOUND",
+      };
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(plainPassword, salt);
     searchUser = new User({
@@ -50,6 +67,8 @@ const signUpUser = async function (
       email,
       password: hashedPassword,
       age,
+      status: false,
+      role: finalUserRole._id,
     });
     await searchUser.save();
 
@@ -246,9 +265,9 @@ const updateUserPasswordByID = async function (
   params: UpdateUserRequest
 ): Promise<UpdateUserDetailsResponse> {
   const { userId, user } = params;
-  const { password: plainPassword, newPassword } = user;
+  const { password: plainPassword, updatePassword } = user;
 
-  if (!plainPassword || !newPassword) {
+  if (!plainPassword || !updatePassword) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
@@ -265,7 +284,7 @@ const updateUserPasswordByID = async function (
       };
     }
     const salt = await bcrypt.genSalt(10);
-    searchUser.password = await bcrypt.hash(newPassword, salt);
+    searchUser.password = await bcrypt.hash(updatePassword, salt);
     await searchUser.save();
 
     const { password, createdAt, ...filteredUser } =
