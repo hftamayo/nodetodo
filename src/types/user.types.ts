@@ -19,7 +19,10 @@ export type UserRequest = {
   email: string;
   age: number;
   password: string;
-  newPassword?: string;
+};
+
+export type SignUpRequest = UserRequest & {
+  newPassword: string;
 };
 
 export type LoginRequest = {
