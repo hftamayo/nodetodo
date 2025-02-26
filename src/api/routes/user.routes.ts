@@ -12,6 +12,7 @@ import {
   UpdateUserRequest,
   UserServices,
 } from "../../types/user.types";
+import { DOMAINS, SYSTEM_PERMISSIONS, PERMISSIONS } from "@/config/envvars";
 
 const userRouter = express.Router();
 
@@ -69,23 +70,39 @@ userRouter.post(
   validateResult,
   loginHandler
 );
-userRouter.post("/logout", authorize, logoutHandler);
-userRouter.get("/list", authorize, listUsersHandler);
-userRouter.get("/me", authorize, listUserHandler);
+userRouter.post(
+  "/logout",
+  authorize(DOMAINS.SYSTEM, SYSTEM_PERMISSIONS.LOGOUT),
+  logoutHandler
+);
+userRouter.get(
+  "/list",
+  authorize(DOMAINS.USER, PERMISSIONS.READ),
+  listUsersHandler
+);
+userRouter.get(
+  "/me",
+  authorize(DOMAINS.USER, PERMISSIONS.READ),
+  listUserHandler
+);
 userRouter.put(
   "/updatedetails",
-  authorize,
+  authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
   validator.updateDetailsRules,
   validateResult,
   updateUserDetailsHandler
 );
 userRouter.put(
   "/updatepassword",
-  authorize,
+  authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
   validator.updatePasswordRules,
   validateResult,
   updateUserPasswordHandler
 );
-userRouter.delete("/delete", authorize, deleteUserHandler);
+userRouter.delete(
+  "/delete",
+  authorize(DOMAINS.USER, PERMISSIONS.DELETE),
+  deleteUserHandler
+);
 
 export default userRouter;
