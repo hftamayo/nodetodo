@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {
   ListUsersRequest,
-  UserRequest,
+  SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
   UserIdRequest,
@@ -17,7 +17,7 @@ import { cors_secure, cors_samesite } from "../../config/envvars";
 
 export default function userController(userService: UserServices) {
   return {
-    signUpHandler: async function (req: UserRequest, res: Response) {
+    signUpHandler: async function (req: SignUpRequest, res: Response) {
       try {
         const result: SignUpUserResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, user } = result;
