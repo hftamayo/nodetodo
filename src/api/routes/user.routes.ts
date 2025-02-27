@@ -6,13 +6,14 @@ import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
 import rateLimiter from "../middleware/rateLimiter";
 import {
+  AuthenticatedUserRequest,
   SignUpRequest,
   LoginRequest,
   UserIdRequest,
   UpdateUserRequest,
   UserServices,
 } from "../../types/user.types";
-import { DOMAINS, SYSTEM_PERMISSIONS, PERMISSIONS } from "@/config/envvars";
+import { DOMAINS, SYSTEM_PERMISSIONS, PERMISSIONS } from "../../config/envvars";
 
 const userRouter = express.Router();
 
@@ -28,7 +29,7 @@ const loginHandler = (req: Request, res: Response) => {
   controller.loginHandler(loginRequest, res);
 };
 
-const logoutHandler = (req: Request, res: Response) => {
+const logoutHandler = (req: AuthenticatedUserRequest, res: Response) => {
   controller.logoutHandler(req, res);
 };
 
