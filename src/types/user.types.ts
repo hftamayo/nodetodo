@@ -1,3 +1,4 @@
+import { Request } from "express";
 import mongoose from "mongoose";
 import { JwtPayload } from "jsonwebtoken";
 
@@ -12,6 +13,13 @@ export type FullUser = {
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+export interface AuthenticatedUserRequest extends Request {
+  user?: {
+    id: string;
+    role: string;
+  };
+}
 
 export type UserRequest = {
   id?: string;
