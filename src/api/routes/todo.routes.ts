@@ -12,6 +12,7 @@ import {
   TodoServices,
 } from "../../types/todo.types";
 import { UserIdRequest } from "../../types/user.types";
+import { DOMAINS, PERMISSIONS } from "../../config/envvars";
 
 const todoRouter = express.Router();
 
@@ -64,22 +65,34 @@ const deleteTodoHandler = (req: Request, res: Response) => {
   controller.deleteTodoHandler(ownerTodoIdRequest, res);
 };
 
-todoRouter.get("/list", authorize, getTodosHandler);
-todoRouter.get("/task/:id", authorize, getTodoHandler);
+todoRouter.get(
+  "/list",
+  authorize(DOMAINS.TODO, PERMISSIONS.READ),
+  getTodosHandler
+);
+todoRouter.get(
+  "/task/:id",
+  authorize(DOMAINS.TODO, PERMISSIONS.READ),
+  getTodoHandler
+);
 todoRouter.post(
   "/create",
-  authorize,
+  authorize(DOMAINS.TODO, PERMISSIONS.WRITE),
   validator.createTodoRules,
   validateResult,
   newTodoHandler
 );
 todoRouter.patch(
   "/update/:id",
-  authorize,
+  authorize(DOMAINS.TODO, PERMISSIONS.UPDATE),
   validator.updateTodoRules,
   validateResult,
   updateTodoHandler
 );
-todoRouter.delete("/delete/:id", authorize, deleteTodoHandler);
+todoRouter.delete(
+  "/delete/:id",
+  authorize(DOMAINS.TODO, PERMISSIONS.DELETE),
+  deleteTodoHandler
+);
 
 export default todoRouter;
