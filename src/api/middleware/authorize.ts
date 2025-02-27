@@ -1,21 +1,29 @@
 import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import { AuthenticatedUserRequest } from "../../types/user.types";
 import User from "../../models/User";
 import Role from "../../models/Role";
-import { masterKey } from "../../config/envvars";
+import { DOMAINS, masterKey } from "../../config/envvars";
 import { JwtPayloadWithUserId } from "../../types/user.types";
 
-const authorize = (requiredPermissions: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+const authorize = (domain: string, requiredPermission: number) => {
+  return async (
+    req: AuthenticatedUserRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    //console.log("authorize middleware called");
     const { cookies } = req;
     const token = cookies?.nodetodo;
 
     if (!token) {
+      //console.log("No token found");
       return res
         .status(401)
         .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
     }
     if (!masterKey) {
+      //console.log("No master key found");
       return res
         .status(500)
         .json({ code: 500, resultMessage: "INTERNAL_ERROR" });
@@ -25,6 +33,7 @@ const authorize = (requiredPermissions: string[]) => {
         | JwtPayloadWithUserId
         | undefined;
       if (!decoded) {
+        //console.log("token verification failed");
         return res
           .status(401)
           .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
@@ -34,6 +43,7 @@ const authorize = (requiredPermissions: string[]) => {
         .populate("role")
         .exec();
       if (!user) {
+        //console.log("User not found");
         return res
           .status(401)
           .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
@@ -41,22 +51,24 @@ const authorize = (requiredPermissions: string[]) => {
 
       const userRole = await Role.findById(user.role._id).exec();
       if (!userRole) {
+        //console.log("user Role associated not found");
         return res
           .status(401)
           .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
       }
 
-      const hasPermission = requiredPermissions.every((permission) =>
-        userRole.permissions.includes(permission)
-      );
-
-      if (!hasPermission) {
-        return res.status(403).json({ code: 403, resultMessage: "FORBIDDEN" });
+      const domainPermissions = userRole.permissions.get(domain) ?? 0;
+      if ((domainPermissions & requiredPermission) === requiredPermission) {
+        // Store user info in request for later use
+        req.user = {
+          id: decoded.userId,
+          role: decoded.role,
+        };
+        return next();
       }
 
-      req.body.userId = decoded.searchUser;
-
-      next();
+      console.log("User does not have required permissions to access");
+      return res.status(403).json({ code: 403, resultMessage: "FORBIDDEN" });
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error(error.message);
