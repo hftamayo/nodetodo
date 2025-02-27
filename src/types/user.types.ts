@@ -125,7 +125,7 @@ export type DeleteUserByIdResponse = {
 export type UserServices = {
   signUpUser: (params: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (params: LoginRequest) => Promise<LoginResponse>;
-  logoutUser: (params: Request) => Promise<LogoutResponse>;
+  logoutUser: (params: AuthenticatedUserRequest) => Promise<LogoutResponse>;
   listUsers: (params: ListUsersRequest) => Promise<SearchUsersResponse>;
   listUserByID: (params: UserIdRequest) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (

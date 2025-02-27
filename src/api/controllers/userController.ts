@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  AuthenticatedUserRequest,
   ListUsersRequest,
   SignUpRequest,
   LoginRequest,
@@ -69,8 +70,12 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    logoutHandler: async function (req: Request, res: Response) {
+    logoutHandler: async function (
+      req: AuthenticatedUserRequest,
+      res: Response
+    ) {
       try {
+        console.log(`LogFile: User ${req.user?.id} is logging out`);
         res.clearCookie("nodetodo");
         res.status(200).json({
           code: 200,
