@@ -11,6 +11,7 @@ import {
   UpdateRoleRequest,
   RoleServices,
 } from "../../types/role.types";
+import { DOMAINS, PERMISSIONS } from "../../config/envvars";
 
 const roleRouter = express.Router();
 
@@ -54,22 +55,34 @@ const deleteRoleHandler = (req: Request, res: Response) => {
   controller.deleteRoleHandler(roleRequest, res);
 };
 
-roleRouter.get("/list", authorize, getRolesHandler);
-roleRouter.get("/role/:id", authorize, getRoleHandler);
+roleRouter.get(
+  "/list",
+  authorize(DOMAINS.ROLE, PERMISSIONS.READ),
+  getRolesHandler
+);
+roleRouter.get(
+  "/role/:id",
+  authorize(DOMAINS.ROLE, PERMISSIONS.READ),
+  getRoleHandler
+);
 roleRouter.post(
   "/create",
-  authorize,
+  authorize(DOMAINS.ROLE, PERMISSIONS.WRITE),
   validator.createRoleRules,
   validateResult,
   newRoleHandler
 );
 roleRouter.put(
   "/update/:id",
-  authorize,
+  authorize(DOMAINS.ROLE, PERMISSIONS.UPDATE),
   validator.updateRoleRules,
   validateResult,
   updateRoleHandler
 );
-roleRouter.delete("/delete/:id", authorize, deleteRoleHandler);
+roleRouter.delete(
+  "/delete/:id",
+  authorize(DOMAINS.ROLE, PERMISSIONS.DELETE),
+  deleteRoleHandler
+);
 
 export default roleRouter;
