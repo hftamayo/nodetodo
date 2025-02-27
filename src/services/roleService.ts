@@ -2,7 +2,6 @@ import {
   CreateRoleResponse,
   DeleteRoleResponse,
   FilteredRole,
-  FullRole,
   ListRoleResponse,
   ListRolesRequest,
   ListRolesResponse,
@@ -32,7 +31,7 @@ const listRoles = async function (
       name: role.name,
       description: role.description,
       status: role.status,
-      permissions: role.permissions,
+      permissions: Object.fromEntries(Object.entries(role.permissions)),
     }));
     return {
       httpStatusCode: 200,
@@ -65,7 +64,7 @@ const listRoleByID = async function (
       name: searchRole.name,
       description: searchRole.description,
       status: searchRole.status,
-      permissions: searchRole.permissions,
+      permissions: Object.fromEntries(Object.entries(searchRole.permissions)),
     };
 
     return { httpStatusCode: 200, message: "ENTITY_FOUND", role: filteredRole };
@@ -103,7 +102,7 @@ const createRole = async function (
       name: newRole.name,
       description: newRole.description,
       status: newRole.status,
-      permissions: newRole.permissions,
+      permissions: Object.fromEntries(Object.entries(newRole.permissions)),
     };
 
     return {
@@ -141,8 +140,9 @@ const updateRoleByID = async function (
     searchRole.name = name;
     searchRole.description = description;
     searchRole.status = status;
-    searchRole.permissions = permissions;
-
+    searchRole.permissions = role.permissions
+      ? new Map(Object.entries(role.permissions))
+      : new Map();
     await searchRole.save();
 
     const filteredRole: FilteredRole = {
@@ -150,7 +150,7 @@ const updateRoleByID = async function (
       name: searchRole.name,
       description: searchRole.description,
       status: searchRole.status,
-      permissions: searchRole.permissions,
+      permissions: Object.fromEntries(Object.entries(searchRole.permissions)),
     };
 
     return {
