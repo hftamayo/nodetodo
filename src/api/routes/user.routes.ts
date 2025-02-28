@@ -9,7 +9,6 @@ import {
   AuthenticatedUserRequest,
   SignUpRequest,
   LoginRequest,
-  UserIdRequest,
   UpdateUserRequest,
   UserServices,
 } from "../../types/user.types";
@@ -37,9 +36,8 @@ const listUsersHandler = (req: Request, res: Response) => {
   controller.listUsersHandler(req, res);
 };
 
-const listUserHandler = (req: Request, res: Response) => {
-  const userIdRequest: UserIdRequest = { userId: req.body.userId };
-  controller.listUserHandler(userIdRequest, res);
+const listUserHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  controller.listUserHandler(req, res);
 };
 
 const updateUserDetailsHandler = (req: Request, res: Response) => {
@@ -52,9 +50,8 @@ const updateUserPasswordHandler = (req: Request, res: Response) => {
   controller.updateUserPasswordHandler(updateUserRequest, res);
 };
 
-const deleteUserHandler = (req: Request, res: Response) => {
-  const userIdRequest: UserIdRequest = { userId: req.body.userId };
-  controller.deleteUserHandler(userIdRequest, res);
+const deleteUserHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  controller.deleteUserHandler(req, res);
 };
 
 userRouter.post(
