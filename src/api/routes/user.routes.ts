@@ -40,13 +40,25 @@ const listUserHandler = (req: AuthenticatedUserRequest, res: Response) => {
   controller.listUserHandler(req, res);
 };
 
-const updateUserDetailsHandler = (req: Request, res: Response) => {
-  const updateUserRequest: UpdateUserRequest = req.body;
+const updateUserDetailsHandler = (
+  req: AuthenticatedUserRequest,
+  res: Response
+) => {
+  const updateUserRequest: UpdateUserRequest = {
+    userId: req.user?.id ?? "",
+    user: req.body,
+  };
   controller.updateUserDetailsHandler(updateUserRequest, res);
 };
 
-const updateUserPasswordHandler = (req: Request, res: Response) => {
-  const updateUserRequest: UpdateUserRequest = req.body;
+const updateUserPasswordHandler = (
+  req: AuthenticatedUserRequest,
+  res: Response
+) => {
+  const updateUserRequest: UpdateUserRequest = {
+    userId: req.user?.id ?? "",
+    user: req.body,
+  };
   controller.updateUserPasswordHandler(updateUserRequest, res);
 };
 
