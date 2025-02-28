@@ -48,10 +48,6 @@ export type ListUsersRequest = {
   limit: number;
 };
 
-export type UserIdRequest = {
-  userId: string;
-};
-
 export type UpdateUserRequest = {
   userId: string;
   user: Partial<UserRequest>;
@@ -126,8 +122,8 @@ export type UserServices = {
   signUpUser: (params: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (params: LoginRequest) => Promise<LoginResponse>;
   logoutUser: (params: AuthenticatedUserRequest) => Promise<LogoutResponse>;
-  listUsers: (params: ListUsersRequest) => Promise<SearchUsersResponse>;
-  listUserByID: (params: UserIdRequest) => Promise<SearchUserByIdResponse>;
+  listUsers: (params: AuthenticatedUserRequest) => Promise<SearchUsersResponse>;
+  listUserByID: (params: string) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (
     params: UpdateUserRequest
   ) => Promise<UpdateUserDetailsResponse>;
@@ -135,6 +131,6 @@ export type UserServices = {
     params: UpdateUserRequest
   ) => Promise<UpdateUserDetailsResponse>;
   deleteUserByID: (
-    newDeleteUser: UserIdRequest
+    newDeleteUser: AuthenticatedUserRequest
   ) => Promise<DeleteUserByIdResponse>;
 };

@@ -8,7 +8,6 @@ import {
   SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
-  UserIdRequest,
   FullUser,
   FilteredSearchUsers,
   SignUpUserResponse,
@@ -188,9 +187,8 @@ const listUsers = async function (
 };
 
 const listUserByID = async function (
-  params: UserIdRequest
+  userId: string
 ): Promise<SearchUserByIdResponse> {
-  const userId = params.userId;
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {

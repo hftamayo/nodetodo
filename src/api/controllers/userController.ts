@@ -5,7 +5,6 @@ import {
   SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
-  UserIdRequest,
   SignUpUserResponse,
   LoginResponse,
   SearchUserByIdResponse,
@@ -94,8 +93,17 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    listUsersHandler: async function (req: Request, res: Response) {
+    listUsersHandler: async function (
+      req: AuthenticatedUserRequest,
+      res: Response
+    ) {
       try {
+        const userId = req.user?.id;
+        if (!userId) {
+          return res
+            .status(401)
+            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+        }
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const listUsersRequest: ListUsersRequest = { page, limit };
@@ -119,10 +127,19 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    listUserHandler: async function (req: UserIdRequest, res: Response) {
+    listUserHandler: async function (
+      req: AuthenticatedUserRequest,
+      res: Response
+    ) {
       try {
+        const userId = req.user?.id;
+        if (!userId) {
+          return res
+            .status(401)
+            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+        }
         const result: SearchUserByIdResponse = await userService.listUserByID(
-          req
+          userId
         );
         const { httpStatusCode, message, user } = result;
         res
@@ -191,10 +208,19 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    deleteUserHandler: async function (req: UserIdRequest, res: Response) {
+    deleteUserHandler: async function (
+      req: AuthenticatedUserRequest,
+      res: Response
+    ) {
       try {
+        const userId = req.user?.id;
+        if (!userId) {
+          return res
+            .status(401)
+            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+        }
         const result: DeleteUserByIdResponse = await userService.deleteUserByID(
-          req
+          userId
         );
         const { httpStatusCode, message } = result;
 
