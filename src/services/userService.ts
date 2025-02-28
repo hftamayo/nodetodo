@@ -304,9 +304,8 @@ const updateUserPasswordByID = async function (
 };
 
 const deleteUserByID = async function (
-  params: UserIdRequest
+  userId: string
 ): Promise<DeleteUserByIdResponse> {
-  const userId = params.userId;
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {

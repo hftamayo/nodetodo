@@ -130,7 +130,5 @@ export type UserServices = {
   updateUserPasswordByID: (
     params: UpdateUserRequest
   ) => Promise<UpdateUserDetailsResponse>;
-  deleteUserByID: (
-    newDeleteUser: AuthenticatedUserRequest
-  ) => Promise<DeleteUserByIdResponse>;
+  deleteUserByID: (params: string) => Promise<DeleteUserByIdResponse>;
 };
