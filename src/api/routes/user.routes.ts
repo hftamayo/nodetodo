@@ -32,7 +32,7 @@ const logoutHandler = (req: AuthenticatedUserRequest, res: Response) => {
   controller.logoutHandler(req, res);
 };
 
-const listUsersHandler = (req: Request, res: Response) => {
+const listUsersHandler = (req: AuthenticatedUserRequest, res: Response) => {
   controller.listUsersHandler(req, res);
 };
 

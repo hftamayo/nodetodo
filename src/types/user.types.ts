@@ -122,7 +122,7 @@ export type UserServices = {
   signUpUser: (params: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (params: LoginRequest) => Promise<LoginResponse>;
   logoutUser: (params: AuthenticatedUserRequest) => Promise<LogoutResponse>;
-  listUsers: (params: AuthenticatedUserRequest) => Promise<SearchUsersResponse>;
+  listUsers: (params: ListUsersRequest) => Promise<SearchUsersResponse>;
   listUserByID: (params: string) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (
     params: UpdateUserRequest
