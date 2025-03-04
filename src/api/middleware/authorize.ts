@@ -1,10 +1,12 @@
 import jwt from "jsonwebtoken";
 import { Response, NextFunction } from "express";
-import { AuthenticatedUserRequest } from "../../types/user.types";
+import {
+  AuthenticatedUserRequest,
+  JwtPayloadWithUserId,
+} from "../../types/user.types";
 import User from "../../models/User";
 import Role from "../../models/Role";
-import { DOMAINS, masterKey } from "../../config/envvars";
-import { JwtPayloadWithUserId } from "../../types/user.types";
+import { masterKey } from "../../config/envvars";
 
 const authorize = (domain: string, requiredPermission: number) => {
   return async (
@@ -12,18 +14,15 @@ const authorize = (domain: string, requiredPermission: number) => {
     res: Response,
     next: NextFunction
   ) => {
-    //console.log("authorize middleware called");
     const { cookies } = req;
     const token = cookies?.nodetodo;
 
     if (!token) {
-      //console.log("No token found");
       return res
         .status(401)
         .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
     }
     if (!masterKey) {
-      //console.log("No master key found");
       return res
         .status(500)
         .json({ code: 500, resultMessage: "INTERNAL_ERROR" });
@@ -33,7 +32,6 @@ const authorize = (domain: string, requiredPermission: number) => {
         | JwtPayloadWithUserId
         | undefined;
       if (!decoded) {
-        //console.log("token verification failed");
         return res
           .status(401)
           .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
@@ -43,7 +41,6 @@ const authorize = (domain: string, requiredPermission: number) => {
         .populate("role")
         .exec();
       if (!user) {
-        //console.log("User not found");
         return res
           .status(401)
           .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
@@ -51,7 +48,6 @@ const authorize = (domain: string, requiredPermission: number) => {
 
       const userRole = await Role.findById(user.role._id).exec();
       if (!userRole) {
-        //console.log("user Role associated not found");
         return res
           .status(401)
           .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
