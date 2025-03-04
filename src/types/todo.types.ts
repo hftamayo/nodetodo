@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { UserIdRequest } from "./user.types";
+import { AuthenticatedUserRequest } from "./user.types";
 
 export type FullTodo = {
   _id: mongoose.Types.ObjectId;
@@ -20,24 +20,24 @@ type TodoRequest = {
 };
 
 export type NewTodoRequest = {
-  owner: UserIdRequest;
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
   todo: TodoRequest;
 };
 
 export type UpdateTodoRequest = {
-  owner: UserIdRequest;
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
   todo: Partial<TodoRequest>;
 };
 
 export type ListTodosByOwnerRequest = {
-  owner: UserIdRequest;
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
   page: number;
   limit: number;
   activeOnly?: boolean;
 };
 
 export type ListTodoByOwnerRequest = {
-  owner: UserIdRequest;
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
   params: {
     todoId: string;
   };
