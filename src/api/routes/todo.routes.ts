@@ -11,15 +11,20 @@ import {
   UpdateTodoRequest,
   TodoServices,
 } from "../../types/todo.types";
-import { UserIdRequest } from "../../types/user.types";
+import { AuthenticatedUserRequest } from "../../types/user.types";
 import { DOMAINS, PERMISSIONS } from "../../config/envvars";
+import { Auth } from "mongodb";
 
 const todoRouter = express.Router();
 
 const controller = todoController(todoService as TodoServices);
 
-const getTodosHandler = (req: Request, res: Response) => {
-  const owner: UserIdRequest = { userId: req.body.userId };
+const getTodosHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  if (!req.user?.id) {
+    return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+  }
+
+  const owner = req.user.id;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const activeOnly = req.query.activeOnly === "true";
@@ -34,11 +39,16 @@ const getTodosHandler = (req: Request, res: Response) => {
   controller.getTodosHandler(listTodosByOwnerRequest, res);
 };
 
-const getTodoHandler = (req: Request, res: Response) => {
-  const ownerTodoIdRequest = req as unknown as ListTodoByOwnerRequest;
-  ownerTodoIdRequest.owner = { userId: req.body.userId };
-  ownerTodoIdRequest.params = { todoId: req.params.id };
-  controller.getTodoHandler(ownerTodoIdRequest, res);
+const getTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  if (!req.user?.id) {
+    return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+  }
+
+  const listTodoByOwnerRequest: ListTodoByOwnerRequest = {
+    owner: req.user.id,
+    todoId: req.params.id,
+  };
+  controller.getTodoHandler(listTodoByOwnerRequest, res);
 };
 
 const newTodoHandler = (req: Request, res: Response) => {

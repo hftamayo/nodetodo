@@ -62,8 +62,7 @@ const listTodos = async function (
 const listTodoByID = async function (
   params: ListTodoByOwnerRequest
 ): Promise<ListTodoByOwnerResponse> {
-  const owner = params.owner.userId;
-  const todoId = params.params.todoId;
+  const { owner, todoId } = params;
 
   try {
     let searchTodo = await Todo.findById(todoId).exec();

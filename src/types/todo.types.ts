@@ -38,9 +38,7 @@ export type ListTodosByOwnerRequest = {
 
 export type ListTodoByOwnerRequest = {
   owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
-  params: {
-    todoId: string;
-  };
+  todoId: string;
 };
 
 export type FilteredTodo = Omit<FullTodo, "createdAt" | "updatedAt">;
