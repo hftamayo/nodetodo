@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Response } from "express";
 import authorize from "../middleware/authorize";
 import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
