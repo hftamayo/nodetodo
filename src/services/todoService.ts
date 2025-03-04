@@ -20,7 +20,7 @@ const listTodos = async function (
   try {
     const skip = (page - 1) * limit;
     const query: { owner: string; completed?: boolean } = {
-      owner: owner.userId,
+      owner: owner,
     };
 
     if (activeOnly) {
@@ -146,16 +146,15 @@ const createTodo = async function (
 const updateTodoByID = async function (
   params: UpdateTodoRequest
 ): Promise<UpdateTodoResponse> {
-  const owner = params.owner.userId;
-  const todoId = params.todo._id;
-  const { title, description, completed } = params.todo;
+  const { owner, todo } = params;
+  const { _id, title, description, completed } = todo;
 
-  if (!owner || !todoId || (!title && !description && !completed)) {
+  if (!owner || !_id || (!title && !description && !completed)) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
   try {
-    let updateTodo = await Todo.findById(todoId).exec();
+    let updateTodo = await Todo.findById(_id).exec();
     if (!updateTodo) {
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }

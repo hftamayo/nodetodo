@@ -55,7 +55,7 @@ const newTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
     return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
   }
 
-  const NewTodoRequest: NewTodoRequest = {
+  const newTodoRequest: NewTodoRequest = {
     owner: req.user.id,
     todo: {
       title: req.body.title,
@@ -64,14 +64,23 @@ const newTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
     },
   };
 
-  controller.newTodoHandler(NewTodoRequest, res);
+  controller.newTodoHandler(newTodoRequest, res);
 };
 
-const updateTodoHandler = (req: Request, res: Response) => {
-  const updateTodoRequest = req.body as UpdateTodoRequest;
-  updateTodoRequest.owner = { userId: req.body.userId };
-  updateTodoRequest.todo = req.body.todo;
-  updateTodoRequest.todo._id = req.params.id;
+const updateTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  if (!req.user?.id) {
+    return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+  }
+
+  const updateTodoRequest: UpdateTodoRequest = {
+    owner: req.user.id,
+    todo: {
+      _id: req.params.id,
+      title: req.body.title,
+      description: req.body.description,
+      completed: req.body.completed,
+    },
+  };
 
   controller.updateTodoHandler(updateTodoRequest, res);
 };
