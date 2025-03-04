@@ -196,22 +196,23 @@ const updateTodoByID = async function (
 const deleteTodoByID = async function (
   params: ListTodoByOwnerRequest
 ): Promise<DeleteTodoByIdResponse> {
-  const owner = params.owner;
-  const todoId = params.params.todoId;
+  const { owner, todoId } = params;
 
   try {
-    const deleteTodo = await Todo.findById(todoId);
-    if (!deleteTodo) {
+    let searchTodo = await Todo.findById(todoId).exec();
+
+    if (!searchTodo) {
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    if (deleteTodo.owner.toString() !== owner.userId.toString()) {
+
+    if (searchTodo.owner.toString() !== owner.toString()) {
       return {
         httpStatusCode: 401,
         message: "FORBIDDEN",
       };
     }
 
-    await deleteTodo.deleteOne();
+    await searchTodo.deleteOne();
     return { httpStatusCode: 200, message: "ENTITY_DELETED" };
   } catch (error: unknown) {
     if (error instanceof Error) {
