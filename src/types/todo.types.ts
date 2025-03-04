@@ -15,7 +15,7 @@ type TodoRequest = {
   _id?: string;
   title: string;
   description: string;
-  completed: boolean;
+  completed?: boolean;
   owner: string;
 };
 

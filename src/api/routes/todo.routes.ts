@@ -55,9 +55,14 @@ const newTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
     return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
   }
 
-  const NewTodoRequest = req.body as NewTodoRequest;
-  NewTodoRequest.owner = { userId: req.body.userId };
-  NewTodoRequest.todo = req.body;
+  const NewTodoRequest: NewTodoRequest = {
+    owner: req.user.id,
+    todo: {
+      title: req.body.title,
+      description: req.body.description,
+      owner: req.user.id,
+    },
+  };
 
   controller.newTodoHandler(NewTodoRequest, res);
 };

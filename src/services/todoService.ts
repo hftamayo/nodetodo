@@ -100,8 +100,8 @@ const listTodoByID = async function (
 const createTodo = async function (
   params: NewTodoRequest
 ): Promise<CreateTodoResponse> {
-  const owner = params.owner.userId;
-  const { title, description } = params.todo;
+  const { owner, todo } = params;
+  const { title, description } = todo;
 
   if (!owner || !title || !description) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
