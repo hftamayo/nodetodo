@@ -90,7 +90,7 @@ roleRouter.post(
   validateResult,
   newRoleHandler
 );
-roleRouter.put(
+roleRouter.patch(
   "/update/:id",
   authorize(DOMAINS.ROLE, PERMISSIONS.UPDATE),
   validateAuthentication,

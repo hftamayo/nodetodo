@@ -123,9 +123,9 @@ const createRole = async function (
 const updateRoleByID = async function (
   params: UpdateRoleRequest
 ): Promise<UpdateRoleResponse> {
-  const { _id, name, description, status, permissions } = params.role;
+  const { _id, ...updates } = params.role;
 
-  if (!_id || !name || !description || !status || !permissions) {
+  if (!_id || Object.keys(updates).length === 0) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
@@ -136,12 +136,13 @@ const updateRoleByID = async function (
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
 
-    searchRole.name = name;
-    searchRole.description = description;
-    searchRole.status = status;
-    searchRole.permissions = permissions
-      ? new Map(Object.entries(permissions))
-      : new Map();
+    if (updates.name !== undefined) searchRole.name = updates.name;
+    if (updates.description !== undefined)
+      searchRole.description = updates.description;
+    if (updates.status !== undefined) searchRole.status = updates.status;
+    if (updates.permissions !== undefined) {
+      searchRole.permissions = new Map(Object.entries(updates.permissions));
+    }
     await searchRole.save();
 
     const filteredRole: FilteredRole = {
