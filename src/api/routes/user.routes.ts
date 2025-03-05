@@ -13,6 +13,7 @@ import {
   UserServices,
 } from "../../types/user.types";
 import { DOMAINS, SYSTEM_PERMISSIONS, PERMISSIONS } from "../../config/envvars";
+import validateAuthentication from "../middleware/validateAuth";
 
 const userRouter = express.Router();
 
@@ -83,21 +84,25 @@ userRouter.post(
 userRouter.post(
   "/logout",
   authorize(DOMAINS.SYSTEM, SYSTEM_PERMISSIONS.LOGOUT),
+  validateAuthentication,
   logoutHandler
 );
 userRouter.get(
   "/list",
   authorize(DOMAINS.USER, PERMISSIONS.READ),
+  validateAuthentication,
   listUsersHandler
 );
 userRouter.get(
   "/me",
   authorize(DOMAINS.USER, PERMISSIONS.READ),
+  validateAuthentication,
   listUserHandler
 );
 userRouter.put(
   "/updatedetails",
   authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
+  validateAuthentication,
   validator.updateDetailsRules,
   validateResult,
   updateUserDetailsHandler
@@ -105,6 +110,7 @@ userRouter.put(
 userRouter.put(
   "/updatepassword",
   authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
+  validateAuthentication,
   validator.updatePasswordRules,
   validateResult,
   updateUserPasswordHandler
@@ -112,6 +118,7 @@ userRouter.put(
 userRouter.delete(
   "/delete",
   authorize(DOMAINS.USER, PERMISSIONS.DELETE),
+  validateAuthentication,
   deleteUserHandler
 );
 
