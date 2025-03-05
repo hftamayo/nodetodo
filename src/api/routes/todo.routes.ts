@@ -1,4 +1,5 @@
 import express, { Response } from "express";
+import validateAuthentication from "../middleware/validateAuth";
 import authorize from "../middleware/authorize";
 import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
@@ -19,11 +20,7 @@ const todoRouter = express.Router();
 const controller = todoController(todoService as TodoServices);
 
 const getTodosHandler = (req: AuthenticatedUserRequest, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
-  }
-
-  const owner = req.user.id;
+  const owner = req.user!.id;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const activeOnly = req.query.activeOnly === "true";
@@ -39,28 +36,20 @@ const getTodosHandler = (req: AuthenticatedUserRequest, res: Response) => {
 };
 
 const getTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
-  }
-
   const listTodoByOwnerRequest: ListTodoByOwnerRequest = {
-    owner: req.user.id,
+    owner: req.user!.id,
     todoId: req.params.id,
   };
   controller.getTodoHandler(listTodoByOwnerRequest, res);
 };
 
 const newTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
-  }
-
   const newTodoRequest: NewTodoRequest = {
-    owner: req.user.id,
+    owner: req.user!.id,
     todo: {
       title: req.body.title,
       description: req.body.description,
-      owner: req.user.id,
+      owner: req.user!.id,
     },
   };
 
@@ -68,12 +57,8 @@ const newTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
 };
 
 const updateTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
-  }
-
   const updateTodoRequest: UpdateTodoRequest = {
-    owner: req.user.id,
+    owner: req.user!.id,
     todo: {
       _id: req.params.id,
       title: req.body.title,
@@ -86,12 +71,8 @@ const updateTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
 };
 
 const deleteTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
-  }
-
   const ownerTodoIdRequest: ListTodoByOwnerRequest = {
-    owner: req.user.id,
+    owner: req.user!.id,
     todoId: req.params.id,
   };
   controller.deleteTodoHandler(ownerTodoIdRequest, res);
@@ -100,16 +81,19 @@ const deleteTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
 todoRouter.get(
   "/list",
   authorize(DOMAINS.TODO, PERMISSIONS.READ),
+  validateAuthentication,
   getTodosHandler
 );
 todoRouter.get(
   "/task/:id",
   authorize(DOMAINS.TODO, PERMISSIONS.READ),
+  validateAuthentication,
   getTodoHandler
 );
 todoRouter.post(
   "/create",
   authorize(DOMAINS.TODO, PERMISSIONS.WRITE),
+  validateAuthentication,
   validator.createTodoRules,
   validateResult,
   newTodoHandler
@@ -117,6 +101,7 @@ todoRouter.post(
 todoRouter.patch(
   "/update/:id",
   authorize(DOMAINS.TODO, PERMISSIONS.UPDATE),
+  validateAuthentication,
   validator.updateTodoRules,
   validateResult,
   updateTodoHandler
@@ -124,6 +109,7 @@ todoRouter.patch(
 todoRouter.delete(
   "/delete/:id",
   authorize(DOMAINS.TODO, PERMISSIONS.DELETE),
+  validateAuthentication,
   deleteTodoHandler
 );
 
