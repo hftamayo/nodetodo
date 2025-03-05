@@ -99,7 +99,7 @@ userRouter.get(
   validateAuthentication,
   listUserHandler
 );
-userRouter.put(
+userRouter.patch(
   "/updatedetails",
   authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
   validateAuthentication,

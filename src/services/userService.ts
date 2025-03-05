@@ -217,9 +217,9 @@ const updateUserDetailsByID = async function (
   params: UpdateUserRequest
 ): Promise<UpdateUserDetailsResponse> {
   const { userId, user } = params;
-  const { name, email, age } = user;
+  const { ...updates } = user;
 
-  if (!name || !email || !age) {
+  if (Object.keys(updates).length === 0) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
@@ -228,16 +228,23 @@ const updateUserDetailsByID = async function (
     if (!searchUser) {
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    let checkIfUpdateEmailExists = await User.findOne({ email }).exec();
-    if (
-      checkIfUpdateEmailExists &&
-      checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()
-    ) {
-      return { httpStatusCode: 400, message: "EMAIL_EXISTS" };
+
+    if (updates.email !== undefined) {
+      let checkIfUpdateEmailExists = await User.findOne({
+        email: updates.email,
+      }).exec();
+      if (
+        checkIfUpdateEmailExists &&
+        checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()
+      ) {
+        return { httpStatusCode: 400, message: "EMAIL_EXISTS" };
+      }
     }
-    searchUser.name = name;
-    searchUser.email = email;
-    searchUser.age = age;
+
+    if (updates.name !== undefined) searchUser.name = updates.name;
+    if (updates.email !== undefined) searchUser.email = updates.email;
+    if (updates.age !== undefined) searchUser.age = updates.age;
+    if (updates.status !== undefined) searchUser.status = updates.status;
 
     await searchUser.save();
 

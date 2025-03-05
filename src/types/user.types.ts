@@ -30,6 +30,7 @@ export type UserRequest = {
   age: number;
   password: string;
   updatePassword?: string;
+  status?: boolean;
 };
 
 export type SignUpRequest = UserRequest & {
