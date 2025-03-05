@@ -1,10 +1,10 @@
 import { Response, NextFunction } from "express";
 import { AuthenticatedUserRequest } from "../../types/user.types";
 
-function isAuthenticated(
+export function isAuthenticated(
   req: AuthenticatedUserRequest
 ): req is AuthenticatedUserRequest & { user: { id: string; role: string } } {
-  return req.user !== undefined;
+  return req.user?.id !== undefined;
 }
 
 const validateAuthentication = (
