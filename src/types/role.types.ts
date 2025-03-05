@@ -16,7 +16,7 @@ type RoleRequest = {
   _id?: string;
   name: string;
   description: string;
-  status: boolean;
+  status?: boolean;
   permissions: {
     [domain: string]: number;
   };
@@ -36,7 +36,6 @@ export type RoleIdRequest = {
 };
 
 export type UpdateRoleRequest = {
-  roleId: string;
   role: Partial<RoleRequest>;
 };
 
