@@ -14,11 +14,13 @@ export type FullUser = {
   updatedAt?: Date;
 };
 
+export interface AuthenticatedUser {
+  id: string;
+  role: string;
+}
+
 export interface AuthenticatedUserRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-  };
+  user?: AuthenticatedUser;
 }
 
 export type UserRequest = {
