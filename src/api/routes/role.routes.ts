@@ -39,15 +39,27 @@ const getRoleHandler = (req: AuthenticatedUserRequest, res: Response) => {
 };
 
 const newRoleHandler = (req: AuthenticatedUserRequest, res: Response) => {
-  const newRoleRequest = req.body as NewRoleRequest;
+  const newRoleRequest: NewRoleRequest = {
+    role: {
+      name: req.body.name,
+      description: req.body.description,
+      permissions: req.body.permissions,
+    },
+  };
 
   controller.newRoleHandler(newRoleRequest, res);
 };
 
 const updateRoleHandler = (req: AuthenticatedUserRequest, res: Response) => {
-  const updateRoleRequest = req.body as UpdateRoleRequest;
-  updateRoleRequest.roleId = req.params.id;
-
+  const updateRoleRequest: UpdateRoleRequest = {
+    role: {
+      _id: req.params.id,
+      name: req.body.name,
+      description: req.body.description,
+      status: req.body.status,
+      permissions: req.body.permissions,
+    },
+  };
   controller.updateRoleHandler(updateRoleRequest, res);
 };
 
