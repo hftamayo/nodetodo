@@ -147,9 +147,9 @@ const updateTodoByID = async function (
   params: UpdateTodoRequest
 ): Promise<UpdateTodoResponse> {
   const { owner, todo } = params;
-  const { _id, title, description, completed } = todo;
+  const { _id, ...updates } = todo;
 
-  if (!owner || !_id || (!title && !description && !completed)) {
+  if (!owner || !_id || Object.keys(updates).length === 0) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
@@ -164,9 +164,11 @@ const updateTodoByID = async function (
         message: "FORBIDDEN",
       };
     }
-    updateTodo.title = title ?? "";
-    updateTodo.description = description ?? "";
-    updateTodo.completed = completed ?? false;
+    if (updates.title !== undefined) updateTodo.title = updates.title;
+    if (updates.description !== undefined)
+      updateTodo.description = updates.description;
+    if (updates.completed !== undefined)
+      updateTodo.completed = updates.completed;
     await updateTodo.save();
 
     const filteredTodo: FilteredTodo = {
