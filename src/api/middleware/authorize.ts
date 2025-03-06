@@ -8,7 +8,13 @@ import User from "../../models/User";
 import Role from "../../models/Role";
 import { masterKey } from "../../config/envvars";
 
-const authorize = (domain: string, requiredPermission: number) => {
+export function isAuthenticated(
+  req: AuthenticatedUserRequest
+): req is AuthenticatedUserRequest & { user: { id: string; role: string } } {
+  return req.user?.id !== undefined;
+}
+
+const authorize = (domain?: string, requiredPermission?: number) => {
   return async (
     req: AuthenticatedUserRequest,
     res: Response,
@@ -17,20 +23,17 @@ const authorize = (domain: string, requiredPermission: number) => {
     const { cookies } = req;
     const token = cookies?.nodetodo;
 
-    if (!token) {
+    if (!token || !masterKey) {
       return res
         .status(401)
         .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
     }
-    if (!masterKey) {
-      return res
-        .status(500)
-        .json({ code: 500, resultMessage: "INTERNAL_ERROR" });
-    }
+
     try {
       const decoded = jwt.verify(token, masterKey) as
         | JwtPayloadWithUserId
         | undefined;
+
       if (!decoded) {
         return res
           .status(401)
@@ -40,13 +43,27 @@ const authorize = (domain: string, requiredPermission: number) => {
       const user = await User.findById(decoded.searchUser)
         .populate("role")
         .exec();
+
       if (!user) {
         return res
           .status(401)
           .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
       }
 
+      // Set basic user info in request
+      req.user = {
+        id: decoded.userId,
+        role: decoded.role,
+      };
+
+      // If no domain/permission specified, only authenticate
+      if (!domain || !requiredPermission) {
+        return next();
+      }
+
+      // Check permissions if domain and requiredPermission are provided
       const userRole = await Role.findById(user.role._id).exec();
+
       if (!userRole) {
         return res
           .status(401)
@@ -54,25 +71,21 @@ const authorize = (domain: string, requiredPermission: number) => {
       }
 
       const domainPermissions = userRole.permissions.get(domain) ?? 0;
-      if ((domainPermissions & requiredPermission) === requiredPermission) {
-        // Store user info in request for later use
-        req.user = {
-          id: decoded.userId,
-          role: decoded.role,
-        };
-        return next();
+
+      if ((domainPermissions & requiredPermission) !== requiredPermission) {
+        console.log("User does not have required permissions to access");
+        return res.status(403).json({ code: 403, resultMessage: "FORBIDDEN" });
       }
 
-      console.log("User does not have required permissions to access");
-      return res.status(403).json({ code: 403, resultMessage: "FORBIDDEN" });
+      next();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        res.status(401).json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
-      } else {
-        console.error(error);
-        res.status(500).json({ code: 500, resultMessage: "INTERNAL_ERROR" });
-      }
+      console.error(
+        "Auth middleware error:",
+        error instanceof Error ? error.message : error
+      );
+      return res
+        .status(401)
+        .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
     }
   };
 };
