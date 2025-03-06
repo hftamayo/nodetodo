@@ -1,5 +1,4 @@
 import express, { Response } from "express";
-import validateAuthentication from "../middleware/validateAuth";
 import authorize from "../middleware/authorize";
 import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
@@ -81,19 +80,16 @@ const deleteTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
 todoRouter.get(
   "/list",
   authorize(DOMAINS.TODO, PERMISSIONS.READ),
-  validateAuthentication,
   getTodosHandler
 );
 todoRouter.get(
   "/task/:id",
   authorize(DOMAINS.TODO, PERMISSIONS.READ),
-  validateAuthentication,
   getTodoHandler
 );
 todoRouter.post(
   "/create",
   authorize(DOMAINS.TODO, PERMISSIONS.WRITE),
-  validateAuthentication,
   validator.createTodoRules,
   validateResult,
   newTodoHandler
@@ -101,7 +97,6 @@ todoRouter.post(
 todoRouter.patch(
   "/update/:id",
   authorize(DOMAINS.TODO, PERMISSIONS.UPDATE),
-  validateAuthentication,
   validator.updateTodoRules,
   validateResult,
   updateTodoHandler
@@ -109,7 +104,6 @@ todoRouter.patch(
 todoRouter.delete(
   "/delete/:id",
   authorize(DOMAINS.TODO, PERMISSIONS.DELETE),
-  validateAuthentication,
   deleteTodoHandler
 );
 
