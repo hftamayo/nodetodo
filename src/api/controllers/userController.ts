@@ -43,10 +43,10 @@ export default function userController(userService: UserServices) {
         const result: LoginResponse = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, user } = result;
 
-        if (httpStatusCode === 200) {
+        if (httpStatusCode === 200 && tokenCreated) {
           res.cookie("nodetodo", tokenCreated, {
             httpOnly: true,
-            maxAge: 360000,
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours,
             secure: cors_secure, // sent the cookie only if https is enabled
             sameSite: cors_samesite,
             path: "/",
