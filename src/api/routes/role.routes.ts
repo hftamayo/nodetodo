@@ -13,7 +13,6 @@ import {
 } from "../../types/role.types";
 import { AuthenticatedUserRequest } from "../../types/user.types";
 import { DOMAINS, PERMISSIONS } from "../../config/envvars";
-import validateAuthentication from "../middleware/validateAuth";
 
 const roleRouter = express.Router();
 
@@ -73,19 +72,16 @@ const deleteRoleHandler = (req: AuthenticatedUserRequest, res: Response) => {
 roleRouter.get(
   "/list",
   authorize(DOMAINS.ROLE, PERMISSIONS.READ),
-  validateAuthentication,
   getRolesHandler
 );
 roleRouter.get(
   "/role/:id",
   authorize(DOMAINS.ROLE, PERMISSIONS.READ),
-  validateAuthentication,
   getRoleHandler
 );
 roleRouter.post(
   "/create",
   authorize(DOMAINS.ROLE, PERMISSIONS.WRITE),
-  validateAuthentication,
   validator.createRoleRules,
   validateResult,
   newRoleHandler
@@ -93,7 +89,6 @@ roleRouter.post(
 roleRouter.patch(
   "/update/:id",
   authorize(DOMAINS.ROLE, PERMISSIONS.UPDATE),
-  validateAuthentication,
   validator.updateRoleRules,
   validateResult,
   updateRoleHandler
@@ -101,7 +96,6 @@ roleRouter.patch(
 roleRouter.delete(
   "/delete/:id",
   authorize(DOMAINS.ROLE, PERMISSIONS.DELETE),
-  validateAuthentication,
   deleteRoleHandler
 );
 
