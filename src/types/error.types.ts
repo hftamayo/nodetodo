@@ -27,4 +27,4 @@ export const ErrorTypes = {
   },
 } as const;
 
-type ErrorType = keyof typeof ErrorTypes;
+export type ErrorType = keyof typeof ErrorTypes;
