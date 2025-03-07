@@ -1,5 +1,5 @@
-import { ApiError, ErrorType, ErrorTypes } from "@/types/error.types";
-import { mode } from "@/config/envvars";
+import { ApiError, ErrorType, ErrorTypes } from "../../types/error.types";
+import { mode } from "../../config/envvars";
 
 export const createApiError = (
   type: ErrorType,
