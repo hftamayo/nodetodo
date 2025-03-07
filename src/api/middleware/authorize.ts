@@ -7,6 +7,7 @@ import {
 import User from "../../models/User";
 import Role from "../../models/Role";
 import { masterKey } from "../../config/envvars";
+import { createApiError } from "../../utils/error/errorLog";
 
 export function isAuthenticated(
   req: AuthenticatedUserRequest
@@ -23,10 +24,24 @@ const authorize = (domain?: string, requiredPermission?: number) => {
     const { cookies } = req;
     const token = cookies?.nodetodo;
 
-    if (!token || !masterKey) {
+    if (!token) {
+      const error = createApiError(
+        "NOT_AUTHORIZED",
+        "No token found in request"
+      );
       return res
-        .status(401)
-        .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+        .status(error.code)
+        .json({ code: error.code, resultMessage: error.resultMessage });
+    }
+
+    if (!masterKey) {
+      const error = createApiError(
+        "INTERNAL_ERROR",
+        "Master key not found in environment variables"
+      );
+      return res
+        .status(error.code)
+        .json({ code: error.code, resultMessage: error.resultMessage });
     }
 
     try {
@@ -35,9 +50,13 @@ const authorize = (domain?: string, requiredPermission?: number) => {
         | undefined;
 
       if (!decoded) {
+        const error = createApiError(
+          "NOT_AUTHORIZED",
+          "Token verification failed"
+        );
         return res
-          .status(401)
-          .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+          .status(error.code)
+          .json({ code: error.code, resultMessage: error.resultMessage });
       }
 
       const user = await User.findById(decoded.searchUser)
@@ -45,9 +64,14 @@ const authorize = (domain?: string, requiredPermission?: number) => {
         .exec();
 
       if (!user) {
+        const error = createApiError(
+          "NOT_AUTHORIZED",
+          "User not found",
+          `ID: ${decoded.searchUser}`
+        );
         return res
-          .status(401)
-          .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+          .status(error.code)
+          .json({ code: error.code, resultMessage: error.resultMessage });
       }
 
       // Set basic user info in request
@@ -65,16 +89,28 @@ const authorize = (domain?: string, requiredPermission?: number) => {
       const userRole = await Role.findById(user.role._id).exec();
 
       if (!userRole) {
+        const error = createApiError(
+          "NOT_AUTHORIZED",
+          "Role not found",
+          `User ID: ${user._id}`
+        );
+
         return res
-          .status(401)
-          .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+          .status(error.code)
+          .json({ code: error.code, resultMessage: error.resultMessage });
       }
 
       const domainPermissions = userRole.permissions.get(domain) ?? 0;
 
       if ((domainPermissions & requiredPermission) !== requiredPermission) {
-        console.log("User does not have required permissions to access");
-        return res.status(403).json({ code: 403, resultMessage: "FORBIDDEN" });
+        const error = createApiError(
+          "FORBIDDEN",
+          `Insufficient permissions`,
+          `User ${user._id} lacks permission ${requiredPermission} for domain ${domain}. Current permissions: ${domainPermissions}`
+        );
+        return res
+          .status(error.code)
+          .json({ code: error.code, resultMessage: error.resultMessage });
       }
 
       next();
