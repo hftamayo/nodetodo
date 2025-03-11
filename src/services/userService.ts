@@ -21,6 +21,7 @@ import {
   UpdateUserDetailsResponse,
   FilteredUpdateUser,
   ListUsersRequest,
+  JwtActiveSession,
 } from "../types/user.types";
 
 const signUpUser = async function (
@@ -122,12 +123,23 @@ const loginUser = async function (
         message: "BAD_CREDENTIALS",
       };
     }
-    const payload = { searchUser: searchUser._id };
+    const payload: JwtActiveSession = {
+      sub: searchUser._id.toString(),
+      role: searchUser.role.toString(),
+      sessionId: crypto.randomUUID(),
+      ver: "1.0",
+    };
 
-    const secretKey = masterKey ?? "";
+    if (!masterKey) {
+      return {
+        httpStatusCode: 500,
+        message: "INTERNAL_ERROR",
+      };
+    }
 
-    const token = jwt.sign(payload, secretKey, {
-      expiresIn: 360000,
+    const token = jwt.sign(payload, masterKey, {
+      expiresIn: 28800000, // 8 hours
+      algorithm: "HS256",
     });
 
     const { password, createdAt, updatedAt, ...filteredUser } =
