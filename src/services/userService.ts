@@ -3,6 +3,7 @@ import User from "../models/User";
 import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 import {
   SignUpRequest,
