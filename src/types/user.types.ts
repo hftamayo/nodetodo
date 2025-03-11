@@ -15,13 +15,19 @@ export type FullUser = {
 };
 
 export interface AuthenticatedUser {
-  id: string;
+  sub: string;
   role: string;
 }
 
 export interface AuthenticatedUserRequest extends Request {
   user?: AuthenticatedUser;
 }
+
+export type JwtActiveSession = JwtPayload &
+  AuthenticatedUser & {
+    sessionId: string;
+    ver: string;
+  };
 
 export type UserRequest = {
   id?: string;
@@ -40,10 +46,6 @@ export type SignUpRequest = UserRequest & {
 export type LoginRequest = {
   email: string;
   password: string;
-};
-
-export type JwtPayloadWithUserId = JwtPayload & {
-  userId: string;
 };
 
 export type ListUsersRequest = {
