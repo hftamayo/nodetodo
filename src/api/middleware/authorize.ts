@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { Response, NextFunction } from "express";
 import {
   AuthenticatedUserRequest,
-  JwtPayloadWithUserId,
+  JwtActiveSession,
 } from "../../types/user.types";
 import User from "../../models/User";
 import Role from "../../models/Role";
@@ -21,38 +21,74 @@ const authorize = (domain?: string, requiredPermission?: number) => {
     res: Response,
     next: NextFunction
   ) => {
+    console.log(`
+      [AUTH DEBUG]
+      Timestamp: ${new Date().toISOString()}
+      Path: ${req.path}
+      Method: ${req.method}
+      Domain: ${domain}
+      Required Permission: ${requiredPermission}
+      Cookie Present: ${!!req.cookies?.nodetodo}
+    `);
+
     const { cookies } = req;
     const token = cookies?.nodetodo;
 
     if (!token) {
       const error = createApiError(
         "NOT_AUTHORIZED",
-        "No token found in request"
+        "No token found in request",
+        `Path: ${req.path}, Method: ${req.method}`
       );
       return res
         .status(error.code)
-        .json({ code: error.code, resultMessage: error.resultMessage });
+        .json({ code: error.code, resultMessage: error });
     }
 
     if (!masterKey) {
       const error = createApiError(
         "INTERNAL_ERROR",
-        "Master key not found in environment variables"
+        "Master key not configured",
+        "Environment variable MASTER_KEY is missing"
       );
       return res
         .status(error.code)
-        .json({ code: error.code, resultMessage: error.resultMessage });
+        .json({ code: error.code, resultMessage: error });
     }
 
     try {
+      console.log(`
+        [TOKEN DEBUG]
+        Token: ${token.substring(0, 10)}...
+        MasterKey Present: ${!!masterKey}
+      `);
+
       const decoded = jwt.verify(token, masterKey) as
-        | JwtPayloadWithUserId
+        | JwtActiveSession
         | undefined;
 
-      if (!decoded) {
+      console.log(`
+          [DECODE DEBUG]
+          Decoded: ${JSON.stringify(decoded, null, 2)}
+          Has sub: ${!!decoded?.sub}
+          Has role: ${!!decoded?.role}
+          Has sessionId: ${!!decoded?.sessionId}
+          Has version: ${!!decoded?.ver}
+        `);
+
+      if (!decoded || !decoded.sub || !decoded.role || !decoded.sessionId) {
+        console.error(`
+          [TOKEN VALIDATION FAILED]
+          Timestamp: ${new Date().toISOString()}
+          Missing Fields: ${!decoded?.sub ? "sub," : ""} ${
+          !decoded?.role ? "role," : ""
+        } ${!decoded?.sessionId ? "sessionId" : ""}
+          Token Preview: ${token.substring(0, 10)}...
+        `);
+
         const error = createApiError(
           "NOT_AUTHORIZED",
-          "Token verification failed"
+          "Invalid token structure"
         );
         return res
           .status(error.code)
@@ -62,6 +98,13 @@ const authorize = (domain?: string, requiredPermission?: number) => {
       const user = await User.findById(decoded.searchUser)
         .populate("role")
         .exec();
+
+      console.log(`
+          [USER DEBUG]
+          User Found: ${!!user}
+          User ID: ${user?._id}
+          Role ID: ${user?.role?._id}
+        `);
 
       if (!user) {
         const error = createApiError(
@@ -76,7 +119,7 @@ const authorize = (domain?: string, requiredPermission?: number) => {
 
       // Set basic user info in request
       req.user = {
-        id: decoded.userId,
+        sub: decoded.sub,
         role: decoded.role,
       };
 
@@ -115,13 +158,21 @@ const authorize = (domain?: string, requiredPermission?: number) => {
 
       next();
     } catch (error: unknown) {
-      console.error(
-        "Auth middleware error:",
-        error instanceof Error ? error.message : error
+      const apiError = createApiError(
+        "NOT_AUTHORIZED",
+        "Authentication failed",
+        error instanceof Error ? error.message : String(error)
       );
+      console.error(`
+        [ERROR DEBUG]
+        Error Type: ${
+          error instanceof Error ? error.constructor.name : "Unknown"
+        }
+        Message: ${error instanceof Error ? error.message : String(error)}
+      `);
       return res
-        .status(401)
-        .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+        .status(apiError.code)
+        .json({ code: apiError.code, resultMessage: apiError });
     }
   };
 };
