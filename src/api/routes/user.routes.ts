@@ -45,7 +45,7 @@ const updateUserDetailsHandler = (
   res: Response
 ) => {
   const updateUserRequest: UpdateUserRequest = {
-    userId: req.user?.id ?? "",
+    userId: req.user?.sub ?? "",
     user: req.body,
   };
   controller.updateUserDetailsHandler(updateUserRequest, res);
@@ -56,7 +56,7 @@ const updateUserPasswordHandler = (
   res: Response
 ) => {
   const updateUserRequest: UpdateUserRequest = {
-    userId: req.user?.id ?? "",
+    userId: req.user?.sub ?? "",
     user: req.body,
   };
   controller.updateUserPasswordHandler(updateUserRequest, res);
