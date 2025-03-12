@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import {
   AuthenticatedUserRequest,
   ListUsersRequest,
@@ -74,7 +74,7 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        console.log(`LogFile: User ${req.user?.id} is logging out`);
+        console.log(`LogFile: User ${req.user?.sub} is logging out`);
         res.clearCookie("nodetodo");
         res.status(200).json({
           code: 200,
@@ -98,7 +98,7 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const userId = req.user?.id;
+        const userId = req.user?.sub;
         if (!userId) {
           return res
             .status(401)
@@ -132,7 +132,7 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const userId = req.user?.id;
+        const userId = req.user?.sub;
         if (!userId) {
           return res
             .status(401)
@@ -213,7 +213,7 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const userId = req.user?.id;
+        const userId = req.user?.sub;
         if (!userId) {
           return res
             .status(401)
