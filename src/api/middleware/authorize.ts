@@ -11,7 +11,7 @@ import { createApiError } from "../../utils/error/errorLog";
 
 export function isAuthenticated(
   req: AuthenticatedUserRequest
-): req is AuthenticatedUserRequest & { user: { id: string; role: string } } {
+): req is AuthenticatedUserRequest & { user: { sub: string; role: string } } {
   return req.user?.sub !== undefined;
 }
 
@@ -132,11 +132,10 @@ const authorize = (domain?: string, requiredPermission?: number) => {
         return next();
       }
 
-      if (domain && requiredPermission) {
-        // Fetch user's role with permissions
-        const userRole = await Role.findById(decoded.role).exec();
+      // Fetch user's role with permissions
+      const userRole = await Role.findById(decoded.role).exec();
 
-        console.log(`
+      console.log(`
           [PERMISSION DEBUG]
           Domain: ${domain}
           Required Permission: ${requiredPermission}
@@ -144,29 +143,28 @@ const authorize = (domain?: string, requiredPermission?: number) => {
           Role Permissions: ${userRole?.permissions?.get(domain)}
         `);
 
-        if (!userRole) {
-          const error = createApiError(
-            "NOT_AUTHORIZED",
-            "Invalid authentication credentials"
-          );
-          return res.status(error.code).json(error);
-        }
-
-        const domainPermissions = userRole.permissions.get(domain) ?? 0;
-
-        if ((domainPermissions & requiredPermission) !== requiredPermission) {
-          const error = createApiError(
-            "FORBIDDEN",
-            `Insufficient permissions`,
-            `User ${user._id} lacks permission ${requiredPermission} for domain ${domain}. Current permissions: ${domainPermissions}`
-          );
-          return res
-            .status(error.code)
-            .json({ code: error.code, resultMessage: error.resultMessage });
-        }
-
-        next();
+      if (!userRole) {
+        const error = createApiError(
+          "NOT_AUTHORIZED",
+          "Invalid authentication credentials"
+        );
+        return res.status(error.code).json(error);
       }
+
+      const domainPermissions = userRole.permissions.get(domain) ?? 0;
+
+      if ((domainPermissions & requiredPermission) !== requiredPermission) {
+        const error = createApiError(
+          "FORBIDDEN",
+          `Insufficient permissions`,
+          `User ${user._id} lacks permission ${requiredPermission} for domain ${domain}. Current permissions: ${domainPermissions}`
+        );
+        return res
+          .status(error.code)
+          .json({ code: error.code, resultMessage: error.resultMessage });
+      }
+
+      next();
     } catch (error: unknown) {
       const apiError = createApiError(
         "NOT_AUTHORIZED",
