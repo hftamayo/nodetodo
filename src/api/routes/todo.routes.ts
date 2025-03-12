@@ -19,7 +19,7 @@ const todoRouter = express.Router();
 const controller = todoController(todoService as TodoServices);
 
 const getTodosHandler = (req: AuthenticatedUserRequest, res: Response) => {
-  const owner = req.user!.id;
+  const owner = req.user!.sub;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const activeOnly = req.query.activeOnly === "true";
@@ -36,7 +36,7 @@ const getTodosHandler = (req: AuthenticatedUserRequest, res: Response) => {
 
 const getTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
   const listTodoByOwnerRequest: ListTodoByOwnerRequest = {
-    owner: req.user!.id,
+    owner: req.user!.sub,
     todoId: req.params.id,
   };
   controller.getTodoHandler(listTodoByOwnerRequest, res);
@@ -44,11 +44,11 @@ const getTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
 
 const newTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
   const newTodoRequest: NewTodoRequest = {
-    owner: req.user!.id,
+    owner: req.user!.sub,
     todo: {
       title: req.body.title,
       description: req.body.description,
-      owner: req.user!.id,
+      owner: req.user!.sub,
     },
   };
 
@@ -57,7 +57,7 @@ const newTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
 
 const updateTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
   const updateTodoRequest: UpdateTodoRequest = {
-    owner: req.user!.id,
+    owner: req.user!.sub,
     todo: {
       _id: req.params.id,
       title: req.body.title,
@@ -71,7 +71,7 @@ const updateTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
 
 const deleteTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
   const ownerTodoIdRequest: ListTodoByOwnerRequest = {
-    owner: req.user!.id,
+    owner: req.user!.sub,
     todoId: req.params.id,
   };
   controller.deleteTodoHandler(ownerTodoIdRequest, res);
