@@ -12,7 +12,7 @@ import { createApiError } from "../../utils/error/errorLog";
 export function isAuthenticated(
   req: AuthenticatedUserRequest
 ): req is AuthenticatedUserRequest & { user: { id: string; role: string } } {
-  return req.user?.id !== undefined;
+  return req.user?.sub !== undefined;
 }
 
 const authorize = (domain?: string, requiredPermission?: number) => {
