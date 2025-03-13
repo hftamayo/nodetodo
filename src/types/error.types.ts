@@ -2,6 +2,12 @@ export type ApiError = {
   code: number;
   resultMessage: string;
   debugMessage?: string;
+  timestamp: string;
+  path?: string;
+  method?: string;
+  domain?: string;
+  requiredPermission?: string;
+  cookiePresent: boolean;
 };
 
 export const ErrorTypes = {
