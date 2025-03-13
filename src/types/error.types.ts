@@ -1,13 +1,17 @@
-export type ApiError = {
-  code: number;
-  resultMessage: string;
-  debugMessage?: string;
-  timestamp: string;
+export type ErrorContext = {
   path?: string;
   method?: string;
   domain?: string;
   requiredPermission?: string;
   cookiePresent: boolean;
+};
+
+export type ApiError = {
+  code: number;
+  resultMessage: string;
+  timestamp: string;
+  debugMessage?: string;
+  context?: ErrorContext;
 };
 
 export const ErrorTypes = {
