@@ -1,3 +1,5 @@
+type LogLevel = "debug" | "info" | "error";
+
 export type ErrorContext = {
   path?: string;
   method?: string;
@@ -6,7 +8,15 @@ export type ErrorContext = {
   cookiePresent: boolean;
 };
 
+export type InformativeEvent = {
+  level: LogLevel;
+  section: string;
+  message: string;
+  context?: ErrorContext;
+};
+
 export type ApiError = {
+  level: LogLevel;
   code: number;
   resultMessage: string;
   timestamp: string;
