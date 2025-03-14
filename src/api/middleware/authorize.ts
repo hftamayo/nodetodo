@@ -37,8 +37,8 @@ const authorize = (domain?: string, requiredPermission?: number) => {
     if (!token) {
       const error = createApiError(
         "NOT_AUTHORIZED",
-        "No token found in request",
-        "authorize module: Token verification routine",
+        "malformed request",
+        "authorize module, Token verification routine: no token found",
         {
           path: req.path,
           method: req.method,
@@ -54,9 +54,16 @@ const authorize = (domain?: string, requiredPermission?: number) => {
 
     if (!masterKey) {
       const error = createApiError(
-        500,
-        "Master key not configured",
-        "Environment variable MASTER_KEY is missing"
+        "NOT_AUTHORIZED",
+        "malformed request",
+        "authorize module: masterKey stage: no masterKey present",
+        {
+          path: req.path,
+          method: req.method,
+          domain: "RBAC: authorize middleware",
+          requiredPermission: requiredPermission?.toString(),
+          cookiePresent: !!req.cookies?.nodetodo,
+        }
       );
       return res
         .status(error.code)
@@ -93,7 +100,18 @@ const authorize = (domain?: string, requiredPermission?: number) => {
           Token Preview: ${token.substring(0, 10)}...
         `);
 
-        const error = createApiError(401, "Invalid token structure");
+        const error = createApiError(
+          "NOT_AUTHORIZED",
+          "malformed request",
+          "authorize module: decoded stage: missing fields",
+          {
+            path: req.path,
+            method: req.method,
+            domain: "RBAC: authorize middleware",
+            requiredPermission: requiredPermission?.toString(),
+            cookiePresent: !!req.cookies?.nodetodo,
+          }
+        );
         return res
           .status(error.code)
           .json({ code: error.code, resultMessage: error.resultMessage });
@@ -118,7 +136,15 @@ const authorize = (domain?: string, requiredPermission?: number) => {
 
         const error = createApiError(
           "NOT_AUTHORIZED",
-          "Invalid authentication credentials"
+          "invalid request",
+          "authorize module: userVerif stage: no user found",
+          {
+            path: req.path,
+            method: req.method,
+            domain: "RBAC: authorize middleware",
+            requiredPermission: requiredPermission?.toString(),
+            cookiePresent: !!req.cookies?.nodetodo,
+          }
         );
         return res
           .status(error.code)
@@ -150,7 +176,15 @@ const authorize = (domain?: string, requiredPermission?: number) => {
       if (!userRole) {
         const error = createApiError(
           "NOT_AUTHORIZED",
-          "Invalid authentication credentials"
+          "insuficcients permissions",
+          "authorize module: rolesVerif stage: no role found",
+          {
+            path: req.path,
+            method: req.method,
+            domain: "RBAC: authorize middleware",
+            requiredPermission: requiredPermission?.toString(),
+            cookiePresent: !!req.cookies?.nodetodo,
+          }
         );
         return res.status(error.code).json(error);
       }
@@ -159,9 +193,16 @@ const authorize = (domain?: string, requiredPermission?: number) => {
 
       if ((domainPermissions & requiredPermission) !== requiredPermission) {
         const error = createApiError(
-          "FORBIDDEN",
-          `Insufficient permissions`,
-          `User ${user._id} lacks permission ${requiredPermission} for domain ${domain}. Current permissions: ${domainPermissions}`
+          "NOT_AUTHORIZED",
+          "insufficient permissions",
+          "authorize module: permission verif stage: insufficient permissions",
+          {
+            path: req.path,
+            method: req.method,
+            domain: "RBAC: authorize middleware",
+            requiredPermission: requiredPermission?.toString(),
+            cookiePresent: !!req.cookies?.nodetodo,
+          }
         );
         return res
           .status(error.code)
@@ -172,8 +213,15 @@ const authorize = (domain?: string, requiredPermission?: number) => {
     } catch (error: unknown) {
       const apiError = createApiError(
         "NOT_AUTHORIZED",
-        "Authentication failed",
-        error instanceof Error ? error.message : String(error)
+        "Authentication verif failed",
+        "authorize module: Catch block: session is not valid",
+        {
+          path: req.path,
+          method: req.method,
+          domain: "RBAC: authorize middleware",
+          requiredPermission: requiredPermission?.toString(),
+          cookiePresent: !!req.cookies?.nodetodo,
+        }
       );
       console.error(`
         [ERROR DEBUG]
