@@ -38,7 +38,14 @@ const authorize = (domain?: string, requiredPermission?: number) => {
       const error = createApiError(
         "NOT_AUTHORIZED",
         "No token found in request",
-        `Path: ${req.path}, Method: ${req.method}`
+        "authorize module: Token verification routine",
+        {
+          path: req.path,
+          method: req.method,
+          domain: "RBAC: authorize middleware",
+          requiredPermission: requiredPermission?.toString(),
+          cookiePresent: !!req.cookies?.nodetodo,
+        }
       );
       return res
         .status(error.code)
@@ -47,7 +54,7 @@ const authorize = (domain?: string, requiredPermission?: number) => {
 
     if (!masterKey) {
       const error = createApiError(
-        "INTERNAL_ERROR",
+        500,
         "Master key not configured",
         "Environment variable MASTER_KEY is missing"
       );
@@ -86,10 +93,7 @@ const authorize = (domain?: string, requiredPermission?: number) => {
           Token Preview: ${token.substring(0, 10)}...
         `);
 
-        const error = createApiError(
-          "NOT_AUTHORIZED",
-          "Invalid token structure"
-        );
+        const error = createApiError(401, "Invalid token structure");
         return res
           .status(error.code)
           .json({ code: error.code, resultMessage: error.resultMessage });
