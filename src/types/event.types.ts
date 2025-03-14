@@ -1,6 +1,6 @@
 type LogLevel = "debug" | "info" | "error";
 
-export type ErrorContext = {
+export type EventContext = {
   path?: string;
   method?: string;
   domain?: string;
@@ -12,16 +12,14 @@ export type InformativeEvent = {
   level: LogLevel;
   section: string;
   message: string;
-  context?: ErrorContext;
+  timestamp: string;
+  context?: EventContext;
 };
 
-export type ApiError = {
-  level: LogLevel;
+export type ErrorEvent = InformativeEvent & {
   code: number;
   resultMessage: string;
-  timestamp: string;
   debugMessage?: string;
-  context?: ErrorContext;
 };
 
 export const ErrorTypes = {
