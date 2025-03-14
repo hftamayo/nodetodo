@@ -1,4 +1,4 @@
-type LogLevel = "debug" | "info" | "error";
+export type LogLevel = "debug" | "info" | "error";
 
 export type EventContext = {
   path?: string;
