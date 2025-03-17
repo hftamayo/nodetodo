@@ -1,28 +1,30 @@
 import mongoose from "mongoose";
 
-const TodoSchema = new mongoose.Schema(
+const RoleSchema = new mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
       required: true,
+      unique: true,
     },
     description: {
       type: String,
       required: true,
     },
-    completed: {
+    status: {
       type: Boolean,
       required: true,
+      default: true,
     },
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    permissions: {
+      type: Map,
+      of: Number,
       required: true,
     },
   },
   { timestamps: true }
 );
 
-const Todo = mongoose.model("Todo", TodoSchema);
+const Role = mongoose.model("Role", RoleSchema);
 
-export default Todo;
+export default Role;

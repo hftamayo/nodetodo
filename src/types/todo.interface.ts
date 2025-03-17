@@ -15,6 +15,8 @@ interface TodoRequest {
   description: string;
   completed: boolean;
   user: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface NewTodoRequest {

@@ -1,25 +1,33 @@
 import mongoose from "mongoose";
 import Todo from "../models/Todo";
-import { TodoSeed } from "../types/todo.interface";
+import { FullTodo } from "../types/todo.types";
+import seedUsers from "./seedUsers";
 
-
-const todos: TodoSeed[] = [
-  {
-    _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1d"),
-    title: "Foreign language class",
-    description: "To learn a new language",
-    completed: false,
-    user: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1e"),
-  },
-];
-
-async function seedTodos() {
+async function seedTodos(session: mongoose.ClientSession) {
   try {
-    await Todo.deleteMany({});
-    const todosCreated = await Todo.create(todos);
+    const users = await seedUsers(session);
+    if (!users) {
+      throw new Error("Users not found in the database");
+    }
+    const userBob = users.find((user) => user.email === "bob@tamayo.com");
+    if (!userBob) {
+      throw new Error("User Bob not found in the database");
+    }
+
+    const todos: Omit<FullTodo, "_id">[] = [
+      {
+        title: "Foreign language class",
+        description: "To learn a new language",
+        completed: false,
+        owner: userBob._id,
+      },
+    ];
+
+    await Todo.deleteMany({}).session(session);
+    const todosCreated = await Todo.create(todos, { session });
     console.log("Todos created: ", todosCreated);
   } catch (error: unknown) {
-    if (error instanceof Error){
+    if (error instanceof Error) {
       console.error("seedTodos: ", error.message);
     } else {
       console.error("seedTodos: ", error);

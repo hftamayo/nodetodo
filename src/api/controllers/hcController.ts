@@ -1,29 +1,62 @@
 import { Request, Response } from "express";
 import { dbConnection } from "../../config/setup";
+import {
+  HealthCheckResponse,
+  AppHealthDetails,
+  DbHealthDetails,
+} from "@/types/hc.types";
+import os from "os";
 
 const hcController = {
   appHealthCheck: async function (req: Request, res: Response) {
-    res.status(200).json({
-      message: "HealthCheck: Application is up and running",
-      timestamp: new Date().toISOString(),
-    });
+    const result: HealthCheckResponse<AppHealthDetails> = {
+      code: res.statusCode,
+      status: "pass",
+      resultMessage: "Application is up and running",
+      details: {
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memoryUsage: {
+          total: os.totalmem(),
+          free: os.freemem(),
+        },
+      },
+    };
+    res.status(200).json(result);
   },
 
   dbHealthCheck: async function (req: Request, res: Response) {
+    const startTime = Date.now();
     try {
       await dbConnection();
-      res.status(200).json({
-        message:
-          "HealthCheck: The connection to the data layer is up and running",
-        timestamp: new Date().toISOString(),
-      });
+      const queryTime = Date.now() - startTime;
+
+      const result: HealthCheckResponse<DbHealthDetails> = {
+        code: res.statusCode,
+        status: queryTime < 100 ? "pass" : "warn",
+        resultMessage: "Database connection successful",
+        details: {
+          timestamp: new Date().toISOString(),
+          connectionTime: queryTime,
+          databaseStatus: "connected",
+        },
+      };
+
+      res.status(200).json(result);
     } catch (error: unknown) {
-      res.status(500).json({
-        message: "HealthCheck: The connection to the data layer is down",
-        timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : error,
-      });
+      const result: HealthCheckResponse<DbHealthDetails> = {
+        code: res.statusCode,
+        status: "fail",
+        resultMessage: "Database connection failed",
+        details: {
+          timestamp: new Date().toISOString(),
+          error: error instanceof Error ? error.message : String(error),
+        },
+      };
+
+      res.status(500).json(result);
     }
   },
 };
+
 export default hcController;
