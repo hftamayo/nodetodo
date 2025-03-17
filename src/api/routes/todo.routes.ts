@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Response } from "express";
 import authorize from "../middleware/authorize";
 import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
@@ -11,14 +11,15 @@ import {
   UpdateTodoRequest,
   TodoServices,
 } from "../../types/todo.types";
-import { UserIdRequest } from "../../types/user.types";
+import { AuthenticatedUserRequest } from "../../types/user.types";
+import { DOMAINS, PERMISSIONS } from "../../config/envvars";
 
 const todoRouter = express.Router();
 
 const controller = todoController(todoService as TodoServices);
 
-const getTodosHandler = (req: Request, res: Response) => {
-  const owner: UserIdRequest = { userId: req.body.userId };
+const getTodosHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  const owner = req.user!.sub;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const activeOnly = req.query.activeOnly === "true";
@@ -33,53 +34,77 @@ const getTodosHandler = (req: Request, res: Response) => {
   controller.getTodosHandler(listTodosByOwnerRequest, res);
 };
 
-const getTodoHandler = (req: Request, res: Response) => {
-  const ownerTodoIdRequest = req as unknown as ListTodoByOwnerRequest;
-  ownerTodoIdRequest.owner = { userId: req.body.userId };
-  ownerTodoIdRequest.params = { todoId: req.params.id };
-  controller.getTodoHandler(ownerTodoIdRequest, res);
+const getTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  const listTodoByOwnerRequest: ListTodoByOwnerRequest = {
+    owner: req.user!.sub,
+    todoId: req.params.id,
+  };
+  controller.getTodoHandler(listTodoByOwnerRequest, res);
 };
 
-const newTodoHandler = (req: Request, res: Response) => {
-  const NewTodoRequest = req.body as NewTodoRequest;
-  NewTodoRequest.owner = { userId: req.body.userId };
-  NewTodoRequest.todo = req.body;
+const newTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  const newTodoRequest: NewTodoRequest = {
+    owner: req.user!.sub,
+    todo: {
+      title: req.body.title,
+      description: req.body.description,
+      owner: req.user!.sub,
+    },
+  };
 
-  controller.newTodoHandler(NewTodoRequest, res);
+  controller.newTodoHandler(newTodoRequest, res);
 };
 
-const updateTodoHandler = (req: Request, res: Response) => {
-  const updateTodoRequest = req.body as UpdateTodoRequest;
-  updateTodoRequest.owner = { userId: req.body.userId };
-  updateTodoRequest.todo = req.body.todo;
-  updateTodoRequest.todo._id = req.params.id;
+const updateTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  const updateTodoRequest: UpdateTodoRequest = {
+    owner: req.user!.sub,
+    todo: {
+      _id: req.params.id,
+      title: req.body.title,
+      description: req.body.description,
+      completed: req.body.completed,
+    },
+  };
 
   controller.updateTodoHandler(updateTodoRequest, res);
 };
 
-const deleteTodoHandler = (req: Request, res: Response) => {
-  const ownerTodoIdRequest = req as unknown as ListTodoByOwnerRequest;
-  ownerTodoIdRequest.owner = { userId: req.body.userId };
-  ownerTodoIdRequest.params = { todoId: req.params.id };
+const deleteTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  const ownerTodoIdRequest: ListTodoByOwnerRequest = {
+    owner: req.user!.sub,
+    todoId: req.params.id,
+  };
   controller.deleteTodoHandler(ownerTodoIdRequest, res);
 };
 
-todoRouter.get("/list", authorize, getTodosHandler);
-todoRouter.get("/task/:id", authorize, getTodoHandler);
+todoRouter.get(
+  "/list",
+  authorize(DOMAINS.TODO, PERMISSIONS.READ),
+  getTodosHandler
+);
+todoRouter.get(
+  "/task/:id",
+  authorize(DOMAINS.TODO, PERMISSIONS.READ),
+  getTodoHandler
+);
 todoRouter.post(
   "/create",
-  authorize,
+  authorize(DOMAINS.TODO, PERMISSIONS.WRITE),
   validator.createTodoRules,
   validateResult,
   newTodoHandler
 );
 todoRouter.patch(
   "/update/:id",
-  authorize,
+  authorize(DOMAINS.TODO, PERMISSIONS.UPDATE),
   validator.updateTodoRules,
   validateResult,
   updateTodoHandler
 );
-todoRouter.delete("/delete/:id", authorize, deleteTodoHandler);
+todoRouter.delete(
+  "/delete/:id",
+  authorize(DOMAINS.TODO, PERMISSIONS.DELETE),
+  deleteTodoHandler
+);
 
 export default todoRouter;

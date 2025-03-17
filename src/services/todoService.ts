@@ -20,7 +20,7 @@ const listTodos = async function (
   try {
     const skip = (page - 1) * limit;
     const query: { owner: string; completed?: boolean } = {
-      owner: owner.userId,
+      owner: owner,
     };
 
     if (activeOnly) {
@@ -62,8 +62,7 @@ const listTodos = async function (
 const listTodoByID = async function (
   params: ListTodoByOwnerRequest
 ): Promise<ListTodoByOwnerResponse> {
-  const owner = params.owner.userId;
-  const todoId = params.params.todoId;
+  const { owner, todoId } = params;
 
   try {
     let searchTodo = await Todo.findById(todoId).exec();
@@ -101,8 +100,8 @@ const listTodoByID = async function (
 const createTodo = async function (
   params: NewTodoRequest
 ): Promise<CreateTodoResponse> {
-  const owner = params.owner.userId;
-  const { title, description } = params.todo;
+  const { owner, todo } = params;
+  const { title, description } = todo;
 
   if (!owner || !title || !description) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
@@ -147,16 +146,15 @@ const createTodo = async function (
 const updateTodoByID = async function (
   params: UpdateTodoRequest
 ): Promise<UpdateTodoResponse> {
-  const owner = params.owner.userId;
-  const todoId = params.todo._id;
-  const { title, description, completed } = params.todo;
+  const { owner, todo } = params;
+  const { _id, ...updates } = todo;
 
-  if (!owner || !todoId || (!title && !description && !completed)) {
+  if (!owner || !_id || Object.keys(updates).length === 0) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
   try {
-    let updateTodo = await Todo.findById(todoId).exec();
+    let updateTodo = await Todo.findById(_id).exec();
     if (!updateTodo) {
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
@@ -166,9 +164,11 @@ const updateTodoByID = async function (
         message: "FORBIDDEN",
       };
     }
-    updateTodo.title = title ?? "";
-    updateTodo.description = description ?? "";
-    updateTodo.completed = completed ?? false;
+    if (updates.title !== undefined) updateTodo.title = updates.title;
+    if (updates.description !== undefined)
+      updateTodo.description = updates.description;
+    if (updates.completed !== undefined)
+      updateTodo.completed = updates.completed;
     await updateTodo.save();
 
     const filteredTodo: FilteredTodo = {
@@ -197,22 +197,23 @@ const updateTodoByID = async function (
 const deleteTodoByID = async function (
   params: ListTodoByOwnerRequest
 ): Promise<DeleteTodoByIdResponse> {
-  const owner = params.owner;
-  const todoId = params.params.todoId;
+  const { owner, todoId } = params;
 
   try {
-    const deleteTodo = await Todo.findById(todoId);
-    if (!deleteTodo) {
+    let searchTodo = await Todo.findById(todoId).exec();
+
+    if (!searchTodo) {
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    if (deleteTodo.owner.toString() !== owner.userId.toString()) {
+
+    if (searchTodo.owner.toString() !== owner.toString()) {
       return {
         httpStatusCode: 401,
         message: "FORBIDDEN",
       };
     }
 
-    await deleteTodo.deleteOne();
+    await searchTodo.deleteOne();
     return { httpStatusCode: 200, message: "ENTITY_DELETED" };
   } catch (error: unknown) {
     if (error instanceof Error) {

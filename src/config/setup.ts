@@ -12,7 +12,10 @@ const dbConnection = async () => {
       console.log(`Connected to the Remote Dataset in ${mode} environment`);
     });
   } catch (error) {
-    console.log("Database connection error: " + (error as Error).message);
+    console.log(
+      "Fatal: could not connect with the data layer: " +
+        (error as Error).message
+    );
     process.exit(1);
   }
 };

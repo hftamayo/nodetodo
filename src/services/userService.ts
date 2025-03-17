@@ -1,13 +1,14 @@
+import Role from "../models/Role";
 import User from "../models/User";
 import Todo from "../models/Todo";
 import { masterKey } from "../config/envvars";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 import {
-  UserRequest,
+  SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
-  UserIdRequest,
   FullUser,
   FilteredSearchUsers,
   SignUpUserResponse,
@@ -21,17 +22,25 @@ import {
   UpdateUserDetailsResponse,
   FilteredUpdateUser,
   ListUsersRequest,
+  JwtActiveSession,
 } from "../types/user.types";
 
 const signUpUser = async function (
-  params: UserRequest
+  params: SignUpRequest
 ): Promise<SignUpUserResponse> {
-  const { name, email, password: plainPassword, age } = params;
+  const { name, email, password: plainPassword, repeatPassword, age } = params;
 
-  if (!name || !email || !plainPassword || !age) {
+  if (!name || !email || !plainPassword || !repeatPassword || !age) {
     return {
       httpStatusCode: 400,
       message: "MISSING_FIELDS",
+    };
+  }
+
+  if (plainPassword !== repeatPassword) {
+    return {
+      httpStatusCode: 400,
+      message: "PASSWORD_MISMATCH",
     };
   }
 
@@ -43,6 +52,15 @@ const signUpUser = async function (
         message: "EMAIL_EXISTS",
       };
     }
+
+    const finalUserRole = await Role.findOne({ name: "finaluser" }).exec();
+    if (!finalUserRole) {
+      return {
+        httpStatusCode: 500,
+        message: "ROLE_NOT_FOUND",
+      };
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(plainPassword, salt);
     searchUser = new User({
@@ -50,6 +68,8 @@ const signUpUser = async function (
       email,
       password: hashedPassword,
       age,
+      status: false,
+      role: finalUserRole._id,
     });
     await searchUser.save();
 
@@ -104,12 +124,23 @@ const loginUser = async function (
         message: "BAD_CREDENTIALS",
       };
     }
-    const payload = { searchUser: searchUser._id };
+    const payload: JwtActiveSession = {
+      sub: searchUser._id.toString(),
+      role: searchUser.role.toString(),
+      sessionId: crypto.randomUUID(),
+      ver: "1.0",
+    };
 
-    const secretKey = masterKey ?? "";
+    if (!masterKey) {
+      return {
+        httpStatusCode: 500,
+        message: "INTERNAL_ERROR",
+      };
+    }
 
-    const token = jwt.sign(payload, secretKey, {
-      expiresIn: 360000,
+    const token = jwt.sign(payload, masterKey, {
+      expiresIn: 28800000, // 8 hours
+      algorithm: "HS256",
     });
 
     const { password, createdAt, updatedAt, ...filteredUser } =
@@ -169,9 +200,8 @@ const listUsers = async function (
 };
 
 const listUserByID = async function (
-  params: UserIdRequest
+  userId: string
 ): Promise<SearchUserByIdResponse> {
-  const userId = params.userId;
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
@@ -200,9 +230,9 @@ const updateUserDetailsByID = async function (
   params: UpdateUserRequest
 ): Promise<UpdateUserDetailsResponse> {
   const { userId, user } = params;
-  const { name, email, age } = user;
+  const { ...updates } = user;
 
-  if (!name || !email || !age) {
+  if (Object.keys(updates).length === 0) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
@@ -211,16 +241,23 @@ const updateUserDetailsByID = async function (
     if (!searchUser) {
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    let checkIfUpdateEmailExists = await User.findOne({ email }).exec();
-    if (
-      checkIfUpdateEmailExists &&
-      checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()
-    ) {
-      return { httpStatusCode: 400, message: "EMAIL_EXISTS" };
+
+    if (updates.email !== undefined) {
+      let checkIfUpdateEmailExists = await User.findOne({
+        email: updates.email,
+      }).exec();
+      if (
+        checkIfUpdateEmailExists &&
+        checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()
+      ) {
+        return { httpStatusCode: 400, message: "EMAIL_EXISTS" };
+      }
     }
-    searchUser.name = name;
-    searchUser.email = email;
-    searchUser.age = age;
+
+    if (updates.name !== undefined) searchUser.name = updates.name;
+    if (updates.email !== undefined) searchUser.email = updates.email;
+    if (updates.age !== undefined) searchUser.age = updates.age;
+    if (updates.status !== undefined) searchUser.status = updates.status;
 
     await searchUser.save();
 
@@ -246,9 +283,9 @@ const updateUserPasswordByID = async function (
   params: UpdateUserRequest
 ): Promise<UpdateUserDetailsResponse> {
   const { userId, user } = params;
-  const { password: plainPassword, newPassword } = user;
+  const { password: plainPassword, updatePassword } = user;
 
-  if (!plainPassword || !newPassword) {
+  if (!plainPassword || !updatePassword) {
     return { httpStatusCode: 400, message: "MISSING_FIELDS" };
   }
 
@@ -265,7 +302,7 @@ const updateUserPasswordByID = async function (
       };
     }
     const salt = await bcrypt.genSalt(10);
-    searchUser.password = await bcrypt.hash(newPassword, salt);
+    searchUser.password = await bcrypt.hash(updatePassword, salt);
     await searchUser.save();
 
     const { password, createdAt, ...filteredUser } =
@@ -287,9 +324,8 @@ const updateUserPasswordByID = async function (
 };
 
 const deleteUserByID = async function (
-  params: UserIdRequest
+  userId: string
 ): Promise<DeleteUserByIdResponse> {
-  const userId = params.userId;
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {

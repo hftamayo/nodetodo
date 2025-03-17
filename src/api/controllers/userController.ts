@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import {
+  AuthenticatedUserRequest,
   ListUsersRequest,
-  UserRequest,
+  SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
-  UserIdRequest,
   SignUpUserResponse,
   LoginResponse,
   SearchUserByIdResponse,
@@ -17,7 +17,7 @@ import { cors_secure, cors_samesite } from "../../config/envvars";
 
 export default function userController(userService: UserServices) {
   return {
-    signUpHandler: async function (req: UserRequest, res: Response) {
+    signUpHandler: async function (req: SignUpRequest, res: Response) {
       try {
         const result: SignUpUserResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, user } = result;
@@ -43,10 +43,10 @@ export default function userController(userService: UserServices) {
         const result: LoginResponse = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, user } = result;
 
-        if (httpStatusCode === 200) {
+        if (httpStatusCode === 200 && tokenCreated) {
           res.cookie("nodetodo", tokenCreated, {
             httpOnly: true,
-            maxAge: 360000,
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours,
             secure: cors_secure, // sent the cookie only if https is enabled
             sameSite: cors_samesite,
             path: "/",
@@ -69,8 +69,12 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    logoutHandler: async function (req: Request, res: Response) {
+    logoutHandler: async function (
+      req: AuthenticatedUserRequest,
+      res: Response
+    ) {
       try {
+        console.log(`LogFile: User ${req.user?.sub} is logging out`);
         res.clearCookie("nodetodo");
         res.status(200).json({
           code: 200,
@@ -89,8 +93,17 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    listUsersHandler: async function (req: Request, res: Response) {
+    listUsersHandler: async function (
+      req: AuthenticatedUserRequest,
+      res: Response
+    ) {
       try {
+        const userId = req.user?.sub;
+        if (!userId) {
+          return res
+            .status(401)
+            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+        }
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const listUsersRequest: ListUsersRequest = { page, limit };
@@ -114,10 +127,19 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    listUserHandler: async function (req: UserIdRequest, res: Response) {
+    listUserHandler: async function (
+      req: AuthenticatedUserRequest,
+      res: Response
+    ) {
       try {
+        const userId = req.user?.sub;
+        if (!userId) {
+          return res
+            .status(401)
+            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+        }
         const result: SearchUserByIdResponse = await userService.listUserByID(
-          req
+          userId
         );
         const { httpStatusCode, message, user } = result;
         res
@@ -186,10 +208,19 @@ export default function userController(userService: UserServices) {
       }
     },
 
-    deleteUserHandler: async function (req: UserIdRequest, res: Response) {
+    deleteUserHandler: async function (
+      req: AuthenticatedUserRequest,
+      res: Response
+    ) {
       try {
+        const userId = req.user?.sub;
+        if (!userId) {
+          return res
+            .status(401)
+            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+        }
         const result: DeleteUserByIdResponse = await userService.deleteUserByID(
-          req
+          userId
         );
         const { httpStatusCode, message } = result;
 

@@ -1,11 +1,6 @@
+import { Request } from "express";
 import mongoose from "mongoose";
 import { JwtPayload } from "jsonwebtoken";
-
-export enum UserRole {
-  ADMIN = "administrator",
-  SUPERVISOR = "supervisor",
-  USER = "finaluser",
-}
 
 export type FullUser = {
   _id: mongoose.Types.ObjectId;
@@ -13,11 +8,26 @@ export type FullUser = {
   email: string;
   password: string;
   age: number;
-  role: UserRole;
+  role: mongoose.Types.ObjectId;
   status?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+}
+
+export interface AuthenticatedUserRequest extends Request {
+  user?: AuthenticatedUser;
+}
+
+export type JwtActiveSession = JwtPayload &
+  AuthenticatedUser & {
+    sessionId: string;
+    ver: string;
+  };
 
 export type UserRequest = {
   id?: string;
@@ -25,7 +35,12 @@ export type UserRequest = {
   email: string;
   age: number;
   password: string;
-  newPassword?: string;
+  updatePassword?: string;
+  status?: boolean;
+};
+
+export type SignUpRequest = UserRequest & {
+  repeatPassword: string;
 };
 
 export type LoginRequest = {
@@ -33,17 +48,9 @@ export type LoginRequest = {
   password: string;
 };
 
-export type JwtPayloadWithUserId = JwtPayload & {
-  userId: string;
-};
-
 export type ListUsersRequest = {
   page: number;
   limit: number;
-};
-
-export type UserIdRequest = {
-  userId: string;
 };
 
 export type UpdateUserRequest = {
@@ -63,7 +70,7 @@ export type FilteredSearchUsers = {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: mongoose.Types.ObjectId;
   status: boolean;
 };
 
@@ -119,16 +126,14 @@ export type DeleteUserByIdResponse = {
 export type UserServices = {
   signUpUser: (params: UserRequest) => Promise<SignUpUserResponse>;
   loginUser: (params: LoginRequest) => Promise<LoginResponse>;
-  logoutUser: (params: Request) => Promise<LogoutResponse>;
+  logoutUser: (params: AuthenticatedUserRequest) => Promise<LogoutResponse>;
   listUsers: (params: ListUsersRequest) => Promise<SearchUsersResponse>;
-  listUserByID: (params: UserIdRequest) => Promise<SearchUserByIdResponse>;
+  listUserByID: (params: string) => Promise<SearchUserByIdResponse>;
   updateUserDetailsByID: (
     params: UpdateUserRequest
   ) => Promise<UpdateUserDetailsResponse>;
   updateUserPasswordByID: (
     params: UpdateUserRequest
   ) => Promise<UpdateUserDetailsResponse>;
-  deleteUserByID: (
-    newDeleteUser: UserIdRequest
-  ) => Promise<DeleteUserByIdResponse>;
+  deleteUserByID: (params: string) => Promise<DeleteUserByIdResponse>;
 };

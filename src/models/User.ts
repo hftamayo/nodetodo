@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { UserRole } from "../types/user.types";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -21,10 +20,9 @@ const UserSchema = new mongoose.Schema(
       required: true,
     },
     role: {
-      type: String,
-      enum: Object.values(UserRole),
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Role",
       required: true,
-      default: UserRole.USER,
     },
     status: {
       type: Boolean,

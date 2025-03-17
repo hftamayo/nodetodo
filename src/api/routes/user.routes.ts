@@ -6,19 +6,20 @@ import validator from "../middleware/validator";
 import validateResult from "../middleware/validationResults";
 import rateLimiter from "../middleware/rateLimiter";
 import {
-  UserRequest,
+  AuthenticatedUserRequest,
+  SignUpRequest,
   LoginRequest,
-  UserIdRequest,
   UpdateUserRequest,
   UserServices,
 } from "../../types/user.types";
+import { DOMAINS, SYSTEM_PERMISSIONS, PERMISSIONS } from "../../config/envvars";
 
 const userRouter = express.Router();
 
 const controller = userController(userService as UserServices);
 
 const registerHandler = (req: Request, res: Response) => {
-  const userRequest: UserRequest = req.body;
+  const userRequest: SignUpRequest = req.body;
   controller.signUpHandler(userRequest, res);
 };
 
@@ -27,32 +28,42 @@ const loginHandler = (req: Request, res: Response) => {
   controller.loginHandler(loginRequest, res);
 };
 
-const logoutHandler = (req: Request, res: Response) => {
+const logoutHandler = (req: AuthenticatedUserRequest, res: Response) => {
   controller.logoutHandler(req, res);
 };
 
-const listUsersHandler = (req: Request, res: Response) => {
+const listUsersHandler = (req: AuthenticatedUserRequest, res: Response) => {
   controller.listUsersHandler(req, res);
 };
 
-const listUserHandler = (req: Request, res: Response) => {
-  const userIdRequest: UserIdRequest = { userId: req.body.userId };
-  controller.listUserHandler(userIdRequest, res);
+const listUserHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  controller.listUserHandler(req, res);
 };
 
-const updateUserDetailsHandler = (req: Request, res: Response) => {
-  const updateUserRequest: UpdateUserRequest = req.body;
+const updateUserDetailsHandler = (
+  req: AuthenticatedUserRequest,
+  res: Response
+) => {
+  const updateUserRequest: UpdateUserRequest = {
+    userId: req.user?.sub ?? "",
+    user: req.body,
+  };
   controller.updateUserDetailsHandler(updateUserRequest, res);
 };
 
-const updateUserPasswordHandler = (req: Request, res: Response) => {
-  const updateUserRequest: UpdateUserRequest = req.body;
+const updateUserPasswordHandler = (
+  req: AuthenticatedUserRequest,
+  res: Response
+) => {
+  const updateUserRequest: UpdateUserRequest = {
+    userId: req.user?.sub ?? "",
+    user: req.body,
+  };
   controller.updateUserPasswordHandler(updateUserRequest, res);
 };
 
-const deleteUserHandler = (req: Request, res: Response) => {
-  const userIdRequest: UserIdRequest = { userId: req.body.userId };
-  controller.deleteUserHandler(userIdRequest, res);
+const deleteUserHandler = (req: AuthenticatedUserRequest, res: Response) => {
+  controller.deleteUserHandler(req, res);
 };
 
 userRouter.post(
@@ -69,23 +80,39 @@ userRouter.post(
   validateResult,
   loginHandler
 );
-userRouter.post("/logout", authorize, logoutHandler);
-userRouter.get("/list", authorize, listUsersHandler);
-userRouter.get("/me", authorize, listUserHandler);
-userRouter.put(
+userRouter.post(
+  "/logout",
+  authorize(DOMAINS.SYSTEM, SYSTEM_PERMISSIONS.LOGOUT),
+  logoutHandler
+);
+userRouter.get(
+  "/list",
+  authorize(DOMAINS.USER, PERMISSIONS.READ),
+  listUsersHandler
+);
+userRouter.get(
+  "/me",
+  authorize(DOMAINS.USER, PERMISSIONS.READ),
+  listUserHandler
+);
+userRouter.patch(
   "/updatedetails",
-  authorize,
+  authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
   validator.updateDetailsRules,
   validateResult,
   updateUserDetailsHandler
 );
 userRouter.put(
   "/updatepassword",
-  authorize,
+  authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
   validator.updatePasswordRules,
   validateResult,
   updateUserPasswordHandler
 );
-userRouter.delete("/delete", authorize, deleteUserHandler);
+userRouter.delete(
+  "/delete",
+  authorize(DOMAINS.USER, PERMISSIONS.DELETE),
+  deleteUserHandler
+);
 
 export default userRouter;

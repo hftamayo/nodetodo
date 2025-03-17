@@ -42,3 +42,23 @@ export {
   supervisorpword,
   userpword,
 };
+
+export const PERMISSIONS = {
+  NONE: 0,
+  READ: 1,
+  WRITE: 2,
+  UPDATE: 4,
+  DELETE: 8,
+  ALL: 15,
+};
+
+export const SYSTEM_PERMISSIONS = {
+  LOGOUT: 1,
+};
+
+export const DOMAINS = {
+  USER: "user",
+  ROLE: "role",
+  TODO: "todo",
+  SYSTEM: "system",
+};

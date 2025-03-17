@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { UserIdRequest } from "./user.types";
+import { AuthenticatedUserRequest } from "./user.types";
 
 export type FullTodo = {
   _id: mongoose.Types.ObjectId;
@@ -15,32 +15,30 @@ type TodoRequest = {
   _id?: string;
   title: string;
   description: string;
-  completed: boolean;
+  completed?: boolean;
   owner: string;
 };
 
 export type NewTodoRequest = {
-  owner: UserIdRequest;
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
   todo: TodoRequest;
 };
 
 export type UpdateTodoRequest = {
-  owner: UserIdRequest;
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
   todo: Partial<TodoRequest>;
 };
 
 export type ListTodosByOwnerRequest = {
-  owner: UserIdRequest;
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
   page: number;
   limit: number;
   activeOnly?: boolean;
 };
 
 export type ListTodoByOwnerRequest = {
-  owner: UserIdRequest;
-  params: {
-    todoId: string;
-  };
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
+  todoId: string;
 };
 
 export type FilteredTodo = Omit<FullTodo, "createdAt" | "updatedAt">;
@@ -48,25 +46,25 @@ export type FilteredTodo = Omit<FullTodo, "createdAt" | "updatedAt">;
 export type CreateTodoResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: FullTodo;
+  todo?: FilteredTodo;
 };
 
 export type ListTodosByOwnerResponse = {
   httpStatusCode: number;
   message: string;
-  todos?: FullTodo[];
+  todos?: FilteredTodo[];
 };
 
 export type ListTodoByOwnerResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: FullTodo;
+  todo?: FilteredTodo;
 };
 
 export type UpdateTodoResponse = {
   httpStatusCode: number;
   message: string;
-  todo?: FullTodo;
+  todo?: FilteredTodo;
 };
 
 export type DeleteTodoByIdResponse = {

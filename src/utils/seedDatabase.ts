@@ -1,6 +1,6 @@
+import mongoose from "mongoose";
 import { mode, dataseeddev, dataseedprod } from "../config/envvars";
-import seedUsers from "./seedUsers";
-import todoUsers from "./seedTodos";
+import seedTodos from "./seedTodos";
 
 /*
 modules related to datasseeding just require integration testing
@@ -8,16 +8,18 @@ modules related to datasseeding just require integration testing
 
 async function seedDatabase() {
   const shouldSeedDatabase = dataseeddev === "true" || dataseedprod === "true";
-
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     if (shouldSeedDatabase) {
       console.log(`Seeding the database in ${mode} environment...`);
-      await seedUsers();
-      await todoUsers();
+      await seedTodos(session);
+      await session.commitTransaction();
     } else {
       console.log("No seeding required");
     }
   } catch (error: unknown) {
+    await session.abortTransaction();
     if (error instanceof Error) {
       console.error(
         "error in seeding database, impossible to continue: ",
@@ -30,6 +32,8 @@ async function seedDatabase() {
       );
     }
     process.exit(1);
+  } finally {
+    session.endSession();
   }
 }
 
