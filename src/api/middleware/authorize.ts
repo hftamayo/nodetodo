@@ -7,7 +7,7 @@ import {
 import User from "../../models/User";
 import Role from "../../models/Role";
 import { masterKey } from "../../config/envvars";
-import { createApiError } from "../../utils/error/errorLog";
+import { createLog, createApiError } from "../../utils/error/eventLog";
 
 export function isAuthenticated(
   req: AuthenticatedUserRequest
@@ -21,15 +21,13 @@ const authorize = (domain?: string, requiredPermission?: number) => {
     res: Response,
     next: NextFunction
   ) => {
-    console.log(`
-      [AUTH DEBUG]
-      Timestamp: ${new Date().toISOString()}
-      Path: ${req.path}
-      Method: ${req.method}
-      Domain: ${domain}
-      Required Permission: ${requiredPermission}
-      Cookie Present: ${!!req.cookies?.nodetodo}
-    `);
+    createLog("debug", "AUTH", "Authorization check started", {
+      path: req.path,
+      method: req.method,
+      domain: domain?.toString(),
+      requiredPermission: requiredPermission?.toString(),
+      cookiePresent: !!req.cookies?.nodetodo,
+    });
 
     const { cookies } = req;
     const token = cookies?.nodetodo;
@@ -71,34 +69,31 @@ const authorize = (domain?: string, requiredPermission?: number) => {
     }
 
     try {
-      console.log(`
-        [TOKEN DEBUG]
-        Token: ${token.substring(0, 10)}...
-        MasterKey Present: ${!!masterKey}
-      `);
+      createLog("debug", "TOKEN", "Token verification started", {
+        path: req.path,
+        method: req.method,
+        domain: "RBAC",
+        cookiePresent: true,
+      });
 
       const decoded = jwt.verify(token, masterKey) as
         | JwtActiveSession
         | undefined;
 
-      console.log(`
-          [DECODE DEBUG]
-          Decoded: ${JSON.stringify(decoded, null, 2)}
-          Has sub: ${!!decoded?.sub}
-          Has role: ${!!decoded?.role}
-          Has sessionId: ${!!decoded?.sessionId}
-          Has version: ${!!decoded?.ver}
-        `);
+      createLog("debug", "DECODE", "Token decoded successfully", {
+        path: req.path,
+        method: req.method,
+        domain: "RBAC",
+        cookiePresent: true,
+      });
 
       if (!decoded || !decoded.sub || !decoded.role || !decoded.sessionId) {
-        console.error(`
-          [TOKEN VALIDATION FAILED]
-          Timestamp: ${new Date().toISOString()}
-          Missing Fields: ${!decoded?.sub ? "sub," : ""} ${
-          !decoded?.role ? "role," : ""
-        } ${!decoded?.sessionId ? "sessionId" : ""}
-          Token Preview: ${token.substring(0, 10)}...
-        `);
+        createLog("error", "TOKEN", "Token validation failed", {
+          path: req.path,
+          method: req.method,
+          domain: "RBAC",
+          cookiePresent: true,
+        });
 
         const error = createApiError(
           "NOT_AUTHORIZED",
@@ -108,7 +103,6 @@ const authorize = (domain?: string, requiredPermission?: number) => {
             path: req.path,
             method: req.method,
             domain: "RBAC: authorize middleware",
-            requiredPermission: requiredPermission?.toString(),
             cookiePresent: !!req.cookies?.nodetodo,
           }
         );
@@ -119,20 +113,20 @@ const authorize = (domain?: string, requiredPermission?: number) => {
 
       const user = await User.findById(decoded.sub).populate("role").exec();
 
-      console.log(`
-        [USER LOOKUP DEBUG]
-        Searching for user ID: ${decoded.sub}
-        User found: ${!!user}
-        Role ID from token: ${decoded.role}
-        `);
+      createLog("debug", "USER", "User lookup completed", {
+        path: req.path,
+        method: req.method,
+        domain: "RBAC",
+        cookiePresent: true,
+      });
 
       if (!user) {
-        console.error(`
-          [USER LOOKUP FAILED]
-          Timestamp: ${new Date().toISOString()}
-          User ID attempted: ${decoded.sub}
-          Token valid but user not found
-        `);
+        createLog("error", "USER", "User not found", {
+          path: req.path,
+          method: req.method,
+          domain: "RBAC",
+          cookiePresent: true,
+        });
 
         const error = createApiError(
           "NOT_AUTHORIZED",
@@ -165,13 +159,13 @@ const authorize = (domain?: string, requiredPermission?: number) => {
       // Fetch user's role with permissions
       const userRole = await Role.findById(decoded.role).exec();
 
-      console.log(`
-          [PERMISSION DEBUG]
-          Domain: ${domain}
-          Required Permission: ${requiredPermission}
-          Role Found: ${!!userRole}
-          Role Permissions: ${userRole?.permissions?.get(domain)}
-        `);
+      createLog("debug", "PERMISSION", "Permission check", {
+        path: req.path,
+        method: req.method,
+        domain: domain?.toString(),
+        requiredPermission: requiredPermission?.toString(),
+        cookiePresent: true,
+      });
 
       if (!userRole) {
         const error = createApiError(
