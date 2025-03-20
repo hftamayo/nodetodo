@@ -1,6 +1,10 @@
 {
   "name": "nodetodo",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.11.0",
+    "npm": ">=10.2.0"
+  },  
   "description": "rest api for a todo application",
   "main": "server.ts",
   "type": "commonjs",
