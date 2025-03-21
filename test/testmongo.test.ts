@@ -3,6 +3,11 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 
 let mongoServer: MongoMemoryServer;
 
+/*
+MongoMemory needs these deps:
+openssl, libssl-dev
+*/
+
 beforeAll(async () => {
   // Create MongoDB instance
   mongoServer = await MongoMemoryServer.create({
@@ -37,4 +42,23 @@ afterAll(async () => {
   }
 });
 
-// Remove example test - this should be in a separate test file
+describe("MongoDB Memory Server", () => {
+  it("should connect to database and perform basic operations", async () => {
+    const testCollection = mongoose.connection.collection("test");
+
+    await testCollection.insertOne({ name: "test", value: 123 });
+
+    const doc = await testCollection.findOne({ name: "test" });
+
+    expect(doc).toBeDefined();
+    expect(doc?.name).toBe("test");
+    expect(doc?.value).toBe(123);
+
+    const count = await testCollection.countDocuments();
+    expect(count).toBe(1);
+
+    await testCollection.deleteMany({});
+    const newCount = await testCollection.countDocuments();
+    expect(newCount).toBe(0);
+  });
+});
