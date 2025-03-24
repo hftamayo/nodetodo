@@ -11,7 +11,8 @@
   "scripts": {
     "dev": "nodemon --exec ts-node server.ts",
     "lint": "eslint .",
-    "testenviro": "jest 'test/testframeenviro.test.ts'",
+    "test:health": "jest test/health --testPathPattern=health",
+    "pretest": "npm run test:health",
     "test": "jest",
     "integrationcontroller": "jest 'test/controllers/intcontroller.test.ts'",
     "integrationservice": "jest 'test/services/intservice.test.ts'",
