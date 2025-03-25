@@ -4,7 +4,7 @@
   "engines": {
     "node": ">=20.11.0",
     "npm": ">=10.2.0"
-  },  
+  },
   "description": "rest api for a todo application",
   "main": "server.ts",
   "type": "commonjs",
@@ -48,7 +48,7 @@
     "jest": "^29.7.0",
     "jest-mock-extended": "^4.0.0-beta1",
     "mongodb-memory-server": "^10.1.4",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.1.9",
     "sinon": "^17.0.1",
     "supertest": "^6.3.4",
     "ts-jest": "^29.1.5",
