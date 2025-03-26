@@ -13,7 +13,15 @@
     /* Language and Environment */
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@types/*": ["src/types/*"],
+      "@services/*": ["src/services/*"],
+      "@models/*": ["src/models/*"],
+      "@controllers/*": ["src/api/controllers/*"],
+      "@routes/*": ["src/api/routes/*"],
+      "@middleware/*": ["src/api/middleware/*"],
+      "@utils/*": ["src/utils/*"],
+      "@config/*": ["src/config/*"]
     },
     "outDir": "./dist",
     "rootDir": "./",
@@ -114,5 +122,5 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist", "test"]
 }
