@@ -9,7 +9,7 @@
   "main": "server.ts",
   "type": "commonjs",
   "scripts": {
-    "dev": "nodemon --exec ts-node server.ts",
+    "dev": "nodemon --exec ts-node src/server.ts",
     "lint": "eslint .",
     "test:health": "jest test/health --testPathPattern=health",
     "pretest": "npm run test:health",
@@ -18,7 +18,18 @@
     "integrationservice": "jest 'test/services/intservice.test.ts'",
     "e2e": "jest 'test/e2e/**/*.ts'",
     "build": "tsc",
-    "start": "ts-node server.ts"
+    "start": "node dist/server.js"
+  },
+  "_moduleAliases": {
+    "@": "dist",
+    "@config": "dist/config",
+    "@types": "dist/types",
+    "@services": "dist/services",
+    "@models": "dist/models",
+    "@controllers": "dist/api/controllers",
+    "@routes": "dist/api/routes",
+    "@middleware": "dist/api/middleware",
+    "@utils": "dist/utils"
   },
   "author": "Herbert Tamayo",
   "license": "ISC",
