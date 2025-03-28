@@ -6,10 +6,10 @@
     "npm": ">=10.2.0"
   },
   "description": "rest api for a todo application",
-  "main": "server.ts",
+  "main": "src/server.ts",
   "type": "commonjs",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "NODE_PATH=./src ts-node -r tsconfig-paths/register src/server.ts",
     "lint": "eslint .",
     "test:health": "jest test/health --testPathPattern=health",
     "pretest": "npm run test:health",
@@ -18,18 +18,18 @@
     "integrationservice": "jest 'test/services/intservice.test.ts'",
     "e2e": "jest 'test/e2e/**/*.ts'",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node -r module-alias/register dist/server.js"
   },
   "_moduleAliases": {
-    "@": "dist",
-    "@config": "dist/config",
-    "@types": "dist/types",
-    "@services": "dist/services",
-    "@models": "dist/models",
-    "@controllers": "dist/api/controllers",
-    "@routes": "dist/api/routes",
-    "@middleware": "dist/api/middleware",
-    "@utils": "dist/utils"
+    "@": "src",
+    "@config": "src/config",
+    "@types": "src/types",
+    "@services": "src/services",
+    "@models": "src/models",
+    "@controllers": "src/api/controllers",
+    "@routes": "src/api/routes",
+    "@middleware": "src/api/middleware",
+    "@utils": "src/utils"
   },
   "author": "Herbert Tamayo",
   "license": "ISC",
