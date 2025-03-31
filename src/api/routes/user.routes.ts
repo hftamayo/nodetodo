@@ -1,10 +1,10 @@
 import express, { Request, Response } from "express";
-import userController from "../controllers/userController";
-import userService from "../../services/userService";
-import authorize from "../middleware/authorize";
-import validator from "../middleware/validator";
-import validateResult from "../middleware/validationResults";
-import rateLimiter from "../middleware/rateLimiter";
+import userController from "@controllers/userController";
+import userService from "@services/userService";
+import authorize from "@middleware/authorize";
+import validator from "@middleware/validator";
+import validateResult from "@middleware/validationResults";
+import rateLimiter from "@middleware/rateLimiter";
 import {
   AuthenticatedUserRequest,
   SignUpRequest,
@@ -12,7 +12,7 @@ import {
   UpdateUserRequest,
   UserServices,
 } from "../../types/user.types";
-import { DOMAINS, SYSTEM_PERMISSIONS, PERMISSIONS } from "../../config/envvars";
+import { DOMAINS, SYSTEM_PERMISSIONS, PERMISSIONS } from "@config/envvars";
 
 const userRouter = express.Router();
 

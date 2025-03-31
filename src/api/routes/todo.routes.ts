@@ -1,9 +1,9 @@
 import express, { Response } from "express";
-import authorize from "../middleware/authorize";
-import validator from "../middleware/validator";
-import validateResult from "../middleware/validationResults";
-import todoService from "../../services/todoService";
-import todoController from "../controllers/todoController";
+import authorize from "@middleware/authorize";
+import validator from "@middleware/validator";
+import validateResult from "@middleware/validationResults";
+import todoService from "@services/todoService";
+import todoController from "@controllers/todoController";
 import {
   ListTodosByOwnerRequest,
   ListTodoByOwnerRequest,
@@ -12,7 +12,7 @@ import {
   TodoServices,
 } from "../../types/todo.types";
 import { AuthenticatedUserRequest } from "../../types/user.types";
-import { DOMAINS, PERMISSIONS } from "../../config/envvars";
+import { DOMAINS, PERMISSIONS } from "@config/envvars";
 
 const todoRouter = express.Router();
 
