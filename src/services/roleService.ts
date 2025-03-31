@@ -10,7 +10,7 @@ import {
   UpdateRoleRequest,
   UpdateRoleResponse,
 } from "@/types/role.types";
-import Role from "../models/Role";
+import Role from "@models/Role";
 
 const listRoles = async function (
   params: ListRolesRequest

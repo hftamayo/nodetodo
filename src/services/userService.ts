@@ -1,7 +1,7 @@
-import Role from "../models/Role";
-import User from "../models/User";
-import Todo from "../models/Todo";
-import { masterKey } from "../config/envvars";
+import Role from "@models/Role";
+import User from "@models/User";
+import Todo from "@models/Todo";
+import { masterKey } from "@config/envvars";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
@@ -23,7 +23,7 @@ import {
   FilteredUpdateUser,
   ListUsersRequest,
   JwtActiveSession,
-} from "../types/user.types";
+} from "@/types/user.types";
 
 const signUpUser = async function (
   params: SignUpRequest
