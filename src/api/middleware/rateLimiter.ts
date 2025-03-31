@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { mode } from "../../config/envvars";
+import { mode } from "@config/envvars";
 import rateLimit from "express-rate-limit";
 
 const signUpLimiter: RequestHandler = rateLimit({
