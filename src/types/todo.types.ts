@@ -20,24 +20,24 @@ type TodoRequest = {
 };
 
 export type NewTodoRequest = {
-  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["sub"];
   todo: TodoRequest;
 };
 
 export type UpdateTodoRequest = {
-  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["sub"];
   todo: Partial<TodoRequest>;
 };
 
 export type ListTodosByOwnerRequest = {
-  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["sub"];
   page: number;
   limit: number;
   activeOnly?: boolean;
 };
 
 export type ListTodoByOwnerRequest = {
-  owner: NonNullable<AuthenticatedUserRequest["user"]>["id"];
+  owner: NonNullable<AuthenticatedUserRequest["user"]>["sub"];
   todoId: string;
 };
 

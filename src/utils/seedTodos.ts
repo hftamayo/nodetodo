@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import Todo from "../models/Todo";
-import { FullTodo } from "../types/todo.types";
+import Todo from "@models/Todo";
+import { FullTodo } from "@/types/todo.types";
 import seedUsers from "./seedUsers";
 
 async function seedTodos(session: mongoose.ClientSession) {

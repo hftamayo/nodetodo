@@ -1,18 +1,19 @@
 import express, { Response } from "express";
-import authorize from "../middleware/authorize";
-import validator from "../middleware/validator";
-import validateResult from "../middleware/validationResults";
-import roleService from "../../services/roleService";
-import roleController from "../controllers/roleController";
+import authorize from "@middleware/authorize";
+import validator from "@middleware/validator";
+import validateResult from "@middleware/validationResults";
+import roleService from "@services/roleService";
+import roleController from "@controllers/roleController";
 import {
   ListRolesRequest,
   RoleIdRequest,
   NewRoleRequest,
   UpdateRoleRequest,
   RoleServices,
-} from "../../types/role.types";
-import { AuthenticatedUserRequest } from "../../types/user.types";
-import { DOMAINS, PERMISSIONS } from "../../config/envvars";
+} from "@/types/role.types";
+
+import { AuthenticatedUserRequest } from "@/types/user.types";
+import { DOMAINS, PERMISSIONS } from "@config/envvars";
 
 const roleRouter = express.Router();
 

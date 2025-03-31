@@ -1,4 +1,4 @@
-import Todo from "../models/Todo";
+import Todo from "@/models/Todo";
 import {
   FullTodo,
   NewTodoRequest,
@@ -11,7 +11,7 @@ import {
   UpdateTodoResponse,
   DeleteTodoByIdResponse,
   FilteredTodo,
-} from "../types/todo.types";
+} from "@/types/todo.types";
 
 const listTodos = async function (
   params: ListTodosByOwnerRequest
