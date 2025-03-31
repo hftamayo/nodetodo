@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { mode, dataseeddev, dataseedprod } from "../config/envvars";
+import { mode, dataseeddev, dataseedprod } from "@config/envvars";
 import seedTodos from "./seedTodos";
 
 /*

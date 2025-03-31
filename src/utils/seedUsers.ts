@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import User from "../models/User";
-import { FullUser } from "../types/user.types";
-import { adminpword, supervisorpword, userpword } from "../config/envvars";
+import User from "@models/User";
+import { FullUser } from "@/types/user.types";
+import { adminpword, supervisorpword, userpword } from "@config/envvars";
 import seedRoles from "./seedRoles";
 
 if (!adminpword || !supervisorpword || !userpword) {
