@@ -1,14 +1,14 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { dbConnection, setCorsEnviro } from "./config/setup";
-import { port, mode } from "./config/envvars";
+import { dbConnection, setCorsEnviro } from "@config/setup";
+import { port, mode } from "@config/envvars";
 
-import seedDatabase from "./utils/seedDatabase";
-import todosRoutes from "./api/routes/todo.routes";
-import rolesRoutes from "./api/routes/role.routes";
-import usersRoutes from "./api/routes/user.routes";
-import healthCheckRoutes from "./api/routes/hc.routes";
+import seedDatabase from "@utils/seedDatabase";
+import todosRoutes from "@routes/todo.routes";
+import rolesRoutes from "@routes/role.routes";
+import usersRoutes from "@routes/user.routes";
+import healthCheckRoutes from "@routes/hc.routes";
 
 const app = express();
 

@@ -1,13 +1,10 @@
 import jwt from "jsonwebtoken";
 import { Response, NextFunction } from "express";
-import {
-  AuthenticatedUserRequest,
-  JwtActiveSession,
-} from "../../types/user.types";
-import User from "../../models/User";
-import Role from "../../models/Role";
-import { masterKey } from "../../config/envvars";
-import { createLog, createApiError } from "../../utils/error/eventLog";
+import { AuthenticatedUserRequest, JwtActiveSession } from "@/types/user.types";
+import User from "@models/User";
+import Role from "@models/Role";
+import { masterKey } from "@config/envvars";
+import { createLog, createApiError } from "@utils/error/eventLog";
 
 export function isAuthenticated(
   req: AuthenticatedUserRequest

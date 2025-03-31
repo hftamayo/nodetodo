@@ -1,5 +1,5 @@
 import express from "express";
-import hcController from "../controllers/hcController";
+import hcController from "@controllers/hcController";
 
 const hcRouter = express.Router();
 

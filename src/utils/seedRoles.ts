@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import Role from "../models/Role";
-import { FullRole } from "../types/role.types";
-import { DOMAINS, PERMISSIONS, SYSTEM_PERMISSIONS } from "../config/envvars";
+import Role from "@models/Role";
+import { FullRole } from "@/types/role.types";
+import { DOMAINS, PERMISSIONS, SYSTEM_PERMISSIONS } from "@config/envvars";
 
 const roles: Omit<FullRole, "_id">[] = [
   {

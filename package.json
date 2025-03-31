@@ -6,10 +6,10 @@
     "npm": ">=10.2.0"
   },
   "description": "rest api for a todo application",
-  "main": "server.ts",
+  "main": "src/server.ts",
   "type": "commonjs",
   "scripts": {
-    "dev": "nodemon --exec ts-node server.ts",
+    "dev": "NODE_PATH=./src ts-node -r tsconfig-paths/register src/server.ts",
     "lint": "eslint .",
     "test:health": "jest test/health --testPathPattern=health",
     "pretest": "npm run test:health",
@@ -18,7 +18,18 @@
     "integrationservice": "jest 'test/services/intservice.test.ts'",
     "e2e": "jest 'test/e2e/**/*.ts'",
     "build": "tsc",
-    "start": "ts-node server.ts"
+    "start": "node -r module-alias/register dist/server.js"
+  },
+  "_moduleAliases": {
+    "@": "src",
+    "@config": "src/config",
+    "@types": "src/types",
+    "@services": "src/services",
+    "@models": "src/models",
+    "@controllers": "src/api/controllers",
+    "@routes": "src/api/routes",
+    "@middleware": "src/api/middleware",
+    "@utils": "src/utils"
   },
   "author": "Herbert Tamayo",
   "license": "ISC",
@@ -32,6 +43,7 @@
     "express-rate-limit": "^7.1.5",
     "express-validator": "^6.15.0",
     "jsonwebtoken": "^9.0.0",
+    "module-alias": "^2.2.3",
     "mongodb": "^5.6.0",
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0"
@@ -53,6 +65,7 @@
     "supertest": "^6.3.4",
     "ts-jest": "^29.1.5",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"
   }
 }
