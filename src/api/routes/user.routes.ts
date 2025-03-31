@@ -11,7 +11,7 @@ import {
   LoginRequest,
   UpdateUserRequest,
   UserServices,
-} from "../../types/user.types";
+} from "@/types/user.types";
 import { DOMAINS, SYSTEM_PERMISSIONS, PERMISSIONS } from "@config/envvars";
 
 const userRouter = express.Router();

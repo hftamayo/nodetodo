@@ -10,9 +10,9 @@ import {
   NewRoleRequest,
   UpdateRoleRequest,
   RoleServices,
-} from "../../types/role.types";
+} from "@/types/role.types";
 
-import { AuthenticatedUserRequest } from "../../types/user.types";
+import { AuthenticatedUserRequest } from "@/types/user.types";
 import { DOMAINS, PERMISSIONS } from "@config/envvars";
 
 const roleRouter = express.Router();

@@ -10,8 +10,8 @@ import {
   NewTodoRequest,
   UpdateTodoRequest,
   TodoServices,
-} from "../../types/todo.types";
-import { AuthenticatedUserRequest } from "../../types/user.types";
+} from "@/types/todo.types";
+import { AuthenticatedUserRequest } from "@/types/user.types";
 import { DOMAINS, PERMISSIONS } from "@config/envvars";
 
 const todoRouter = express.Router();
