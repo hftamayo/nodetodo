@@ -12,8 +12,8 @@ import {
   UpdateUserDetailsResponse,
   SearchUsersResponse,
   UserServices,
-} from "../../types/user.types";
-import { cors_secure, cors_samesite } from "../../config/envvars";
+} from "@/types/user.types";
+import { cors_secure, cors_samesite } from "@config/envvars";
 
 export default function userController(userService: UserServices) {
   return {

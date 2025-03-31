@@ -10,7 +10,7 @@ import {
   UpdateTodoResponse,
   DeleteTodoByIdResponse,
   TodoServices,
-} from "../../types/todo.types";
+} from "@/types/todo.types";
 
 export default function todoController(todoService: TodoServices) {
   return {
