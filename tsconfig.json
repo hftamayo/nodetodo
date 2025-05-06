@@ -11,19 +11,20 @@
     // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
 
     /* Language and Environment */
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@types/*": ["types/*"],
-      "@services/*": ["services/*"],
-      "@models/*": ["models/*"],
-      "@controllers/*": ["api/controllers/*"],
-      "@routes/*": ["api/routes/*"],
-      "@middleware/*": ["api/middleware/*"],
-      "@utils/*": ["utils/*"],
-      "@config/*": ["config/*"]
+      "@/*": ["src/*"],
+      "@types/*": ["src/types/*"],
+      "@services/*": ["src/services/*"],
+      "@models/*": ["src/models/*"],
+      "@controllers/*": ["src/api/controllers/*"],
+      "@routes/*": ["src/api/routes/*"],
+      "@middleware/*": ["src/api/middleware/*"],
+      "@utils/*": ["src/utils/*"],
+      "@config/*": ["src/config/*"],
+      "@test/*": ["test/*"]
     },
-    "rootDir": "./src",
+    //"rootDir": "./src",
     "outDir": "./dist",
     "moduleResolution": "node",
     "target": "es2017" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
@@ -121,6 +122,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test"]
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
