@@ -4,8 +4,8 @@ import {
   ListRolesRequest,
   RoleIdRequest,
   NewRoleRequest,
+  UpdateRoleRequest,
 } from "@/types/role.types";
-import { createRoleMock } from "@test/mocks/factories/createRoleMock";
 import { mockRolesData, expectedFilteredRoles } from "../mocks/role.mock";
 
 jest.mock("@/models/Role");
@@ -253,5 +253,153 @@ describe("Role Service - createRole", () => {
     expect(result.httpStatusCode).toBe(500);
     expect(result.message).toBe("UNKNOWN_ERROR");
     expect(result.role).toBeUndefined();
+  });
+});
+
+describe("Role Service - updateRoleByID", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should successfully update a role", async () => {
+    // Arrange
+    const existingRole = mockRolesData[0];
+    const mockExec = jest.fn().mockResolvedValue(existingRole);
+    (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const mockSave = jest
+      .spyOn(Role.prototype, "save")
+      .mockResolvedValue(existingRole as any);
+
+    const params: UpdateRoleRequest = {
+      role: {
+        _id: existingRole._id.toString(),
+        name: "Updated Role",
+        description: "Updated description",
+        status: false,
+        permissions: Object.fromEntries(
+          new Map([
+            ["users", 5],
+            ["roles", 3],
+          ])
+        ),
+      },
+    };
+
+    // Act
+    const result = await roleService.updateRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("ROLE_UPDATED");
+    expect(result.role).toBeDefined();
+    expect(result.role?.name).toBe(params.role.name);
+    expect(Role.findById).toHaveBeenCalledWith(params.role._id);
+    expect(mockSave).toHaveBeenCalled();
+  });
+
+  it("should return 404 when role is not found", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockResolvedValue(null);
+    (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const params: UpdateRoleRequest = {
+      role: {
+        _id: "non-existent-id",
+        name: "Updated Role",
+      },
+    };
+
+    // Act
+    const result = await roleService.updateRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(404);
+    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.role).toBeUndefined();
+  });
+
+  it("should return 400 when missing required fields", async () => {
+    // Arrange
+    const params: UpdateRoleRequest = {
+      role: {
+        _id: mockRolesData[0]._id.toString(),
+      },
+    };
+
+    // Act
+    const result = await roleService.updateRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(400);
+    expect(result.message).toBe("MISSING_FIELDS");
+    expect(result.role).toBeUndefined();
+  });
+
+  it("should return 400 when _id is missing", async () => {
+    // Arrange
+    const params: UpdateRoleRequest = {
+      role: {
+        name: "Updated Role",
+        description: "Updated description",
+      },
+    } as UpdateRoleRequest;
+
+    // Act
+    const result = await roleService.updateRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(400);
+    expect(result.message).toBe("MISSING_FIELDS");
+    expect(result.role).toBeUndefined();
+  });
+
+  it("should return 500 when database error occurs", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
+    (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const params: UpdateRoleRequest = {
+      role: {
+        _id: mockRolesData[0]._id.toString(),
+        name: "Updated Role",
+      },
+    };
+
+    // Act
+    const result = await roleService.updateRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(500);
+    expect(result.message).toBe("UNKNOWN_ERROR");
+    expect(result.role).toBeUndefined();
+  });
+
+  it("should update only provided fields", async () => {
+    // Arrange
+    const existingRole = mockRolesData[0];
+    const mockExec = jest.fn().mockResolvedValue({
+      ...existingRole,
+      save: jest.fn().mockResolvedValue(existingRole),
+    });
+    (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const params: UpdateRoleRequest = {
+      role: {
+        _id: existingRole._id.toString(),
+        name: "Updated Role",
+        // description and status not included
+      },
+    };
+
+    // Act
+    const result = await roleService.updateRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("ROLE_UPDATED");
+    expect(result.role?.name).toBe("Updated Role");
+    expect(result.role?.description).toBe(existingRole.description);
+    expect(result.role?.status).toBe(existingRole.status);
   });
 });
