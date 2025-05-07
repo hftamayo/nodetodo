@@ -1,4 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+export interface RoleDocument extends Document {
+  name: string;
+  description: string;
+  status: boolean;
+  permissions: Map<string, number>;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export type FullRole = {
   _id: mongoose.Types.ObjectId;
