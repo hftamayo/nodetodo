@@ -403,3 +403,67 @@ describe("Role Service - updateRoleByID", () => {
     expect(result.role?.status).toBe(existingRole.status);
   });
 });
+
+describe("Role Service - deleteRoleByID", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should successfully delete a role", async () => {
+    // Arrange
+    const existingRole = {
+      ...mockRolesData[0],
+      deleteOne: jest.fn().mockResolvedValue(undefined),
+    };
+    const mockExec = jest.fn().mockResolvedValue(existingRole);
+    (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const params: RoleIdRequest = {
+      roleId: existingRole._id.toString(),
+    };
+
+    // Act
+    const result = await roleService.deleteRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("ENTITY_DELETED");
+    expect(Role.findById).toHaveBeenCalledWith(params.roleId);
+    expect(existingRole.deleteOne).toHaveBeenCalled();
+  });
+
+  it("should return 404 when role is not found", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockResolvedValue(null);
+    (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const params: RoleIdRequest = {
+      roleId: "non-existent-id",
+    };
+
+    // Act
+    const result = await roleService.deleteRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(404);
+    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(Role.findById).toHaveBeenCalledWith(params.roleId);
+  });
+
+  it("should return 500 when database error occurs", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
+    (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const params: RoleIdRequest = {
+      roleId: mockRolesData[0]._id.toString(),
+    };
+
+    // Act
+    const result = await roleService.deleteRoleByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(500);
+    expect(result.message).toBe("UNKNOWN_ERROR");
+  });
+});
