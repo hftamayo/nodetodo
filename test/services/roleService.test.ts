@@ -159,12 +159,10 @@ describe("Role Service - createRole", () => {
     const mockFindOneExec = jest.fn().mockResolvedValue(null);
     (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-    const mockRole = createRoleMock(mockRolesData[0]);
+    const mockRole = mockRolesData[0];
     const mockSave = jest
       .spyOn(Role.prototype, "save")
-      .mockResolvedValue(mockRole);
-    jest.spyOn(Role.prototype, "save").mockResolvedValue(mockRole);
-    jest.spyOn(Role, "create").mockResolvedValue(mockRole);
+      .mockResolvedValue(mockRole as any);
 
     const params: NewRoleRequest = {
       role: {
@@ -235,9 +233,9 @@ describe("Role Service - createRole", () => {
     const mockFindOneExec = jest.fn().mockResolvedValue(null);
     (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-    const mockRole = createRoleMock(mockRolesData[0]);
-    jest.spyOn(Role.prototype, "save").mockResolvedValue(mockRole);
-    jest.spyOn(Role, "create").mockResolvedValue(mockRole);
+    const mockRole = mockRolesData[0]; // Use direct data instead
+    jest.spyOn(Role.prototype, "save").mockResolvedValue(mockRole as any);
+    jest.spyOn(Role, "create").mockResolvedValue(mockRole as any);
 
     const params: NewRoleRequest = {
       role: {
