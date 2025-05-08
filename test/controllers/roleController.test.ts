@@ -1,39 +1,28 @@
 import { Response } from "express";
-import {
-  RoleServices,
-  ListRolesRequest,
-  RoleIdRequest,
-  NewRoleRequest,
-  UpdateRoleRequest,
-  ListRolesResponse,
-  ListRoleResponse,
-  CreateRoleResponse,
-  UpdateRoleResponse,
-  DeleteRoleResponse,
-} from "@/types/role.types";
+import { RoleServices, ListRolesRequest } from "@/types/role.types";
 import roleController from "@/api/controllers/roleController";
 import { mockRolesData } from "@test/mocks/role.mock";
 
-describe("Role Controller - Unit Tests", () => {
-  let req: ListRolesRequest;
-  let res: Response;
-  let listRolesStub: jest.Mock;
-  let listRoleByIDStub: jest.Mock;
-  let createRoleStub: jest.Mock;
-  let updateRoleStub: jest.Mock;
-  let deleteRoleStub: jest.Mock;
-  let controller: ReturnType<typeof roleController>;
-  let mockRoleService: RoleServices;
+type MockedRoleServices = {
+  [K in keyof RoleServices]: jest.Mock<
+    ReturnType<RoleServices[K]>,
+    Parameters<RoleServices[K]>
+  >;
+};
 
-  beforeEach(() => {
-    // Response setup
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    } as unknown as Response;
+// Factory function to create mock response
+const createMockResponse = () =>
+  ({
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  } as unknown as Response);
 
-    // Stub implementations
-    listRolesStub = jest.fn().mockImplementation((params) => {
+// Factory function to create mock role service
+const createMockRoleService = (
+  overrides: Partial<MockedRoleServices> = {}
+): MockedRoleServices => {
+  const defaultService: MockedRoleServices = {
+    listRoles: jest.fn().mockImplementation((params) => {
       if (params.page && params.limit) {
         return Promise.resolve({
           httpStatusCode: 200,
@@ -45,9 +34,8 @@ describe("Role Controller - Unit Tests", () => {
         httpStatusCode: 404,
         message: "ROLES_NOT_FOUND",
       });
-    });
-
-    listRoleByIDStub = jest.fn().mockImplementation((params) => {
+    }),
+    listRoleByID: jest.fn().mockImplementation((params) => {
       if (params.roleId === mockRolesData[0]._id.toString()) {
         return Promise.resolve({
           httpStatusCode: 200,
@@ -59,9 +47,8 @@ describe("Role Controller - Unit Tests", () => {
         httpStatusCode: 404,
         message: "ENTITY_NOT_FOUND",
       });
-    });
-
-    createRoleStub = jest.fn().mockImplementation((params) => {
+    }),
+    createRole: jest.fn().mockImplementation((params) => {
       if (params.role.name === mockRolesData[0].name) {
         return Promise.resolve({
           httpStatusCode: 400,
@@ -73,9 +60,8 @@ describe("Role Controller - Unit Tests", () => {
         message: "ROLE_CREATED",
         role: params.role,
       });
-    });
-
-    updateRoleStub = jest.fn().mockImplementation((params) => {
+    }),
+    updateRoleByID: jest.fn().mockImplementation((params) => {
       if (params.role._id === mockRolesData[0]._id.toString()) {
         return Promise.resolve({
           httpStatusCode: 200,
@@ -87,9 +73,8 @@ describe("Role Controller - Unit Tests", () => {
         httpStatusCode: 404,
         message: "ENTITY_NOT_FOUND",
       });
-    });
-
-    deleteRoleStub = jest.fn().mockImplementation((params) => {
+    }),
+    deleteRoleByID: jest.fn().mockImplementation((params) => {
       if (params.roleId === mockRolesData[0]._id.toString()) {
         return Promise.resolve({
           httpStatusCode: 200,
@@ -100,18 +85,22 @@ describe("Role Controller - Unit Tests", () => {
         httpStatusCode: 404,
         message: "ENTITY_NOT_FOUND",
       });
-    });
+    }),
+  };
 
-    // Service setup
-    mockRoleService = {
-      listRoles: listRolesStub,
-      listRoleByID: listRoleByIDStub,
-      createRole: createRoleStub,
-      updateRoleByID: updateRoleStub,
-      deleteRoleByID: deleteRoleStub,
-    };
+  return { ...defaultService, ...overrides };
+};
 
-    controller = roleController(mockRoleService);
+describe("Role Controller - Unit Tests", () => {
+  let req: ListRolesRequest;
+  let res: Response;
+  let mockRoleService: MockedRoleServices;
+  let controller: ReturnType<typeof roleController>;
+
+  beforeEach(() => {
+    res = createMockResponse();
+    mockRoleService = createMockRoleService();
+    controller = roleController(mockRoleService as unknown as RoleServices);
   });
 
   afterEach(() => {
@@ -136,7 +125,7 @@ describe("Role Controller - Unit Tests", () => {
         resultMessage: "ROLES_FOUND",
         roles: mockRolesData,
       });
-      expect(listRolesStub).toHaveBeenCalledWith(req);
+      expect(mockRoleService.listRoles).toHaveBeenCalledWith(req);
     });
 
     it("should return 404 when no roles found", async () => {
@@ -155,7 +144,7 @@ describe("Role Controller - Unit Tests", () => {
         code: 404,
         resultMessage: "ROLES_NOT_FOUND",
       });
-      expect(listRolesStub).toHaveBeenCalledWith(req);
+      expect(mockRoleService.listRoles).toHaveBeenCalledWith(req);
     });
 
     it("should handle service errors", async () => {
@@ -164,7 +153,9 @@ describe("Role Controller - Unit Tests", () => {
         page: 1,
         limit: 10,
       };
-      listRolesStub.mockRejectedValueOnce(new Error("Database error"));
+      mockRoleService.listRoles.mockRejectedValueOnce(
+        new Error("Database error")
+      );
 
       // Act
       await controller.getRolesHandler(req, res);
@@ -173,6 +164,290 @@ describe("Role Controller - Unit Tests", () => {
       const consoleErrorSpy = jest.spyOn(console, "error");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("roleController, getRoles:")
+      );
+    });
+  });
+
+  describe("getRoleHandler", () => {
+    it("should return role when found", async () => {
+      // Arrange
+      const req = {
+        roleId: mockRolesData[0]._id.toString(),
+      };
+
+      // Act
+      await controller.getRoleHandler(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 200,
+        resultMessage: "ENTITY_FOUND",
+        role: mockRolesData[0],
+      });
+      expect(mockRoleService.listRoleByID).toHaveBeenCalledWith(req);
+    });
+
+    it("should return 404 when role not found", async () => {
+      // Arrange
+      const req = {
+        roleId: "non-existent-id",
+      };
+
+      // Act
+      await controller.getRoleHandler(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 404,
+        resultMessage: "ENTITY_NOT_FOUND",
+      });
+      expect(mockRoleService.listRoleByID).toHaveBeenCalledWith(req);
+    });
+
+    it("should handle service errors", async () => {
+      // Arrange
+      const req = {
+        roleId: mockRolesData[0]._id.toString(),
+      };
+      mockRoleService.listRoleByID.mockRejectedValueOnce(
+        new Error("Database error")
+      );
+
+      // Act
+      await controller.getRoleHandler(req, res);
+
+      // Assert
+      const consoleErrorSpy = jest.spyOn(console, "error");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("roleController, getRole:")
+      );
+    });
+  });
+
+  describe("newRoleHandler", () => {
+    it("should create role successfully", async () => {
+      // Arrange
+      const newRole = {
+        name: "New Role",
+        description: "A new role description",
+        status: true,
+        permissions: {
+          user: 1,
+          role: 2,
+        },
+      };
+      const req = {
+        role: newRole,
+      };
+
+      // Act
+      await controller.newRoleHandler(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 201,
+        resultMessage: "ROLE_CREATED",
+        role: newRole,
+      });
+      expect(mockRoleService.createRole).toHaveBeenCalledWith(req);
+    });
+
+    it("should return 400 when role already exists", async () => {
+      // Arrange
+      const req = {
+        role: {
+          name: mockRolesData[0].name,
+          description: "Some description",
+          status: true,
+          permissions: {
+            user: 1,
+            role: 2,
+          },
+        },
+      };
+
+      // Act
+      await controller.newRoleHandler(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 400,
+        resultMessage: "ROLE_ALREADY_EXISTS",
+      });
+      expect(mockRoleService.createRole).toHaveBeenCalledWith(req);
+    });
+
+    it("should handle service errors", async () => {
+      // Arrange
+      const req = {
+        role: {
+          name: "New Role",
+          description: "Some description",
+          status: true,
+          permissions: {
+            user: 1,
+            role: 2,
+          },
+        },
+      };
+      mockRoleService.createRole.mockRejectedValueOnce(
+        new Error("Database error")
+      );
+
+      // Act
+      await controller.newRoleHandler(req, res);
+
+      // Assert
+      const consoleErrorSpy = jest.spyOn(console, "error");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("roleController, newRole:")
+      );
+    });
+  });
+
+  describe("updateRoleHandler", () => {
+    it("should update role successfully", async () => {
+      // Arrange
+      const updatedRole = {
+        _id: mockRolesData[0]._id.toString(),
+        name: "Updated Role",
+        description: "Updated description",
+        status: true,
+        permissions: {
+          user: 1,
+          role: 2,
+        },
+      };
+      const req = {
+        role: updatedRole,
+      };
+
+      // Act
+      await controller.updateRoleHandler(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 200,
+        resultMessage: "ROLE_UPDATED",
+        role: updatedRole,
+      });
+      expect(mockRoleService.updateRoleByID).toHaveBeenCalledWith(req);
+    });
+
+    it("should return 404 when role not found", async () => {
+      // Arrange
+      const req = {
+        role: {
+          _id: "non-existent-id",
+          name: "Some Role",
+          description: "Some description",
+          status: true,
+          permissions: {
+            user: 1,
+            role: 2,
+          },
+        },
+      };
+
+      // Act
+      await controller.updateRoleHandler(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 404,
+        resultMessage: "ENTITY_NOT_FOUND",
+      });
+      expect(mockRoleService.updateRoleByID).toHaveBeenCalledWith(req);
+    });
+
+    it("should handle service errors", async () => {
+      // Arrange
+      const req = {
+        role: {
+          _id: mockRolesData[0]._id.toString(),
+          name: "Updated Role",
+          description: "Updated description",
+          status: true,
+          permissions: {
+            user: 1,
+            role: 2,
+          },
+        },
+      };
+      mockRoleService.updateRoleByID.mockRejectedValueOnce(
+        new Error("Database error")
+      );
+
+      // Act
+      await controller.updateRoleHandler(req, res);
+
+      // Assert
+      const consoleErrorSpy = jest.spyOn(console, "error");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("roleController, updateRole:")
+      );
+    });
+  });
+
+  describe("deleteRoleHandler", () => {
+    it("should delete role successfully", async () => {
+      // Arrange
+      const req = {
+        roleId: mockRolesData[0]._id.toString(),
+      };
+
+      // Act
+      await controller.deleteRoleHandler(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 200,
+        resultMessage: "ENTITY_DELETED",
+      });
+      expect(mockRoleService.deleteRoleByID).toHaveBeenCalledWith(req);
+    });
+
+    it("should return 404 when role not found", async () => {
+      // Arrange
+      const req = {
+        roleId: "non-existent-id",
+      };
+
+      // Act
+      await controller.deleteRoleHandler(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 404,
+        resultMessage: "ENTITY_NOT_FOUND",
+      });
+      expect(mockRoleService.deleteRoleByID).toHaveBeenCalledWith(req);
+    });
+
+    it("should handle service errors", async () => {
+      // Arrange
+      const req = {
+        roleId: mockRolesData[0]._id.toString(),
+      };
+      mockRoleService.deleteRoleByID.mockRejectedValueOnce(
+        new Error("Database error")
+      );
+
+      // Act
+      await controller.deleteRoleHandler(req, res);
+
+      // Assert
+      const consoleErrorSpy = jest.spyOn(console, "error");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("roleController, deleteRole:")
       );
     });
   });
