@@ -1,443 +1,403 @@
+import { mongo } from "mongoose";
+import Todo from "@/models/Todo";
+import { mockTodoRoleUser, mockTodoRoleSupervisor } from "../mocks/todo.mock";
+import { mockUserRoleUser, mockUserRoleSupervisor } from "../mocks/user.mock";
 import {
-  mockTodoRoleUser,
-  mockTodoRoleSupervisor,
-  mockTodoForUpdate,
-  mockDeleteTodo,
-  mockInvalidTodo,
-} from "../mocks/todo.mock";
-import {
-  mockUserInvalid,
-  mockUserRoleUser,
-  mockUserRoleSupervisor,
-} from "../mocks/user.mock";
-import {
+  ListTodosByOwnerRequest,
+  ListTodoByOwnerRequest,
   NewTodoRequest,
   UpdateTodoRequest,
-  OwnerTodoIdRequest,
-} from "../../src/types/todo.interface";
-import { UserIdRequest } from "../../src/types/user.interface";
-import todoService from "../../src/services/todoService";
-import { todo } from "node:test";
+} from "@/types/todo.types";
+import todoService from "@/services/todoService";
 
-jest.mock("../../src/services/todoService", () => ({
-  listActiveTodos: jest.fn((userIdRequest) => {
-    if (userIdRequest.userId === mockUserInvalid.id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "No active tasks found for active user",
-        todos: [],
-      });
-    } else {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Tasks found",
-        todos: [mockTodoRoleUser],
-      });
-    }
-  }),
-
-  listTodoByID: jest.fn((mockRequest) => {
-    if (mockRequest.user.userId === mockTodoRoleSupervisor._id.toString()) {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Todo found",
-        todo: {
-          ...mockTodoRoleSupervisor,
-          _id: mockTodoRoleSupervisor._id.toString(),
-        },
-      });
-    } else if (mockRequest.params.todoId === mockInvalidTodo._id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "Todo Not Found",
-      });
-    } else {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "Invalid credentials",
-      });
-    }
-  }),
-
-  createTodo: jest.fn((requestBody: NewTodoRequest) => {
-    if (requestBody.todo.title === mockTodoRoleUser.title) {
-      return Promise.resolve({
-        httpStatusCode: 400,
-        message: "Title already taken",
-      });
-    } else {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Todo created successfully",
-      });
-    }
-  }),
-
-  updateTodoByID: jest.fn((requestBody: UpdateTodoRequest) => {
-    if (requestBody.todo._id === mockTodoForUpdate._id.toString()) {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Todo updated successfully",
-      });
-    } else if (requestBody.todo._id === mockInvalidTodo._id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "Todo Not Found",
-      });
-    } else {
-      return Promise.resolve({
-        httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
-      });
-    }
-  }),
-
-  deleteTodoByID: jest.fn((owner: OwnerTodoIdRequest) => {
-    const requestUserId = owner.user.userId;
-    const requestTodoId = owner.params.todoId;
-    if (requestTodoId === mockDeleteTodo._id.toString()) {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Todo Deleted Successfully",
-      });
-    } else if (requestTodoId === mockInvalidTodo._id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "Todo Not Found",
-      });
-    } else if (requestUserId === mockUserInvalid.id) {
-      return Promise.resolve({
-        httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
-      });
-    }
-  }),
-}));
+jest.mock("@/models/Todo");
 
 describe("TodoService Unit Tests", () => {
-  afterEach(function () {
-    jest.restoreAllMocks();
+  const mockTodoModel = Todo as jest.Mocked<typeof Todo>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  describe("listActiveTodos()", () => {
-    it("should return a list of todos", async () => {
-      const userId = mockUserRoleUser._id.toString();
-
-      const userIdRequest: UserIdRequest = {
-        userId: userId,
+  describe("listTodos", () => {
+    it("should return a list of todos with pagination", async () => {
+      // Arrange
+      const mockRequest: ListTodosByOwnerRequest = {
+        owner: mockUserRoleUser._id.toString(),
+        page: 1,
+        limit: 10,
+        activeOnly: false,
       };
 
-      const response = await todoService.listActiveTodos(userIdRequest);
+      const mockTodoList = [mockTodoRoleUser, mockTodoRoleSupervisor];
+      mockTodoModel.find.mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue(mockTodoList),
+      } as any);
 
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.todos).toBeDefined();
-      expect(response.message).toEqual("Tasks found");
-      expect(Array.isArray(response.todos)).toBe(true);
-      expect(response.todos).toHaveLength(1);
+      // Act
+      const result = await todoService.listTodos(mockRequest);
+
+      // Assert
+      expect(result.httpStatusCode).toBe(200);
+      expect(result.message).toBe("TASKS_FOUND");
+      expect(result.todos).toHaveLength(2);
+      expect(mockTodoModel.find).toHaveBeenCalledWith({
+        owner: mockRequest.owner,
+      });
     });
 
-    it("should return if no todos are found", async () => {
-      const userId = mockUserInvalid.id;
-
-      const userIdRequest: UserIdRequest = {
-        userId: userId,
+    it("should filter active todos when activeOnly is true", async () => {
+      // Arrange
+      const mockRequest: ListTodosByOwnerRequest = {
+        owner: mockUserRoleUser._id.toString(),
+        page: 1,
+        limit: 10,
+        activeOnly: true,
       };
 
-      const response = await todoService.listActiveTodos(userIdRequest);
+      mockTodoModel.find.mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([mockTodoRoleUser]),
+      } as any);
 
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("No active tasks found for active user");
-    });
-  });
+      // Act
+      const result = await todoService.listTodos(mockRequest);
 
-  describe("listTodoByID()", () => {
-    it("should return a todo with valid data", async () => {
-      const mockRequest = {
-        user: { userId: mockTodoRoleSupervisor.user.toString() },
-        params: {
-          todoId: mockTodoRoleSupervisor._id.toString(),
-        },
-      } as OwnerTodoIdRequest;
-
-      const mockResponse = {
-        httpStatusCode: 200,
-        message: "Todo found",
-        todo: mockTodoRoleSupervisor,
-      };
-
-      (todoService.listTodoByID as jest.Mock).mockResolvedValue(mockResponse);
-
-      const response = await todoService.listTodoByID(mockRequest);
-
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.todo).toBeDefined();
-      expect(response.message).toBe("Todo found");
-      expect(response.todo!.title).toBe(mockTodoRoleSupervisor.title);
-      expect(response.todo!.description).toBe(
-        mockTodoRoleSupervisor.description
-      );
-      expect(response.todo!.user.toString()).toBe(
-        mockTodoRoleSupervisor.user.toString()
-      );
-      expect(response.todo!.completed).toBe(mockTodoRoleSupervisor.completed);
+      // Assert
+      expect(result.httpStatusCode).toBe(200);
+      expect(result.message).toBe("TASKS_FOUND");
+      expect(mockTodoModel.find).toHaveBeenCalledWith({
+        owner: mockRequest.owner,
+        completed: false,
+      });
     });
 
-    it("should return error if todo does not exist", async () => {
-      const mockRequest = {
-        user: { userId: mockTodoRoleSupervisor.user.toString() },
-        params: {
-          todoId: mockInvalidTodo._id,
-        },
-      } as OwnerTodoIdRequest;
-
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "Todo Not Found",
+    it("should return 404 when no todos are found", async () => {
+      // Arrange
+      const mockRequest: ListTodosByOwnerRequest = {
+        owner: mockUserRoleUser._id.toString(),
+        page: 1,
+        limit: 10,
+        activeOnly: false,
       };
 
-      (todoService.listTodoByID as jest.Mock).mockResolvedValue(mockResponse);
+      mockTodoModel.find.mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([]),
+      } as any);
 
-      const response = await todoService.listTodoByID(mockRequest);
+      // Act
+      const result = await todoService.listTodos(mockRequest);
 
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("Todo Not Found");
-    });
-
-    it("should return if the user is not the owner of the todo", async () => {
-      const mockRequest = {
-        user: { userId: mockUserInvalid.id },
-        params: {
-          todoId: mockTodoRoleSupervisor._id.toString(),
-        },
-      } as OwnerTodoIdRequest;
-
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "Invalid credentials",
-      };
-
-      (todoService.listTodoByID as jest.Mock).mockResolvedValue(mockResponse);
-
-      const response = await todoService.listTodoByID(mockRequest);
-
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("Invalid credentials");
+      // Assert
+      expect(result.httpStatusCode).toBe(404);
+      expect(result.message).toBe("TASKS_NOT_FOUND");
     });
   });
 
-  describe("createTodo()", () => {
-    it("should create a new todo with valid data", async () => {
-      const owner = {
-        userId: mockTodoRoleUser.user.toString(),
-      };
-      const todoDetails = {
-        title: mockTodoRoleUser.title,
-        description: mockTodoRoleUser.description,
-        completed: mockTodoRoleUser.completed,
-        user: mockTodoRoleUser.user.toString(),
+  describe("listTodoByID", () => {
+    it("should return a todo when found and owned by the user", async () => {
+      // Arrange
+      const mockRequest: ListTodoByOwnerRequest = {
+        owner: mockTodoRoleUser.user.toString(),
+        todoId: mockTodoRoleUser._id.toString(),
       };
 
-      const requestBody: NewTodoRequest = {
-        owner,
-        todo: todoDetails,
-      };
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(mockTodoRoleUser),
+      } as any);
 
-      const createResponse = {
-        httpStatusCode: 200,
-        message: "Todo created successfully",
-        todo: todoDetails,
-      };
+      // Act
+      const result = await todoService.listTodoByID(mockRequest);
 
-      (todoService.createTodo as jest.Mock).mockResolvedValueOnce(
-        createResponse
-      );
-
-      const response = await todoService.createTodo(requestBody);
-
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.todo).toBeDefined();
-      expect(response.message).toBe("Todo created successfully");
-      expect(response.todo!.title).toBe(todoDetails.title);
-      expect(response.todo!.description).toBe(todoDetails.description);
-      expect(response.todo!.user.toString()).toBe(todoDetails.user);
-      expect(response.todo!.completed).toBe(todoDetails.completed);
+      // Assert
+      expect(result.httpStatusCode).toBe(200);
+      expect(result.message).toBe("ENTITY_FOUND");
+      expect(result.todo).toBeDefined();
+      expect(result.todo!._id).toEqual(mockTodoRoleUser._id);
     });
 
-    it("should return error if the title already exists", async () => {
-      const owner = {
-        userId: mockTodoRoleUser.user.toString(),
-      };
-      const todoDetails = {
-        title: "this tile already exists",
-        description: mockTodoRoleUser.description,
-        completed: mockTodoRoleUser.completed,
-        user: mockTodoRoleUser.user.toString(),
+    it("should return 404 when todo is not found", async () => {
+      // Arrange
+      const mockRequest: ListTodoByOwnerRequest = {
+        owner: mockTodoRoleUser.user.toString(),
+        todoId: new mongo.ObjectId().toString(),
       };
 
-      const requestBody: NewTodoRequest = {
-        owner,
-        todo: todoDetails,
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as any);
+
+      // Act
+      const result = await todoService.listTodoByID(mockRequest);
+
+      // Assert
+      expect(result.httpStatusCode).toBe(404);
+      expect(result.message).toBe("ENTITY_NOT_FOUND");
+    });
+
+    it("should return 401 when todo is not owned by the user", async () => {
+      // Arrange
+      const mockRequest: ListTodoByOwnerRequest = {
+        owner: mockUserRoleSupervisor._id.toString(),
+        todoId: mockTodoRoleUser._id.toString(),
       };
 
-      const createResponse = {
-        httpStatusCode: 400,
-        message: "Title already taken",
-      };
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(mockTodoRoleUser),
+      } as any);
 
-      (todoService.createTodo as jest.Mock).mockResolvedValueOnce(
-        createResponse
-      );
+      // Act
+      const result = await todoService.listTodoByID(mockRequest);
 
-      const response = await todoService.createTodo(requestBody);
-
-      expect(response.httpStatusCode).toBe(400);
-      expect(response.message).toBe("Title already taken");
+      // Assert
+      expect(result.httpStatusCode).toBe(401);
+      expect(result.message).toBe("FORBIDDEN");
     });
   });
 
-  describe("updateTodoByID()", () => {
-    it("should update a todo with valid data", async () => {
-      const owner = {
-        userId: mockTodoRoleUser.user.toString(),
-      };
-      const todoUpdateDetails = {
-        id: mockTodoForUpdate._id.toString(),
-        title: mockTodoForUpdate.title,
-        description: mockTodoForUpdate.description,
-        completed: mockTodoForUpdate.completed,
-      };
-
-      const requestBody: UpdateTodoRequest = {
-        owner,
-        todo: todoUpdateDetails,
+  describe("createTodo", () => {
+    it("should create a new todo successfully", async () => {
+      // Arrange
+      const mockRequest: NewTodoRequest = {
+        owner: mockUserRoleUser._id.toString(),
+        todo: {
+          title: "New Todo",
+          description: "Test Description",
+          owner: mockUserRoleUser._id.toString(),
+        },
       };
 
-      const updateResponse = {
-        httpStatusCode: 200,
-        message: "Todo updated successfully",
+      mockTodoModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as any);
+
+      const savedTodo = {
+        _id: new mongo.ObjectId(),
+        title: mockRequest.todo.title,
+        description: mockRequest.todo.description,
+        completed: false,
+        owner: mockRequest.owner,
       };
 
-      (todoService.updateTodoByID as jest.Mock).mockResolvedValue(
-        updateResponse
-      );
+      mockTodoModel.prototype.save.mockResolvedValue(savedTodo);
 
-      const response = await todoService.updateTodoByID(requestBody);
+      // Act
+      const result = await todoService.createTodo(mockRequest);
 
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.message).toBe("Todo updated successfully");
+      // Assert
+      expect(result.httpStatusCode).toBe(200);
+      expect(result.message).toBe("TODO_CREATED");
+      expect(result.todo).toBeDefined();
+      expect(result.todo!.title).toBe(mockRequest.todo.title);
     });
 
-    it("should return error if the todo does not exist", async () => {
-      const owner = {
-        userId: mockTodoRoleUser.user.toString(),
-      };
-      const todoUpdateDetails = {
-        id: mockInvalidTodo._id.toString(),
-        title: mockInvalidTodo.title,
-        description: mockInvalidTodo.description,
-        completed: mockInvalidTodo.completed,
-      };
-
-      const requestBody: UpdateTodoRequest = {
-        owner,
-        todo: todoUpdateDetails,
+    it("should return 400 when required fields are missing", async () => {
+      // Arrange
+      const mockRequest: NewTodoRequest = {
+        owner: mockUserRoleUser._id.toString(),
+        todo: {
+          title: "",
+          description: "",
+          owner: mockUserRoleUser._id.toString(),
+        },
       };
 
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "Todo Not Found",
-      };
+      // Act
+      const result = await todoService.createTodo(mockRequest);
 
-      (todoService.updateTodoByID as jest.Mock).mockResolvedValueOnce(
-        mockResponse
-      );
-
-      const response = await todoService.updateTodoByID(requestBody);
-
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("Todo Not Found");
+      // Assert
+      expect(result.httpStatusCode).toBe(400);
+      expect(result.message).toBe("MISSING_FIELDS");
     });
 
-    it("should return error if the user is not the owner of the todo", async () => {
-      const owner = {
-        userId: mockUserInvalid.id,
-      };
-      const todoUpdateDetails = {
-        id: mockTodoForUpdate._id,
-        title: mockTodoForUpdate.title,
-        description: mockTodoForUpdate.description,
-        completed: mockTodoForUpdate.completed,
-      };
-
-      const requestBody: UpdateTodoRequest = {
-        owner,
-        todo: todoUpdateDetails,
+    it("should return 400 when title is already taken", async () => {
+      // Arrange
+      const mockRequest: NewTodoRequest = {
+        owner: mockUserRoleUser._id.toString(),
+        todo: {
+          title: mockTodoRoleUser.title,
+          description: "Test Description",
+          owner: mockUserRoleUser._id.toString(),
+        },
       };
 
-      const mockResponse = {
-        httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
-      };
+      mockTodoModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(mockTodoRoleUser),
+      } as any);
 
-      (todoService.updateTodoByID as jest.Mock).mockResolvedValueOnce(
-        mockResponse
-      );
+      // Act
+      const result = await todoService.createTodo(mockRequest);
 
-      const response = await todoService.updateTodoByID(requestBody);
-
-      expect(response.httpStatusCode).toBe(401);
-      expect(response.message).toBe("You're not the owner of this Todo");
+      // Assert
+      expect(result.httpStatusCode).toBe(400);
+      expect(result.message).toBe("TITLE_ALREADY_TAKEN");
     });
   });
 
-  describe("deleteTodoByID()", () => {
-    it("should delete a todo with valid data", async () => {
-      const mockRequest = {
-        user: { userId: mockUserRoleSupervisor._id.toString() },
-        params: {
-          todoId: mockDeleteTodo._id.toString(),
+  describe("updateTodoByID", () => {
+    it("should update a todo successfully", async () => {
+      // Arrange
+      const mockRequest: UpdateTodoRequest = {
+        owner: mockTodoRoleUser.user.toString(),
+        todo: {
+          _id: mockTodoRoleUser._id.toString(),
+          title: "Updated Title",
+          description: "Updated Description",
+          completed: true,
         },
-      } as OwnerTodoIdRequest;
-
-      const response = await todoService.deleteTodoByID(mockRequest);
-
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.message).toBe("Todo Deleted Successfully");
-    });
-
-    it("should return if the todo does not exist", async () => {
-      const mockRequest = {
-        user: { userId: mockUserRoleSupervisor._id.toString() },
-        params: {
-          todoId: mockInvalidTodo._id,
-        },
-      } as OwnerTodoIdRequest;
-
-      const response = await todoService.deleteTodoByID(mockRequest);
-
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("Todo Not Found");
-    });
-
-    it("should return error if the user is not the owner of the todo", async () => {
-      const mockRequest = {
-        user: { userId: mockUserInvalid.id },
-        params: {
-          todoId: mockInvalidTodo._id,
-        },
-      } as OwnerTodoIdRequest;
-
-      const mockResponse = {
-        httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
       };
 
-      (todoService.deleteTodoByID as jest.Mock).mockResolvedValue(mockResponse);
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({
+          ...mockTodoRoleUser,
+          save: jest.fn().mockResolvedValue({
+            ...mockTodoRoleUser,
+            ...mockRequest.todo,
+          }),
+        }),
+      } as any);
 
-      const response = await todoService.deleteTodoByID(mockRequest);
+      // Act
+      const result = await todoService.updateTodoByID(mockRequest);
 
-      expect(response.httpStatusCode).toBe(401);
-      expect(response.message).toBe("You're not the owner of this Todo");
+      // Assert
+      expect(result.httpStatusCode).toBe(200);
+      expect(result.message).toBe("ENTITY_UPDATED");
+      expect(result.todo).toBeDefined();
+      expect(result.todo!.title).toBe(mockRequest.todo.title);
+    });
+
+    it("should return 400 when required fields are missing", async () => {
+      // Arrange
+      const mockRequest: UpdateTodoRequest = {
+        owner: mockTodoRoleUser.user.toString(),
+        todo: {
+          _id: mockTodoRoleUser._id.toString(),
+        },
+      };
+
+      // Act
+      const result = await todoService.updateTodoByID(mockRequest);
+
+      // Assert
+      expect(result.httpStatusCode).toBe(400);
+      expect(result.message).toBe("MISSING_FIELDS");
+    });
+
+    it("should return 404 when todo is not found", async () => {
+      // Arrange
+      const mockRequest: UpdateTodoRequest = {
+        owner: mockTodoRoleUser.user.toString(),
+        todo: {
+          _id: new mongo.ObjectId().toString(),
+          title: "Updated Title",
+          description: "Updated Description",
+        },
+      };
+
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as any);
+
+      // Act
+      const result = await todoService.updateTodoByID(mockRequest);
+
+      // Assert
+      expect(result.httpStatusCode).toBe(404);
+      expect(result.message).toBe("ENTITY_NOT_FOUND");
+    });
+
+    it("should return 401 when todo is not owned by the user", async () => {
+      // Arrange
+      const mockRequest: UpdateTodoRequest = {
+        owner: mockUserRoleSupervisor._id.toString(),
+        todo: {
+          _id: mockTodoRoleUser._id.toString(),
+          title: "Updated Title",
+          description: "Updated Description",
+        },
+      };
+
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(mockTodoRoleUser),
+      } as any);
+
+      // Act
+      const result = await todoService.updateTodoByID(mockRequest);
+
+      // Assert
+      expect(result.httpStatusCode).toBe(401);
+      expect(result.message).toBe("FORBIDDEN");
+    });
+  });
+
+  describe("deleteTodoByID", () => {
+    it("should delete a todo successfully", async () => {
+      // Arrange
+      const mockRequest: ListTodoByOwnerRequest = {
+        owner: mockTodoRoleUser.user.toString(),
+        todoId: mockTodoRoleUser._id.toString(),
+      };
+
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({
+          ...mockTodoRoleUser,
+          deleteOne: jest.fn().mockResolvedValue(undefined),
+        }),
+      } as any);
+
+      // Act
+      const result = await todoService.deleteTodoByID(mockRequest);
+
+      // Assert
+      expect(result.httpStatusCode).toBe(200);
+      expect(result.message).toBe("ENTITY_DELETED");
+    });
+
+    it("should return 404 when todo is not found", async () => {
+      // Arrange
+      const mockRequest: ListTodoByOwnerRequest = {
+        owner: mockTodoRoleUser.user.toString(),
+        todoId: new mongo.ObjectId().toString(),
+      };
+
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as any);
+
+      // Act
+      const result = await todoService.deleteTodoByID(mockRequest);
+
+      // Assert
+      expect(result.httpStatusCode).toBe(404);
+      expect(result.message).toBe("ENTITY_NOT_FOUND");
+    });
+
+    it("should return 401 when todo is not owned by the user", async () => {
+      // Arrange
+      const mockRequest: ListTodoByOwnerRequest = {
+        owner: mockUserRoleSupervisor._id.toString(),
+        todoId: mockTodoRoleUser._id.toString(),
+      };
+
+      mockTodoModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(mockTodoRoleUser),
+      } as any);
+
+      // Act
+      const result = await todoService.deleteTodoByID(mockRequest);
+
+      // Assert
+      expect(result.httpStatusCode).toBe(401);
+      expect(result.message).toBe("FORBIDDEN");
     });
   });
 });
