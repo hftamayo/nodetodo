@@ -1,386 +1,635 @@
+import userService from "@/services/userService";
+import User from "@/models/User";
+import Role from "@/models/Role";
+import Todo from "@/models/Todo";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import {
-  mockUserRoleUser,
-  mockUserInvalid,
-  mockUserUpdate,
-  mockUserDelete,
-  mockUserRoleAdmin,
-} from "../mocks/user.mock";
-import {
-  UserRequest,
-  UserIdRequest,
-  UpdateUserRequest,
+  SignUpRequest,
   LoginRequest,
-} from "../../src/types/user.interface";
-import userService from "../../src/services/userService";
+  UpdateUserRequest,
+  ListUsersRequest,
+} from "@/types/user.types";
+import { mockUserRoleUser, mockUserRoleAdmin } from "../mocks/user.mock";
 
-jest.mock("../../src/services/userService", () => ({
-  signUpUser: jest.fn((requestBody: UserRequest) => {
-    const email = requestBody.email;
-    if (email === mockUserRoleAdmin.email) {
-      return Promise.resolve({
-        httpStatusCode: 400,
-        message: "Email already exists",
-      });
-    } else {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "User created successfully",
-        user: mockUserRoleUser,
-      });
-    }
-  }),
-  loginUser: jest.fn((requestBody: LoginRequest) => {
-    const email = requestBody.email;
-    const password = requestBody.password;
-    if (email === mockUserRoleUser.email) {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        tokenCreated: "token",
-        message: "User login successfully",
-        user: mockUserRoleUser,
-      });
-    } else if (
-      email === mockUserInvalid.email ||
-      password === mockUserInvalid.password
-    ) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "User or Password does not match",
-      });
-    }
-  }),
-  listUserByID: jest.fn((requestUserId: UserIdRequest) => {
-    const userId = requestUserId.userId;
-    if (userId === mockUserRoleUser._id.toString()) {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "User Found",
-        user: mockUserRoleUser,
-      });
-    } else if (userId === mockUserInvalid.id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
-    }
-  }),
-  updateUserDetailsByID: jest.fn((updateUserRequest: UpdateUserRequest) => {
-    const userId = updateUserRequest.userId;
-    const user = updateUserRequest.user;
-    if (userId === mockUserUpdate.id) {
-      if (user.email === mockUserUpdate.email) {
-        return Promise.resolve({
-          httpStatusCode: 400,
-          message: "Email already taken",
-        });
-      } else if (user.id === mockUserInvalid.id) {
-        return Promise.resolve({
-          httpStatusCode: 404,
-          message: "User Not Found",
-        });
-      } else {
-        return Promise.resolve({
-          httpStatusCode: 200,
-          message: "User updated successfully",
-          user: mockUserUpdate,
-        });
-      }
-    }
-  }),
-  updateUserPasswordByID: jest.fn((updateUserRequest: UpdateUserRequest) => {
-    const userId = updateUserRequest.userId;
-    const user = updateUserRequest.user;
-    if (userId === mockUserUpdate.id) {
-      if (user.password === mockUserUpdate.oldPassword) {
-        return Promise.resolve({
-          httpStatusCode: 200,
-          message: "Password updated successfully",
-          user: mockUserUpdate,
-        });
-      } else if (user.password || user.newPassword) {
-        return Promise.resolve({
-          httpStatusCode: 400,
-          message: "Please fill all required fields",
-        });
-      } else if (user.id === mockUserInvalid.id) {
-        return Promise.resolve({
-          httpStatusCode: 404,
-          message: "User Not Found",
-        });
-      } else {
-        return Promise.resolve({
-          httpStatusCode: 400,
-          message: "The entered credentials are not valid",
-        });
-      }
-    }
-  }),
-  deleteUserByID: jest.fn((requestUserId: UserIdRequest) => {
-    const userId = requestUserId.userId;
-    if (userId === mockUserDelete.id) {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "User deleted successfully",
-      });
-    } else if (userId === mockUserInvalid.id) {
-      return Promise.resolve({
-        httpStatusCode: 404,
-        message: "User Not Found",
-      });
-    }
-  }),
-}));
+jest.mock("@/models/User");
+jest.mock("@/models/Role");
+jest.mock("@/models/Todo");
+jest.mock("bcrypt");
+jest.mock("jsonwebtoken");
+jest.mock("crypto");
 
-describe("UserService Unit Tests", () => {
-  afterEach(function () {
-    jest.restoreAllMocks();
+// Helper functions for test setup
+const createMockMongooseChain = (mockExec: jest.Mock) => {
+  const mockLimit = jest.fn().mockReturnValue({ exec: mockExec });
+  const mockSkip = jest.fn().mockReturnValue({ limit: mockLimit });
+  const mockSort = jest.fn().mockReturnValue({ skip: mockSkip });
+  return { sort: mockSort };
+};
+
+const createTestUser = (overrides = {}) => ({
+  name: "Test User",
+  email: "test@example.com",
+  password: "password123",
+  age: 25,
+  status: true,
+  ...overrides,
+});
+
+// Test data constants
+const TEST_PAGINATION = {
+  page: 1,
+  limit: 10,
+};
+
+const TEST_USER_ID = mockUserRoleUser._id.toString();
+
+describe("User Service - signUpUser", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  describe("signupUser()", () => {
-    it("should create a new user with valid data", async () => {
-      const requestBody = {
-        name: mockUserRoleUser.name,
-        email: mockUserRoleUser.email,
-        password: mockUserRoleUser.password,
-        age: mockUserRoleUser.age,
-      };
+  it("should successfully create a new user", async () => {
+    // Arrange
+    const mockFindOneExec = jest.fn().mockResolvedValue(null);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-      const response = await userService.signUpUser(requestBody);
+    const mockRole = { _id: "role-id" };
+    const mockFindOneRoleExec = jest.fn().mockResolvedValue(mockRole);
+    (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneRoleExec });
 
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.user).toBeDefined();
-      expect(response.message).toBe("User created successfully");
-      expect(response.user!.name).toBe(mockUserRoleUser.name);
-      expect(response.user!.email).toBe(mockUserRoleUser.email);
-      expect(response.user!.age).toBe(mockUserRoleUser.age);
-    });
+    const mockHash = "hashedPassword";
+    (bcrypt.genSalt as jest.Mock).mockResolvedValue("salt");
+    (bcrypt.hash as jest.Mock).mockResolvedValue(mockHash);
 
-    it("should return an error if the user's email is already in use", async () => {
-      const requestBody = {
-        name: mockUserRoleUser.name,
-        email: mockUserRoleUser.email,
-        password: mockUserRoleUser.password,
-        age: mockUserRoleUser.age,
-      };
+    const mockUser = {
+      ...mockUserRoleUser,
+      save: jest.fn().mockResolvedValue(mockUserRoleUser),
+      toObject: () => mockUserRoleUser,
+    };
+    (User as unknown as jest.Mock).mockImplementation(() => mockUser);
 
-      (userService.signUpUser as jest.Mock).mockResolvedValueOnce({
-        httpStatusCode: 400,
-        message: "Email already exists",
-      });
+    const params: SignUpRequest = {
+      name: "Test User",
+      email: "test@example.com",
+      password: "password123",
+      repeatPassword: "password123",
+      age: 25,
+    };
 
-      const response = await userService.signUpUser(requestBody);
+    // Act
+    const result = await userService.signUpUser(params);
 
-      expect(response.httpStatusCode).toBe(400);
-      expect(response.message).toBe("Email already exists");
-    });
+    // Assert
+    expect(result.httpStatusCode).toBe(201);
+    expect(result.message).toBe("USER_CREATED");
+    expect(result.user).toBeDefined();
+    expect(result.user?.name).toBe(params.name);
+    expect(result.user?.email).toBe(params.email);
+    expect(User.findOne).toHaveBeenCalledWith({ email: params.email });
+    expect(Role.findOne).toHaveBeenCalledWith({ name: "finaluser" });
+    expect(bcrypt.genSalt).toHaveBeenCalledWith(10);
+    expect(bcrypt.hash).toHaveBeenCalledWith(params.password, "salt");
+    expect(mockUser.save).toHaveBeenCalled();
   });
 
-  describe("loginUser()", () => {
-    it("should login a user with valid credentials", async () => {
-      const requestBody = {
-        email: mockUserRoleUser.email,
-        password: mockUserRoleUser.password,
-      };
+  it("should return 400 when email already exists", async () => {
+    // Arrange
+    const mockFindOneExec = jest.fn().mockResolvedValue(mockUserRoleUser);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-      const response = await userService.loginUser(requestBody);
+    const params: SignUpRequest = {
+      name: "Test User",
+      email: mockUserRoleUser.email,
+      password: "password123",
+      repeatPassword: "password123",
+      age: 25,
+    };
 
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.tokenCreated).toBeDefined();
-      expect(response.user).toBeDefined();
-      expect(response.message).toBe("User login successfully");
-      expect(response.user!.name).toBe(mockUserRoleUser.name);
-      expect(response.user!.email).toBe(mockUserRoleUser.email);
-      expect(response.user!.age).toBe(mockUserRoleUser.age);
-    });
+    // Act
+    const result = await userService.signUpUser(params);
 
-    it("should not login if user does not exist", async () => {
-      const requestBody = {
-        email: mockUserInvalid.email,
-        password: mockUserInvalid.password,
-      };
-
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "User or Password does not match",
-      };
-
-      jest.spyOn(userService, "loginUser").mockResolvedValue(mockResponse);
-
-      const response = await userService.loginUser(requestBody);
-
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("User or Password does not match");
-    });
-
-    it("should return an error if the password is incorrect", async () => {
-      const requestBody = {
-        email: mockUserInvalid.email,
-        password: mockUserInvalid.password,
-      };
-
-      const mockResponse = {
-        httpStatusCode: 404,
-        message: "User or Password does not match",
-      };
-
-      jest.spyOn(userService, "loginUser").mockResolvedValue(mockResponse);
-
-      const response = await userService.loginUser(requestBody);
-
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("User or Password does not match");
-    });
+    // Assert
+    expect(result.httpStatusCode).toBe(400);
+    expect(result.message).toBe("EMAIL_EXISTS");
+    expect(result.user).toBeUndefined();
   });
 
-  describe("listUserById()", () => {
-    it("should return a user with valid id", async () => {
-      const userId = mockUserRoleUser._id.toString();
+  it("should return 400 when passwords do not match", async () => {
+    // Arrange
+    const params: SignUpRequest = {
+      name: "Test User",
+      email: "test@example.com",
+      password: "password123",
+      repeatPassword: "differentPassword",
+      age: 25,
+    };
 
-      const userIdRequest: UserIdRequest = {
-        userId: userId,
-      };
+    // Act
+    const result = await userService.signUpUser(params);
 
-      const response = await userService.listUserByID(userIdRequest);
-
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.user).toBeDefined();
-      expect(response.message).toBe("User Found");
-      expect(response.user!.name).toBe(mockUserRoleUser.name);
-      expect(response.user!.email).toBe(mockUserRoleUser.email);
-      expect(response.user!.age).toBe(mockUserRoleUser.age);
-    });
-
-    it("should return an error if the user id is invalid", async () => {
-      const userId = mockUserInvalid.id.toString();
-
-      const userIdRequest: UserIdRequest = {
-        userId: userId,
-      };
-
-      const response = await userService.listUserByID(userIdRequest);
-
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("User Not Found");
-    });
+    // Assert
+    expect(result.httpStatusCode).toBe(400);
+    expect(result.message).toBe("PASSWORD_MISMATCH");
+    expect(result.user).toBeUndefined();
   });
 
-  describe("updateUserDetailsByID()", () => {
-    it("should update a user with valid data", async () => {
-      const requestBody: UpdateUserRequest = {
-        userId: mockUserUpdate.id,
-        user: {
-          name: mockUserUpdate.name,
-          email: mockUserUpdate.email,
-          age: mockUserUpdate.age,
-        },
-      };
+  it("should return 400 when required fields are missing", async () => {
+    // Arrange
+    const params: SignUpRequest = {
+      name: "",
+      email: "",
+      password: "",
+      repeatPassword: "",
+      age: 0,
+    };
 
-      const mockUser = {
-        _id: mockUserUpdate.id,
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.email,
-        age: mockUserUpdate.age,
-      };
+    // Act
+    const result = await userService.signUpUser(params);
 
-      (userService.updateUserDetailsByID as jest.Mock).mockResolvedValueOnce({
-        httpStatusCode: 200,
-        message: "User updated successfully",
-        user: mockUser,
-      });
-
-      const response = await userService.updateUserDetailsByID(requestBody);
-
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.user).toBeDefined();
-      expect(response.message).toBe("User updated successfully");
-      expect(response.user!.name).toBe(mockUserUpdate.name);
-      expect(response.user!.email).toBe(mockUserUpdate.email);
-      expect(response.user!.age).toBe(mockUserUpdate.age);
-    });
-
-    it("should not update if the user has already taken", async () => {
-      const requestBody: UpdateUserRequest = {
-        userId: mockUserUpdate.id,
-        user: {
-          name: mockUserUpdate.name,
-          email: mockUserUpdate.email,
-          age: mockUserUpdate.age,
-        },
-      };
-
-      const response = await userService.updateUserDetailsByID(requestBody);
-
-      expect(response.httpStatusCode).toBe(400);
-      expect(response.message).toBe("Email already taken");
-    });
+    // Assert
+    expect(result.httpStatusCode).toBe(400);
+    expect(result.message).toBe("MISSING_FIELDS");
+    expect(result.user).toBeUndefined();
   });
 
-  describe("updateUserPasswordByID()", () => {
-    it("should not update if current passwod did not match", async () => {
-      const requestBody = {
-        userId: mockUserUpdate.id,
-        user: {
-          password: mockUserUpdate.notMatchPassword,
-          newPassword: mockUserUpdate.newPassword,
-        },
-      };
+  it("should return 500 when role is not found", async () => {
+    // Arrange
+    const mockFindOneExec = jest.fn().mockResolvedValue(null);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-      (userService.updateUserPasswordByID as jest.Mock).mockResolvedValueOnce({
-        httpStatusCode: 400,
-        message: "Password does not match",
-      });
+    const mockFindOneRoleExec = jest.fn().mockResolvedValue(null);
+    (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneRoleExec });
 
-      const response = await userService.updateUserPasswordByID(requestBody);
+    const params: SignUpRequest = {
+      name: "Test User",
+      email: "test@example.com",
+      password: "password123",
+      repeatPassword: "password123",
+      age: 25,
+    };
 
-      expect(response.httpStatusCode).toBe(400);
-      expect(response.message).toBe("Password does not match");
-    });
+    // Act
+    const result = await userService.signUpUser(params);
 
-    it("should update the password of a valid user", async () => {
-      const requestBody = {
-        userId: mockUserUpdate.id,
-        user: {
-          password: mockUserUpdate.oldPassword,
-          newPassword: mockUserUpdate.newPassword,
-        },
-      };
+    // Assert
+    expect(result.httpStatusCode).toBe(500);
+    expect(result.message).toBe("ROLE_NOT_FOUND");
+    expect(result.user).toBeUndefined();
+  });
+});
 
-      const response = await userService.updateUserPasswordByID(requestBody);
-
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.user).toBeDefined();
-      expect(response.message).toBe("Password updated successfully");
-      expect(response.user!.name).toBe(mockUserUpdate.name);
-      expect(response.user!.email).toBe(mockUserUpdate.email);
-      expect(response.user!.age).toBe(mockUserUpdate.age);
-    });
+describe("User Service - loginUser", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  describe("deleteUser()", () => {
-    it("should delete a user with valid id", async () => {
-      const userId = mockUserDelete.id;
+  it("should successfully login a user", async () => {
+    // Arrange
+    const mockUser = {
+      ...mockUserRoleUser,
+      status: true,
+      toObject: () => mockUserRoleUser,
+    };
+    const mockFindOneExec = jest.fn().mockResolvedValue(mockUser);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-      const userIdRequest: UserIdRequest = {
-        userId: userId,
-      };
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    (crypto.randomUUID as jest.Mock).mockReturnValue("session-id");
+    (jwt.sign as jest.Mock).mockReturnValue("jwt-token");
 
-      const response = await userService.deleteUserByID(userIdRequest);
+    const params: LoginRequest = {
+      email: mockUserRoleUser.email,
+      password: "password123",
+    };
 
-      expect(response.httpStatusCode).toBe(200);
-      expect(response.message).toBe("User deleted successfully");
+    // Act
+    const result = await userService.loginUser(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("LOGIN_SUCCESS");
+    expect(result.tokenCreated).toBe("jwt-token");
+    expect(result.user).toBeDefined();
+    expect(User.findOne).toHaveBeenCalledWith({ email: params.email });
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      params.password,
+      mockUser.password
+    );
+    expect(jwt.sign).toHaveBeenCalled();
+  });
+
+  it("should return 401 when user is not found", async () => {
+    // Arrange
+    const mockFindOneExec = jest.fn().mockResolvedValue(null);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
+
+    const params: LoginRequest = {
+      email: "nonexistent@example.com",
+      password: "password123",
+    };
+
+    // Act
+    const result = await userService.loginUser(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(401);
+    expect(result.message).toBe("BAD_CREDENTIALS");
+    expect(result.tokenCreated).toBeUndefined();
+    expect(result.user).toBeUndefined();
+  });
+
+  it("should return 401 when account is disabled", async () => {
+    // Arrange
+    const mockUser = {
+      ...mockUserRoleUser,
+      status: false,
+      toObject: () => mockUserRoleUser,
+    };
+    const mockFindOneExec = jest.fn().mockResolvedValue(mockUser);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
+
+    const params: LoginRequest = {
+      email: mockUserRoleUser.email,
+      password: "password123",
+    };
+
+    // Act
+    const result = await userService.loginUser(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(401);
+    expect(result.message).toBe("ACCOUNT_DISABLED");
+    expect(result.tokenCreated).toBeUndefined();
+    expect(result.user).toBeUndefined();
+  });
+
+  it("should return 402 when password is incorrect", async () => {
+    // Arrange
+    const mockUser = {
+      ...mockUserRoleUser,
+      status: true,
+      toObject: () => mockUserRoleUser,
+    };
+    const mockFindOneExec = jest.fn().mockResolvedValue(mockUser);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
+
+    (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+    const params: LoginRequest = {
+      email: mockUserRoleUser.email,
+      password: "wrongpassword",
+    };
+
+    // Act
+    const result = await userService.loginUser(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(402);
+    expect(result.message).toBe("BAD_CREDENTIALS");
+    expect(result.tokenCreated).toBeUndefined();
+    expect(result.user).toBeUndefined();
+  });
+});
+
+describe("User Service - listUsers", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should successfully return users", async () => {
+    // Arrange
+    const mockUsers = [mockUserRoleUser, mockUserRoleAdmin];
+    const mockExec = jest.fn().mockResolvedValue(mockUsers);
+    (User.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
+
+    const params: ListUsersRequest = TEST_PAGINATION;
+
+    // Act
+    const result = await userService.listUsers(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("USERS_FOUND");
+    expect(result.users).toBeDefined();
+    expect(result.users).toHaveLength(2);
+    expect(User.find).toHaveBeenCalled();
+    expect(mockExec).toHaveBeenCalled();
+  });
+
+  it("should return 500 when database error occurs", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
+    (User.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
+
+    const params: ListUsersRequest = TEST_PAGINATION;
+
+    // Act
+    const result = await userService.listUsers(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(500);
+    expect(result.message).toBe("UNKNOWN_ERROR");
+    expect(result.users).toBeUndefined();
+  });
+});
+
+describe("User Service - listUserByID", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should successfully return a user", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockResolvedValue(mockUserRoleUser);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    // Act
+    const result = await userService.listUserByID(TEST_USER_ID);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("ENTITY_FOUND");
+    expect(result.user).toBeDefined();
+    expect(result.user?._id).toBe(mockUserRoleUser._id);
+    expect(User.findById).toHaveBeenCalledWith(TEST_USER_ID);
+  });
+
+  it("should return 404 when user is not found", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockResolvedValue(null);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    // Act
+    const result = await userService.listUserByID("nonexistent-id");
+
+    // Assert
+    expect(result.httpStatusCode).toBe(404);
+    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.user).toBeUndefined();
+  });
+
+  it("should return 500 when database error occurs", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    // Act
+    const result = await userService.listUserByID(TEST_USER_ID);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(500);
+    expect(result.message).toBe("UNKNOWN_ERROR");
+    expect(result.user).toBeUndefined();
+  });
+});
+
+describe("User Service - updateUserDetailsByID", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should successfully update user details", async () => {
+    // Arrange
+    const mockUser = {
+      ...mockUserRoleUser,
+      save: jest.fn().mockResolvedValue(mockUserRoleUser),
+      toObject: () => mockUserRoleUser,
+    };
+    const mockExec = jest.fn().mockResolvedValue(mockUser);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const mockFindOneExec = jest.fn().mockResolvedValue(null);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
+
+    const params: UpdateUserRequest = {
+      userId: TEST_USER_ID,
+      user: {
+        name: "Updated Name",
+        email: "updated@example.com",
+        age: 30,
+      },
+    };
+
+    // Act
+    const result = await userService.updateUserDetailsByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("ENTITY_UPDATED");
+    expect(result.user).toBeDefined();
+    expect(User.findById).toHaveBeenCalledWith(params.userId);
+    expect(mockUser.save).toHaveBeenCalled();
+  });
+
+  it("should return 404 when user is not found", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockResolvedValue(null);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const params: UpdateUserRequest = {
+      userId: "nonexistent-id",
+      user: {
+        name: "Updated Name",
+      },
+    };
+
+    // Act
+    const result = await userService.updateUserDetailsByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(404);
+    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.user).toBeUndefined();
+  });
+
+  it("should return 400 when email already exists", async () => {
+    // Arrange
+    const mockUser = {
+      ...mockUserRoleUser,
+      save: jest.fn().mockResolvedValue(mockUserRoleUser),
+      toObject: () => mockUserRoleUser,
+    };
+    const mockExec = jest.fn().mockResolvedValue(mockUser);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const mockFindOneExec = jest.fn().mockResolvedValue(mockUserRoleAdmin);
+    (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
+
+    const params: UpdateUserRequest = {
+      userId: TEST_USER_ID,
+      user: {
+        email: mockUserRoleAdmin.email,
+      },
+    };
+
+    // Act
+    const result = await userService.updateUserDetailsByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(400);
+    expect(result.message).toBe("EMAIL_EXISTS");
+    expect(result.user).toBeUndefined();
+  });
+});
+
+describe("User Service - updateUserPasswordByID", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should successfully update user password", async () => {
+    // Arrange
+    const mockUser = {
+      ...mockUserRoleUser,
+      save: jest.fn().mockResolvedValue(mockUserRoleUser),
+      toObject: () => mockUserRoleUser,
+    };
+    const mockExec = jest.fn().mockResolvedValue(mockUser);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    (bcrypt.genSalt as jest.Mock).mockResolvedValue("salt");
+    (bcrypt.hash as jest.Mock).mockResolvedValue("newHashedPassword");
+
+    const params: UpdateUserRequest = {
+      userId: TEST_USER_ID,
+      user: {
+        password: "currentPassword",
+        updatePassword: "newPassword",
+      },
+    };
+
+    // Act
+    const result = await userService.updateUserPasswordByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("ENTITY UPDATED");
+    expect(result.user).toBeDefined();
+    expect(User.findById).toHaveBeenCalledWith(params.userId);
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      params.user.password,
+      mockUser.password
+    );
+    expect(bcrypt.hash).toHaveBeenCalledWith(
+      params.user.updatePassword,
+      "salt"
+    );
+    expect(mockUser.save).toHaveBeenCalled();
+  });
+
+  it("should return 404 when user is not found", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockResolvedValue(null);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const params: UpdateUserRequest = {
+      userId: "nonexistent-id",
+      user: {
+        password: "currentPassword",
+        updatePassword: "newPassword",
+      },
+    };
+
+    // Act
+    const result = await userService.updateUserPasswordByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(404);
+    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.user).toBeUndefined();
+  });
+
+  it("should return 400 when current password is incorrect", async () => {
+    // Arrange
+    const mockUser = {
+      ...mockUserRoleUser,
+      save: jest.fn().mockResolvedValue(mockUserRoleUser),
+      toObject: () => mockUserRoleUser,
+    };
+    const mockExec = jest.fn().mockResolvedValue(mockUser);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+    const params: UpdateUserRequest = {
+      userId: TEST_USER_ID,
+      user: {
+        password: "wrongPassword",
+        updatePassword: "newPassword",
+      },
+    };
+
+    // Act
+    const result = await userService.updateUserPasswordByID(params);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(400);
+    expect(result.message).toBe("BAD_CREDENTIALS");
+    expect(result.user).toBeUndefined();
+  });
+});
+
+describe("User Service - deleteUserByID", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should successfully delete a user and their todos", async () => {
+    // Arrange
+    const mockUser = {
+      ...mockUserRoleUser,
+      deleteOne: jest.fn().mockResolvedValue(undefined),
+    };
+    const mockExec = jest.fn().mockResolvedValue(mockUser);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    const mockTodos = [{ _id: "todo1" }, { _id: "todo2" }];
+    const mockFindExec = jest.fn().mockResolvedValue(mockTodos);
+    (Todo.find as jest.Mock).mockReturnValue({ exec: mockFindExec });
+
+    const mockDeleteManyExec = jest.fn().mockResolvedValue({ deletedCount: 2 });
+    (Todo.deleteMany as jest.Mock).mockReturnValue({
+      exec: mockDeleteManyExec,
     });
 
-    it("should return an error if the user id is invalid", async () => {
-      const userId = mockUserInvalid.id;
+    // Act
+    const result = await userService.deleteUserByID(TEST_USER_ID);
 
-      const userIdRequest: UserIdRequest = {
-        userId: userId,
-      };
+    // Assert
+    expect(result.httpStatusCode).toBe(200);
+    expect(result.message).toBe("ENTITY_DELETED");
+    expect(User.findById).toHaveBeenCalledWith(TEST_USER_ID);
+    expect(Todo.find).toHaveBeenCalledWith({ user: mockUser });
+    expect(Todo.deleteMany).toHaveBeenCalledWith({ user: mockUser });
+    expect(mockUser.deleteOne).toHaveBeenCalled();
+  });
 
-      const response = await userService.deleteUserByID(userIdRequest);
+  it("should return 404 when user is not found", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockResolvedValue(null);
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
 
-      expect(response.httpStatusCode).toBe(404);
-      expect(response.message).toBe("User Not Found");
-    });
+    // Act
+    const result = await userService.deleteUserByID("nonexistent-id");
+
+    // Assert
+    expect(result.httpStatusCode).toBe(404);
+    expect(result.message).toBe("ENTITY_NOT_FOUND");
+  });
+
+  it("should return 500 when database error occurs", async () => {
+    // Arrange
+    const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
+    (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
+
+    // Act
+    const result = await userService.deleteUserByID(TEST_USER_ID);
+
+    // Assert
+    expect(result.httpStatusCode).toBe(500);
+    expect(result.message).toBe("UNKNOWN_ERROR");
   });
 });
