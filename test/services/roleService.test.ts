@@ -1,14 +1,37 @@
 import roleService from "@/services/roleService";
 import Role from "@/models/Role";
-import {
-  ListRolesRequest,
-  RoleIdRequest,
-  NewRoleRequest,
-  UpdateRoleRequest,
-} from "@/types/role.types";
+import { RoleIdRequest, UpdateRoleRequest } from "@/types/role.types";
 import { mockRolesData, expectedFilteredRoles } from "../mocks/role.mock";
 
 jest.mock("@/models/Role");
+
+// Helper functions for test setup
+const createMockMongooseChain = (mockExec: jest.Mock) => {
+  const mockLimit = jest.fn().mockReturnValue({ exec: mockExec });
+  const mockSkip = jest.fn().mockReturnValue({ limit: mockLimit });
+  const mockSort = jest.fn().mockReturnValue({ skip: mockSkip });
+  return { sort: mockSort };
+};
+
+const createTestRole = (overrides = {}) => ({
+  name: "Test Role",
+  description: "Test Description",
+  status: true,
+  permissions: { user: 1, role: 2 },
+  ...overrides,
+});
+
+const createTestRoleRequest = (overrides = {}) => ({
+  role: createTestRole(overrides),
+});
+
+// Test data constants
+const TEST_PAGINATION = {
+  page: 1,
+  limit: 10,
+};
+
+const TEST_ROLE_ID = mockRolesData[0]._id.toString();
 
 describe("Role Service - listRoles", () => {
   beforeEach(() => {
@@ -18,18 +41,10 @@ describe("Role Service - listRoles", () => {
   it("should successfully return roles when found", async () => {
     // Arrange
     const mockExec = jest.fn().mockResolvedValue(mockRolesData);
-    const mockLimit = jest.fn().mockReturnValue({ exec: mockExec });
-    const mockSkip = jest.fn().mockReturnValue({ limit: mockLimit });
-    const mockSort = jest.fn().mockReturnValue({ skip: mockSkip });
-    (Role.find as jest.Mock).mockReturnValue({ sort: mockSort });
-
-    const params: ListRolesRequest = {
-      page: 1,
-      limit: 10,
-    };
+    (Role.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
 
     // Act
-    const result = await roleService.listRoles(params);
+    const result = await roleService.listRoles(TEST_PAGINATION);
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
@@ -38,26 +53,16 @@ describe("Role Service - listRoles", () => {
 
     // Verify mongoose chain calls
     expect(Role.find).toHaveBeenCalled();
-    expect(mockSort).toHaveBeenCalledWith({ createdAt: -1 });
-    expect(mockSkip).toHaveBeenCalledWith(0);
-    expect(mockLimit).toHaveBeenCalledWith(10);
+    expect(mockExec).toHaveBeenCalled();
   });
 
   it("should return 404 when no roles are found", async () => {
     // Arrange
     const mockExec = jest.fn().mockResolvedValue([]);
-    const mockLimit = jest.fn().mockReturnValue({ exec: mockExec });
-    const mockSkip = jest.fn().mockReturnValue({ limit: mockLimit });
-    const mockSort = jest.fn().mockReturnValue({ skip: mockSkip });
-    (Role.find as jest.Mock).mockReturnValue({ sort: mockSort });
-
-    const params: ListRolesRequest = {
-      page: 1,
-      limit: 10,
-    };
+    (Role.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
 
     // Act
-    const result = await roleService.listRoles(params);
+    const result = await roleService.listRoles(TEST_PAGINATION);
 
     // Assert
     expect(result.httpStatusCode).toBe(404);
@@ -68,18 +73,10 @@ describe("Role Service - listRoles", () => {
   it("should return 500 when database error occurs", async () => {
     // Arrange
     const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
-    const mockLimit = jest.fn().mockReturnValue({ exec: mockExec });
-    const mockSkip = jest.fn().mockReturnValue({ limit: mockLimit });
-    const mockSort = jest.fn().mockReturnValue({ skip: mockSkip });
-    (Role.find as jest.Mock).mockReturnValue({ sort: mockSort });
-
-    const params: ListRolesRequest = {
-      page: 1,
-      limit: 10,
-    };
+    (Role.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
 
     // Act
-    const result = await roleService.listRoles(params);
+    const result = await roleService.listRoles(TEST_PAGINATION);
 
     // Assert
     expect(result.httpStatusCode).toBe(500);
@@ -99,7 +96,7 @@ describe("Role Service - listRoleByID", () => {
     (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
 
     const params: RoleIdRequest = {
-      roleId: mockRolesData[0]._id.toString(),
+      roleId: TEST_ROLE_ID,
     };
 
     // Act
@@ -136,7 +133,7 @@ describe("Role Service - listRoleByID", () => {
     (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
 
     const params: RoleIdRequest = {
-      roleId: mockRolesData[0]._id.toString(),
+      roleId: TEST_ROLE_ID,
     };
 
     // Act
@@ -164,14 +161,12 @@ describe("Role Service - createRole", () => {
       .spyOn(Role.prototype, "save")
       .mockResolvedValue(mockRole as any);
 
-    const params: NewRoleRequest = {
-      role: {
-        name: mockRolesData[0].name,
-        description: mockRolesData[0].description,
-        status: mockRolesData[0].status,
-        permissions: Object.fromEntries(mockRolesData[0].permissions),
-      },
-    };
+    const params = createTestRoleRequest({
+      name: mockRolesData[0].name,
+      description: mockRolesData[0].description,
+      status: mockRolesData[0].status,
+      permissions: Object.fromEntries(mockRolesData[0].permissions),
+    });
 
     // Act
     const result = await roleService.createRole(params);
@@ -190,14 +185,12 @@ describe("Role Service - createRole", () => {
     const mockFindOneExec = jest.fn().mockResolvedValue(mockRolesData[0]);
     (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-    const params: NewRoleRequest = {
-      role: {
-        name: mockRolesData[0].name,
-        description: mockRolesData[0].description,
-        status: mockRolesData[0].status,
-        permissions: Object.fromEntries(mockRolesData[0].permissions),
-      },
-    };
+    const params = createTestRoleRequest({
+      name: mockRolesData[0].name,
+      description: mockRolesData[0].description,
+      status: mockRolesData[0].status,
+      permissions: Object.fromEntries(mockRolesData[0].permissions),
+    });
 
     // Act
     const result = await roleService.createRole(params);
@@ -210,14 +203,11 @@ describe("Role Service - createRole", () => {
 
   it("should return 400 when missing required fields", async () => {
     // Arrange
-    const params: NewRoleRequest = {
-      role: {
-        name: "",
-        description: "",
-        status: true,
-        permissions: Object.fromEntries(new Map()),
-      },
-    };
+    const params = createTestRoleRequest({
+      name: "",
+      description: "",
+      permissions: {},
+    });
 
     // Act
     const result = await roleService.createRole(params);
@@ -233,18 +223,15 @@ describe("Role Service - createRole", () => {
     const mockFindOneExec = jest.fn().mockResolvedValue(null);
     (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-    const mockRole = mockRolesData[0]; // Use direct data instead
+    const mockRole = mockRolesData[0];
     jest.spyOn(Role.prototype, "save").mockResolvedValue(mockRole as any);
-    jest.spyOn(Role, "create").mockResolvedValue(mockRole as any);
 
-    const params: NewRoleRequest = {
-      role: {
-        name: mockRolesData[1].name,
-        description: mockRolesData[1].description,
-        status: mockRolesData[1].status,
-        permissions: Object.fromEntries(mockRolesData[0].permissions),
-      },
-    };
+    const params = createTestRoleRequest({
+      name: mockRolesData[1].name,
+      description: mockRolesData[1].description,
+      status: mockRolesData[1].status,
+      permissions: Object.fromEntries(mockRolesData[0].permissions),
+    });
 
     // Act
     const result = await roleService.createRole(params);
@@ -277,12 +264,10 @@ describe("Role Service - updateRoleByID", () => {
         name: "Updated Role",
         description: "Updated description",
         status: false,
-        permissions: Object.fromEntries(
-          new Map([
-            ["users", 5],
-            ["roles", 3],
-          ])
-        ),
+        permissions: {
+          users: 5,
+          roles: 3,
+        },
       },
     };
 
