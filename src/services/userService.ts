@@ -331,9 +331,9 @@ const deleteUserByID = async function (
     if (!searchUser) {
       return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    const todo = await Todo.find({ user: searchUser }).exec();
+    const todo = await Todo.find({ owner: searchUser }).exec();
     if (todo) {
-      await Todo.deleteMany({ user: searchUser }).exec();
+      await Todo.deleteMany({ owner: searchUser }).exec();
     }
     await searchUser.deleteOne();
     return { httpStatusCode: 200, message: "ENTITY_DELETED" };
