@@ -11,7 +11,7 @@ export const mockTodos = [
     title: "Task 1",
     description: "Description for Task 1",
     completed: false,
-    user: mockUserRoleUser._id,
+    owner: mockUserRoleUser._id,
     updatedAt: new Date(),
   },
   {
@@ -19,7 +19,7 @@ export const mockTodos = [
     title: "Task 2",
     description: "Description for Task 2",
     completed: true,
-    user: mockUserRoleUser._id,
+    owner: mockUserRoleUser._id,
     updatedAt: new Date(),
   },
 ];
@@ -29,7 +29,7 @@ export const mockTodoRoleUser = {
   title: `New Todo${getRandomInt(1000000)}`,
   description: "New Todo Description",
   completed: false,
-  user: mockUserRoleUser._id,
+  owner: mockUserRoleUser._id,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -39,7 +39,7 @@ export const mockInvalidTodo = {
   title: "invalid title",
   description: "invalid description",
   completed: false,
-  user: mockUserRoleUser._id,
+  owner: mockUserRoleUser._id,
 };
 
 export const mockTodoRoleSupervisor = {
@@ -47,7 +47,7 @@ export const mockTodoRoleSupervisor = {
   title: "Gym",
   description: "To exercise",
   completed: false,
-  user: mockUserRoleSupervisor._id,
+  owner: mockUserRoleSupervisor._id,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -57,7 +57,7 @@ export const mockTodoForUpdate = {
   title: "Update Todo",
   description: "Update Todo Description",
   completed: true,
-  user: mockUserRoleUser._id,
+  owner: mockUserRoleUser._id,
   updatedAt: new Date(),
 };
 
