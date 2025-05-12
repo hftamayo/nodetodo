@@ -602,8 +602,8 @@ describe("User Service - deleteUserByID", () => {
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ENTITY_DELETED");
     expect(User.findById).toHaveBeenCalledWith(TEST_USER_ID);
-    expect(Todo.find).toHaveBeenCalledWith({ user: mockUser });
-    expect(Todo.deleteMany).toHaveBeenCalledWith({ user: mockUser });
+    expect(Todo.find).toHaveBeenCalledWith({ owner: mockUser });
+    expect(Todo.deleteMany).toHaveBeenCalledWith({ owner: mockUser });
     expect(mockUser.deleteOne).toHaveBeenCalled();
   });
 
