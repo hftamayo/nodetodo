@@ -1,479 +1,370 @@
-import { Request, Response } from "express";
-import {
-  mockUserRoleUser,
-  mockUserInvalid,
-  mockUserUpdate,
-  mockUserDelete,
-  mockUserRoleAdmin,
-} from "../mocks/user.mock";
-import {
-  UserRequest,
-  UserIdRequest,
-  LoginRequest,
-  UpdateUserRequest,
-  UserServices,
-} from "../../src/types/user.interface";
+import { Response } from "express";
 import userController from "../../src/api/controllers/userController";
-import { cors_secure, cors_samesite } from "../../src/config/envvars";
+import { mockUserRoleUser, mockUserRoleSupervisor } from "../mocks/user.mock";
+import { mockRolesData } from "../mocks/role.mock";
+import {
+  AuthenticatedUserRequest,
+  UserServices,
+  SignUpRequest,
+  UpdateUserRequest,
+} from "@/types/user.types";
 
-describe("userController Unit Test", () => {
-  let req:
-    | UserRequest
-    | LoginRequest
-    | Request
-    | UserIdRequest
-    | UpdateUserRequest;
-  let res: Response<any, Record<string, any>>;
-  let json: jest.Mock;
-  let signUpUserStub: jest.Mock<any, any, any>;
-  let loginStub: jest.Mock<any, any, any>;
-  let clearCookie: jest.Mock;
-  let cookie: jest.Mock;
-  let logoutStub: jest.Mock<any, any, any>;
-  let listUserByIDStub: jest.Mock<any, any, any>;
-  let updateUserDetailsByIDStub: jest.Mock<any, any, any>;
-  let updateUserPasswordByIDStub: jest.Mock<any, any, any>;
-  let deleteUserByIDStub: jest.Mock<any, any, any>;
-  let controller: ReturnType<typeof userController>;
+jest.mock("@/services/userService");
+
+describe("UserController Unit Tests", () => {
+  let mockRequest: Partial<AuthenticatedUserRequest>;
+  let mockResponse: Partial<Response>;
+  let mockJson: jest.Mock;
+  let mockStatus: jest.Mock;
   let mockUserService: UserServices;
 
   beforeEach(() => {
-    req = {} as
-      | UserRequest
-      | LoginRequest
-      | Request
-      | UserIdRequest
-      | UpdateUserRequest;
-    json = jest.fn();
-    clearCookie = jest.fn();
-    cookie = jest.fn();
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json,
-      clearCookie,
-      cookie,
-    } as unknown as Response<any, Record<string, any>>;
-
-    signUpUserStub = jest.fn((user) => {
-      if (user === mockUserInvalid) {
-        return Promise.resolve({
-          httpStatusCode: 400,
-          message: "Email already exists",
-        });
-      }
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "User created successfully",
-        newUser: mockUserRoleUser,
-      });
-    });
-
-    loginStub = jest.fn((user) => {
-      if (user.email === mockUserInvalid.email) {
-        return Promise.resolve({
-          httpStatusCode: 404,
-          message: "User or Password does not match",
-        });
-      }
-      const userWithToObject = {
-        ...mockUserRoleUser,
-        toObject: () => ({ ...mockUserRoleUser }),
-      };
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "User login successfully",
-        user: userWithToObject,
-        tokenCreated: "token",
-        token: "token",
-      });
-    });
-
-    logoutStub = jest.fn(() => {
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "User logged out successfully",
-      });
-    });
-
-    listUserByIDStub = jest.fn((user) => {
-      if (user.userId === mockUserInvalid.id) {
-        return Promise.resolve({
-          httpStatusCode: 404,
-          message: "User Not Found",
-        });
-      }
-
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "User Found",
-        user: {
-          ...mockUserRoleUser,
-          toObject: () => ({ ...mockUserRoleUser }),
-        },
-      });
-    });
-
-    updateUserDetailsByIDStub = jest.fn((user) => {
-      if (user.userId === mockUserInvalid.id) {
-        return Promise.resolve({
-          httpStatusCode: 404,
-          message: "User Not Found",
-        });
-      }
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Data updated successfully",
-        user: {
-          ...mockUserRoleUser,
-          toObject: () => ({ ...mockUserRoleUser }),
-        },
-      });
-    });
-
-    updateUserPasswordByIDStub = jest.fn((user) => {
-      if (user.userId === mockUserInvalid.id) {
-        return Promise.resolve({
-          httpStatusCode: 404,
-          message: "User Not Found",
-        });
-      }
-      if (user.user.password === mockUserUpdate.notMatchPassword) {
-        return Promise.resolve({
-          httpStatusCode: 400,
-          message: "The entered credentials are not valid",
-        });
-      }
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "Password updated successfully",
-        user: {
-          ...mockUserRoleUser,
-          toObject: () => ({ ...mockUserRoleUser }),
-        },
-      });
-    });
-
-    deleteUserByIDStub = jest.fn((user) => {
-      if (user.userId === mockUserInvalid.id) {
-        return Promise.resolve({
-          httpStatusCode: 404,
-          message: "User Not found",
-        });
-      }
-      return Promise.resolve({
-        httpStatusCode: 200,
-        message: "User deleted successfully",
-      });
-    });
-
-    mockUserService = {
-      signUpUser: signUpUserStub,
-      loginUser: loginStub,
-      logoutUser: logoutStub,
-      listUserByID: listUserByIDStub,
-      updateUserDetailsByID: updateUserDetailsByIDStub,
-      updateUserPasswordByID: updateUserPasswordByIDStub,
-      deleteUserByID: deleteUserByIDStub,
+    mockJson = jest.fn();
+    mockStatus = jest.fn().mockReturnValue({ json: mockJson });
+    mockResponse = {
+      json: mockJson,
+      status: mockStatus,
     };
-
-    controller = userController(mockUserService);
+    mockRequest = {};
+    mockUserService = {
+      signUpUser: jest.fn(),
+      loginUser: jest.fn(),
+      logoutUser: jest.fn(),
+      listUsers: jest.fn(),
+      listUserByID: jest.fn(),
+      updateUserDetailsByID: jest.fn(),
+      updateUserPasswordByID: jest.fn(),
+      deleteUserByID: jest.fn(),
+    };
+    jest.clearAllMocks();
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
+  describe("listUsersHandler", () => {
+    it("should return a list of users with pagination", async () => {
+      // Arrange
+      mockRequest.query = {
+        page: "1",
+        limit: "10",
+      };
+      mockRequest.user = {
+        sub: mockUserRoleUser._id.toString(),
+        role: "user",
+      };
 
-  describe("register method", () => {
-    it("should register a new user", async () => {
-      const { _id, ...userWithoutId } = mockUserRoleUser;
-      req = userWithoutId as UserRequest;
-
-      await controller.registerHandler(req as UserRequest, res);
-
-      const { password, ...filteredMockUser } = mockUserRoleUser;
-
-      expect(signUpUserStub).toHaveBeenCalledTimes(1);
-      expect(signUpUserStub).toHaveBeenCalledWith(userWithoutId);
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
+      const mockUsers = [mockUserRoleUser, mockUserRoleSupervisor];
+      (mockUserService.listUsers as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
-        resultMessage: "User created successfully",
-        //newUser: filteredMockUser,
+        message: "USERS_FOUND",
+        users: mockUsers,
+      });
+
+      // Act
+      await userController(mockUserService).listUsersHandler(
+        mockRequest as AuthenticatedUserRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockUserService.listUsers).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+      });
+      expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 200,
+        resultMessage: "USERS_FOUND",
+        users: mockUsers,
       });
     });
 
-    it("should restrict to register an existing user", async () => {
-      req = mockUserInvalid as UserRequest;
+    it("should handle errors when listing users", async () => {
+      // Arrange
+      mockRequest.query = {
+        page: "1",
+        limit: "10",
+      };
+      mockRequest.user = {
+        sub: mockUserRoleUser._id.toString(),
+        role: "user",
+      };
 
-      await controller.registerHandler(req as UserRequest, res);
+      (mockUserService.listUsers as jest.Mock).mockResolvedValue({
+        httpStatusCode: 404,
+        message: "USERS_NOT_FOUND",
+      });
 
-      expect(signUpUserStub).toHaveBeenCalledTimes(1);
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
+      // Act
+      await userController(mockUserService).listUsersHandler(
+        mockRequest as AuthenticatedUserRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockStatus).toHaveBeenCalledWith(404);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 404,
+        resultMessage: "USERS_NOT_FOUND",
+      });
+    });
+  });
+
+  describe("listUserHandler", () => {
+    it("should return a user when found", async () => {
+      // Arrange
+      mockRequest.user = {
+        sub: mockUserRoleUser._id.toString(),
+        role: "user",
+      };
+
+      (mockUserService.listUserByID as jest.Mock).mockResolvedValue({
+        httpStatusCode: 200,
+        message: "ENTITY_FOUND",
+        user: mockUserRoleUser,
+      });
+
+      // Act
+      await userController(mockUserService).listUserHandler(
+        mockRequest as AuthenticatedUserRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockUserService.listUserByID).toHaveBeenCalledWith(
+        mockUserRoleUser._id.toString()
+      );
+      expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 200,
+        resultMessage: "ENTITY_FOUND",
+        user: mockUserRoleUser,
+      });
+    });
+
+    it("should handle errors when user is not found", async () => {
+      // Arrange
+      mockRequest.user = {
+        sub: "nonexistentid",
+        role: "user",
+      };
+
+      (mockUserService.listUserByID as jest.Mock).mockResolvedValue({
+        httpStatusCode: 404,
+        message: "ENTITY_NOT_FOUND",
+      });
+
+      // Act
+      await userController(mockUserService).listUserHandler(
+        mockRequest as AuthenticatedUserRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockStatus).toHaveBeenCalledWith(404);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 404,
+        resultMessage: "ENTITY_NOT_FOUND",
+      });
+    });
+  });
+
+  describe("signUpHandler", () => {
+    it("should create a new user successfully", async () => {
+      // Arrange
+      const signUpRequest: SignUpRequest = {
+        name: "New User",
+        email: "newuser@example.com",
+        password: "password123",
+        repeatPassword: "password123",
+        age: 25,
+      };
+      mockRequest.body = signUpRequest;
+
+      const newUser = {
+        _id: "newuserid",
+        name: signUpRequest.name,
+        email: signUpRequest.email,
+        role: mockRolesData[1]._id,
+      };
+
+      (mockUserService.signUpUser as jest.Mock).mockResolvedValue({
+        httpStatusCode: 201,
+        message: "USER_CREATED",
+        user: newUser,
+      });
+
+      // Act
+      await userController(mockUserService).signUpHandler(
+        signUpRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockUserService.signUpUser).toHaveBeenCalledWith(signUpRequest);
+      expect(mockStatus).toHaveBeenCalledWith(201);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 201,
+        resultMessage: "USER_CREATED",
+        user: newUser,
+      });
+    });
+
+    it("should handle errors when creating user", async () => {
+      // Arrange
+      const signUpRequest: SignUpRequest = {
+        name: "",
+        email: "",
+        password: "",
+        repeatPassword: "",
+        age: 0,
+      };
+      mockRequest.body = signUpRequest;
+
+      (mockUserService.signUpUser as jest.Mock).mockResolvedValue({
         httpStatusCode: 400,
-        resultMessage: "Email already exists",
+        message: "MISSING_FIELDS",
+      });
+
+      // Act
+      await userController(mockUserService).signUpHandler(
+        signUpRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 400,
+        resultMessage: "MISSING_FIELDS",
       });
     });
   });
 
-  describe("login method", () => {
-    it("should login a valid user", async () => {
-      const { email, password } = mockUserRoleUser;
-      req = { email, password } as LoginRequest;
+  describe("updateUserDetailsHandler", () => {
+    it("should update a user successfully", async () => {
+      // Arrange
+      const updateRequest: UpdateUserRequest = {
+        userId: mockUserRoleUser._id.toString(),
+        user: {
+          name: "Updated Name",
+          email: "updated@example.com",
+        },
+      };
+      mockRequest.body = updateRequest;
 
-      await controller.loginHandler(req, res);
+      const updatedUser = {
+        ...mockUserRoleUser,
+        name: updateRequest.user.name,
+        email: updateRequest.user.email,
+      };
 
-      const { password: _, ...filteredMockUser } = mockUserRoleUser;
-
-      expect(loginStub).toHaveBeenCalledTimes(1);
-      expect(loginStub).toHaveBeenCalledWith({ email, password });
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
+      (mockUserService.updateUserDetailsByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
-        resultMessage: "User login successfully",
-        loggedUser: filteredMockUser,
+        message: "ENTITY_UPDATED",
+        user: updatedUser,
       });
-      expect(cookie).toHaveBeenCalledTimes(1);
-      expect(cookie).toHaveBeenCalledWith("nodetodo", "token", {
-        httpOnly: true,
-        maxAge: 360000,
-        secure: cors_secure,
-        sameSite: cors_samesite,
-        path: "/",
+
+      // Act
+      await userController(mockUserService).updateUserDetailsHandler(
+        updateRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockUserService.updateUserDetailsByID).toHaveBeenCalledWith(
+        updateRequest
+      );
+      expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 200,
+        resultMessage: "ENTITY_UPDATED",
+        user: updatedUser,
       });
     });
 
-    it("should restrict login an invalid user", async () => {
-      const { email, password } = mockUserInvalid;
-      req = { email, password } as LoginRequest;
+    it("should handle errors when updating user", async () => {
+      // Arrange
+      const updateRequest: UpdateUserRequest = {
+        userId: "nonexistentid",
+        user: {
+          name: "Updated Name",
+        },
+      };
+      mockRequest.body = updateRequest;
 
-      await controller.loginHandler(req, res);
-
-      expect(loginStub).toHaveBeenCalledTimes(1);
-      expect(loginStub).toHaveBeenCalledWith({ email, password });
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
+      (mockUserService.updateUserDetailsByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 404,
-        resultMessage: "User or Password does not match",
+        message: "ENTITY_NOT_FOUND",
       });
-      expect(res.cookie).not.toHaveBeenCalled();
+
+      // Act
+      await userController(mockUserService).updateUserDetailsHandler(
+        updateRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockStatus).toHaveBeenCalledWith(404);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 404,
+        resultMessage: "ENTITY_NOT_FOUND",
+      });
     });
   });
 
-  describe("logout method", () => {
-    it("should logout a user", async () => {
-      await controller.logoutHandler(req as Request, res);
+  describe("deleteUserHandler", () => {
+    it("should delete a user successfully", async () => {
+      // Arrange
+      mockRequest.user = {
+        sub: mockUserRoleUser._id.toString(),
+        role: "user",
+      };
 
-      expect(res.clearCookie).toHaveBeenCalledTimes(1);
-      expect(res.clearCookie).toHaveBeenCalledWith("nodetodo");
-      expect(res.status).toHaveBeenCalledTimes(1);
-      expect(res.status).toHaveBeenCalledWith(200);
-    });
-  });
-
-  describe("listUser method", () => {
-    it("should get details of a valid user", async () => {
-      const userId = mockUserRoleUser._id.toString();
-      req = { userId } as UserIdRequest;
-
-      await controller.listUserHandler(req, res);
-
-      const { password, ...filteredMockUser } = mockUserRoleUser;
-
-      expect(listUserByIDStub).toHaveBeenCalledTimes(1);
-      expect(listUserByIDStub).toHaveBeenCalledWith({ userId });
-      expect(json).toHaveBeenCalledWith({
+      (mockUserService.deleteUserByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
-        resultMessage: "User Found",
-        searchUser: filteredMockUser,
+        message: "ENTITY_DELETED",
+      });
+
+      // Act
+      await userController(mockUserService).deleteUserHandler(
+        mockRequest as AuthenticatedUserRequest,
+        mockResponse as Response
+      );
+
+      // Assert
+      expect(mockUserService.deleteUserByID).toHaveBeenCalledWith(
+        mockUserRoleUser._id.toString()
+      );
+      expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 200,
+        resultMessage: "ENTITY_DELETED",
       });
     });
 
-    it("should restrict to get details of an invalid user", async () => {
-      const userId = mockUserInvalid.id;
-      req = { userId } as UserIdRequest;
+    it("should handle errors when deleting user", async () => {
+      // Arrange
+      mockRequest.user = {
+        sub: "nonexistentid",
+        role: "user",
+      };
 
-      await controller.listUserHandler(req, res);
-
-      expect(listUserByIDStub).toHaveBeenCalledTimes(1);
-      expect(listUserByIDStub).toHaveBeenCalledWith({ userId });
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(json).toHaveBeenCalledWith({
+      (mockUserService.deleteUserByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 404,
-        resultMessage: "User Not Found",
+        message: "ENTITY_NOT_FOUND",
       });
-    });
-  });
 
-  describe("updateDetails method", () => {
-    it("should update details of a valid user", async () => {
-      const expectedUpdateProperties = {
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.email,
-        age: mockUserUpdate.age,
-      };
+      // Act
+      await userController(mockUserService).deleteUserHandler(
+        mockRequest as AuthenticatedUserRequest,
+        mockResponse as Response
+      );
 
-      const req = {
-        userId: mockUserRoleUser._id.toString(),
-        user: expectedUpdateProperties,
-      } as UpdateUserRequest;
-
-      await controller.updateUserDetailsHandler(req, res);
-
-      const { password, ...filteredMockUser } = mockUserRoleUser;
-
-      expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith({
-        userId: mockUserRoleUser._id.toString(),
-        user: expectedUpdateProperties,
+      // Assert
+      expect(mockStatus).toHaveBeenCalledWith(404);
+      expect(mockJson).toHaveBeenCalledWith({
+        code: 404,
+        resultMessage: "ENTITY_NOT_FOUND",
       });
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
-        httpStatusCode: 200,
-        resultMessage: "Data updated successfully",
-        updatedUser: filteredMockUser,
-      });
-    });
-
-    it("should restrict to update details of an invalid user", async () => {
-      const expectedUpdateProperties = {
-        name: mockUserUpdate.name,
-        email: mockUserUpdate.email,
-        age: mockUserUpdate.age,
-      };
-
-      const req = {
-        userId: mockUserInvalid.id,
-        user: expectedUpdateProperties,
-      } as UpdateUserRequest;
-
-      await controller.updateUserDetailsHandler(req, res);
-
-      expect(updateUserDetailsByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserDetailsByIDStub).toHaveBeenCalledWith({
-        userId: mockUserInvalid.id,
-        user: expectedUpdateProperties,
-      });
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
-        httpStatusCode: 404,
-        resultMessage: "User Not Found",
-      });
-    });
-  });
-
-  describe("updatePassword method", () => {
-    it("should update password of a valid user", async () => {
-      const expectedUpdateProperties = {
-        password: mockUserUpdate.oldPassword,
-        newPassword: mockUserUpdate.newPassword,
-      };
-
-      const req = {
-        userId: mockUserRoleUser._id.toString(),
-        user: expectedUpdateProperties,
-      } as UpdateUserRequest;
-
-      await controller.updateUserPasswordHandler(req, res);
-
-      const { password, ...filteredMockUser } = mockUserRoleUser;
-
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith({
-        userId: mockUserRoleUser._id.toString(),
-        user: expectedUpdateProperties,
-      });
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
-        httpStatusCode: 200,
-        resultMessage: "Password updated successfully",
-        updatedUser: filteredMockUser,
-      });
-    });
-
-    it("should restrict to update password of an invalid user", async () => {
-      const expectedUpdateProperties = {
-        password: mockUserUpdate.oldPassword,
-        newPassword: mockUserUpdate.newPassword,
-      };
-
-      const req = {
-        userId: mockUserInvalid.id,
-        user: expectedUpdateProperties,
-      } as UpdateUserRequest;
-
-      await controller.updateUserPasswordHandler(req, res);
-
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith({
-        userId: mockUserInvalid.id,
-        user: expectedUpdateProperties,
-      });
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
-        httpStatusCode: 404,
-        resultMessage: "User Not Found",
-      });
-    });
-
-    it("should restrict to update password of a valid user with incorrect password", async () => {
-      const expectedUpdateProperties = {
-        password: mockUserUpdate.notMatchPassword,
-        newPassword: mockUserUpdate.newPassword,
-      };
-
-      const req = {
-        userId: mockUserRoleUser._id.toString(),
-        user: expectedUpdateProperties,
-      } as UpdateUserRequest;
-
-      await controller.updateUserPasswordHandler(req, res);
-
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledTimes(1);
-      expect(updateUserPasswordByIDStub).toHaveBeenCalledWith({
-        userId: mockUserRoleUser._id.toString(),
-        user: expectedUpdateProperties,
-      });
-      expect(json).toHaveBeenCalledTimes(1);
-      expect(json).toHaveBeenCalledWith({
-        httpStatusCode: 400,
-        resultMessage: "The entered credentials are not valid",
-      });
-    });
-  });
-
-  describe("deleteUser method", () => {
-    it("should delete a valid user", async () => {
-      const userId = mockUserDelete.id;
-      req = { userId } as UserIdRequest;
-
-      await controller.deleteUserHandler(req, res);
-
-      expect(deleteUserByIDStub).toHaveBeenCalledTimes(1);
-      expect(deleteUserByIDStub).toHaveBeenCalledWith({ userId });
-      // expect(res.status).toHaveBeenCalledWith(200);
-      // expect(json).toHaveBeenCalledWith({
-      //   resultMessage: "User deleted successfully",
-      // });
-    });
-
-    it("should restrict to delete an invalid user", async () => {
-      const userId = mockUserInvalid.id;
-      req = { userId } as UserIdRequest;
-
-      await controller.deleteUserHandler(req, res);
-
-      console.log("deleteUserByIDStub calls:", deleteUserByIDStub.mock.calls);
-      console.log("res.status calls:", (res.status as jest.Mock).mock.calls);
-      console.log("res.json calls:", json.mock.calls);
-
-      expect(deleteUserByIDStub).toHaveBeenCalledTimes(1);
-      expect(deleteUserByIDStub).toHaveBeenCalledWith({ userId });
-      expect(res.status).toHaveBeenCalledWith(404);
-      // expect(json).toHaveBeenCalledWith({
-      //   resultMessage: "User Not Found",
-      // });
     });
   });
 });
