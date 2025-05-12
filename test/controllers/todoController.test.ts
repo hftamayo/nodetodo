@@ -10,19 +10,14 @@ import { mockUserRoleUser } from "../mocks/user.mock";
 import {
   NewTodoRequest,
   UpdateTodoRequest,
-  OwnerTodoIdRequest,
   TodoServices,
-} from "../../src/types/todo.interface";
-import { UserIdRequest } from "../../src/types/user.interface";
-import todoController from "../../src/api/controllers/todoController";
-import { cookie } from "express-validator";
-import todoService from "@/services/todoService";
-import { mockTodoRoleSupervisor } from "../mocks/todo.mock";
-import { mockUserRoleSupervisor } from "../mocks/user.mock";
-import {
   ListTodosByOwnerRequest,
   ListTodoByOwnerRequest,
 } from "@/types/todo.types";
+import todoController from "../../src/api/controllers/todoController";
+import todoService from "@/services/todoService";
+import { mockTodoRoleSupervisor } from "../mocks/todo.mock";
+import { mockUserRoleSupervisor } from "../mocks/user.mock";
 
 jest.mock("@/services/todoService");
 
@@ -184,6 +179,7 @@ describe("TodoController Unit Tests", () => {
         todo: {
           title: "New Todo",
           description: "Test Description",
+          completed: false,
           owner: mockUserRoleUser._id.toString(),
         },
       };
@@ -192,7 +188,7 @@ describe("TodoController Unit Tests", () => {
       const newTodo = {
         _id: "newtodoid",
         ...newTodoRequest.todo,
-        completed: false,
+        owner: mockUserRoleUser._id.toString(),
       };
 
       (mockTodoService.createTodo as jest.Mock).mockResolvedValue({
@@ -224,6 +220,7 @@ describe("TodoController Unit Tests", () => {
         todo: {
           title: "",
           description: "",
+          completed: false,
           owner: mockUserRoleUser._id.toString(),
         },
       };
