@@ -1,7 +1,7 @@
 import request from "supertest";
 import express from "express";
 import hcController from "../../src/api/controllers/hcController";
-import hcRouter from "../../src/api/routes/hc"; // Adjust the import path as necessary
+import hcRouter from "@/api/routes/hc.routes";
 
 jest.mock("../../src/api/controllers/hcController");
 
