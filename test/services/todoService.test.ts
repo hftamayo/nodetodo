@@ -106,7 +106,7 @@ describe("TodoService Unit Tests", () => {
     it("should return a todo when found and owned by the user", async () => {
       // Arrange
       const mockRequest: ListTodoByOwnerRequest = {
-        owner: mockTodoRoleUser.user.toString(),
+        owner: mockTodoRoleUser.owner.toString(),
         todoId: mockTodoRoleUser._id.toString(),
       };
 
@@ -127,7 +127,7 @@ describe("TodoService Unit Tests", () => {
     it("should return 404 when todo is not found", async () => {
       // Arrange
       const mockRequest: ListTodoByOwnerRequest = {
-        owner: mockTodoRoleUser.user.toString(),
+        owner: mockTodoRoleUser.owner.toString(),
         todoId: new mongo.ObjectId().toString(),
       };
 
@@ -246,7 +246,7 @@ describe("TodoService Unit Tests", () => {
     it("should update a todo successfully", async () => {
       // Arrange
       const mockRequest: UpdateTodoRequest = {
-        owner: mockTodoRoleUser.user.toString(),
+        owner: mockTodoRoleUser.owner.toString(),
         todo: {
           _id: mockTodoRoleUser._id.toString(),
           title: "Updated Title",
@@ -278,7 +278,7 @@ describe("TodoService Unit Tests", () => {
     it("should return 400 when required fields are missing", async () => {
       // Arrange
       const mockRequest: UpdateTodoRequest = {
-        owner: mockTodoRoleUser.user.toString(),
+        owner: mockTodoRoleUser.owner.toString(),
         todo: {
           _id: mockTodoRoleUser._id.toString(),
         },
@@ -295,7 +295,7 @@ describe("TodoService Unit Tests", () => {
     it("should return 404 when todo is not found", async () => {
       // Arrange
       const mockRequest: UpdateTodoRequest = {
-        owner: mockTodoRoleUser.user.toString(),
+        owner: mockTodoRoleUser.owner.toString(),
         todo: {
           _id: new mongo.ObjectId().toString(),
           title: "Updated Title",
@@ -343,7 +343,7 @@ describe("TodoService Unit Tests", () => {
     it("should delete a todo successfully", async () => {
       // Arrange
       const mockRequest: ListTodoByOwnerRequest = {
-        owner: mockTodoRoleUser.user.toString(),
+        owner: mockTodoRoleUser.owner.toString(),
         todoId: mockTodoRoleUser._id.toString(),
       };
 
@@ -365,7 +365,7 @@ describe("TodoService Unit Tests", () => {
     it("should return 404 when todo is not found", async () => {
       // Arrange
       const mockRequest: ListTodoByOwnerRequest = {
-        owner: mockTodoRoleUser.user.toString(),
+        owner: mockTodoRoleUser.owner.toString(),
         todoId: new mongo.ObjectId().toString(),
       };
 
