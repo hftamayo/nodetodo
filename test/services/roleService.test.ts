@@ -251,12 +251,11 @@ describe("Role Service - updateRoleByID", () => {
   it("should successfully update a role", async () => {
     // Arrange
     const existingRole = mockRolesData[0];
-    const mockExec = jest.fn().mockResolvedValue(existingRole);
+    const mockExec = jest.fn().mockResolvedValue({
+      ...existingRole,
+      save: jest.fn().mockResolvedValue(existingRole),
+    });
     (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
-
-    const mockSave = jest
-      .spyOn(Role.prototype, "save")
-      .mockResolvedValue(existingRole as any);
 
     const params: UpdateRoleRequest = {
       role: {
@@ -280,7 +279,7 @@ describe("Role Service - updateRoleByID", () => {
     expect(result.role).toBeDefined();
     expect(result.role?.name).toBe(params.role.name);
     expect(Role.findById).toHaveBeenCalledWith(params.role._id);
-    expect(mockSave).toHaveBeenCalled();
+    expect(mockExec).toHaveBeenCalled();
   });
 
   it("should return 404 when role is not found", async () => {
