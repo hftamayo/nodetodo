@@ -153,20 +153,25 @@ describe("Role Service - createRole", () => {
 
   it("should successfully create a new role", async () => {
     // Arrange
+    const mockRole = {
+      ...mockRolesData[0],
+      save: jest.fn().mockResolvedValue(mockRolesData[0]),
+    };
+
     const mockFindOneExec = jest.fn().mockResolvedValue(null);
     (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-    const mockRole = mockRolesData[0];
-    const mockSave = jest
-      .spyOn(Role.prototype, "save")
-      .mockResolvedValue(mockRole as any);
+    (Role as unknown as jest.Mock).mockImplementation(() => mockRole);
 
     const params = createTestRoleRequest({
-      name: mockRolesData[0].name,
-      description: mockRolesData[0].description,
-      status: mockRolesData[0].status,
-      permissions: Object.fromEntries(mockRolesData[0].permissions),
-    });
+      name: mockRole.name,
+      description: mockRole.description,
+      status: mockRole.status,
+      permissions: {
+        users: mockRole.permissions.get("users"),
+        roles: mockRole.permissions.get("roles")
+      }
+     });
 
     // Act
     const result = await roleService.createRole(params);
@@ -177,7 +182,8 @@ describe("Role Service - createRole", () => {
     expect(result.role).toBeDefined();
     expect(result.role?.name).toBe(params.role.name);
     expect(Role.findOne).toHaveBeenCalledWith({ name: params.role.name });
-    expect(mockSave).toHaveBeenCalled();
+    expect(mockFindOneExec).toHaveBeenCalled();
+    expect(mockRole.save).toHaveBeenCalled();
   });
 
   it("should return 400 when role already exists", async () => {
