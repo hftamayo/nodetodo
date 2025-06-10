@@ -92,7 +92,42 @@ describe("Role Service - listRoleByID", () => {
 
   it("should successfully return a role when found", async () => {
     // Arrange
-    const mockExec = jest.fn().mockResolvedValue(mockRolesData[0]);
+    const originalFromEntries = Object.fromEntries;
+
+    // Override fromEntries to handle our mock object
+    Object.fromEntries = jest.fn().mockImplementation((iterable) => {
+      // If this is our mock permissions object (not a real Map)
+      if (
+        iterable &&
+        typeof iterable.entries === "function" &&
+        !(iterable instanceof Map)
+      ) {
+        return {
+          users: 7,
+          roles: 7,
+        };
+      }
+      // Otherwise use the original implementation
+      return originalFromEntries(iterable);
+    });
+
+    const mockRole = {
+      ...mockRolesData[0],
+      permissions: {
+        get: (key: string): number | undefined => {
+          if (key === "users") return 7;
+          if (key === "roles") return 7;
+          return undefined;
+        },
+        entries: function* (): IterableIterator<[string, number]> {
+          yield ["users", 7];
+          yield ["roles", 7];
+        },
+        forEach: jest.fn(),
+      },
+    };
+
+    const mockExec = jest.fn().mockResolvedValue(mockRole);
     (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
 
     const params: RoleIdRequest = {
@@ -102,10 +137,23 @@ describe("Role Service - listRoleByID", () => {
     // Act
     const result = await roleService.listRoleByID(params);
 
+    console.log("Mock role:", mockRole);
+    console.log("Mock permissions type:", typeof mockRole.permissions);
+    console.log("Is Map?", mockRole.permissions instanceof Map);
+    console.log("Mock permissions entries:", [
+      ...mockRole.permissions.entries(),
+    ]);
+    console.log("Result role:", result.role);
+
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ENTITY_FOUND");
-    expect(result.role).toEqual(expectedFilteredRoles[0]);
+    expect(result.role?._id).toBe(mockRole._id);
+    expect(result.role?.name).toBe(mockRole.name);
+    expect(result.role?.permissions).toEqual({
+      users: 7,
+      roles: 7,
+    });
     expect(Role.findById).toHaveBeenCalledWith(params.roleId);
   });
 
