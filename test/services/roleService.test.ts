@@ -169,9 +169,9 @@ describe("Role Service - createRole", () => {
       status: mockRole.status,
       permissions: {
         users: mockRole.permissions.get("users"),
-        roles: mockRole.permissions.get("roles")
-      }
-     });
+        roles: mockRole.permissions.get("roles"),
+      },
+    });
 
     // Act
     const result = await roleService.createRole(params);
@@ -229,8 +229,9 @@ describe("Role Service - createRole", () => {
     const mockFindOneExec = jest.fn().mockResolvedValue(null);
     (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
 
-    const mockRole = mockRolesData[0];
-    jest.spyOn(Role.prototype, "save").mockResolvedValue(mockRole as any);
+    (Role as unknown as jest.Mock).mockImplementation(() => {
+      throw new Error("Database error");
+    });
 
     const params = createTestRoleRequest({
       name: mockRolesData[1].name,
