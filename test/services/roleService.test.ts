@@ -40,6 +40,26 @@ describe("Role Service - listRoles", () => {
 
   it("should successfully return roles when found", async () => {
     // Arrange
+    const originalFromEntries = Object.fromEntries;
+
+    // Override fromEntries for the array of roles
+    Object.fromEntries = jest.fn().mockImplementation((iterable) => {
+      // If this is our mock permissions object
+      if (
+        iterable &&
+        typeof iterable.entries === "function" &&
+        !(iterable instanceof Map)
+      ) {
+        if (iterable === mockRolesData[0].permissions) {
+          return { users: 7, roles: 7 };
+        } else if (iterable === mockRolesData[1].permissions) {
+          return { users: 1, roles: 1 };
+        }
+      }
+      // Otherwise use original
+      return originalFromEntries(iterable);
+    });
+
     const mockExec = jest.fn().mockResolvedValue(mockRolesData);
     (Role.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
 
@@ -54,6 +74,8 @@ describe("Role Service - listRoles", () => {
     // Verify mongoose chain calls
     expect(Role.find).toHaveBeenCalled();
     expect(mockExec).toHaveBeenCalled();
+
+    Object.fromEntries = originalFromEntries;
   });
 
   it("should return 404 when no roles are found", async () => {
@@ -136,15 +158,6 @@ describe("Role Service - listRoleByID", () => {
 
     // Act
     const result = await roleService.listRoleByID(params);
-
-    console.log("Mock role:", mockRole);
-    console.log("Mock permissions type:", typeof mockRole.permissions);
-    console.log("Is Map?", mockRole.permissions instanceof Map);
-    console.log("Mock permissions entries:", [
-      ...mockRole.permissions.entries(),
-    ]);
-    console.log("Result role:", result.role);
-
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ENTITY_FOUND");
