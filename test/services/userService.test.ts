@@ -489,7 +489,14 @@ describe("User Service - updateUserPasswordByID", () => {
     const mockExec = jest.fn().mockResolvedValue(mockUser);
     (User.findById as jest.Mock).mockReturnValue({ exec: mockExec });
 
-    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    (bcrypt.compare as jest.Mock).mockImplementation(
+      (plainPassword, hashedPassword) => {
+        return Promise.resolve(
+          plainPassword === "currentPassword" &&
+            hashedPassword === mockUserRoleUser.password
+        );
+      }
+    );
     (bcrypt.genSalt as jest.Mock).mockResolvedValue("salt");
     (bcrypt.hash as jest.Mock).mockResolvedValue("newHashedPassword");
 
@@ -511,13 +518,14 @@ describe("User Service - updateUserPasswordByID", () => {
     expect(User.findById).toHaveBeenCalledWith(params.userId);
     expect(bcrypt.compare).toHaveBeenCalledWith(
       params.user.password,
-      mockUser.password
+      mockUserRoleUser.password
     );
     expect(bcrypt.hash).toHaveBeenCalledWith(
       params.user.updatePassword,
       "salt"
     );
     expect(mockUser.save).toHaveBeenCalled();
+    expect(mockUser.password).toBe("newHashedPassword");
   });
 
   it("should return 404 when user is not found", async () => {
