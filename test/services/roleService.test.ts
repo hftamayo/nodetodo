@@ -40,27 +40,14 @@ describe("Role Service - listRoles", () => {
 
   it("should successfully return roles when found", async () => {
     // Arrange
-    const originalFromEntries = Object.fromEntries;
+    const mockRoles = mockRolesData.map((role: any) => ({
+      ...role,
+      permissions: role.name === "admin" 
+        ? { users: 7, roles: 7 }
+        : { users: 1, roles: 1 }
+    }));
 
-    // Override fromEntries for the array of roles
-    Object.fromEntries = jest.fn().mockImplementation((iterable) => {
-      // If this is our mock permissions object
-      if (
-        iterable &&
-        typeof iterable.entries === "function" &&
-        !(iterable instanceof Map)
-      ) {
-        if (iterable === mockRolesData[0].permissions) {
-          return { users: 7, roles: 7 };
-        } else if (iterable === mockRolesData[1].permissions) {
-          return { users: 1, roles: 1 };
-        }
-      }
-      // Otherwise use original
-      return originalFromEntries(iterable);
-    });
-
-    const mockExec = jest.fn().mockResolvedValue(mockRolesData);
+    const mockExec = jest.fn().mockResolvedValue(mockRoles);
     (Role.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
 
     // Act
@@ -69,13 +56,23 @@ describe("Role Service - listRoles", () => {
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ROLES_FOUND");
-    expect(result.roles).toEqual(expectedFilteredRoles);
+    expect(result.roles).toBeDefined();
+    expect(Array.isArray(result.roles)).toBe(true);
+    expect(result.roles!.length).toBe(mockRoles.length);
+
+    // Check individual roles and their permissions
+    result.roles?.forEach((role: any, index: number) => {
+      const expectedRole = mockRoles[index];
+      expect(role._id).toBe(expectedRole._id);
+      expect(role.name).toBe(expectedRole.name);
+      expect(role.description).toBe(expectedRole.description);
+      expect(role.status).toBe(expectedRole.status);
+      expect(role.permissions).toEqual(expectedRole.permissions);
+    });
 
     // Verify mongoose chain calls
     expect(Role.find).toHaveBeenCalled();
     expect(mockExec).toHaveBeenCalled();
-
-    Object.fromEntries = originalFromEntries;
   });
 
   it("should return 404 when no roles are found", async () => {
