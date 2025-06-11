@@ -8,7 +8,7 @@ export const mockUserRoleUser = {
   _id: new mongo.ObjectId("123456789012"),
   name: "John Doe",
   email: "john@example.com",
-  password: "securePassword123",
+  password: "$2b$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   age: 30,
 };
 
