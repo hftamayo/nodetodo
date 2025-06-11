@@ -1,7 +1,7 @@
 import roleService from "@/services/roleService";
 import Role from "@/models/Role";
 import { RoleIdRequest, UpdateRoleRequest } from "@/types/role.types";
-import { mockRolesData, expectedFilteredRoles } from "../mocks/role.mock";
+import { mockRolesData } from "../mocks/role.mock";
 
 jest.mock("@/models/Role");
 
@@ -35,16 +35,20 @@ const TEST_ROLE_ID = mockRolesData[0]._id.toString();
 
 describe("Role Service - listRoles", () => {
   beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it("should successfully return roles when found", async () => {
     // Arrange
     const mockRoles = mockRolesData.map((role: any) => ({
       ...role,
-      permissions: role.name === "admin" 
-        ? { users: 7, roles: 7 }
-        : { users: 1, roles: 1 }
+      permissions:
+        role.name === "admin" ? { users: 7, roles: 7 } : { users: 1, roles: 1 },
     }));
 
     const mockExec = jest.fn().mockResolvedValue(mockRoles);
