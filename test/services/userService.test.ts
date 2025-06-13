@@ -72,11 +72,11 @@ describe("User Service - signUpUser", () => {
     (User as unknown as jest.Mock).mockImplementation(() => mockUser);
 
     const params: SignUpRequest = {
-      name: "Test User",
-      email: "test@example.com",
-      password: "password123",
-      repeatPassword: "password123",
-      age: 25,
+      name: mockUserRoleUser.name,
+      email: mockUserRoleUser.email,
+      password: mockUserRoleUser.password,
+      repeatPassword: mockUserRoleUser.password,
+      age: mockUserRoleUser.age,
     };
 
     // Act
