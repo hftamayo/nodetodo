@@ -12,6 +12,7 @@ import {
   ListUsersRequest,
 } from "@/types/user.types";
 import { mockUserRoleUser, mockUserRoleAdmin } from "../mocks/user.mock";
+import { mockRolesData } from "../mocks/role.mock";
 
 jest.mock("@/models/User");
 jest.mock("@/models/Role");
@@ -189,8 +190,13 @@ describe("User Service - loginUser", () => {
     // Arrange
     const mockUser = {
       ...mockUserRoleUser,
+      _id: mockUserRoleUser._id,
+      role: mockRolesData[1],
       status: true,
-      toObject: () => mockUserRoleUser,
+      toObject: () => ({
+        ...mockUserRoleUser,
+        role: mockRolesData[1],
+      }),
     };
     const mockFindOneExec = jest.fn().mockResolvedValue(mockUser);
     (User.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
@@ -198,6 +204,9 @@ describe("User Service - loginUser", () => {
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
     (crypto.randomUUID as jest.Mock).mockReturnValue("session-id");
     (jwt.sign as jest.Mock).mockReturnValue("jwt-token");
+
+    // Set JWT_SECRET
+    process.env.JWT_SECRET = "test-jwt-secret";
 
     const params: LoginRequest = {
       email: mockUserRoleUser.email,
