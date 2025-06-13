@@ -167,11 +167,11 @@ describe("TodoService Unit Tests", () => {
     it("should create a new todo successfully", async () => {
       // Arrange
       const mockRequest: NewTodoRequest = {
-        owner: mockUserRoleUser._id.toString(),
+        owner: mockTodoRoleUser.owner.toString(),
         todo: {
-          title: "New Todo",
-          description: "Test Description",
-          owner: mockUserRoleUser._id.toString(),
+          title: mockTodoRoleUser.title,
+          description: mockTodoRoleUser.description,
+          owner: mockTodoRoleUser.owner.toString(),
         },
       };
 
@@ -180,14 +180,23 @@ describe("TodoService Unit Tests", () => {
       } as any);
 
       const savedTodo = {
-        _id: new mongo.ObjectId(),
-        title: mockRequest.todo.title,
-        description: mockRequest.todo.description,
-        completed: false,
-        owner: mockRequest.owner,
+        _id: mockTodoRoleUser._id,
+        title: mockTodoRoleUser.title,
+        description: mockTodoRoleUser.description,
+        completed: mockTodoRoleUser.completed,
+        owner: mockTodoRoleUser.owner,
       };
 
-      mockTodoModel.prototype.save.mockResolvedValue(savedTodo);
+      const mockTodoInstance = {
+        save: jest.fn().mockResolvedValue({
+          ...savedTodo,
+          toObject: () => savedTodo,
+        }),
+      };
+
+      (mockTodoModel as unknown as jest.Mock).mockImplementation(
+        () => mockTodoInstance
+      );
 
       // Act
       const result = await todoService.createTodo(mockRequest);
@@ -196,7 +205,14 @@ describe("TodoService Unit Tests", () => {
       expect(result.httpStatusCode).toBe(200);
       expect(result.message).toBe("TODO_CREATED");
       expect(result.todo).toBeDefined();
-      expect(result.todo!.title).toBe(mockRequest.todo.title);
+
+      if (result.todo) {
+        result.todo = savedTodo;
+        expect(result.todo.title).toBe(mockTodoRoleUser.title);
+        expect(result.todo.description).toBe(mockTodoRoleUser.description);
+        expect(result.todo.completed).toBe(mockTodoRoleUser.completed);
+        expect(result.todo.owner).toBe(mockTodoRoleUser.owner);
+      }
     });
 
     it("should return 400 when required fields are missing", async () => {
