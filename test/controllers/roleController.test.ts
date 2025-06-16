@@ -294,6 +294,9 @@ describe("Role Controller - Unit Tests", () => {
           },
         },
       };
+
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
       mockRoleService.createRole.mockRejectedValueOnce(
         new Error("Database error")
       );
@@ -302,10 +305,10 @@ describe("Role Controller - Unit Tests", () => {
       await controller.newRoleHandler(req, res);
 
       // Assert
-      const consoleErrorSpy = jest.spyOn(console, "error");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("roleController, newRole:")
+        expect.stringContaining("roleController, createRole:")
       );
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -332,9 +335,9 @@ describe("Role Controller - Unit Tests", () => {
       // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        code: 200,
+        httpStatusCode: 200,
         resultMessage: "ROLE_UPDATED",
-        role: updatedRole,
+        updateRole: updatedRole,
       });
       expect(mockRoleService.updateRoleByID).toHaveBeenCalledWith(req);
     });
