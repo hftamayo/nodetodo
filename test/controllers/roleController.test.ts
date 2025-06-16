@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { RoleServices, ListRolesRequest } from "@/types/role.types";
 import roleController from "@/api/controllers/roleController";
-import { mockRolesData } from "@test/mocks/role.mock";
+import { mockRolesData } from "../mocks/role.mock";
 
 type MockedRoleServices = {
   [K in keyof RoleServices]: jest.Mock<
@@ -380,6 +380,9 @@ describe("Role Controller - Unit Tests", () => {
           },
         },
       };
+
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
       mockRoleService.updateRoleByID.mockRejectedValueOnce(
         new Error("Database error")
       );
@@ -388,10 +391,10 @@ describe("Role Controller - Unit Tests", () => {
       await controller.updateRoleHandler(req, res);
 
       // Assert
-      const consoleErrorSpy = jest.spyOn(console, "error");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("roleController, updateRole:")
       );
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -437,6 +440,8 @@ describe("Role Controller - Unit Tests", () => {
       const req = {
         roleId: mockRolesData[0]._id.toString(),
       };
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
       mockRoleService.deleteRoleByID.mockRejectedValueOnce(
         new Error("Database error")
       );
@@ -445,10 +450,11 @@ describe("Role Controller - Unit Tests", () => {
       await controller.deleteRoleHandler(req, res);
 
       // Assert
-      const consoleErrorSpy = jest.spyOn(console, "error");
+
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("roleController, deleteRole:")
       );
+      consoleErrorSpy.mockRestore();
     });
   });
 });
