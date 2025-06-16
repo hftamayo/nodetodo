@@ -360,7 +360,7 @@ describe("Role Controller - Unit Tests", () => {
       // Assert
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
-        code: 404,
+        httpStatusCode: 404,
         resultMessage: "ENTITY_NOT_FOUND",
       });
       expect(mockRoleService.updateRoleByID).toHaveBeenCalledWith(req);
