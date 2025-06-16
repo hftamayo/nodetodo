@@ -314,10 +314,16 @@ describe("UserController Unit Tests", () => {
   describe("deleteUserHandler", () => {
     it("should delete a user successfully", async () => {
       // Arrange
-      mockRequest.user = {
-        sub: mockUserRoleUser._id.toString(),
-        role: "user",
+      mockRequest = {
+        user: {
+          sub: mockUserRoleUser._id.toString(),
+          role: "user",
+        },
       };
+
+      mockJson.mockClear();
+      mockStatus.mockClear();
+      mockResponse.clearCookie = jest.fn();
 
       (mockUserService.deleteUserByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
@@ -334,6 +340,7 @@ describe("UserController Unit Tests", () => {
       expect(mockUserService.deleteUserByID).toHaveBeenCalledWith(
         mockUserRoleUser._id.toString()
       );
+      expect(mockResponse.clearCookie).toHaveBeenCalledWith("nodetodo");
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith({
         code: 200,
