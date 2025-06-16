@@ -153,6 +153,9 @@ describe("Role Controller - Unit Tests", () => {
         page: 1,
         limit: 10,
       };
+
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
       mockRoleService.listRoles.mockRejectedValueOnce(
         new Error("Database error")
       );
@@ -161,10 +164,10 @@ describe("Role Controller - Unit Tests", () => {
       await controller.getRolesHandler(req, res);
 
       // Assert
-      const consoleErrorSpy = jest.spyOn(console, "error");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("roleController, getRoles:")
       );
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -215,14 +218,16 @@ describe("Role Controller - Unit Tests", () => {
         new Error("Database error")
       );
 
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
       // Act
       await controller.getRoleHandler(req, res);
 
       // Assert
-      const consoleErrorSpy = jest.spyOn(console, "error");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("roleController, getRole:")
       );
+      consoleErrorSpy.mockRestore();
     });
   });
 
