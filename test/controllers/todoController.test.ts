@@ -1,13 +1,5 @@
 import { Request, Response } from "express";
 import {
-  mockTodos,
-  mockTodoRoleUser,
-  mockInvalidTodo,
-  mockTodoForUpdate,
-  mockDeleteTodo,
-} from "../mocks/todo.mock";
-import { mockUserRoleUser } from "../mocks/user.mock";
-import {
   NewTodoRequest,
   UpdateTodoRequest,
   TodoServices,
@@ -15,9 +7,8 @@ import {
   ListTodoByOwnerRequest,
 } from "@/types/todo.types";
 import todoController from "../../src/api/controllers/todoController";
-import todoService from "@/services/todoService";
-import { mockTodoRoleSupervisor } from "../mocks/todo.mock";
-import { mockUserRoleSupervisor } from "../mocks/user.mock";
+import { mockTodoRoleUser, mockTodoRoleSupervisor } from "../mocks/todo.mock";
+import { mockUserRoleUser } from "../mocks/user.mock";
 
 jest.mock("@/services/todoService");
 
@@ -283,9 +274,9 @@ describe("TodoController Unit Tests", () => {
       );
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith({
-        code: 200,
+        httpStatusCode: 200,
         resultMessage: "ENTITY_UPDATED",
-        todo: updatedTodo,
+        updateTodo: updatedTodo,
       });
     });
 
@@ -314,7 +305,7 @@ describe("TodoController Unit Tests", () => {
       // Assert
       expect(mockStatus).toHaveBeenCalledWith(404);
       expect(mockJson).toHaveBeenCalledWith({
-        code: 404,
+        httpStatusCode: 404,
         resultMessage: "ENTITY_NOT_FOUND",
       });
     });
