@@ -2,19 +2,35 @@ import request from "supertest";
 import express from "express";
 
 // Mock middleware
-jest.mock("@middleware/authorize", () => () => (req: any, res: any, next: any) => next());
+jest.mock(
+  "@middleware/authorize",
+  () => () => (req: any, res: any, next: any) => next()
+);
 jest.mock("@middleware/validator", () => ({
   createTodoRules: [(req: any, res: any, next: any) => next()],
   updateTodoRules: [(req: any, res: any, next: any) => next()],
 }));
-jest.mock("@middleware/validationResults", () => (req: any, res: any, next: any) => next());
+jest.mock(
+  "@middleware/validationResults",
+  () => (req: any, res: any, next: any) => next()
+);
 
 // Mock controller factory and its methods
-const mockGetTodosHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "getTodosHandler called" }));
-const mockGetTodoHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "getTodoHandler called" }));
-const mockNewTodoHandler = jest.fn((req: any, res: any) => res.status(201).json({ message: "newTodoHandler called" }));
-const mockUpdateTodoHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "updateTodoHandler called" }));
-const mockDeleteTodoHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "deleteTodoHandler called" }));
+const mockGetTodosHandler = jest.fn((req: any, res: any) =>
+  res.status(200).json({ message: "getTodosHandler called" })
+);
+const mockGetTodoHandler = jest.fn((req: any, res: any) =>
+  res.status(200).json({ message: "getTodoHandler called" })
+);
+const mockNewTodoHandler = jest.fn((req: any, res: any) =>
+  res.status(201).json({ message: "newTodoHandler called" })
+);
+const mockUpdateTodoHandler = jest.fn((req: any, res: any) =>
+  res.status(200).json({ message: "updateTodoHandler called" })
+);
+const mockDeleteTodoHandler = jest.fn((req: any, res: any) =>
+  res.status(200).json({ message: "deleteTodoHandler called" })
+);
 
 jest.mock("@controllers/todoController", () => () => ({
   getTodosHandler: mockGetTodosHandler,
@@ -73,4 +89,4 @@ describe("Todo Router", () => {
     expect(response.body.message).toBe("deleteTodoHandler called");
     expect(mockDeleteTodoHandler).toHaveBeenCalledTimes(1);
   });
-}); 
+});
