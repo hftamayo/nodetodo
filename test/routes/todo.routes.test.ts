@@ -4,7 +4,10 @@ import express from "express";
 // Mock middleware
 jest.mock(
   "@middleware/authorize",
-  () => () => (req: any, res: any, next: any) => next()
+  () => () => (req: any, res: any, next: any) => {
+    req.user = { sub: "test-user-id" };
+    next();
+  }
 );
 jest.mock("@middleware/validator", () => ({
   createTodoRules: [(req: any, res: any, next: any) => next()],
@@ -14,6 +17,15 @@ jest.mock(
   "@middleware/validationResults",
   () => (req: any, res: any, next: any) => next()
 );
+
+// Mock todoService
+jest.mock("@services/todoService", () => ({
+  listTodos: jest.fn(),
+  listTodoByID: jest.fn(),
+  createTodo: jest.fn(),
+  updateTodoByID: jest.fn(),
+  deleteTodoByID: jest.fn(),
+}));
 
 // Mock controller factory and its methods
 const mockGetTodosHandler = jest.fn((req: any, res: any) =>
@@ -51,6 +63,13 @@ afterEach(() => {
 });
 
 describe("Todo Router", () => {
+  it("DEBUG: should see what error we're getting", async () => {
+    const response = await request(app).get("/todos/list");
+    console.log("Status:", response.status);
+    console.log("Body:", response.body);
+    console.log("Headers:", response.headers);
+  });
+
   it("should call getTodosHandler on GET /todos/list", async () => {
     const response = await request(app).get("/todos/list");
     expect(response.status).toBe(200);
