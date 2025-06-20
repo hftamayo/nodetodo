@@ -26,15 +26,22 @@ describe("seedTodos", () => {
     (Todo.create as jest.Mock).mockResolvedValue([
       { _id: "todo1", title: "Foreign language class" },
     ]);
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+    const consoleSpy = jest.spyOn(console, "log");
 
-    await seedTodos(mockSession);
+    const result = await seedTodos(mockSession);
 
     expect(seedUsers).toHaveBeenCalledWith(mockSession);
     expect(Todo.deleteMany).toHaveBeenCalledWith({});
     expect(Todo.create).toHaveBeenCalled();
+    // Check that console.log was called with the expected arguments
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Todos created: ") ?? expect.anything()
+      "Todos created: ",
+      expect.arrayContaining([
+        expect.objectContaining({
+          _id: "todo1",
+          title: "Foreign language class"
+        })
+      ])
     );
     consoleSpy.mockRestore();
   });
@@ -44,24 +51,29 @@ describe("seedTodos", () => {
       throw new Error("delete error");
     });
     const consoleSpy = jest.spyOn(console, "error").mockImplementation();
-    await seedTodos(mockSession);
+    const result = await seedTodos(mockSession);
     expect(consoleSpy).toHaveBeenCalledWith("seedTodos: ", "delete error");
+    expect(result).toBeUndefined();
     consoleSpy.mockRestore();
   });
 
-  it("should throw if users are not found", async () => {
+  it("should return undefined if users are not found", async () => {
     (seedUsers as jest.Mock).mockResolvedValue(undefined);
-    await expect(seedTodos(mockSession)).rejects.toThrow(
-      "Users not found in the database"
-    );
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    const result = await seedTodos(mockSession);
+    expect(consoleSpy).toHaveBeenCalledWith("seedTodos: ", "Users not found in the database");
+    expect(result).toBeUndefined();
+    consoleSpy.mockRestore();
   });
 
-  it("should throw if user Bob is not found", async () => {
+  it("should return undefined if user Bob is not found", async () => {
     (seedUsers as jest.Mock).mockResolvedValue([
       { _id: "user2", email: "mary@tamayo.com" },
     ]);
-    await expect(seedTodos(mockSession)).rejects.toThrow(
-      "User Bob not found in the database"
-    );
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    const result = await seedTodos(mockSession);
+    expect(consoleSpy).toHaveBeenCalledWith("seedTodos: ", "User Bob not found in the database");
+    expect(result).toBeUndefined();
+    consoleSpy.mockRestore();
   });
 });

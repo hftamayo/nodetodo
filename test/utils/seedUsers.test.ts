@@ -31,7 +31,7 @@ describe("seedUsers", () => {
     (User.create as jest.Mock).mockImplementation(async (userArr, opts) => [
       { ...userArr[0], _id: "mockedid" },
     ]);
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+    const consoleSpy = jest.spyOn(console, "log");
 
     const createdUsers = await seedUsers(mockSession);
 
@@ -44,8 +44,17 @@ describe("seedUsers", () => {
     if (createdUsers) {
       expect(createdUsers.length).toBeGreaterThan(0);
     }
+    // Check that console.log was called with the expected arguments
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("User created: ") ?? expect.anything()
+      "User created: ",
+      expect.objectContaining({
+        _id: "mockedid",
+        name: expect.any(String),
+        email: expect.any(String),
+        age: expect.any(Number),
+        role: expect.any(String),
+        status: expect.any(Boolean)
+      })
     );
     consoleSpy.mockRestore();
   });
@@ -55,24 +64,29 @@ describe("seedUsers", () => {
       throw new Error("delete error");
     });
     const consoleSpy = jest.spyOn(console, "error").mockImplementation();
-    await seedUsers(mockSession);
+    const result = await seedUsers(mockSession);
     expect(consoleSpy).toHaveBeenCalledWith("seedUsers: ", "delete error");
+    expect(result).toBeUndefined();
     consoleSpy.mockRestore();
   });
 
-  it("should throw if roles are not found", async () => {
+  it("should return undefined if roles are not found", async () => {
     (seedRoles as jest.Mock).mockResolvedValue(undefined);
-    await expect(seedUsers(mockSession)).rejects.toThrow(
-      "Roles not found in the database"
-    );
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    const result = await seedUsers(mockSession);
+    expect(consoleSpy).toHaveBeenCalledWith("seedUsers: ", "Roles not found in the database");
+    expect(result).toBeUndefined();
+    consoleSpy.mockRestore();
   });
 
-  it("should throw if required roles are missing", async () => {
+  it("should return undefined if required roles are missing", async () => {
     (seedRoles as jest.Mock).mockResolvedValue([
       { _id: "1", name: "administrator" },
     ]);
-    await expect(seedUsers(mockSession)).rejects.toThrow(
-      "Roles not found in the database"
-    );
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    const result = await seedUsers(mockSession);
+    expect(consoleSpy).toHaveBeenCalledWith("seedUsers: ", "Roles not found in the database");
+    expect(result).toBeUndefined();
+    consoleSpy.mockRestore();
   });
 });

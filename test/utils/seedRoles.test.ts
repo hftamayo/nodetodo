@@ -18,7 +18,7 @@ describe("seedRoles", () => {
     (Role.create as jest.Mock).mockImplementation(async (roleArr, opts) => [
       { ...roleArr[0], _id: "mockedid" },
     ]);
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+    const consoleSpy = jest.spyOn(console, "log");
 
     const createdRoles = await seedRoles(mockSession);
 
@@ -29,7 +29,14 @@ describe("seedRoles", () => {
       expect(createdRoles.length).toBeGreaterThan(0);
     }
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Role created: ") ?? expect.anything()
+      "Role created: ",
+      expect.objectContaining({
+        _id: "mockedid",
+        name: expect.any(String),
+        description: expect.any(String),
+        status: expect.any(Boolean),
+        permissions: expect.any(Object)
+      })
     );
     consoleSpy.mockRestore();
   });
