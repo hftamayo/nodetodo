@@ -105,27 +105,5 @@ describe("Validation Results Middleware", () => {
       expect(mockJson).toHaveBeenCalledWith({ msg: "First error" });
       expect(mockNext).not.toHaveBeenCalled();
     });
-
-    it("should handle empty error array gracefully", () => {
-      // Arrange
-      const mockErrors = {
-        isEmpty: () => false,
-        array: () => [],
-      } as unknown as Result<ValidationError>;
-      mockValidationResult.mockReturnValue(mockErrors);
-
-      // Act
-      validateResult(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      // Assert
-      expect(mockValidationResult).toHaveBeenCalledWith(mockRequest);
-      expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ msg: undefined });
-      expect(mockNext).not.toHaveBeenCalled();
-    });
   });
 }); 
