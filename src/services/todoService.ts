@@ -1,83 +1,137 @@
-import Todo from "../models/Todo";
+import Todo from "@/models/Todo";
 import {
-  OwnerTodoIdRequest,
+  FullTodo,
   NewTodoRequest,
   UpdateTodoRequest,
-} from "../types/todo.interface";
-import { UserIdRequest } from "../types/user.interface";
+  ListTodosByOwnerRequest,
+  ListTodoByOwnerRequest,
+  CreateTodoResponse,
+  ListTodosByOwnerResponse,
+  ListTodoByOwnerResponse,
+  UpdateTodoResponse,
+  DeleteTodoByIdResponse,
+  FilteredTodo,
+} from "@/types/todo.types";
 
-const listActiveTodos = async function (requestUserId: UserIdRequest) {
-  const userId = requestUserId.userId;
+const listTodos = async function (
+  params: ListTodosByOwnerRequest
+): Promise<ListTodosByOwnerResponse> {
+  const { owner, page, limit, activeOnly } = params;
   try {
-    let activeTodos = await Todo.find({
-      user: userId,
-      completed: false,
-    }).exec();
+    const skip = (page - 1) * limit;
+    const query: { owner: string; completed?: boolean } = {
+      owner: owner,
+    };
 
-    if (!activeTodos) {
-      return {
-        httpStatusCode: 404,
-        message: "No active tasks found for active user",
-      };
+    if (activeOnly) {
+      query["completed"] = false;
     }
-    return { httpStatusCode: 200, message: "Tasks found", todos: activeTodos };
+    const todos = await Todo.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    if (!todos || todos.length === 0) {
+      return { httpStatusCode: 404, message: "TASKS_NOT_FOUND" };
+    }
+
+    const fetchedTodos: FullTodo[] = todos.map((todo) => ({
+      _id: todo._id,
+      title: todo.title,
+      description: todo.description,
+      completed: todo.completed,
+      owner: todo.owner,
+    }));
+
+    return {
+      httpStatusCode: 200,
+      message: "TASKS_FOUND",
+      todos: fetchedTodos,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("todoService, listActiveTodos: " + error.message);
+      console.error("todoService, listTodos: " + error.message);
     } else {
-      console.error("todoService, listActiveTodos: " + error);
+      console.error("todoService, listTodos: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
-const listTodoByID = async function (req: OwnerTodoIdRequest) {
-  const userId = req.user.userId;
-  const todoId = req.params.todoId;
+const listTodoByID = async function (
+  params: ListTodoByOwnerRequest
+): Promise<ListTodoByOwnerResponse> {
+  const { owner, todoId } = params;
 
   try {
     let searchTodo = await Todo.findById(todoId).exec();
 
     if (!searchTodo) {
-      return { httpStatusCode: 404, message: "Task Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
 
-    if (searchTodo.user.toString() !== userId) {
+    if (searchTodo.owner.toString() !== owner.toString()) {
       return {
-        httpStatusCode: 400,
-        message: "There's a problem with your credentials",
+        httpStatusCode: 401,
+        message: "FORBIDDEN",
       };
     }
-    return { httpStatusCode: 200, message: "Todo found", todo: searchTodo };
+
+    const filteredTodo: FilteredTodo = {
+      _id: searchTodo._id,
+      title: searchTodo.title,
+      description: searchTodo.description,
+      completed: searchTodo.completed,
+      owner: searchTodo.owner,
+    };
+
+    return { httpStatusCode: 200, message: "ENTITY_FOUND", todo: filteredTodo };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, listTodoByID: " + error.message);
     } else {
       console.error("todoService, listTodoByID: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
-const createTodo = async function (req: NewTodoRequest) {
-  const owner = req.owner;
-  const { title, description } = req.todo;
+const createTodo = async function (
+  params: NewTodoRequest
+): Promise<CreateTodoResponse> {
+  const { owner, todo } = params;
+  const { title, description } = todo;
+
+  if (!owner || !title || !description) {
+    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+  }
+
   try {
     let newTodo = await Todo.findOne({ title }).exec();
     if (newTodo) {
-      return { httpStatusCode: 400, message: "Title already taken" };
+      return { httpStatusCode: 400, message: "TITLE_ALREADY_TAKEN" };
     }
     newTodo = new Todo({
       title,
       description,
       completed: false,
-      user: owner.userId,
+      owner: owner,
     });
     await newTodo.save();
+
+    const filteredTodo: FilteredTodo = {
+      _id: newTodo._id,
+      title: newTodo.title,
+      description: newTodo.description,
+      completed: newTodo.completed,
+      owner: newTodo.owner,
+    };
+
     return {
       httpStatusCode: 200,
-      message: "Todo created successfully",
-      todo: newTodo,
+      message: "TODO_CREATED",
+      todo: filteredTodo,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -85,34 +139,50 @@ const createTodo = async function (req: NewTodoRequest) {
     } else {
       console.error("todoService, createTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
-const updateTodoByID = async function (req: UpdateTodoRequest) {
-  const owner = req.owner;
-  const todoId = req.todo.id;
-  const { title, description, completed } = req.todo;
+const updateTodoByID = async function (
+  params: UpdateTodoRequest
+): Promise<UpdateTodoResponse> {
+  const { owner, todo } = params;
+  const { _id, ...updates } = todo;
+
+  if (!owner || !_id || Object.keys(updates).length === 0) {
+    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+  }
 
   try {
-    let updateTodo = await Todo.findById(todoId);
+    let updateTodo = await Todo.findById(_id).exec();
     if (!updateTodo) {
-      return { httpStatusCode: 404, message: "Todo Not Found" };
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    if (updateTodo.user.toString() !== owner.userId.toString()) {
+    if (updateTodo.owner.toString() !== owner.toString()) {
       return {
         httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
+        message: "FORBIDDEN",
       };
     }
-    updateTodo.title = title ?? "";
-    updateTodo.description = description ?? "";
-    updateTodo.completed = completed ?? false;
+    if (updates.title !== undefined) updateTodo.title = updates.title;
+    if (updates.description !== undefined)
+      updateTodo.description = updates.description;
+    if (updates.completed !== undefined)
+      updateTodo.completed = updates.completed;
     await updateTodo.save();
+
+    const filteredTodo: FilteredTodo = {
+      _id: updateTodo._id,
+      title: updateTodo.title,
+      description: updateTodo.description,
+      completed: updateTodo.completed,
+      owner: updateTodo.owner,
+    };
+
     return {
       httpStatusCode: 200,
-      message: "Todo updated successfully",
-      todo: updateTodo,
+      message: "ENTITY_UPDATED",
+      todo: filteredTodo,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -120,40 +190,43 @@ const updateTodoByID = async function (req: UpdateTodoRequest) {
     } else {
       console.error("todoService, updateTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
-const deleteTodoByID = async function (req: OwnerTodoIdRequest) {
-  const owner = req.user;
-  const todoId = req.params.todoId;
+const deleteTodoByID = async function (
+  params: ListTodoByOwnerRequest
+): Promise<DeleteTodoByIdResponse> {
+  const { owner, todoId } = params;
 
   try {
-    const deleteTodo = await Todo.findById(todoId);
-    if (!deleteTodo) {
-      return { httpStatusCode: 404, message: "Todo not found" };
+    let searchTodo = await Todo.findById(todoId).exec();
+
+    if (!searchTodo) {
+      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
     }
-    if (deleteTodo.user.toString() !== owner.userId.toString()) {
+
+    if (searchTodo.owner.toString() !== owner.toString()) {
       return {
         httpStatusCode: 401,
-        message: "You're not the owner of this Todo",
+        message: "FORBIDDEN",
       };
     }
 
-    await deleteTodo.deleteOne();
-    return { httpStatusCode: 200, message: "Todo Deleted Successfully" };
+    await searchTodo.deleteOne();
+    return { httpStatusCode: 200, message: "ENTITY_DELETED" };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, deleteTodo: " + error.message);
     } else {
       console.error("todoService, deleteTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "Internal Server Error" };
+    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
   }
 };
 
 export default {
-  listActiveTodos,
+  listTodos,
   listTodoByID,
   createTodo,
   updateTodoByID,

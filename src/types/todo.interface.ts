@@ -1,4 +1,4 @@
-import mongoose, {Document} from "mongoose";
+import mongoose, { Document } from "mongoose";
 import { UserIdRequest } from "./user.interface";
 
 export interface TodoSeed {
@@ -10,11 +10,13 @@ export interface TodoSeed {
 }
 
 interface TodoRequest {
-  id?: string;
+  _id?: string;
   title: string;
   description: string;
   completed: boolean;
   user: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface NewTodoRequest {

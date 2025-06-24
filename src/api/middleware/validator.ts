@@ -1,5 +1,38 @@
 import { ValidationChain, check } from "express-validator";
 
+const createRoleRules: ValidationChain[] = [
+  check("role.name", "Name is Required").notEmpty().trim().escape(),
+  check("role.description", "Description is Required")
+    .notEmpty()
+    .trim()
+    .escape(),
+  check("role.status", "Status is Required")
+    .notEmpty()
+    .trim()
+    .escape()
+    .isBoolean(),
+  check("role.permissions", "Permissions is Required").notEmpty().isArray(),
+];
+
+const updateRoleRules: ValidationChain[] = [
+  check("role.name", "Name is Required").optional().notEmpty().trim().escape(),
+  check("role.description", "Description is Required")
+    .optional()
+    .notEmpty()
+    .trim()
+    .escape(),
+  check("role.status", "Status is Required")
+    .optional()
+    .notEmpty()
+    .trim()
+    .escape()
+    .isBoolean(),
+  check("role.permissions", "Permissions is Required")
+    .optional()
+    .notEmpty()
+    .isArray(),
+];
+
 const registerRules: ValidationChain[] = [
   check("name", "Name is Required").notEmpty().trim().escape(),
   check("email", "Please give a valid email").isEmail().normalizeEmail(),
@@ -60,6 +93,8 @@ const updateTodoRules: ValidationChain[] = [
 ];
 
 export default {
+  createRoleRules,
+  updateRoleRules,
   registerRules,
   loginRules,
   updateDetailsRules,

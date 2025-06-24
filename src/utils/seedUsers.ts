@@ -1,55 +1,81 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import User from "../models/User";
-import { UserRole, UserSeed } from "../types/user.interface";
+import User from "@models/User";
+import { FullUser } from "@/types/user.types";
+import { adminpword, supervisorpword, userpword } from "@config/envvars";
+import seedRoles from "./seedRoles";
 
+if (!adminpword || !supervisorpword || !userpword) {
+  throw new Error("No passwords found in the environment variables");
+}
 
+async function seedUsers(session: mongoose.ClientSession) {
+  try {
+    const roles = await seedRoles(session);
+    // Get roles ids
+    if (!roles) {
+      throw new Error("Roles not found in the database");
+    }
+    const adminRole = roles.find((role) => role.name === "administrator");
+    const supervisorRole = roles.find((role) => role.name === "supervisor");
+    const userRole = roles.find((role) => role.name === "finaluser");
 
-    const users: UserSeed[] = [
+    if (!adminRole || !supervisorRole || !userRole) {
+      throw new Error("Roles not found in the database");
+    }
+
+    const users: Omit<FullUser, "_id">[] = [
       {
-        _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1e"),
         name: "Administrator",
-        email: "administrator@nodetodo.com",
-        password: "password",
+        email: "administrador@tamayo.com",
+        password: adminpword!,
         age: 30,
-        role: UserRole.ADMIN,
+        role: adminRole._id,
+        status: true,
       },
       {
-        _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d1f"),
         name: "Sebastian Fernandez",
-        email: "sebas@gmail.com",
-        password: "password",
+        email: "supervisor@tamayo.com",
+        password: supervisorpword!,
         age: 20,
-        role: UserRole.SUPERVISOR,
+        role: supervisorRole._id,
+        status: true,
       },
       {
-        _id: new mongoose.Types.ObjectId("5f7f8b1e9f3f9c1d6c1e4d20"),
-        name: "Lupita Martinez",
-        email: "lupita@fundamuvi.com",
-        password: "password",
+        name: "Bob Doe",
+        email: "bob@tamayo.com",
+        password: userpword!,
         age: 25,
-        role: UserRole.USER,
+        role: userRole._id,
+        status: true,
+      },
+      {
+        name: "Mary Doe",
+        email: "mary@tamayo.com",
+        password: userpword!,
+        age: 22,
+        role: userRole._id,
+        status: true,
       },
     ];
 
-    async function seedUsers() {
-      try {
-        await User.deleteMany({});
-        for (const user of users) {
-          const salt = await bcrypt.genSalt(10);
-
-          user.password = await bcrypt.hash("password", salt);
-          await User.create(user);
-          console.log("User created: ", user);
-        }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("seedUsers: ", error.message);
-        } else {
-          console.error("seedUsers: ", error);
-        }
-      }
+    await User.deleteMany({}).session(session);
+    const createdUsers = [];
+    for (const user of users) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(user.password, salt);
+      const createdUser = await User.create([user], { session });
+      createdUsers.push(createdUser[0]);
+      console.log("User created: ", createdUser[0]);
     }
-
+    return createdUsers;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("seedUsers: ", error.message);
+    } else {
+      console.error("seedUsers: ", error);
+    }
+  }
+}
 
 export default seedUsers;
