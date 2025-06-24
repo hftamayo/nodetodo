@@ -1,18 +1,34 @@
 {
   "name": "nodetodo",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.11.0",
+    "npm": ">=10.2.0"
+  },
   "description": "rest api for a todo application",
-  "main": "server.js",
+  "main": "src/server.ts",
   "type": "commonjs",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "test": "mocha test/**/*.js",
-    "smoketest": "mocha smoketest/**/*.js",
-    "unittest": "mocha 'test/models/Todo.test.js'",
-    "integrationcontroller": "mocha 'test/controllers/intcontroller.test.js'",
-    "integrationservice": "mocha 'test/services/intservice.test.js'",
-    "testrpt": "mocha 'test/**/*.js' --recursive --reporter mocha-junit-reporter --timeout 60000 --exit"
+    "dev": "NODE_PATH=./src ts-node -r tsconfig-paths/register src/server.ts",
+    "lint": "eslint .",
+    "test:health": "jest test/health --testPathPattern=health",
+    "test": "jest",
+    "integrationcontroller": "jest 'test/controllers/intcontroller.test.ts'",
+    "integrationservice": "jest 'test/services/intservice.test.ts'",
+    "e2e": "jest 'test/e2e/**/*.ts'",
+    "build": "tsc",
+    "start": "node -r module-alias/register dist/server.js"
+  },
+  "_moduleAliases": {
+    "@": "src",
+    "@config": "src/config",
+    "@types": "src/types",
+    "@services": "src/services",
+    "@models": "src/models",
+    "@controllers": "src/api/controllers",
+    "@routes": "src/api/routes",
+    "@middleware": "src/api/middleware",
+    "@utils": "src/utils"
   },
   "author": "Herbert Tamayo",
   "license": "ISC",
@@ -26,18 +42,29 @@
     "express-rate-limit": "^7.1.5",
     "express-validator": "^6.15.0",
     "jsonwebtoken": "^9.0.0",
+    "module-alias": "^2.2.3",
     "mongodb": "^5.6.0",
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
-    "chai": "^4.3.7",
-    "chai-http": "^4.4.0",
-    "mocha": "^10.2.0",
-    "mocha-junit-reporter": "^2.2.1",
-    "nodemon": "^2.0.22",
-    "should": "^13.2.3",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.13",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.2.5",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
+    "jest-mock-extended": "^4.0.0-beta1",
+    "mongodb-memory-server": "^10.1.4",
+    "nodemon": "^3.1.9",
     "sinon": "^17.0.1",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.4",
+    "ts-jest": "^29.1.5",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3"
   }
 }
