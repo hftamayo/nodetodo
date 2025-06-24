@@ -12,7 +12,6 @@
     "dev": "NODE_PATH=./src ts-node -r tsconfig-paths/register src/server.ts",
     "lint": "eslint .",
     "test:health": "jest test/health --testPathPattern=health",
-    "pretest": "npm run test:health",
     "test": "jest",
     "integrationcontroller": "jest 'test/controllers/intcontroller.test.ts'",
     "integrationservice": "jest 'test/services/intservice.test.ts'",
