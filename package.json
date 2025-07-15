@@ -9,26 +9,16 @@
   "main": "src/server.ts",
   "type": "commonjs",
   "scripts": {
-    "dev": "NODE_PATH=./src ts-node -r tsconfig-paths/register src/server.ts",
+    "dev": "NODE_ENV=development NODE_PATH=./src ts-node -r ./src/register-aliases.ts src/server.ts",
     "lint": "eslint .",
     "test:health": "jest test/health --testPathPattern=health",
     "test": "jest",
     "integrationcontroller": "jest 'test/controllers/intcontroller.test.ts'",
     "integrationservice": "jest 'test/services/intservice.test.ts'",
     "e2e": "jest 'test/e2e/**/*.ts'",
-    "build": "tsc",
-    "start": "node -r module-alias/register dist/server.js"
-  },
-  "_moduleAliases": {
-    "@": "src",
-    "@config": "src/config",
-    "@types": "src/types",
-    "@services": "src/services",
-    "@models": "src/models",
-    "@controllers": "src/api/controllers",
-    "@routes": "src/api/routes",
-    "@middleware": "src/api/middleware",
-    "@utils": "src/utils"
+    "copy-setup-files": "cp -r *.json dist/ 2>/dev/null || :",
+    "build": "tsc && npm run copy-setup-files",
+    "start": "NODE_ENV=production node -r ./dist/register-aliases.js dist/server.js"
   },
   "author": "Herbert Tamayo",
   "license": "ISC",
@@ -54,6 +44,7 @@
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.13",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/module-alias": "^2.0.4",
     "@types/node": "^20.2.5",
     "@types/supertest": "^6.0.2",
     "jest": "^29.7.0",
