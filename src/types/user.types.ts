@@ -58,82 +58,34 @@ export type UpdateUserRequest = {
   user: Partial<UserRequest>;
 };
 
-// Define a type for the filtered user object
-export type FilteredSignUpUser = Omit<FullUser, "password" | "updatedAt">;
-
-export type FilteredLoginUser = Omit<
-  FullUser,
-  "password" | "createdAt" | "updatedAt"
->;
-
-export type FilteredSearchUsers = {
-  id: string;
-  name: string;
-  email: string;
-  role: mongoose.Types.ObjectId;
-  status: boolean;
-};
-
-export type FilteredSearchUserById = Pick<
+export type FilteredUser = Pick<
   FullUser,
   "_id" | "name" | "email" | "role" | "status"
 >;
 
-export type FilteredUpdateUser = Omit<FullUser, "password" | "createdAt">;
-
-export type SignUpUserResponse = {
-  httpStatusCode: number;
-  message: string;
-  user?: FilteredSignUpUser;
-};
-
-export type LoginResponse = {
+export type ApiResponse<T> = {
   httpStatusCode: number;
   message: string;
   tokenCreated?: string;
-  user?: FilteredLoginUser;
+  data?: T;
 };
 
-export type LogoutResponse = {
-  httpStatusCode: number;
-  message: string;
-};
-
-export type SearchUsersResponse = {
-  httpStatusCode: number;
-  message: string;
-  users?: FilteredSearchUsers[];
-};
-
-export type SearchUserByIdResponse = {
-  httpStatusCode: number;
-  message: string;
-  user?: FilteredSearchUserById;
-};
-
-export type UpdateUserDetailsResponse = {
-  httpStatusCode: number;
-  message: string;
-  user?: FilteredUpdateUser;
-};
-
-export type DeleteUserByIdResponse = {
-  httpStatusCode: number;
-  message: string;
-};
+export type EntityResponse = ApiResponse<FilteredUser>;
+export type EntitiesResponse = ApiResponse<FilteredUser[]>;
+export type DeleteLogoutResponse = ApiResponse<null>;
 
 //interfaces for dependency injection pattern
 export type UserServices = {
-  signUpUser: (params: UserRequest) => Promise<SignUpUserResponse>;
-  loginUser: (params: LoginRequest) => Promise<LoginResponse>;
-  logoutUser: (params: AuthenticatedUserRequest) => Promise<LogoutResponse>;
-  listUsers: (params: ListUsersRequest) => Promise<SearchUsersResponse>;
-  listUserByID: (params: string) => Promise<SearchUserByIdResponse>;
-  updateUserDetailsByID: (
-    params: UpdateUserRequest
-  ) => Promise<UpdateUserDetailsResponse>;
+  signUpUser: (params: UserRequest) => Promise<EntityResponse>;
+  loginUser: (params: LoginRequest) => Promise<EntityResponse>;
+  logoutUser: (
+    params: AuthenticatedUserRequest
+  ) => Promise<DeleteLogoutResponse>;
+  listUsers: (params: ListUsersRequest) => Promise<EntitiesResponse>;
+  listUserByID: (params: string) => Promise<EntityResponse>;
+  updateUserDetailsByID: (params: UpdateUserRequest) => Promise<EntityResponse>;
   updateUserPasswordByID: (
     params: UpdateUserRequest
-  ) => Promise<UpdateUserDetailsResponse>;
-  deleteUserByID: (params: string) => Promise<DeleteUserByIdResponse>;
+  ) => Promise<EntityResponse>;
+  deleteUserByID: (params: string) => Promise<DeleteLogoutResponse>;
 };
