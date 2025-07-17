@@ -5,60 +5,40 @@ import { masterKey } from "@config/envvars";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
+import { makeResponse } from "@/utils/messages/apiMakeResponse";
 import {
   SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
   FullUser,
-  FilteredSearchUsers,
-  SignUpUserResponse,
-  LoginResponse,
-  SearchUsersResponse,
-  SearchUserByIdResponse,
-  FilteredSignUpUser,
-  FilteredLoginUser,
-  FilteredSearchUserById,
-  DeleteUserByIdResponse,
-  UpdateUserDetailsResponse,
-  FilteredUpdateUser,
   ListUsersRequest,
   JwtActiveSession,
+  EntityResponse,
+  EntitiesResponse,
 } from "@/types/user.types";
 
 const signUpUser = async function (
   params: SignUpRequest
-): Promise<SignUpUserResponse> {
+): Promise<EntityResponse> {
   const { name, email, password: plainPassword, repeatPassword, age } = params;
 
   if (!name || !email || !plainPassword || !repeatPassword || !age) {
-    return {
-      httpStatusCode: 400,
-      message: "MISSING_FIELDS",
-    };
+    return makeResponse("BAD_REQUEST");
   }
 
   if (plainPassword !== repeatPassword) {
-    return {
-      httpStatusCode: 400,
-      message: "PASSWORD_MISMATCH",
-    };
+    return makeResponse("BAD_CREDENTIALS");
   }
 
   try {
     let searchUser = await User.findOne({ email }).exec();
     if (searchUser) {
-      return {
-        httpStatusCode: 400,
-        message: "EMAIL_EXISTS",
-      };
+      return makeResponse("ENTITY_ALREADY_EXISTS");
     }
 
     const finalUserRole = await Role.findOne({ name: "finaluser" }).exec();
     if (!finalUserRole) {
-      return {
-        httpStatusCode: 500,
-        message: "ROLE_NOT_FOUND",
-      };
+      return makeResponse("ERROR");
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -75,54 +55,40 @@ const signUpUser = async function (
 
     const { password, updatedAt, ...filteredUser } =
       searchUser.toObject() as FullUser;
-    return {
-      httpStatusCode: 201,
-      message: "USER_CREATED",
-      user: filteredUser as FilteredSignUpUser,
-    };
+    return makeResponse("CREATED", { data: filteredUser });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, signUpUser: " + error.message);
     } else {
       console.error("userService, signUpUser: " + error);
     }
-    return {
-      httpStatusCode: 500,
-      message: "UNKNOWN_ERROR",
-    };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const loginUser = async function (
   params: LoginRequest
-): Promise<LoginResponse> {
+): Promise<EntityResponse> {
   const { email, password: plainPassword } = params;
 
   if (!email || !plainPassword) {
-    return {
-      httpStatusCode: 400,
-      message: "MISSING_FIELDS",
-    };
+    return makeResponse("BAD_REQUEST");
   }
 
   try {
     let searchUser = await User.findOne({ email }).exec();
-    if (!searchUser || !searchUser.status) {
-      return {
-        httpStatusCode: 401,
-        message: !searchUser ? "BAD_CREDENTIALS" : "ACCOUNT_DISABLED",
-      };
+    if (!searchUser) {
+      return makeResponse("BAD_CREDENTIALS");
+    } else if (!searchUser.status) {
+      return makeResponse("ACCOUNT_DISABLED");
     }
+
     const passwordMatch = await bcrypt.compare(
       plainPassword,
       searchUser.password
     );
     if (!passwordMatch) {
-      //update in global log the password did not match
-      return {
-        httpStatusCode: 402,
-        message: "BAD_CREDENTIALS",
-      };
+      return makeResponse("BAD_CREDENTIALS");
     }
     const payload: JwtActiveSession = {
       sub: searchUser._id.toString(),
@@ -132,10 +98,7 @@ const loginUser = async function (
     };
 
     if (!masterKey) {
-      return {
-        httpStatusCode: 500,
-        message: "INTERNAL_ERROR",
-      };
+      return makeResponse("INTERNAL_SERVER_ERROR");
     }
 
     const token = jwt.sign(payload, masterKey, {
@@ -145,26 +108,20 @@ const loginUser = async function (
 
     const { password, createdAt, updatedAt, ...filteredUser } =
       searchUser.toObject() as FullUser;
-
-    return {
-      httpStatusCode: 200,
-      tokenCreated: token,
-      message: "LOGIN_SUCCESS",
-      user: filteredUser as FilteredLoginUser,
-    };
+    return makeResponse("SUCCESS", { data: filteredUser });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, loginUser: " + error.message);
     } else {
       console.error("userService, loginUser: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const listUsers = async function (
   params: ListUsersRequest
-): Promise<SearchUsersResponse> {
+): Promise<EntitiesResponse> {
   const { page, limit } = params;
   try {
     const skip = (page - 1) * limit;
@@ -199,9 +156,7 @@ const listUsers = async function (
   }
 };
 
-const listUserByID = async function (
-  userId: string
-): Promise<SearchUserByIdResponse> {
+const listUserByID = async function (userId: string): Promise<EntityResponse> {
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
@@ -228,7 +183,7 @@ const listUserByID = async function (
 
 const updateUserDetailsByID = async function (
   params: UpdateUserRequest
-): Promise<UpdateUserDetailsResponse> {
+): Promise<EntityResponse> {
   const { userId, user } = params;
   const { ...updates } = user;
 
@@ -281,7 +236,7 @@ const updateUserDetailsByID = async function (
 
 const updateUserPasswordByID = async function (
   params: UpdateUserRequest
-): Promise<UpdateUserDetailsResponse> {
+): Promise<EntityResponse> {
   const { userId, user } = params;
   const { password: plainPassword, updatePassword } = user;
 
@@ -325,7 +280,7 @@ const updateUserPasswordByID = async function (
 
 const deleteUserByID = async function (
   userId: string
-): Promise<DeleteUserByIdResponse> {
+): Promise<EntityResponse> {
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {
