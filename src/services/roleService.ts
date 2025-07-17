@@ -10,6 +10,7 @@ import {
   UpdateRoleRequest,
   UpdateRoleResponse,
 } from "@/types/role.types";
+import { makeResponse } from "@/utils/messages/apiMakeResponse";
 import Role from "@models/Role";
 
 const listRoles = async function (
@@ -24,7 +25,7 @@ const listRoles = async function (
       .limit(limit)
       .exec();
     if (!roles || roles.length === 0) {
-      return { httpStatusCode: 404, message: "ROLES_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
     const fetchedRoles: FilteredRole[] = roles.map((role) => ({
       _id: role._id,
@@ -33,18 +34,14 @@ const listRoles = async function (
       status: role.status,
       permissions: Object.fromEntries(Object.entries(role.permissions)),
     }));
-    return {
-      httpStatusCode: 200,
-      message: "ROLES_FOUND",
-      roles: fetchedRoles,
-    };
+    return makeResponse("SUCCESS", { data: fetchedRoles });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("roleService, listRoles: " + error.message);
     } else {
       console.error("roleService, listRoles: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
