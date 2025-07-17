@@ -1,21 +1,19 @@
 import {
-  CreateRoleResponse,
-  DeleteRoleResponse,
   FilteredRole,
-  ListRoleResponse,
   ListRolesRequest,
-  ListRolesResponse,
   NewRoleRequest,
   RoleIdRequest,
   UpdateRoleRequest,
-  UpdateRoleResponse,
+  EntityResponse,
+  EntitiesResponse,
+  DeleteResponse,
 } from "@/types/role.types";
 import { makeResponse } from "@/utils/messages/apiMakeResponse";
 import Role from "@models/Role";
 
 const listRoles = async function (
   params: ListRolesRequest
-): Promise<ListRolesResponse> {
+): Promise<EntitiesResponse> {
   const { page, limit } = params;
   try {
     const skip = (page - 1) * limit;
@@ -47,13 +45,13 @@ const listRoles = async function (
 
 const listRoleByID = async function (
   params: RoleIdRequest
-): Promise<ListRoleResponse> {
+): Promise<EntityResponse> {
   const roleId = params.roleId;
   try {
     let searchRole = await Role.findById(roleId).exec();
 
     if (!searchRole) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
 
     const filteredRole: FilteredRole = {
@@ -64,31 +62,31 @@ const listRoleByID = async function (
       permissions: Object.fromEntries(Object.entries(searchRole.permissions)),
     };
 
-    return { httpStatusCode: 200, message: "ENTITY_FOUND", role: filteredRole };
+    return makeResponse("SUCCESS", { data: filteredRole });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("roleService, listItemByID: " + error.message);
     } else {
       console.error("roleService, listItemByID: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const createRole = async function (
   params: NewRoleRequest
-): Promise<CreateRoleResponse> {
+): Promise<EntityResponse> {
   const { name, description, status, permissions } = params.role;
 
   if (!name || !description || !status || !permissions) {
-    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+    return makeResponse("BAD_REQUEST");
   }
 
   try {
     let newRole = await Role.findOne({ name }).exec();
 
     if (newRole) {
-      return { httpStatusCode: 400, message: "ROLE_ALREADY_EXISTS" };
+      return makeResponse("ENTITY_ALREADY_EXISTS");
     }
 
     newRole = new Role({ name, description, status, permissions });
@@ -102,35 +100,31 @@ const createRole = async function (
       permissions: Object.fromEntries(Object.entries(newRole.permissions)),
     };
 
-    return {
-      httpStatusCode: 201,
-      message: "ROLE_CREATED",
-      role: filteredRole,
-    };
+    return makeResponse("CREATED", { data: filteredRole });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("roleService, createRole: " + error.message);
     } else {
       console.error("roleService, createRole: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const updateRoleByID = async function (
   params: UpdateRoleRequest
-): Promise<UpdateRoleResponse> {
+): Promise<EntityResponse> {
   const { _id, ...updates } = params.role;
 
   if (!_id || Object.keys(updates).length === 0) {
-    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+    return makeResponse("BAD_REQUEST");
   }
 
   try {
     let searchRole = await Role.findById(_id).exec();
 
     if (!searchRole) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
 
     if (updates.name !== undefined) searchRole.name = updates.name;
@@ -150,39 +144,35 @@ const updateRoleByID = async function (
       permissions: Object.fromEntries(Object.entries(searchRole.permissions)),
     };
 
-    return {
-      httpStatusCode: 200,
-      message: "ROLE_UPDATED",
-      role: filteredRole,
-    };
+    return makeResponse("SUCCESS", { data: filteredRole });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("roleService, updateRoleByID: " + error.message);
     } else {
       console.error("roleService, updateRoleByID: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const deleteRoleByID = async function (
   params: RoleIdRequest
-): Promise<DeleteRoleResponse> {
+): Promise<DeleteResponse> {
   const roleId = params.roleId;
   try {
     let searchRole = await Role.findById(roleId).exec();
     if (!searchRole) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
     await searchRole.deleteOne();
-    return { httpStatusCode: 200, message: "ENTITY_DELETED" };
+    return makeResponse("SUCCESS");
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("roleService, deleteRoleByID: " + error.message);
     } else {
       console.error("roleService, deleteRoleByID: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
