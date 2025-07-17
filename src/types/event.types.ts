@@ -1,3 +1,5 @@
+import { ResultMessages } from "@/utils/messages/resultMessages";
+
 export type LogLevel = "debug" | "info" | "error";
 
 export type EventContext = {
@@ -23,26 +25,12 @@ export type ErrorEvent = InformativeEvent & {
 };
 
 export const ErrorTypes = {
-  NOT_AUTHORIZED: {
-    code: 401,
-    message: "NOT_AUTHORIZED",
-  },
-  FORBIDDEN: {
-    code: 403,
-    message: "FORBIDDEN",
-  },
-  NOT_FOUND: {
-    code: 404,
-    message: "NOT_FOUND",
-  },
-  BAD_REQUEST: {
-    code: 400,
-    message: "BAD_REQUEST",
-  },
-  INTERNAL_ERROR: {
-    code: 500,
-    message: "INTERNAL_ERROR",
-  },
+  NOT_AUTHORIZED: ResultMessages.UNAUTHORIZED,
+  FORBIDDEN: ResultMessages.FORBIDDEN,
+
+  NOT_FOUND: ResultMessages.ERROR,
+  BAD_REQUEST: ResultMessages.BAD_REQUEST,
+  INTERNAL_ERROR: ResultMessages.INTERNAL_SERVER_ERROR,
 } as const;
 
 export type ErrorType = keyof typeof ErrorTypes;
