@@ -1,4 +1,4 @@
-import { ResultMessageType } from './resultMessageType.enum';
+import { ResultMessageType } from "../utils/messages/resultMessageType.enum";
 
 export class CrudOperationResponseDto<T = any> {
   code: number;
@@ -23,4 +23,4 @@ export class CrudOperationResponseDto<T = any> {
     this.timestamp = options.timestamp ?? Date.now();
     this.cacheTTL = options.cacheTTL ?? 0;
   }
-} 
+}
