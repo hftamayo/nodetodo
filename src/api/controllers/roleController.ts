@@ -4,11 +4,9 @@ import {
   RoleIdRequest,
   NewRoleRequest,
   UpdateRoleRequest,
-  ListRolesResponse,
-  ListRoleResponse,
-  CreateRoleResponse,
-  UpdateRoleResponse,
-  DeleteRoleResponse,
+  EntityResponse,
+  EntitiesResponse,
+  DeleteResponse,
   RoleServices,
 } from "@/types/role.types";
 
@@ -18,16 +16,16 @@ export default function roleController(roleService: RoleServices) {
       try {
         const { page, limit } = req;
         const listRolesRequest: ListRolesRequest = { page, limit };
-        const result: ListRolesResponse = await roleService.listRoles(
+        const result: EntitiesResponse = await roleService.listRoles(
           listRolesRequest
         );
-        const { httpStatusCode, message, roles } = result;
+        const { httpStatusCode, message, data } = result;
 
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, roles: roles }
+              ? { code: httpStatusCode, resultMessage: message, roles: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -41,14 +39,14 @@ export default function roleController(roleService: RoleServices) {
 
     getRoleHandler: async function (req: RoleIdRequest, res: Response) {
       try {
-        const result: ListRoleResponse = await roleService.listRoleByID(req);
-        const { httpStatusCode, message, role } = result;
+        const result: EntityResponse = await roleService.listRoleByID(req);
+        const { httpStatusCode, message, data } = result;
 
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, role: role }
+              ? { code: httpStatusCode, resultMessage: message, role: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -62,14 +60,14 @@ export default function roleController(roleService: RoleServices) {
 
     newRoleHandler: async function (req: NewRoleRequest, res: Response) {
       try {
-        const result: CreateRoleResponse = await roleService.createRole(req);
-        const { httpStatusCode, message, role } = result;
+        const result: EntityResponse = await roleService.createRole(req);
+        const { httpStatusCode, message, data } = result;
 
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 201
-              ? { code: httpStatusCode, resultMessage: message, role: role }
+              ? { code: httpStatusCode, resultMessage: message, role: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -83,15 +81,13 @@ export default function roleController(roleService: RoleServices) {
 
     updateRoleHandler: async function (req: UpdateRoleRequest, res: Response) {
       try {
-        const result: UpdateRoleResponse = await roleService.updateRoleByID(
-          req
-        );
-        const { httpStatusCode, message, role } = result;
+        const result: EntityResponse = await roleService.updateRoleByID(req);
+        const { httpStatusCode, message, data } = result;
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { httpStatusCode, resultMessage: message, updateRole: role }
+              ? { httpStatusCode, resultMessage: message, updateRole: data }
               : { httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -105,9 +101,7 @@ export default function roleController(roleService: RoleServices) {
 
     deleteRoleHandler: async function (req: RoleIdRequest, res: Response) {
       try {
-        const result: DeleteRoleResponse = await roleService.deleteRoleByID(
-          req
-        );
+        const result: DeleteResponse = await roleService.deleteRoleByID(req);
         const { httpStatusCode, message } = result;
         res
           .status(httpStatusCode)
