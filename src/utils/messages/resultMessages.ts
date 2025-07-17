@@ -10,4 +10,4 @@ export const ResultMessages = {
   // ...add more as needed
 } as const;
 
-export type ResultMessageKey = keyof typeof ResultMessages;
+export type ResultMessageKeys = keyof typeof ResultMessages;
