@@ -5,12 +5,9 @@ import {
   SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
-  SignUpUserResponse,
-  LoginResponse,
-  SearchUserByIdResponse,
-  DeleteUserByIdResponse,
-  UpdateUserDetailsResponse,
-  SearchUsersResponse,
+  EntityResponse,
+  EntitiesResponse,
+  DeleteLogoutResponse,
   UserServices,
 } from "@/types/user.types";
 import { cors_secure, cors_samesite } from "@config/envvars";
@@ -19,14 +16,14 @@ export default function userController(userService: UserServices) {
   return {
     signUpHandler: async function (req: SignUpRequest, res: Response) {
       try {
-        const result: SignUpUserResponse = await userService.signUpUser(req);
-        const { httpStatusCode, message, user } = result;
+        const result: EntityResponse = await userService.signUpUser(req);
+        const { httpStatusCode, message, data } = result;
 
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 201
-              ? { code: httpStatusCode, resultMessage: message, user: user }
+              ? { code: httpStatusCode, resultMessage: message, user: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -40,8 +37,8 @@ export default function userController(userService: UserServices) {
 
     loginHandler: async function (req: LoginRequest, res: Response) {
       try {
-        const result: LoginResponse = await userService.loginUser(req);
-        const { httpStatusCode, tokenCreated, message, user } = result;
+        const result: EntityResponse = await userService.loginUser(req);
+        const { httpStatusCode, tokenCreated, message, data } = result;
 
         if (httpStatusCode === 200 && tokenCreated) {
           res.cookie("nodetodo", tokenCreated, {
@@ -57,7 +54,7 @@ export default function userController(userService: UserServices) {
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, user: user }
+              ? { code: httpStatusCode, resultMessage: message, user: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -88,7 +85,7 @@ export default function userController(userService: UserServices) {
         }
         res.status(500).json({
           code: 500,
-          resultMessage: "UNKNOWN_ERROR",
+          resultMessage: "UNKNOWN_SERVER_ERROR",
         });
       }
     },
@@ -107,15 +104,15 @@ export default function userController(userService: UserServices) {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const listUsersRequest: ListUsersRequest = { page, limit };
-        const result: SearchUsersResponse = await userService.listUsers(
+        const result: EntitiesResponse = await userService.listUsers(
           listUsersRequest
         );
-        const { httpStatusCode, message, users } = result;
+        const { httpStatusCode, message, data } = result;
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, users: users }
+              ? { code: httpStatusCode, resultMessage: message, users: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -138,15 +135,13 @@ export default function userController(userService: UserServices) {
             .status(401)
             .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
         }
-        const result: SearchUserByIdResponse = await userService.listUserByID(
-          userId
-        );
-        const { httpStatusCode, message, user } = result;
+        const result: EntityResponse = await userService.listUserByID(userId);
+        const { httpStatusCode, message, data } = result;
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, user: user }
+              ? { code: httpStatusCode, resultMessage: message, user: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -163,14 +158,15 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const result: UpdateUserDetailsResponse =
-          await userService.updateUserDetailsByID(req);
-        const { httpStatusCode, message, user } = result;
+        const result: EntityResponse = await userService.updateUserDetailsByID(
+          req
+        );
+        const { httpStatusCode, message, data } = result;
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, user: user }
+              ? { code: httpStatusCode, resultMessage: message, user: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -187,16 +183,17 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const result: UpdateUserDetailsResponse =
-          await userService.updateUserPasswordByID(req);
+        const result: EntityResponse = await userService.updateUserPasswordByID(
+          req
+        );
 
-        const { httpStatusCode, message, user } = result;
+        const { httpStatusCode, message, data } = result;
 
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, user: user }
+              ? { code: httpStatusCode, resultMessage: message, user: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -219,7 +216,7 @@ export default function userController(userService: UserServices) {
             .status(401)
             .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
         }
-        const result: DeleteUserByIdResponse = await userService.deleteUserByID(
+        const result: DeleteLogoutResponse = await userService.deleteUserByID(
           userId
         );
         const { httpStatusCode, message } = result;
