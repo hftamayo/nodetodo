@@ -11,6 +11,7 @@ import {
   LoginRequest,
   UpdateUserRequest,
   FullUser,
+  FilteredUser,
   ListUsersRequest,
   JwtActiveSession,
   EntityResponse,
@@ -108,7 +109,7 @@ const loginUser = async function (
 
     const { password, createdAt, updatedAt, ...filteredUser } =
       searchUser.toObject() as FullUser;
-    return makeResponse("SUCCESS", { data: filteredUser });
+    return makeResponse("SUCCESS", { data: filteredUser, tokenCreated: token });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, loginUser: " + error.message);
@@ -130,29 +131,22 @@ const listUsers = async function (
       .skip(skip)
       .limit(limit)
       .exec();
-    const filteredUsers: FilteredSearchUsers[] = users.map((user) => ({
-      id: user._id.toString(),
+    const filteredUsers: FilteredUser[] = users.map((user) => ({
+      _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       status: user.status,
     }));
 
-    return {
-      httpStatusCode: 200,
-      message: "USERS_FOUND",
-      users: filteredUsers,
-    };
+    return makeResponse("SUCCESS", { data: filteredUsers });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, searchUsers: " + error.message);
     } else {
       console.error("userService, searchUsers: " + error);
     }
-    return {
-      httpStatusCode: 500,
-      message: "UNKNOWN_ERROR",
-    };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
@@ -160,24 +154,23 @@ const listUserByID = async function (userId: string): Promise<EntityResponse> {
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
-    const filteredUser: FilteredSearchUserById = {
+    const filteredUser: FilteredUser = {
       _id: searchUser._id,
       name: searchUser.name,
       email: searchUser.email,
       role: searchUser.role,
       status: searchUser.status,
     };
-
-    return { httpStatusCode: 200, message: "ENTITY_FOUND", user: filteredUser };
+    return makeResponse("SUCCESS", { data: filteredUser });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, listItemByID: " + error.message);
     } else {
       console.error("userService, listItemByID: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
@@ -188,13 +181,13 @@ const updateUserDetailsByID = async function (
   const { ...updates } = user;
 
   if (Object.keys(updates).length === 0) {
-    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+    return makeResponse("BAD_REQUEST");
   }
 
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
 
     if (updates.email !== undefined) {
@@ -205,7 +198,7 @@ const updateUserDetailsByID = async function (
         checkIfUpdateEmailExists &&
         checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()
       ) {
-        return { httpStatusCode: 400, message: "EMAIL_EXISTS" };
+        return makeResponse("ENTITY_ALREADY_EXISTS");
       }
     }
 
@@ -218,19 +211,14 @@ const updateUserDetailsByID = async function (
 
     const { password, createdAt, ...filteredUser } =
       searchUser.toObject() as FullUser;
-
-    return {
-      httpStatusCode: 200,
-      message: "ENTITY_UPDATED",
-      user: filteredUser as FilteredUpdateUser,
-    };
+    return makeResponse("SUCCESS", { data: filteredUser });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, updateUserByID: " + error.message);
     } else {
       console.error("userService, updateUserByID: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
@@ -241,20 +229,17 @@ const updateUserPasswordByID = async function (
   const { password: plainPassword, updatePassword } = user;
 
   if (!plainPassword || !updatePassword) {
-    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+    return makeResponse("BAD_REQUEST");
   }
 
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
     const isMatch = await bcrypt.compare(plainPassword, searchUser.password);
     if (!isMatch) {
-      return {
-        httpStatusCode: 400,
-        message: "BAD_CREDENTIALS",
-      };
+      return makeResponse("BAD_CREDENTIALS");
     }
     const salt = await bcrypt.genSalt(10);
     searchUser.password = await bcrypt.hash(updatePassword, salt);
@@ -262,19 +247,14 @@ const updateUserPasswordByID = async function (
 
     const { password, createdAt, ...filteredUser } =
       searchUser.toObject() as FullUser;
-
-    return {
-      httpStatusCode: 200,
-      message: "ENTITY UPDATED",
-      user: filteredUser as FilteredUpdateUser,
-    };
+    return makeResponse("SUCCESS", { data: filteredUser });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, updateUserPassword: " + error.message);
     } else {
       console.error("userService, updateUserPassword: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
@@ -284,21 +264,21 @@ const deleteUserByID = async function (
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
     const todo = await Todo.find({ owner: searchUser }).exec();
     if (todo) {
       await Todo.deleteMany({ owner: searchUser }).exec();
     }
     await searchUser.deleteOne();
-    return { httpStatusCode: 200, message: "ENTITY_DELETED" };
+    return makeResponse("SUCCESS");
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, deleteUserByID: " + error.message);
     } else {
       console.error("userService, deleteUserByID: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
