@@ -5,17 +5,16 @@ import {
   UpdateTodoRequest,
   ListTodosByOwnerRequest,
   ListTodoByOwnerRequest,
-  CreateTodoResponse,
-  ListTodosByOwnerResponse,
-  ListTodoByOwnerResponse,
-  UpdateTodoResponse,
-  DeleteTodoByIdResponse,
   FilteredTodo,
+  EntitiesResponse,
+  EntityResponse,
+  DeleteResponse,
 } from "@/types/todo.types";
+import { makeResponse } from "@/utils/messages/apiMakeResponse";
 
 const listTodos = async function (
   params: ListTodosByOwnerRequest
-): Promise<ListTodosByOwnerResponse> {
+): Promise<EntitiesResponse> {
   const { owner, page, limit, activeOnly } = params;
   try {
     const skip = (page - 1) * limit;
@@ -33,7 +32,7 @@ const listTodos = async function (
       .exec();
 
     if (!todos || todos.length === 0) {
-      return { httpStatusCode: 404, message: "TASKS_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
 
     const fetchedTodos: FullTodo[] = todos.map((todo) => ({
@@ -43,39 +42,33 @@ const listTodos = async function (
       completed: todo.completed,
       owner: todo.owner,
     }));
-
-    return {
-      httpStatusCode: 200,
-      message: "TASKS_FOUND",
-      todos: fetchedTodos,
-    };
+    return makeResponse("SUCCESS", {
+      data: fetchedTodos,
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, listTodos: " + error.message);
     } else {
       console.error("todoService, listTodos: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const listTodoByID = async function (
   params: ListTodoByOwnerRequest
-): Promise<ListTodoByOwnerResponse> {
+): Promise<EntityResponse> {
   const { owner, todoId } = params;
 
   try {
     let searchTodo = await Todo.findById(todoId).exec();
 
     if (!searchTodo) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
 
     if (searchTodo.owner.toString() !== owner.toString()) {
-      return {
-        httpStatusCode: 401,
-        message: "FORBIDDEN",
-      };
+      return makeResponse("UNAUTHORIZED");
     }
 
     const filteredTodo: FilteredTodo = {
@@ -85,32 +78,33 @@ const listTodoByID = async function (
       completed: searchTodo.completed,
       owner: searchTodo.owner,
     };
-
-    return { httpStatusCode: 200, message: "ENTITY_FOUND", todo: filteredTodo };
+    return makeResponse("SUCCESS", {
+      data: filteredTodo,
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, listTodoByID: " + error.message);
     } else {
       console.error("todoService, listTodoByID: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const createTodo = async function (
   params: NewTodoRequest
-): Promise<CreateTodoResponse> {
+): Promise<EntityResponse> {
   const { owner, todo } = params;
   const { title, description } = todo;
 
   if (!owner || !title || !description) {
-    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+    return makeResponse("BAD_REQUEST");
   }
 
   try {
     let newTodo = await Todo.findOne({ title }).exec();
     if (newTodo) {
-      return { httpStatusCode: 400, message: "TITLE_ALREADY_TAKEN" };
+      return makeResponse("ENTITY_ALREADY_EXISTS");
     }
     newTodo = new Todo({
       title,
@@ -128,41 +122,36 @@ const createTodo = async function (
       owner: newTodo.owner,
     };
 
-    return {
-      httpStatusCode: 200,
-      message: "TODO_CREATED",
-      todo: filteredTodo,
-    };
+    return makeResponse("SUCCESS", {
+      data: filteredTodo,
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, createTodo: " + error.message);
     } else {
       console.error("todoService, createTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const updateTodoByID = async function (
   params: UpdateTodoRequest
-): Promise<UpdateTodoResponse> {
+): Promise<EntityResponse> {
   const { owner, todo } = params;
   const { _id, ...updates } = todo;
 
   if (!owner || !_id || Object.keys(updates).length === 0) {
-    return { httpStatusCode: 400, message: "MISSING_FIELDS" };
+    return makeResponse("BAD_REQUEST");
   }
 
   try {
     let updateTodo = await Todo.findById(_id).exec();
     if (!updateTodo) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
     if (updateTodo.owner.toString() !== owner.toString()) {
-      return {
-        httpStatusCode: 401,
-        message: "FORBIDDEN",
-      };
+      return makeResponse("UNAUTHORIZED");
     }
     if (updates.title !== undefined) updateTodo.title = updates.title;
     if (updates.description !== undefined)
@@ -179,49 +168,44 @@ const updateTodoByID = async function (
       owner: updateTodo.owner,
     };
 
-    return {
-      httpStatusCode: 200,
-      message: "ENTITY_UPDATED",
-      todo: filteredTodo,
-    };
+    return makeResponse("SUCCESS", {
+      data: filteredTodo,
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, updateTodo: " + error.message);
     } else {
       console.error("todoService, updateTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
 const deleteTodoByID = async function (
   params: ListTodoByOwnerRequest
-): Promise<DeleteTodoByIdResponse> {
+): Promise<DeleteResponse> {
   const { owner, todoId } = params;
 
   try {
     let searchTodo = await Todo.findById(todoId).exec();
 
     if (!searchTodo) {
-      return { httpStatusCode: 404, message: "ENTITY_NOT_FOUND" };
+      return makeResponse("ERROR");
     }
 
     if (searchTodo.owner.toString() !== owner.toString()) {
-      return {
-        httpStatusCode: 401,
-        message: "FORBIDDEN",
-      };
+      return makeResponse("UNAUTHORIZED");
     }
 
     await searchTodo.deleteOne();
-    return { httpStatusCode: 200, message: "ENTITY_DELETED" };
+    return makeResponse("SUCCESS");
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, deleteTodo: " + error.message);
     } else {
       console.error("todoService, deleteTodo: " + error);
     }
-    return { httpStatusCode: 500, message: "UNKNOWN_ERROR" };
+    return makeResponse("INTERNAL_SERVER_ERROR");
   }
 };
 
