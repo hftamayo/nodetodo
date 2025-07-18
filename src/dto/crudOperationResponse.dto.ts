@@ -1,26 +1,26 @@
-import { ResultMessageType } from "../utils/messages/resultMessageType.enum";
+import { ResultMessages, ResultMessageKeys } from "@/utils/messages/resultMessages";
 
 export class CrudOperationResponseDto<T = any> {
   code: number;
-  resultMessage: ResultMessageType;
+  resultMessage: string;
   data?: T;
   dataList?: T[];
   timestamp: number;
   cacheTTL: number;
 
   constructor(options: {
-    code: number;
-    resultMessage: ResultMessageType;
+    resultType: ResultMessageKeys;
     data?: T;
     dataList?: T[];
     timestamp?: number;
     cacheTTL?: number;
   }) {
-    this.code = options.code;
-    this.resultMessage = options.resultMessage;
-    this.data = options.data;
-    this.dataList = options.dataList;
-    this.timestamp = options.timestamp ?? Date.now();
-    this.cacheTTL = options.cacheTTL ?? 0;
+    const { resultType, data, dataList, timestamp, cacheTTL } = options;
+    this.code = ResultMessages[resultType].code;
+    this.resultMessage = ResultMessages[resultType].message;
+    this.data = data;
+    this.dataList = dataList;
+    this.timestamp = timestamp ?? Date.now();
+    this.cacheTTL = cacheTTL ?? 0;
   }
 }
