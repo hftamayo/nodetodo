@@ -4,11 +4,9 @@ import {
   ListTodoByOwnerRequest,
   NewTodoRequest,
   UpdateTodoRequest,
-  ListTodosByOwnerResponse,
-  ListTodoByOwnerResponse,
-  CreateTodoResponse,
-  UpdateTodoResponse,
-  DeleteTodoByIdResponse,
+  EntityResponse,
+  EntitiesResponse,
+  DeleteResponse,
   TodoServices,
 } from "@/types/todo.types";
 
@@ -26,16 +24,16 @@ export default function todoController(todoService: TodoServices) {
           owner,
           activeOnly,
         };
-        const result: ListTodosByOwnerResponse = await todoService.listTodos(
+        const result: EntitiesResponse = await todoService.listTodos(
           listTodosByOwnerRequest
         );
-        const { httpStatusCode, message, todos } = result;
+        const { httpStatusCode, message, data } = result;
 
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, todos: todos }
+              ? { code: httpStatusCode, resultMessage: message, todos: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -52,16 +50,14 @@ export default function todoController(todoService: TodoServices) {
       res: Response
     ) {
       try {
-        const result: ListTodoByOwnerResponse = await todoService.listTodoByID(
-          req
-        );
-        const { httpStatusCode, message, todo } = result;
+        const result: EntityResponse = await todoService.listTodoByID(req);
+        const { httpStatusCode, message, data } = result;
 
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, todo: todo }
+              ? { code: httpStatusCode, resultMessage: message, todo: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -75,14 +71,14 @@ export default function todoController(todoService: TodoServices) {
 
     newTodoHandler: async function (req: NewTodoRequest, res: Response) {
       try {
-        const result: CreateTodoResponse = await todoService.createTodo(req);
-        const { httpStatusCode, message, todo } = result;
+        const result: EntityResponse = await todoService.createTodo(req);
+        const { httpStatusCode, message, data } = result;
 
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 201
-              ? { code: httpStatusCode, resultMessage: message, todo: todo }
+              ? { code: httpStatusCode, resultMessage: message, todo: data }
               : { code: httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -96,15 +92,13 @@ export default function todoController(todoService: TodoServices) {
 
     updateTodoHandler: async function (req: UpdateTodoRequest, res: Response) {
       try {
-        const result: UpdateTodoResponse = await todoService.updateTodoByID(
-          req
-        );
-        const { httpStatusCode, message, todo } = result;
+        const result: EntityResponse = await todoService.updateTodoByID(req);
+        const { httpStatusCode, message, data } = result;
         res
           .status(httpStatusCode)
           .json(
             httpStatusCode === 200
-              ? { httpStatusCode, resultMessage: message, updateTodo: todo }
+              ? { httpStatusCode, resultMessage: message, updateTodo: data }
               : { httpStatusCode, resultMessage: message }
           );
       } catch (error: unknown) {
@@ -121,9 +115,7 @@ export default function todoController(todoService: TodoServices) {
       res: Response
     ) {
       try {
-        const result: DeleteTodoByIdResponse = await todoService.deleteTodoByID(
-          req
-        );
+        const result: DeleteResponse = await todoService.deleteTodoByID(req);
         const { httpStatusCode, message } = result;
         res
           .status(httpStatusCode)
