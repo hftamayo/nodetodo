@@ -5,20 +5,37 @@ import os from "os";
 
 const hcController = {
   appHealthCheck: async function (req: Request, res: Response) {
-    const result = new AppHealthCheckResponseDTO({
-      code: res.statusCode,
-      status: "pass",
-      resultMessage: "Application is up and running",
-      details: {
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        memoryUsage: {
-          total: os.totalmem(),
-          free: os.freemem(),
+    try {
+      const result = new AppHealthCheckResponseDTO({
+        code: res.statusCode,
+        status: "pass",
+        resultMessage: "Application is up and running",
+        details: {
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime(),
+          memoryUsage: {
+            total: os.totalmem(),
+            free: os.freemem(),
+          },
         },
-      },
-    });
-    res.status(200).json(result);
+      });
+      res.status(200).json(result);
+    } catch (error: unknown) {
+      const result = new AppHealthCheckResponseDTO({
+        code: 500,
+        status: "fail",
+        resultMessage: "Application health check failed",
+        details: {
+          timestamp: new Date().toISOString(),
+          uptime: 0,
+          memoryUsage: {
+            total: 0,
+            free: 0,
+          },
+        },
+      });
+      res.status(500).json(result);
+    }
   },
 
   dbHealthCheck: async function (req: Request, res: Response) {
