@@ -11,6 +11,7 @@ import {
 } from "@/types/role.types";
 import { RolesResponseDTO } from "@/dto/roles/rolesResponse.dto";
 import { CrudOperationResponseDto } from "@/dto/crudOperationResponse.dto";
+import { ErrorResponseDTO } from "@/dto/ErrorResponse.dto";
 
 export default function roleController(roleService: RoleServices) {
   return {
@@ -22,14 +23,20 @@ export default function roleController(roleService: RoleServices) {
           listRolesRequest
         );
         const { httpStatusCode, message, data } = result;
-        const shapedList = Array.isArray(data)
-          ? data.map(role => new RolesResponseDTO(role))
-          : [];
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({
+              code: httpStatusCode,
+              resultMessage: message
+            })
+          );
+        }
+        const shapedDataList = data.map(role => new RolesResponseDTO(role));
         res.status(httpStatusCode).json(
           new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            dataList: shapedList
+            dataList: shapedDataList
           })
         );
       } catch (error: unknown) {
@@ -45,12 +52,20 @@ export default function roleController(roleService: RoleServices) {
       try {
         const result: EntityResponse = await roleService.listRoleByID(req);
         const { httpStatusCode, message, data } = result;
-        const shaped = data ? new RolesResponseDTO(data) : undefined;
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({
+              code: httpStatusCode,
+              resultMessage: message
+            })
+          );
+        }
+        const shapedData = new RolesResponseDTO(data);
         res.status(httpStatusCode).json(
           new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data: shaped
+            data: shapedData
           })
         );
       } catch (error: unknown) {
@@ -66,12 +81,20 @@ export default function roleController(roleService: RoleServices) {
       try {
         const result: EntityResponse = await roleService.createRole(req);
         const { httpStatusCode, message, data } = result;
-        const shaped = data ? new RolesResponseDTO(data) : undefined;
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({
+              code: httpStatusCode,
+              resultMessage: message
+            })
+          );
+        }
+        const shapedData = new RolesResponseDTO(data);
         res.status(httpStatusCode).json(
           new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data: shaped
+            data: shapedData
           })
         );
       } catch (error: unknown) {
@@ -87,12 +110,20 @@ export default function roleController(roleService: RoleServices) {
       try {
         const result: EntityResponse = await roleService.updateRoleByID(req);
         const { httpStatusCode, message, data } = result;
-        const shaped = data ? new RolesResponseDTO(data) : undefined;
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({
+              code: httpStatusCode,
+              resultMessage: message
+            })
+          );
+        }
+        const shapedData = new RolesResponseDTO(data);
         res.status(httpStatusCode).json(
           new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data: shaped
+            data: shapedData
           })
         );
       } catch (error: unknown) {
