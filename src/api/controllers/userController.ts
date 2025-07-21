@@ -10,6 +10,9 @@ import {
   DeleteLogoutResponse,
   UserServices,
 } from "@/types/user.types";
+import { UsersResponseDTO } from "@/dto/users/usersResponse.dto";
+import { CrudOperationResponseDto } from "@/dto/crudOperationResponse.dto";
+import { ErrorResponseDTO } from "@/dto/ErrorResponse.dto";
 import { cors_secure, cors_samesite } from "@config/envvars";
 
 export default function userController(userService: UserServices) {
@@ -18,14 +21,15 @@ export default function userController(userService: UserServices) {
       try {
         const result: EntityResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, data } = result;
-
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 201
-              ? { code: httpStatusCode, resultMessage: message, user: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedData = new UsersResponseDTO(data);
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, data: shapedData })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, register: " + error.message);
@@ -39,7 +43,6 @@ export default function userController(userService: UserServices) {
       try {
         const result: EntityResponse = await userService.loginUser(req);
         const { httpStatusCode, tokenCreated, message, data } = result;
-
         if (httpStatusCode === 200 && tokenCreated) {
           res.cookie("nodetodo", tokenCreated, {
             httpOnly: true,
@@ -49,14 +52,15 @@ export default function userController(userService: UserServices) {
             path: "/",
           });
         }
-
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, user: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedData = new UsersResponseDTO(data);
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, data: shapedData })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, login: " + error.message);
@@ -73,20 +77,18 @@ export default function userController(userService: UserServices) {
       try {
         console.log(`LogFile: User ${req.user?.sub} is logging out`);
         res.clearCookie("nodetodo");
-        res.status(200).json({
-          code: 200,
-          resultMessage: "LOGOUT_SUCCESSFUL",
-        });
+        res.status(200).json(
+          new CrudOperationResponseDto({ code: 200, resultMessage: "LOGOUT_SUCCESSFUL" })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, logout: " + error.message);
         } else {
           console.error("userController, logout: " + error);
         }
-        res.status(500).json({
-          code: 500,
-          resultMessage: "UNKNOWN_SERVER_ERROR",
-        });
+        res.status(500).json(
+          new ErrorResponseDTO({ code: 500, resultMessage: "UNKNOWN_SERVER_ERROR" })
+        );
       }
     },
 
@@ -97,24 +99,24 @@ export default function userController(userService: UserServices) {
       try {
         const userId = req.user?.sub;
         if (!userId) {
-          return res
-            .status(401)
-            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+          return res.status(401).json(
+            new ErrorResponseDTO({ code: 401, resultMessage: "NOT_AUTHORIZED" })
+          );
         }
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const listUsersRequest: ListUsersRequest = { page, limit };
-        const result: EntitiesResponse = await userService.listUsers(
-          listUsersRequest
-        );
+        const result: EntitiesResponse = await userService.listUsers(listUsersRequest);
         const { httpStatusCode, message, data } = result;
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, users: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedDataList = data.map(user => new UsersResponseDTO(user));
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, dataList: shapedDataList })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, listUsers: " + error.message);
@@ -131,19 +133,21 @@ export default function userController(userService: UserServices) {
       try {
         const userId = req.user?.sub;
         if (!userId) {
-          return res
-            .status(401)
-            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+          return res.status(401).json(
+            new ErrorResponseDTO({ code: 401, resultMessage: "NOT_AUTHORIZED" })
+          );
         }
         const result: EntityResponse = await userService.listUserByID(userId);
         const { httpStatusCode, message, data } = result;
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, user: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedData = new UsersResponseDTO(data);
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, data: shapedData })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, listUser: " + error.message);
@@ -158,17 +162,17 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const result: EntityResponse = await userService.updateUserDetailsByID(
-          req
-        );
+        const result: EntityResponse = await userService.updateUserDetailsByID(req);
         const { httpStatusCode, message, data } = result;
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, user: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedData = new UsersResponseDTO(data);
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, data: shapedData })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, updateDetails: " + error.message);
@@ -183,19 +187,17 @@ export default function userController(userService: UserServices) {
       res: Response
     ) {
       try {
-        const result: EntityResponse = await userService.updateUserPasswordByID(
-          req
-        );
-
+        const result: EntityResponse = await userService.updateUserPasswordByID(req);
         const { httpStatusCode, message, data } = result;
-
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, user: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedData = new UsersResponseDTO(data);
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, data: shapedData })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, updateDetails: " + error.message);
@@ -212,21 +214,18 @@ export default function userController(userService: UserServices) {
       try {
         const userId = req.user?.sub;
         if (!userId) {
-          return res
-            .status(401)
-            .json({ code: 401, resultMessage: "NOT_AUTHORIZED" });
+          return res.status(401).json(
+            new ErrorResponseDTO({ code: 401, resultMessage: "NOT_AUTHORIZED" })
+          );
         }
-        const result: DeleteLogoutResponse = await userService.deleteUserByID(
-          userId
-        );
+        const result: DeleteLogoutResponse = await userService.deleteUserByID(userId);
         const { httpStatusCode, message } = result;
-
         if (httpStatusCode === 200) {
           res.clearCookie("nodetodo");
         }
-        res
-          .status(httpStatusCode)
-          .json({ code: httpStatusCode, resultMessage: message });
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("userController, deleteUser: " + error.message);

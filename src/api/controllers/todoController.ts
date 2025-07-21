@@ -9,6 +9,9 @@ import {
   DeleteResponse,
   TodoServices,
 } from "@/types/todo.types";
+import { TodosResponseDTO } from "@/dto/todos/todosResponse.dto";
+import { CrudOperationResponseDto } from "@/dto/crudOperationResponse.dto";
+import { ErrorResponseDTO } from "@/dto/ErrorResponse.dto";
 
 export default function todoController(todoService: TodoServices) {
   return {
@@ -24,18 +27,17 @@ export default function todoController(todoService: TodoServices) {
           owner,
           activeOnly,
         };
-        const result: EntitiesResponse = await todoService.listTodos(
-          listTodosByOwnerRequest
-        );
+        const result: EntitiesResponse = await todoService.listTodos(listTodosByOwnerRequest);
         const { httpStatusCode, message, data } = result;
-
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, todos: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedDataList = data.map(todo => new TodosResponseDTO(todo));
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, dataList: shapedDataList })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, getTodos: " + error.message);
@@ -52,14 +54,15 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: EntityResponse = await todoService.listTodoByID(req);
         const { httpStatusCode, message, data } = result;
-
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { code: httpStatusCode, resultMessage: message, todo: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedData = new TodosResponseDTO(data);
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, data: shapedData })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, getTodo: " + error.message);
@@ -73,14 +76,15 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: EntityResponse = await todoService.createTodo(req);
         const { httpStatusCode, message, data } = result;
-
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 201
-              ? { code: httpStatusCode, resultMessage: message, todo: data }
-              : { code: httpStatusCode, resultMessage: message }
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedData = new TodosResponseDTO(data);
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, data: shapedData })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, newTodo: " + error.message);
@@ -94,13 +98,15 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: EntityResponse = await todoService.updateTodoByID(req);
         const { httpStatusCode, message, data } = result;
-        res
-          .status(httpStatusCode)
-          .json(
-            httpStatusCode === 200
-              ? { httpStatusCode, resultMessage: message, updateTodo: data }
-              : { httpStatusCode, resultMessage: message }
+        if (!data) {
+          return res.status(httpStatusCode).json(
+            new ErrorResponseDTO({ code: httpStatusCode, resultMessage: message })
           );
+        }
+        const shapedData = new TodosResponseDTO(data);
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message, data: shapedData })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, updateTodo: " + error.message);
@@ -117,9 +123,9 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: DeleteResponse = await todoService.deleteTodoByID(req);
         const { httpStatusCode, message } = result;
-        res
-          .status(httpStatusCode)
-          .json({ code: httpStatusCode, resultMessage: message });
+        res.status(httpStatusCode).json(
+          new CrudOperationResponseDto({ code: httpStatusCode, resultMessage: message })
+        );
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("todoController, deleteTodo: " + error.message);
