@@ -10,6 +10,7 @@ import {
   RoleServices,
 } from "@/types/role.types";
 import { RolesResponseDTO } from "@/dto/rolesResponse.dto";
+import { CrudOperationResponseDto } from "@/dto/crudOperationResponse.dto";
 
 export default function roleController(roleService: RoleServices) {
   return {
@@ -21,13 +22,14 @@ export default function roleController(roleService: RoleServices) {
           listRolesRequest
         );
         const { httpStatusCode, message, data } = result;
-
+        const shapedList = Array.isArray(data)
+          ? data.map(role => new RolesResponseDTO(role))
+          : [];
         res.status(httpStatusCode).json(
-          new RolesResponseDTO({
+          new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data,
-            dataKey: "roles",
+            dataList: shapedList
           })
         );
       } catch (error: unknown) {
@@ -43,13 +45,12 @@ export default function roleController(roleService: RoleServices) {
       try {
         const result: EntityResponse = await roleService.listRoleByID(req);
         const { httpStatusCode, message, data } = result;
-
+        const shaped = data ? new RolesResponseDTO(data) : undefined;
         res.status(httpStatusCode).json(
-          new RolesResponseDTO({
+          new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data,
-            dataKey: "role",
+            data: shaped
           })
         );
       } catch (error: unknown) {
@@ -65,13 +66,12 @@ export default function roleController(roleService: RoleServices) {
       try {
         const result: EntityResponse = await roleService.createRole(req);
         const { httpStatusCode, message, data } = result;
-
+        const shaped = data ? new RolesResponseDTO(data) : undefined;
         res.status(httpStatusCode).json(
-          new RolesResponseDTO({
+          new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data,
-            dataKey: "role",
+            data: shaped
           })
         );
       } catch (error: unknown) {
@@ -87,12 +87,12 @@ export default function roleController(roleService: RoleServices) {
       try {
         const result: EntityResponse = await roleService.updateRoleByID(req);
         const { httpStatusCode, message, data } = result;
+        const shaped = data ? new RolesResponseDTO(data) : undefined;
         res.status(httpStatusCode).json(
-          new RolesResponseDTO({
+          new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data,
-            dataKey: "updateRole",
+            data: shaped
           })
         );
       } catch (error: unknown) {
@@ -109,7 +109,7 @@ export default function roleController(roleService: RoleServices) {
         const result: DeleteResponse = await roleService.deleteRoleByID(req);
         const { httpStatusCode, message } = result;
         res.status(httpStatusCode).json(
-          new RolesResponseDTO({
+          new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message
           })
