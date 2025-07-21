@@ -1,38 +1,13 @@
-export type RoleDTO = {
-  id: string;
-  name: string;
-  description: string;
-  status: boolean;
-  permissions: { [domain: string]: number };
-};
+import { FilteredRole } from "@/types/role.types";
 
 export class RolesResponseDTO {
-  code: number;
-  resultMessage: string;
+  id: string;
   [key: string]: any;
 
-  constructor(options: {
-    code: number;
-    resultMessage: string;
-    data?: any;
-    dataKey?: string;
-  }) {
-    this.code = options.code;
-    this.resultMessage = options.resultMessage;
-    if (options.data && options.dataKey) {
-      this[options.dataKey] = Array.isArray(options.data)
-        ? options.data.map(RolesResponseDTO.filterRole)
-        : RolesResponseDTO.filterRole(options.data);
-    }
-  }
-
-  private static filterRole(role: any): RoleDTO {
-    return {
-      id: role._id,
-      name: role.name,
-      description: role.description,
-      status: role.status,
-      permissions: role.permissions,
-    };
+  constructor(role: FilteredRole) {
+    this.id = (role as any)._id?.toString?.() ?? (role as any).id;
+    Object.entries(role).forEach(([key, value]) => {
+      if (key !== "_id") this[key] = value;
+    });
   }
 } 
