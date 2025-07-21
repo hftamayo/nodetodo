@@ -1,15 +1,11 @@
 import { Request, Response } from "express";
 import { dbConnection } from "@config/setup";
-import {
-  HealthCheckResponse,
-  AppHealthDetails,
-  DbHealthDetails,
-} from "@/types/hc.types";
+import { AppHealthCheckResponseDTO, DbHealthCheckResponseDTO } from "@/dto/hc/healthCheckResponse.dto";
 import os from "os";
 
 const hcController = {
   appHealthCheck: async function (req: Request, res: Response) {
-    const result: HealthCheckResponse<AppHealthDetails> = {
+    const result = new AppHealthCheckResponseDTO({
       code: res.statusCode,
       status: "pass",
       resultMessage: "Application is up and running",
@@ -21,7 +17,7 @@ const hcController = {
           free: os.freemem(),
         },
       },
-    };
+    });
     res.status(200).json(result);
   },
 
@@ -31,7 +27,7 @@ const hcController = {
       await dbConnection();
       const queryTime = Date.now() - startTime;
 
-      const result: HealthCheckResponse<DbHealthDetails> = {
+      const result = new DbHealthCheckResponseDTO({
         code: res.statusCode,
         status: queryTime < 100 ? "pass" : "warn",
         resultMessage: "Database connection successful",
@@ -40,11 +36,11 @@ const hcController = {
           connectionTime: queryTime,
           databaseStatus: "connected",
         },
-      };
+      });
 
       res.status(200).json(result);
     } catch (error: unknown) {
-      const result: HealthCheckResponse<DbHealthDetails> = {
+      const result = new DbHealthCheckResponseDTO({
         code: res.statusCode,
         status: "fail",
         resultMessage: "Database connection failed",
@@ -52,7 +48,7 @@ const hcController = {
           timestamp: new Date().toISOString(),
           error: error instanceof Error ? error.message : String(error),
         },
-      };
+      });
 
       res.status(500).json(result);
     }
