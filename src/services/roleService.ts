@@ -5,7 +5,6 @@ import {
   RoleIdRequest,
   UpdateRoleRequest,
   EntityResponse,
-  EntitiesResponse,
   DeleteResponse,
 } from "@/types/role.types";
 import { makeResponse } from "@/utils/messages/apiMakeResponse";
@@ -21,7 +20,14 @@ function isPaginatedResponseDTO(obj: any): obj is PaginatedResponseDTO<any> {
 const listRoles = async function (
   params: ListRolesRequest
 ): Promise<PaginatedResponseDTO<FilteredRole> | ErrorResponseDTO> {
-  const { page = 1, limit = 5, cursor, sort = 'createdAt', order = 'desc', filters = {} } = params;
+  const {
+    page = 1,
+    limit = 5,
+    cursor,
+    sort = "createdAt",
+    order = "desc",
+    filters = {},
+  } = params;
   try {
     const paginated = await paginate(Role, {
       page,
@@ -56,7 +62,7 @@ const listRoles = async function (
     }
     return new ErrorResponseDTO({
       code: 500,
-      resultMessage: 'Pagination error',
+      resultMessage: "Pagination error",
       debugMessage: error instanceof Error ? error.message : String(error),
       timestamp: Date.now(),
     });
