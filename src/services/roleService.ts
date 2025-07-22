@@ -10,36 +10,56 @@ import {
 } from "@/types/role.types";
 import { makeResponse } from "@/utils/messages/apiMakeResponse";
 import Role from "@models/Role";
+import { paginate } from "@/services/paginationService";
+import { PaginatedResponseDTO } from "@/dto/pagination/pagination.dto";
+import { ErrorResponseDTO } from "@/dto/ErrorResponse.dto";
+
+function isPaginatedResponseDTO(obj: any): obj is PaginatedResponseDTO<any> {
+  return obj && Array.isArray(obj.data) && obj.pagination;
+}
 
 const listRoles = async function (
   params: ListRolesRequest
-): Promise<EntitiesResponse> {
-  const { page, limit } = params;
+): Promise<PaginatedResponseDTO<FilteredRole> | ErrorResponseDTO> {
+  const { page = 1, limit = 5, cursor, sort = 'createdAt', order = 'desc', filters = {} } = params;
   try {
-    const skip = (page - 1) * limit;
-    const roles = await Role.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .exec();
-    if (!roles || roles.length === 0) {
-      return makeResponse("ERROR");
+    const paginated = await paginate(Role, {
+      page,
+      limit,
+      cursor,
+      sort,
+      order,
+      filters,
+    });
+    // Map roles to FilteredRole
+    if (isPaginatedResponseDTO(paginated)) {
+      const mappedData: FilteredRole[] = paginated.data.map((role: any) => ({
+        _id: role._id,
+        name: role.name,
+        description: role.description,
+        status: role.status,
+        permissions: Object.fromEntries(Object.entries(role.permissions)),
+      }));
+      return new PaginatedResponseDTO({
+        data: mappedData,
+        pagination: paginated.pagination,
+        etag: paginated.etag,
+        lastModified: paginated.lastModified,
+      });
     }
-    const fetchedRoles: FilteredRole[] = roles.map((role) => ({
-      _id: role._id,
-      name: role.name,
-      description: role.description,
-      status: role.status,
-      permissions: Object.fromEntries(Object.entries(role.permissions)),
-    }));
-    return makeResponse("SUCCESS", { data: fetchedRoles });
+    return paginated;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("roleService, listRoles: " + error.message);
     } else {
       console.error("roleService, listRoles: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return new ErrorResponseDTO({
+      code: 500,
+      resultMessage: 'Pagination error',
+      debugMessage: error instanceof Error ? error.message : String(error),
+      timestamp: Date.now(),
+    });
   }
 };
 
