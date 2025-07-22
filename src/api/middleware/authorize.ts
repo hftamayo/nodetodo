@@ -4,7 +4,6 @@ import { AuthenticatedUserRequest, JwtActiveSession } from "@/types/user.types";
 import User from "@models/User";
 import Role from "@models/Role";
 import { masterKey } from "@config/envvars";
-import { createLog, createApiError } from "@utils/error/eventLog";
 
 export function isAuthenticated(
   req: AuthenticatedUserRequest
@@ -18,128 +17,47 @@ const authorize = (domain?: string, requiredPermission?: number) => {
     res: Response,
     next: NextFunction
   ) => {
-    createLog("debug", "AUTH", "Authorization check started", {
-      path: req.path,
-      method: req.method,
-      domain: domain?.toString(),
-      requiredPermission: requiredPermission?.toString(),
-      cookiePresent: !!req.cookies?.nodetodo,
-    });
+    // TODO: Integrate with global log service for authorization checks
 
     const { cookies } = req;
     const token = cookies?.nodetodo;
 
     if (!token) {
-      const error = createApiError(
-        "NOT_AUTHORIZED",
-        "malformed request",
-        "authorize module, Token verification routine: no token found",
-        {
-          path: req.path,
-          method: req.method,
-          domain: "RBAC: authorize middleware",
-          requiredPermission: requiredPermission?.toString(),
-          cookiePresent: !!req.cookies?.nodetodo,
-        }
-      );
+      // TODO: Log unauthorized access attempt
       return res
-        .status(error.code)
-        .json({ code: error.code, resultMessage: error });
+        .status(401)
+        .json({ code: 401, resultMessage: "malformed request: no token found" });
     }
 
     if (!masterKey) {
-      const error = createApiError(
-        "NOT_AUTHORIZED",
-        "malformed request",
-        "authorize module: masterKey stage: no masterKey present",
-        {
-          path: req.path,
-          method: req.method,
-          domain: "RBAC: authorize middleware",
-          requiredPermission: requiredPermission?.toString(),
-          cookiePresent: !!req.cookies?.nodetodo,
-        }
-      );
+      // TODO: Log missing masterKey error
       return res
-        .status(error.code)
-        .json({ code: error.code, resultMessage: error });
+        .status(401)
+        .json({ code: 401, resultMessage: "malformed request: no masterKey present" });
     }
 
     try {
-      createLog("debug", "TOKEN", "Token verification started", {
-        path: req.path,
-        method: req.method,
-        domain: "RBAC",
-        cookiePresent: true,
-      });
-
+      // TODO: Log token verification started
       const decoded = jwt.verify(token, masterKey) as
         | JwtActiveSession
         | undefined;
 
-      createLog("debug", "DECODE", "Token decoded successfully", {
-        path: req.path,
-        method: req.method,
-        domain: "RBAC",
-        cookiePresent: true,
-      });
-
+      // TODO: Log token decoded successfully
       if (!decoded || !decoded.sub || !decoded.role || !decoded.sessionId) {
-        createLog("error", "TOKEN", "Token validation failed", {
-          path: req.path,
-          method: req.method,
-          domain: "RBAC",
-          cookiePresent: true,
-        });
-
-        const error = createApiError(
-          "NOT_AUTHORIZED",
-          "malformed request",
-          "authorize module: decoded stage: missing fields",
-          {
-            path: req.path,
-            method: req.method,
-            domain: "RBAC: authorize middleware",
-            cookiePresent: !!req.cookies?.nodetodo,
-          }
-        );
+        // TODO: Log token validation failed
         return res
-          .status(error.code)
-          .json({ code: error.code, resultMessage: error.resultMessage });
+          .status(401)
+          .json({ code: 401, resultMessage: "malformed request: missing fields in token" });
       }
 
       const user = await User.findById(decoded.sub).populate("role").exec();
 
-      createLog("debug", "USER", "User lookup completed", {
-        path: req.path,
-        method: req.method,
-        domain: "RBAC",
-        cookiePresent: true,
-      });
-
+      // TODO: Log user lookup completed
       if (!user) {
-        createLog("error", "USER", "User not found", {
-          path: req.path,
-          method: req.method,
-          domain: "RBAC",
-          cookiePresent: true,
-        });
-
-        const error = createApiError(
-          "NOT_AUTHORIZED",
-          "invalid request",
-          "authorize module: userVerif stage: no user found",
-          {
-            path: req.path,
-            method: req.method,
-            domain: "RBAC: authorize middleware",
-            requiredPermission: requiredPermission?.toString(),
-            cookiePresent: !!req.cookies?.nodetodo,
-          }
-        );
+        // TODO: Log user not found
         return res
-          .status(error.code)
-          .json({ code: error.code, resultMessage: error.resultMessage });
+          .status(401)
+          .json({ code: 401, resultMessage: "invalid request: user not found" });
       }
 
       // Set basic user info in request
@@ -156,74 +74,27 @@ const authorize = (domain?: string, requiredPermission?: number) => {
       // Fetch user's role with permissions
       const userRole = await Role.findById(decoded.role).exec();
 
-      createLog("debug", "PERMISSION", "Permission check", {
-        path: req.path,
-        method: req.method,
-        domain: domain?.toString(),
-        requiredPermission: requiredPermission?.toString(),
-        cookiePresent: true,
-      });
-
+      // TODO: Log permission check
       if (!userRole) {
-        const error = createApiError(
-          "NOT_AUTHORIZED",
-          "insuficcients permissions",
-          "authorize module: rolesVerif stage: no role found",
-          {
-            path: req.path,
-            method: req.method,
-            domain: "RBAC: authorize middleware",
-            requiredPermission: requiredPermission?.toString(),
-            cookiePresent: !!req.cookies?.nodetodo,
-          }
-        );
-        return res.status(error.code).json(error);
+        // TODO: Log role not found
+        return res.status(401).json({ code: 401, resultMessage: "insufficient permissions: role not found" });
       }
 
       const domainPermissions = userRole.permissions.get(domain) ?? 0;
 
       if ((domainPermissions & requiredPermission) !== requiredPermission) {
-        const error = createApiError(
-          "NOT_AUTHORIZED",
-          "insufficient permissions",
-          "authorize module: permission verif stage: insufficient permissions",
-          {
-            path: req.path,
-            method: req.method,
-            domain: "RBAC: authorize middleware",
-            requiredPermission: requiredPermission?.toString(),
-            cookiePresent: !!req.cookies?.nodetodo,
-          }
-        );
+        // TODO: Log insufficient permissions
         return res
-          .status(error.code)
-          .json({ code: error.code, resultMessage: error.resultMessage });
+          .status(401)
+          .json({ code: 401, resultMessage: "insufficient permissions" });
       }
 
       next();
     } catch (error: unknown) {
-      const apiError = createApiError(
-        "NOT_AUTHORIZED",
-        "Authentication verif failed",
-        "authorize module: Catch block: session is not valid",
-        {
-          path: req.path,
-          method: req.method,
-          domain: "RBAC: authorize middleware",
-          requiredPermission: requiredPermission?.toString(),
-          cookiePresent: !!req.cookies?.nodetodo,
-        }
-      );
-      console.error(`
-        [ERROR DEBUG]
-        Error Type: ${
-          error instanceof Error ? error.constructor.name : "Unknown"
-        }
-        Message: ${error instanceof Error ? error.message : String(error)}
-      `);
+      // TODO: Log authentication verification failed
       return res
-        .status(apiError.code)
-        .json({ code: apiError.code, resultMessage: apiError });
+        .status(401)
+        .json({ code: 401, resultMessage: "authentication verification failed" });
     }
   };
 };
