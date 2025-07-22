@@ -1,4 +1,4 @@
-import { ErrorEvent } from "@/types/event.types";
+import { ErrorEvent } from "@/types/error.types";
 
 export class ErrorResponseDTO implements Pick<ErrorEvent, "code" | "resultMessage" | "debugMessage" | "timestamp"> {
   code: number;
