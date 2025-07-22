@@ -5,7 +5,6 @@ import {
   NewRoleRequest,
   UpdateRoleRequest,
   EntityResponse,
-  EntitiesResponse,
   DeleteResponse,
   RoleServices,
 } from "@/types/role.types";
@@ -17,28 +16,20 @@ export default function roleController(roleService: RoleServices) {
   return {
     getRolesHandler: async function (req: ListRolesRequest, res: Response) {
       try {
-        const { page, limit } = req;
-        const listRolesRequest: ListRolesRequest = { page, limit };
-        const result: EntitiesResponse = await roleService.listRoles(
-          listRolesRequest
-        );
-        const { httpStatusCode, message, data } = result;
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message
-            })
-          );
+        const { page, limit, cursor, sort, order, filters } = req;
+        const listRolesRequest: ListRolesRequest = {
+          page,
+          limit,
+          cursor,
+          sort,
+          order,
+          filters,
+        };
+        const result = await roleService.listRoles(listRolesRequest);
+        if (result instanceof ErrorResponseDTO) {
+          return res.status(result.code).json(result);
         }
-        const shapedDataList = data.map(role => new RolesResponseDTO(role));
-        res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            dataList: shapedDataList
-          })
-        );
+        res.status(200).json(result);
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("roleController, getRoles: " + error.message);
@@ -56,7 +47,7 @@ export default function roleController(roleService: RoleServices) {
           return res.status(httpStatusCode).json(
             new ErrorResponseDTO({
               code: httpStatusCode,
-              resultMessage: message
+              resultMessage: message,
             })
           );
         }
@@ -65,7 +56,7 @@ export default function roleController(roleService: RoleServices) {
           new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data: shapedData
+            data: shapedData,
           })
         );
       } catch (error: unknown) {
@@ -85,7 +76,7 @@ export default function roleController(roleService: RoleServices) {
           return res.status(httpStatusCode).json(
             new ErrorResponseDTO({
               code: httpStatusCode,
-              resultMessage: message
+              resultMessage: message,
             })
           );
         }
@@ -94,7 +85,7 @@ export default function roleController(roleService: RoleServices) {
           new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data: shapedData
+            data: shapedData,
           })
         );
       } catch (error: unknown) {
@@ -114,7 +105,7 @@ export default function roleController(roleService: RoleServices) {
           return res.status(httpStatusCode).json(
             new ErrorResponseDTO({
               code: httpStatusCode,
-              resultMessage: message
+              resultMessage: message,
             })
           );
         }
@@ -123,7 +114,7 @@ export default function roleController(roleService: RoleServices) {
           new CrudOperationResponseDto({
             code: httpStatusCode,
             resultMessage: message,
-            data: shapedData
+            data: shapedData,
           })
         );
       } catch (error: unknown) {
@@ -142,7 +133,7 @@ export default function roleController(roleService: RoleServices) {
         res.status(httpStatusCode).json(
           new CrudOperationResponseDto({
             code: httpStatusCode,
-            resultMessage: message
+            resultMessage: message,
           })
         );
       } catch (error: unknown) {
