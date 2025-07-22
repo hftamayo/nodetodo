@@ -25,9 +25,7 @@ const setCorsEnviro = {
     origin: string | undefined,
     callback: (error: Error | null, allow?: boolean) => void
   ) => {
-    console.log(`CORS requested from origin: ${origin}`);
     if (whitelist_frontend.indexOf(origin || "") !== -1 || !origin) {
-      console.log(`CORS requested from origin: ${origin} granted`);
       callback(null, true);
     } else {
       callback(

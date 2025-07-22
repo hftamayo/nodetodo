@@ -23,13 +23,6 @@ async function startApp() {
     app.use(express.urlencoded({ extended: true })); //cuando false?
     app.use(cookieParser()); //parsea cookie headers y populate req.cookies
 
-    // TODO: Integrate with global log service for request monitoring
-    // app.use((req: Request, res: Response, next: NextFunction) => {
-    //   console.log("Request received: ", req.method, req.url);
-    //   console.log("Request headers: ", req.headers);
-    //   next();
-    // });
-
     await seedDatabase();
 
     app.use("/nodetodo/healthcheck", healthCheckRoutes);
