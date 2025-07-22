@@ -1,4 +1,6 @@
 import mongoose, { Document } from "mongoose";
+import { PaginatedResponseDTO } from "@/dto/pagination/pagination.dto";
+import { ErrorResponseDTO } from "@/dto/ErrorResponse.dto";
 
 export interface RoleDocument extends Document {
   name: string;
@@ -36,8 +38,12 @@ export type NewRoleRequest = {
 };
 
 export type ListRolesRequest = {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
+  cursor?: string;
+  sort?: string;
+  order?: "asc" | "desc";
+  filters?: Record<string, any>;
 };
 
 export type RoleIdRequest = {
@@ -57,12 +63,11 @@ export type ApiResponse<T> = {
 };
 
 export type EntityResponse = ApiResponse<FilteredRole>;
-export type EntitiesResponse = ApiResponse<FilteredRole[]>;
 export type DeleteResponse = ApiResponse<null>;
 
 export type RoleServices = {
   createRole: (params: NewRoleRequest) => Promise<EntityResponse>;
-  listRoles: (params: ListRolesRequest) => Promise<EntitiesResponse>;
+  listRoles: (params: ListRolesRequest) => Promise<PaginatedResponseDTO<FilteredRole> | ErrorResponseDTO>;
   listRoleByID: (params: RoleIdRequest) => Promise<EntityResponse>;
   updateRoleByID: (params: UpdateRoleRequest) => Promise<EntityResponse>;
   deleteRoleByID: (params: RoleIdRequest) => Promise<DeleteResponse>;
