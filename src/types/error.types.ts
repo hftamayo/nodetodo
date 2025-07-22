@@ -1,5 +1,3 @@
-import { ResultMessages } from "@/utils/messages/resultMessages";
-
 export type LogLevel = "debug" | "info" | "error";
 
 export type EventContext = {
@@ -23,14 +21,3 @@ export type ErrorEvent = InformativeEvent & {
   resultMessage: string;
   debugMessage?: string;
 };
-
-export const ErrorTypes = {
-  NOT_AUTHORIZED: ResultMessages.UNAUTHORIZED,
-  FORBIDDEN: ResultMessages.FORBIDDEN,
-
-  NOT_FOUND: ResultMessages.ERROR,
-  BAD_REQUEST: ResultMessages.BAD_REQUEST,
-  INTERNAL_ERROR: ResultMessages.INTERNAL_SERVER_ERROR,
-} as const;
-
-export type ErrorType = keyof typeof ErrorTypes;
