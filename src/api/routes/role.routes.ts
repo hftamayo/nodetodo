@@ -17,15 +17,30 @@ import { DOMAINS, PERMISSIONS } from "@config/envvars";
 
 const roleRouter = express.Router();
 
-const controller = roleController(roleService as RoleServices);
+const controller = roleController(roleService as unknown as RoleServices);
 
 const getRolesHandler = (req: AuthenticatedUserRequest, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
+  const cursor = req.query.cursor as string | undefined;
+  const sort = req.query.sort as string | undefined;
+  const order = (req.query.order as 'asc' | 'desc') || undefined;
+  let filters: Record<string, any> | undefined = undefined;
+  if (req.query.filters) {
+    try {
+      filters = typeof req.query.filters === 'string' ? JSON.parse(req.query.filters) : req.query.filters;
+    } catch {
+      filters = undefined;
+    }
+  }
 
   const listRolesRequest: ListRolesRequest = {
     page,
     limit,
+    cursor,
+    sort,
+    order,
+    filters,
   };
 
   controller.getRolesHandler(listRolesRequest, res);
