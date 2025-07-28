@@ -10,7 +10,7 @@ import {
   TodoServices,
 } from "@/types/todo.types";
 import { TodosResponseDTO } from "@/dto/todos/todosResponse.dto";
-import { CrudOperationResponseDto } from "@/dto/EndpointResponse.dto";
+import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
 import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
 
 export default function todoController(todoService: TodoServices) {
@@ -41,7 +41,7 @@ export default function todoController(todoService: TodoServices) {
         }
         const shapedDataList = data.map((todo) => new TodosResponseDTO(todo));
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             dataList: shapedDataList,
@@ -73,7 +73,7 @@ export default function todoController(todoService: TodoServices) {
         }
         const shapedData = new TodosResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -102,7 +102,7 @@ export default function todoController(todoService: TodoServices) {
         }
         const shapedData = new TodosResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -131,7 +131,7 @@ export default function todoController(todoService: TodoServices) {
         }
         const shapedData = new TodosResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -154,7 +154,7 @@ export default function todoController(todoService: TodoServices) {
         const result: DeleteResponse = await todoService.deleteTodoByID(req);
         const { httpStatusCode, message } = result;
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
           })

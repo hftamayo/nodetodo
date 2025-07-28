@@ -11,7 +11,7 @@ import {
   UserServices,
 } from "@/types/user.types";
 import { UsersResponseDTO } from "@/dto/users/usersResponse.dto";
-import { CrudOperationResponseDto } from "@/dto/EndpointResponse.dto";
+import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
 import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
 import { cors_secure, cors_samesite } from "@config/envvars";
 
@@ -31,7 +31,7 @@ export default function userController(userService: UserServices) {
         }
         const shapedData = new UsersResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -69,7 +69,7 @@ export default function userController(userService: UserServices) {
         }
         const shapedData = new UsersResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -91,7 +91,7 @@ export default function userController(userService: UserServices) {
       try {
         res.clearCookie("nodetodo");
         res.status(200).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: 200,
             resultMessage: "LOGOUT_SUCCESSFUL",
           })
@@ -142,7 +142,7 @@ export default function userController(userService: UserServices) {
         }
         const shapedDataList = data.map((user) => new UsersResponseDTO(user));
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             dataList: shapedDataList,
@@ -183,7 +183,7 @@ export default function userController(userService: UserServices) {
         }
         const shapedData = new UsersResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -217,7 +217,7 @@ export default function userController(userService: UserServices) {
         }
         const shapedData = new UsersResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -251,7 +251,7 @@ export default function userController(userService: UserServices) {
         }
         const shapedData = new UsersResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -288,7 +288,7 @@ export default function userController(userService: UserServices) {
           res.clearCookie("nodetodo");
         }
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
           })

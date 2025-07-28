@@ -9,7 +9,7 @@ import {
   RoleServices,
 } from "@/types/role.types";
 import { RolesResponseDTO } from "@/dto/roles/rolesResponse.dto";
-import { CrudOperationResponseDto } from "@/dto/EndpointResponse.dto";
+import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
 import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
 
 export default function roleController(roleService: RoleServices) {
@@ -53,7 +53,7 @@ export default function roleController(roleService: RoleServices) {
         }
         const shapedData = new RolesResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -82,7 +82,7 @@ export default function roleController(roleService: RoleServices) {
         }
         const shapedData = new RolesResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -111,7 +111,7 @@ export default function roleController(roleService: RoleServices) {
         }
         const shapedData = new RolesResponseDTO(data);
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
             data: shapedData,
@@ -131,7 +131,7 @@ export default function roleController(roleService: RoleServices) {
         const result: DeleteResponse = await roleService.deleteRoleByID(req);
         const { httpStatusCode, message } = result;
         res.status(httpStatusCode).json(
-          new CrudOperationResponseDto({
+          new EndpointResponseDto({
             code: httpStatusCode,
             resultMessage: message,
           })
