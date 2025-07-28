@@ -11,7 +11,7 @@ import {
   UserServices,
 } from "@/types/user.types";
 import { UsersResponseDTO } from "@/dto/users/usersResponse.dto";
-import { CrudOperationResponseDto } from "@/dto/crudOperationResponse.dto";
+import { CrudOperationResponseDto } from "@/dto/EndpointResponse.dto";
 import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
 import { cors_secure, cors_samesite } from "@config/envvars";
 

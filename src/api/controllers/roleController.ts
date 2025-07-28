@@ -9,7 +9,7 @@ import {
   RoleServices,
 } from "@/types/role.types";
 import { RolesResponseDTO } from "@/dto/roles/rolesResponse.dto";
-import { CrudOperationResponseDto } from "@/dto/crudOperationResponse.dto";
+import { CrudOperationResponseDto } from "@/dto/EndpointResponse.dto";
 import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
 
 export default function roleController(roleService: RoleServices) {
