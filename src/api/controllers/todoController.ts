@@ -10,8 +10,8 @@ import {
   TodoServices,
 } from "@/types/todo.types";
 import { TodosResponseDTO } from "@/dto/todos/todosResponse.dto";
+import { successResponse, errorResponse } from "@/utils/endpoints/apiMakeResponse";
 import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
-import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
 
 export default function todoController(todoService: TodoServices) {
   return {
@@ -32,27 +32,25 @@ export default function todoController(todoService: TodoServices) {
         );
         const { httpStatusCode, message, data } = result;
         if (!data || !Array.isArray(data) || data.length === 0) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedDataList = data.map((todo) => new TodosResponseDTO(todo));
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            dataList: shapedDataList,
-          })
+        // Using EndpointResponseDto<TodosResponseDTO> for type safety
+        const response: EndpointResponseDto<TodosResponseDTO> = successResponse(
+          undefined,
+          shapedDataList,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("todoController, getTodos: " + error.message);
-        } else {
-          console.error("todoController, getTodos: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -64,27 +62,25 @@ export default function todoController(todoService: TodoServices) {
         const result: EntityResponse = await todoService.listTodoByID(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new TodosResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<TodosResponseDTO> for type safety
+        const response: EndpointResponseDto<TodosResponseDTO> = successResponse(
+          shapedData,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("todoController, getTodo: " + error.message);
-        } else {
-          console.error("todoController, getTodo: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -93,27 +89,25 @@ export default function todoController(todoService: TodoServices) {
         const result: EntityResponse = await todoService.createTodo(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new TodosResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<TodosResponseDTO> for type safety
+        const response: EndpointResponseDto<TodosResponseDTO> = successResponse(
+          shapedData,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("todoController, newTodo: " + error.message);
-        } else {
-          console.error("todoController, newTodo: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -122,27 +116,25 @@ export default function todoController(todoService: TodoServices) {
         const result: EntityResponse = await todoService.updateTodoByID(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new TodosResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<TodosResponseDTO> for type safety
+        const response: EndpointResponseDto<TodosResponseDTO> = successResponse(
+          shapedData,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("todoController, updateTodo: " + error.message);
-        } else {
-          console.error("todoController, updateTodo: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -153,18 +145,21 @@ export default function todoController(todoService: TodoServices) {
       try {
         const result: DeleteResponse = await todoService.deleteTodoByID(req);
         const { httpStatusCode, message } = result;
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-          })
+        // Using EndpointResponseDto<null> for delete operations (no data returned)
+        const response: EndpointResponseDto<null> = successResponse(
+          null,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("todoController, deleteTodo: " + error.message);
-        } else {
-          console.error("todoController, deleteTodo: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
   };

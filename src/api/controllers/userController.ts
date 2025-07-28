@@ -11,8 +11,8 @@ import {
   UserServices,
 } from "@/types/user.types";
 import { UsersResponseDTO } from "@/dto/users/usersResponse.dto";
+import { successResponse, errorResponse } from "@/utils/endpoints/apiMakeResponse";
 import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
-import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
 import { cors_secure, cors_samesite } from "@config/envvars";
 
 export default function userController(userService: UserServices) {
@@ -22,27 +22,25 @@ export default function userController(userService: UserServices) {
         const result: EntityResponse = await userService.signUpUser(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new UsersResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<UsersResponseDTO> for type safety
+        const response: EndpointResponseDto<UsersResponseDTO> = successResponse(
+          shapedData,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("userController, register: " + error.message);
-        } else {
-          console.error("userController, register: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -60,27 +58,25 @@ export default function userController(userService: UserServices) {
           });
         }
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new UsersResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<UsersResponseDTO> for type safety
+        const response: EndpointResponseDto<UsersResponseDTO> = successResponse(
+          shapedData,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("userController, login: " + error.message);
-        } else {
-          console.error("userController, login: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -90,24 +86,21 @@ export default function userController(userService: UserServices) {
     ) {
       try {
         res.clearCookie("nodetodo");
-        res.status(200).json(
-          new EndpointResponseDto({
-            code: 200,
-            resultMessage: "LOGOUT_SUCCESSFUL",
-          })
+        // Using EndpointResponseDto<null> for logout (no data returned)
+        const response: EndpointResponseDto<null> = successResponse(
+          null,
+          undefined,
+          200,
+          "LOGOUT_SUCCESSFUL"
         );
+        res.status(200).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("userController, logout: " + error.message);
-        } else {
-          console.error("userController, logout: " + error);
-        }
-        res.status(500).json(
-          new ErrorResponseDTO({
-            code: 500,
-            resultMessage: "UNKNOWN_SERVER_ERROR",
-          })
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
         );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -118,12 +111,8 @@ export default function userController(userService: UserServices) {
       try {
         const userId = req.user?.sub;
         if (!userId) {
-          return res.status(401).json(
-            new ErrorResponseDTO({
-              code: 401,
-              resultMessage: "NOT_AUTHORIZED",
-            })
-          );
+          const errorResp = errorResponse(401, "NOT_AUTHORIZED");
+          return res.status(401).json(errorResp);
         }
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -133,27 +122,25 @@ export default function userController(userService: UserServices) {
         );
         const { httpStatusCode, message, data } = result;
         if (!data || !Array.isArray(data) || data.length === 0) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedDataList = data.map((user) => new UsersResponseDTO(user));
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            dataList: shapedDataList,
-          })
+        // Using EndpointResponseDto<UsersResponseDTO[]> for type safety
+        const response: EndpointResponseDto<UsersResponseDTO> = successResponse(
+          undefined,
+          shapedDataList,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("userController, listUsers: " + error.message);
-        } else {
-          console.error("userController, listUsers: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -164,37 +151,31 @@ export default function userController(userService: UserServices) {
       try {
         const userId = req.user?.sub;
         if (!userId) {
-          return res.status(401).json(
-            new ErrorResponseDTO({
-              code: 401,
-              resultMessage: "NOT_AUTHORIZED",
-            })
-          );
+          const errorResp = errorResponse(401, "NOT_AUTHORIZED");
+          return res.status(401).json(errorResp);
         }
         const result: EntityResponse = await userService.listUserByID(userId);
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new UsersResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<UsersResponseDTO> for type safety
+        const response: EndpointResponseDto<UsersResponseDTO> = successResponse(
+          shapedData,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("userController, listUser: " + error.message);
-        } else {
-          console.error("userController, listUser: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -208,27 +189,25 @@ export default function userController(userService: UserServices) {
         );
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new UsersResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<UsersResponseDTO> for type safety
+        const response: EndpointResponseDto<UsersResponseDTO> = successResponse(
+          shapedData,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("userController, updateDetails: " + error.message);
-        } else {
-          console.error("userController, updateDetails: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -242,27 +221,25 @@ export default function userController(userService: UserServices) {
         );
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new UsersResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<UsersResponseDTO> for type safety
+        const response: EndpointResponseDto<UsersResponseDTO> = successResponse(
+          shapedData,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("userController, updateDetails: " + error.message);
-        } else {
-          console.error("userController, updateDetails: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -273,12 +250,8 @@ export default function userController(userService: UserServices) {
       try {
         const userId = req.user?.sub;
         if (!userId) {
-          return res.status(401).json(
-            new ErrorResponseDTO({
-              code: 401,
-              resultMessage: "NOT_AUTHORIZED",
-            })
-          );
+          const errorResp = errorResponse(401, "NOT_AUTHORIZED");
+          return res.status(401).json(errorResp);
         }
         const result: DeleteLogoutResponse = await userService.deleteUserByID(
           userId
@@ -287,18 +260,21 @@ export default function userController(userService: UserServices) {
         if (httpStatusCode === 200) {
           res.clearCookie("nodetodo");
         }
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-          })
+        // Using EndpointResponseDto<null> for delete operations (no data returned)
+        const response: EndpointResponseDto<null> = successResponse(
+          null,
+          undefined,
+          httpStatusCode,
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("userController, deleteUser: " + error.message);
-        } else {
-          console.error("userController, deleteUser: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
   };
