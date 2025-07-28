@@ -9,8 +9,13 @@ import {
   RoleServices,
 } from "@/types/role.types";
 import { RolesResponseDTO } from "@/dto/roles/rolesResponse.dto";
-import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
+import { successResponse, errorResponse } from "@/utils/endpoints/apiMakeResponse";
 import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
+import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
+
+function isErrorResponse(obj: any): obj is ErrorResponseDTO {
+  return obj && typeof obj.code === 'number' && typeof obj.resultMessage === 'string';
+}
 
 export default function roleController(roleService: RoleServices) {
   return {
@@ -26,16 +31,17 @@ export default function roleController(roleService: RoleServices) {
           filters,
         };
         const result = await roleService.listRoles(listRolesRequest);
-        if (result instanceof ErrorResponseDTO) {
+        if (isErrorResponse(result)) {
           return res.status(result.code).json(result);
         }
         res.status(200).json(result);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("roleController, getRoles: " + error.message);
-        } else {
-          console.error("roleController, getRoles: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -44,27 +50,25 @@ export default function roleController(roleService: RoleServices) {
         const result: EntityResponse = await roleService.listRoleByID(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new RolesResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<RolesResponseDTO> for type safety
+        const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
+          shapedData, 
+          undefined, 
+          httpStatusCode, 
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("roleController, getRole: " + error.message);
-        } else {
-          console.error("roleController, getRole: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -73,27 +77,25 @@ export default function roleController(roleService: RoleServices) {
         const result: EntityResponse = await roleService.createRole(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new RolesResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<RolesResponseDTO> for type safety
+        const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
+          shapedData, 
+          undefined, 
+          httpStatusCode, 
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("roleController, createRole: " + error.message);
-        } else {
-          console.error("roleController, createRole: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -102,27 +104,25 @@ export default function roleController(roleService: RoleServices) {
         const result: EntityResponse = await roleService.updateRoleByID(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
-          return res.status(httpStatusCode).json(
-            new ErrorResponseDTO({
-              code: httpStatusCode,
-              resultMessage: message,
-            })
-          );
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
         const shapedData = new RolesResponseDTO(data);
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-            data: shapedData,
-          })
+        // Using EndpointResponseDto<RolesResponseDTO> for type safety
+        const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
+          shapedData, 
+          undefined, 
+          httpStatusCode, 
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("roleController, updateRole: " + error.message);
-        } else {
-          console.error("roleController, updateRole: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
 
@@ -130,18 +130,21 @@ export default function roleController(roleService: RoleServices) {
       try {
         const result: DeleteResponse = await roleService.deleteRoleByID(req);
         const { httpStatusCode, message } = result;
-        res.status(httpStatusCode).json(
-          new EndpointResponseDto({
-            code: httpStatusCode,
-            resultMessage: message,
-          })
+        // Using EndpointResponseDto<null> for delete operations (no data returned)
+        const response: EndpointResponseDto<null> = successResponse(
+          null, 
+          undefined, 
+          httpStatusCode, 
+          message
         );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("roleController, deleteRole: " + error.message);
-        } else {
-          console.error("roleController, deleteRole: " + error);
-        }
+        const errorResp = errorResponse(
+          500,
+          "Internal server error",
+          error instanceof Error ? error.message : String(error)
+        );
+        return res.status(500).json(errorResp);
       }
     },
   };
