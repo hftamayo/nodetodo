@@ -1,7 +1,7 @@
 import {
   ResultMessages,
   ResultMessageKeys,
-} from "@/utils/messages/resultMessages";
+} from "@/utils/endpoints/resultMessages";
 
 export class EndpointResponseDto<T = any> {
   code: number;
