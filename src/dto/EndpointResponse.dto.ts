@@ -1,6 +1,9 @@
-import { ResultMessages, ResultMessageKeys } from "@/utils/messages/resultMessages";
+import {
+  ResultMessages,
+  ResultMessageKeys,
+} from "@/utils/messages/resultMessages";
 
-export class CrudOperationResponseDto<T = any> {
+export class EndpointResponseDto<T = any> {
   code: number;
   resultMessage: string;
   data?: T;
@@ -16,7 +19,8 @@ export class CrudOperationResponseDto<T = any> {
     timestamp?: number;
     cacheTTL?: number;
   }) {
-    const { code, resultMessage, data, dataList, timestamp, cacheTTL } = options;
+    const { code, resultMessage, data, dataList, timestamp, cacheTTL } =
+      options;
     this.code = code;
     this.resultMessage = resultMessage;
     this.data = data;
