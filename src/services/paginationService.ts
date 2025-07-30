@@ -1,111 +1,203 @@
-import { Model, Document, FilterQuery } from 'mongoose';
-import { PaginationDTO, PaginatedResponseDTO } from '@/dto/pagination/pagination.dto';
-import { encodeCursor, decodeCursor } from '@/utils/pagination/cursor';
-import { generateETag } from '@/utils/pagination/etag';
-import { ErrorResponseDTO } from '@/dto/ErrorResponse.dto';
+import { Model, Document, FilterQuery } from "mongoose";
+import {
+  PaginationDTO,
+  PaginatedResponseDTO,
+} from "@/dto/pagination/pagination.dto";
+import { encodeCursor, decodeCursor } from "@/utils/pagination/cursor";
+import { generateETag } from "@/utils/pagination/etag";
+import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
 
 interface PaginationParams {
   cursor?: string;
   offset?: number;
   limit?: number;
   sort?: string;
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
   filters?: Record<string, any>;
   page?: number;
+}
+
+interface PaginationState {
+  query: FilterQuery<any>;
+  skip: number;
+  useCursor: boolean;
+  currentPage: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+function buildQuery<T extends Document>(
+  params: PaginationParams,
+  filters: Record<string, any>
+): PaginationState {
+  const { cursor, offset, limit = 5, sort = "_id", order = "desc", page = 1 } = params;
+  
+  let query: FilterQuery<T> = { ...(filters as FilterQuery<T>) };
+  let skip = 0;
+  let useCursor = !!cursor;
+  let currentPage = page;
+
+  // Cursor-based pagination
+  if (useCursor && cursor) {
+    const decoded = decodeCursor(cursor);
+    if (order === "desc") {
+      (query as any)[sort] = { $lt: decoded.id };
+    } else {
+      (query as any)[sort] = { $gt: decoded.id };
+    }
+  } else if (offset !== undefined) {
+    skip = offset;
+  } else {
+    skip = (page - 1) * limit;
+  }
+
+  return { query, skip, useCursor, currentPage, totalCount: 0, totalPages: 1 };
+}
+
+async function calculatePaginationMetadata<T extends Document>(
+  model: Model<T>,
+  filters: Record<string, any>,
+  limit: number,
+  skip: number,
+  useCursor: boolean,
+  currentPage: number
+): Promise<{ totalCount: number; totalPages: number; currentPage: number }> {
+  const totalCount = await model.countDocuments(filters as FilterQuery<T>);
+  const totalPages = Math.ceil(totalCount / limit) || 1;
+  const calculatedCurrentPage = useCursor ? currentPage : Math.floor(skip / limit) + 1;
+  
+  return { totalCount, totalPages, currentPage: calculatedCurrentPage };
+}
+
+function fetchData<T extends Document>(
+  model: Model<T>,
+  query: FilterQuery<T>,
+  sort: string,
+  order: "asc" | "desc",
+  skip: number,
+  limit: number
+): Promise<T[]> {
+  return model
+    .find(query)
+    .sort({ [sort]: order === "asc" ? 1 : -1 })
+    .skip(skip)
+    .limit(limit + 1) // Fetch one extra to check for hasMore
+    .exec();
+}
+
+function processPaginationResults<T>(
+  data: T[],
+  limit: number,
+  skip: number,
+  currentPage: number
+): { data: T[]; hasMore: boolean; hasPrev: boolean; isFirstPage: boolean; isLastPage: boolean } {
+  let hasMore = false;
+  
+  if (data.length > limit) {
+    hasMore = true;
+    data = data.slice(0, limit);
+  }
+  
+  const hasPrev = skip > 0;
+  const isFirstPage = currentPage === 1;
+  const isLastPage = !hasMore;
+  
+  return { data, hasMore, hasPrev, isFirstPage, isLastPage };
+}
+
+function generateCursors(
+  data: any[],
+  hasMore: boolean,
+  isFirstPage: boolean,
+  sort: string,
+  order: "asc" | "desc",
+  filters: Record<string, any>
+): { nextCursor?: string; prevCursor?: string } {
+  if (!data.length) {
+    return { nextCursor: undefined, prevCursor: undefined };
+  }
+  
+  const nextCursor = hasMore
+    ? encodeCursor({
+        id: data[data.length - 1][sort],
+        sort,
+        order,
+        filters,
+      })
+    : undefined;
+    
+  const prevCursor = !isFirstPage
+    ? encodeCursor({ id: data[0][sort], sort, order, filters })
+    : undefined;
+    
+  return { nextCursor, prevCursor };
+}
+
+function generateCacheHeaders(data: any[]): { etag: string; lastModified?: string } {
+  const etag = generateETag(
+    data.map((item: any) => ({
+      id: item._id?.toString?.() ?? item.id,
+      title: item.title ?? "",
+      updatedAt: item.updatedAt?.toISOString?.() ?? item.updatedAt ?? "",
+    }))
+  );
+  
+  const lastModified = data.length
+    ? new Date(
+        Math.max(
+          ...data.map((item: any) =>
+            new Date(item.updatedAt ?? item.createdAt ?? Date.now()).getTime()
+          )
+        )
+      ).toUTCString()
+    : undefined;
+    
+  return { etag, lastModified };
 }
 
 export async function paginate<T extends Document>(
   model: Model<T>,
   params: PaginationParams
 ): Promise<PaginatedResponseDTO<T> | ErrorResponseDTO> {
-  const {
-    cursor,
-    offset,
-    limit = 5,
-    sort = '_id',
-    order = 'desc',
-    filters = {},
-    page = 1,
-  } = params;
-
-  let query: FilterQuery<T> = { ...(filters as FilterQuery<T>) };
-  let skip = 0;
-  let useCursor = !!cursor;
-  let hasMore = false;
-  let hasPrev = false;
-  let totalCount = 0;
-  let currentPage = page;
-  let totalPages = 1;
-  let nextCursor: string | undefined = undefined;
-  let prevCursor: string | undefined = undefined;
-  let isFirstPage = false;
-  let isLastPage = false;
-  let data: T[] = [];
+  const { limit = 5, sort = "_id", order = "desc", filters = {} } = params;
 
   try {
-    // Cursor-based pagination
-    if (useCursor && cursor) {
-      const decoded = decodeCursor(cursor);
-      // For simplicity, assume sort is by _id or createdAt
-      if (order === 'desc') {
-        (query as any)[sort] = { $lt: decoded.id };
-      } else {
-        (query as any)[sort] = { $gt: decoded.id };
-      }
-    } else if (offset !== undefined) {
-      skip = offset;
-    } else {
-      skip = (page - 1) * limit;
-    }
-
-    // Count total documents for pagination metadata
-    totalCount = await model.countDocuments(filters as FilterQuery<T>);
-    totalPages = Math.ceil(totalCount / limit) || 1;
-    currentPage = useCursor ? page : Math.floor(skip / limit) + 1;
-
-    // Fetch data
-    data = await model
-      .find(query)
-      .sort({ [sort]: order === 'asc' ? 1 : -1 })
-      .skip(skip)
-      .limit(limit + 1) // Fetch one extra to check for hasMore
-      .exec();
-
-    if (data.length > limit) {
-      hasMore = true;
-      data = data.slice(0, limit);
-    }
-    hasPrev = skip > 0 || !!cursor;
-    isFirstPage = currentPage === 1;
-    isLastPage = !hasMore;
-
-    // Cursors for next/prev
-    if (data.length) {
-      nextCursor = hasMore
-        ? encodeCursor({ id: (data[data.length - 1] as any)[sort], sort, order, filters })
-        : undefined;
-      prevCursor = !isFirstPage
-        ? encodeCursor({ id: (data[0] as any)[sort], sort, order, filters })
-        : undefined;
-    }
-
-    // ETag and lastModified
-    const etag = generateETag(
-      data.map((item: any) => ({
-        id: item._id?.toString?.() ?? item.id,
-        title: item.title ?? '',
-        updatedAt: item.updatedAt?.toISOString?.() ?? item.updatedAt ?? '',
-      }))
+    // Build query and initial state
+    const state = buildQuery(params, filters);
+    
+    // Calculate pagination metadata
+    const { totalCount, totalPages, currentPage } = await calculatePaginationMetadata(
+      model,
+      filters,
+      limit,
+      state.skip,
+      state.useCursor,
+      state.currentPage
     );
-    const lastModified = data.length
-      ? new Date(
-          Math.max(
-            ...data.map((item: any) =>
-              new Date(item.updatedAt ?? item.createdAt ?? Date.now()).getTime()
-            )
-          )
-        ).toUTCString()
-      : undefined;
+    
+    // Fetch data
+    const rawData = await fetchData(model, state.query, sort, order, state.skip, limit);
+    
+    // Process results
+    const { data, hasMore, hasPrev, isFirstPage, isLastPage } = processPaginationResults(
+      rawData,
+      limit,
+      state.skip,
+      currentPage
+    );
+    
+    // Generate cursors
+    const { nextCursor, prevCursor } = generateCursors(
+      data,
+      hasMore,
+      isFirstPage,
+      sort,
+      order,
+      filters
+    );
+    
+    // Generate cache headers
+    const { etag, lastModified } = generateCacheHeaders(data);
 
     const pagination = new PaginationDTO({
       nextCursor,
@@ -130,9 +222,9 @@ export async function paginate<T extends Document>(
   } catch (error: any) {
     return new ErrorResponseDTO({
       code: 500,
-      resultMessage: 'Pagination error',
+      resultMessage: "Pagination error",
       debugMessage: error.message,
       timestamp: Date.now(),
     });
   }
-} 
+}
