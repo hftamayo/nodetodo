@@ -5,17 +5,16 @@ import { masterKey } from "@config/envvars";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
-import { makeResponse } from "@/utils/messages/apiMakeResponse";
 import {
   SignUpRequest,
   LoginRequest,
   UpdateUserRequest,
-  FullUser,
   FilteredUser,
   ListUsersRequest,
   JwtActiveSession,
   EntityResponse,
   EntitiesResponse,
+  DeleteLogoutResponse,
 } from "@/types/user.types";
 
 const signUpUser = async function (
@@ -24,22 +23,34 @@ const signUpUser = async function (
   const { name, email, password: plainPassword, repeatPassword, age } = params;
 
   if (!name || !email || !plainPassword || !repeatPassword || !age) {
-    return makeResponse("BAD_REQUEST");
+    return {
+      httpStatusCode: 400,
+      message: "Missing required fields",
+    };
   }
 
   if (plainPassword !== repeatPassword) {
-    return makeResponse("BAD_CREDENTIALS");
+    return {
+      httpStatusCode: 400,
+      message: "Passwords do not match",
+    };
   }
 
   try {
     let searchUser = await User.findOne({ email }).exec();
     if (searchUser) {
-      return makeResponse("ENTITY_ALREADY_EXISTS");
+      return {
+        httpStatusCode: 409,
+        message: "User with this email already exists",
+      };
     }
 
     const finalUserRole = await Role.findOne({ name: "finaluser" }).exec();
     if (!finalUserRole) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 500,
+        message: "Default user role not found",
+      };
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -54,16 +65,29 @@ const signUpUser = async function (
     });
     await searchUser.save();
 
-    const { password, updatedAt, ...filteredUser } =
-      searchUser.toObject() as FullUser;
-    return makeResponse("CREATED", { data: filteredUser });
+    const filteredUser: FilteredUser = {
+      _id: searchUser._id,
+      name: searchUser.name,
+      email: searchUser.email,
+      role: searchUser.role,
+      status: searchUser.status,
+    };
+
+    return {
+      httpStatusCode: 201,
+      message: "User created successfully",
+      data: filteredUser,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, signUpUser: " + error.message);
     } else {
       console.error("userService, signUpUser: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -73,15 +97,24 @@ const loginUser = async function (
   const { email, password: plainPassword } = params;
 
   if (!email || !plainPassword) {
-    return makeResponse("BAD_REQUEST");
+    return {
+      httpStatusCode: 400,
+      message: "Missing required fields",
+    };
   }
 
   try {
     let searchUser = await User.findOne({ email }).exec();
     if (!searchUser) {
-      return makeResponse("BAD_CREDENTIALS");
+      return {
+        httpStatusCode: 401,
+        message: "Invalid credentials",
+      };
     } else if (!searchUser.status) {
-      return makeResponse("ACCOUNT_DISABLED");
+      return {
+        httpStatusCode: 403,
+        message: "Account is disabled",
+      };
     }
 
     const passwordMatch = await bcrypt.compare(
@@ -89,8 +122,12 @@ const loginUser = async function (
       searchUser.password
     );
     if (!passwordMatch) {
-      return makeResponse("BAD_CREDENTIALS");
+      return {
+        httpStatusCode: 401,
+        message: "Invalid credentials",
+      };
     }
+
     const payload: JwtActiveSession = {
       sub: searchUser._id.toString(),
       role: searchUser.role.toString(),
@@ -99,7 +136,10 @@ const loginUser = async function (
     };
 
     if (!masterKey) {
-      return makeResponse("INTERNAL_SERVER_ERROR");
+      return {
+        httpStatusCode: 500,
+        message: "Internal server error",
+      };
     }
 
     const token = jwt.sign(payload, masterKey, {
@@ -107,16 +147,30 @@ const loginUser = async function (
       algorithm: "HS256",
     });
 
-    const { password, createdAt, updatedAt, ...filteredUser } =
-      searchUser.toObject() as FullUser;
-    return makeResponse("SUCCESS", { data: filteredUser, tokenCreated: token });
+    const filteredUser: FilteredUser = {
+      _id: searchUser._id,
+      name: searchUser.name,
+      email: searchUser.email,
+      role: searchUser.role,
+      status: searchUser.status,
+    };
+
+    return {
+      httpStatusCode: 200,
+      message: "Login successful",
+      data: filteredUser,
+      tokenCreated: token,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, loginUser: " + error.message);
     } else {
       console.error("userService, loginUser: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -131,6 +185,7 @@ const listUsers = async function (
       .skip(skip)
       .limit(limit)
       .exec();
+
     const filteredUsers: FilteredUser[] = users.map((user) => ({
       _id: user._id,
       name: user.name,
@@ -139,14 +194,21 @@ const listUsers = async function (
       status: user.status,
     }));
 
-    return makeResponse("SUCCESS", { data: filteredUsers });
+    return {
+      httpStatusCode: 200,
+      message: "Users retrieved successfully",
+      data: filteredUsers,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, searchUsers: " + error.message);
     } else {
       console.error("userService, searchUsers: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -154,8 +216,12 @@ const listUserByID = async function (userId: string): Promise<EntityResponse> {
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 404,
+        message: "User not found",
+      };
     }
+
     const filteredUser: FilteredUser = {
       _id: searchUser._id,
       name: searchUser.name,
@@ -163,14 +229,22 @@ const listUserByID = async function (userId: string): Promise<EntityResponse> {
       role: searchUser.role,
       status: searchUser.status,
     };
-    return makeResponse("SUCCESS", { data: filteredUser });
+
+    return {
+      httpStatusCode: 200,
+      message: "User retrieved successfully",
+      data: filteredUser,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, listItemByID: " + error.message);
     } else {
       console.error("userService, listItemByID: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -181,13 +255,19 @@ const updateUserDetailsByID = async function (
   const { ...updates } = user;
 
   if (Object.keys(updates).length === 0) {
-    return makeResponse("BAD_REQUEST");
+    return {
+      httpStatusCode: 400,
+      message: "No updates provided",
+    };
   }
 
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 404,
+        message: "User not found",
+      };
     }
 
     if (updates.email !== undefined) {
@@ -198,7 +278,10 @@ const updateUserDetailsByID = async function (
         checkIfUpdateEmailExists &&
         checkIfUpdateEmailExists._id.toString() !== searchUser._id.toString()
       ) {
-        return makeResponse("ENTITY_ALREADY_EXISTS");
+        return {
+          httpStatusCode: 409,
+          message: "Email already exists",
+        };
       }
     }
 
@@ -209,16 +292,29 @@ const updateUserDetailsByID = async function (
 
     await searchUser.save();
 
-    const { password, createdAt, ...filteredUser } =
-      searchUser.toObject() as FullUser;
-    return makeResponse("SUCCESS", { data: filteredUser });
+    const filteredUser: FilteredUser = {
+      _id: searchUser._id,
+      name: searchUser.name,
+      email: searchUser.email,
+      role: searchUser.role,
+      status: searchUser.status,
+    };
+
+    return {
+      httpStatusCode: 200,
+      message: "User updated successfully",
+      data: filteredUser,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, updateUserByID: " + error.message);
     } else {
       console.error("userService, updateUserByID: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -229,56 +325,92 @@ const updateUserPasswordByID = async function (
   const { password: plainPassword, updatePassword } = user;
 
   if (!plainPassword || !updatePassword) {
-    return makeResponse("BAD_REQUEST");
+    return {
+      httpStatusCode: 400,
+      message: "Missing required fields",
+    };
   }
 
   try {
     let searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 404,
+        message: "User not found",
+      };
     }
+
     const isMatch = await bcrypt.compare(plainPassword, searchUser.password);
     if (!isMatch) {
-      return makeResponse("BAD_CREDENTIALS");
+      return {
+        httpStatusCode: 401,
+        message: "Invalid current password",
+      };
     }
+
     const salt = await bcrypt.genSalt(10);
     searchUser.password = await bcrypt.hash(updatePassword, salt);
     await searchUser.save();
 
-    const { password, createdAt, ...filteredUser } =
-      searchUser.toObject() as FullUser;
-    return makeResponse("SUCCESS", { data: filteredUser });
+    const filteredUser: FilteredUser = {
+      _id: searchUser._id,
+      name: searchUser.name,
+      email: searchUser.email,
+      role: searchUser.role,
+      status: searchUser.status,
+    };
+
+    return {
+      httpStatusCode: 200,
+      message: "Password updated successfully",
+      data: filteredUser,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, updateUserPassword: " + error.message);
     } else {
       console.error("userService, updateUserPassword: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
 const deleteUserByID = async function (
   userId: string
-): Promise<EntityResponse> {
+): Promise<DeleteLogoutResponse> {
   try {
     const searchUser = await User.findById(userId).exec();
     if (!searchUser) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 404,
+        message: "User not found",
+      };
     }
+
     const todo = await Todo.find({ owner: searchUser }).exec();
     if (todo) {
       await Todo.deleteMany({ owner: searchUser }).exec();
     }
+
     await searchUser.deleteOne();
-    return makeResponse("SUCCESS");
+
+    return {
+      httpStatusCode: 200,
+      message: "User deleted successfully",
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("userService, deleteUserByID: " + error.message);
     } else {
       console.error("userService, deleteUserByID: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 

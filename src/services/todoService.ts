@@ -1,6 +1,5 @@
 import Todo from "@/models/Todo";
 import {
-  FullTodo,
   NewTodoRequest,
   UpdateTodoRequest,
   ListTodosByOwnerRequest,
@@ -10,7 +9,6 @@ import {
   EntityResponse,
   DeleteResponse,
 } from "@/types/todo.types";
-import { makeResponse } from "@/utils/messages/apiMakeResponse";
 
 const listTodos = async function (
   params: ListTodosByOwnerRequest
@@ -32,26 +30,35 @@ const listTodos = async function (
       .exec();
 
     if (!todos || todos.length === 0) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 404,
+        message: "No todos found",
+      };
     }
 
-    const fetchedTodos: FullTodo[] = todos.map((todo) => ({
+    const filteredTodos: FilteredTodo[] = todos.map((todo) => ({
       _id: todo._id,
       title: todo.title,
       description: todo.description,
       completed: todo.completed,
       owner: todo.owner,
     }));
-    return makeResponse("SUCCESS", {
-      data: fetchedTodos,
-    });
+
+    return {
+      httpStatusCode: 200,
+      message: "Todos retrieved successfully",
+      data: filteredTodos,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, listTodos: " + error.message);
     } else {
       console.error("todoService, listTodos: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -64,11 +71,17 @@ const listTodoByID = async function (
     let searchTodo = await Todo.findById(todoId).exec();
 
     if (!searchTodo) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 404,
+        message: "Todo not found",
+      };
     }
 
     if (searchTodo.owner.toString() !== owner.toString()) {
-      return makeResponse("UNAUTHORIZED");
+      return {
+        httpStatusCode: 403,
+        message: "Unauthorized access to todo",
+      };
     }
 
     const filteredTodo: FilteredTodo = {
@@ -78,16 +91,22 @@ const listTodoByID = async function (
       completed: searchTodo.completed,
       owner: searchTodo.owner,
     };
-    return makeResponse("SUCCESS", {
+
+    return {
+      httpStatusCode: 200,
+      message: "Todo retrieved successfully",
       data: filteredTodo,
-    });
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, listTodoByID: " + error.message);
     } else {
       console.error("todoService, listTodoByID: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -98,14 +117,21 @@ const createTodo = async function (
   const { title, description } = todo;
 
   if (!owner || !title || !description) {
-    return makeResponse("BAD_REQUEST");
+    return {
+      httpStatusCode: 400,
+      message: "Missing required fields",
+    };
   }
 
   try {
     let newTodo = await Todo.findOne({ title }).exec();
     if (newTodo) {
-      return makeResponse("ENTITY_ALREADY_EXISTS");
+      return {
+        httpStatusCode: 409,
+        message: "Todo with this title already exists",
+      };
     }
+
     newTodo = new Todo({
       title,
       description,
@@ -122,16 +148,21 @@ const createTodo = async function (
       owner: newTodo.owner,
     };
 
-    return makeResponse("SUCCESS", {
+    return {
+      httpStatusCode: 201,
+      message: "Todo created successfully",
       data: filteredTodo,
-    });
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, createTodo: " + error.message);
     } else {
       console.error("todoService, createTodo: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -142,22 +173,34 @@ const updateTodoByID = async function (
   const { _id, ...updates } = todo;
 
   if (!owner || !_id || Object.keys(updates).length === 0) {
-    return makeResponse("BAD_REQUEST");
+    return {
+      httpStatusCode: 400,
+      message: "Missing required fields or no updates provided",
+    };
   }
 
   try {
     let updateTodo = await Todo.findById(_id).exec();
     if (!updateTodo) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 404,
+        message: "Todo not found",
+      };
     }
+
     if (updateTodo.owner.toString() !== owner.toString()) {
-      return makeResponse("UNAUTHORIZED");
+      return {
+        httpStatusCode: 403,
+        message: "Unauthorized access to todo",
+      };
     }
+
     if (updates.title !== undefined) updateTodo.title = updates.title;
     if (updates.description !== undefined)
       updateTodo.description = updates.description;
     if (updates.completed !== undefined)
       updateTodo.completed = updates.completed;
+
     await updateTodo.save();
 
     const filteredTodo: FilteredTodo = {
@@ -168,16 +211,21 @@ const updateTodoByID = async function (
       owner: updateTodo.owner,
     };
 
-    return makeResponse("SUCCESS", {
+    return {
+      httpStatusCode: 200,
+      message: "Todo updated successfully",
       data: filteredTodo,
-    });
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, updateTodo: " + error.message);
     } else {
       console.error("todoService, updateTodo: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
@@ -190,22 +238,35 @@ const deleteTodoByID = async function (
     let searchTodo = await Todo.findById(todoId).exec();
 
     if (!searchTodo) {
-      return makeResponse("ERROR");
+      return {
+        httpStatusCode: 404,
+        message: "Todo not found",
+      };
     }
 
     if (searchTodo.owner.toString() !== owner.toString()) {
-      return makeResponse("UNAUTHORIZED");
+      return {
+        httpStatusCode: 403,
+        message: "Unauthorized access to todo",
+      };
     }
 
     await searchTodo.deleteOne();
-    return makeResponse("SUCCESS");
+
+    return {
+      httpStatusCode: 200,
+      message: "Todo deleted successfully",
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("todoService, deleteTodo: " + error.message);
     } else {
       console.error("todoService, deleteTodo: " + error);
     }
-    return makeResponse("INTERNAL_SERVER_ERROR");
+    return {
+      httpStatusCode: 500,
+      message: "Internal server error",
+    };
   }
 };
 
