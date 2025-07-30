@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { dbConnection } from "@config/setup";
-import { AppHealthCheckResponseDTO, DbHealthCheckResponseDTO } from "@/dto/hc/healthCheckResponse.dto";
+import {
+  AppHealthCheckResponseDTO,
+  DbHealthCheckResponseDTO,
+} from "@/dto/hc/healthCheckResponse.dto";
 import os from "os";
 
 const hcController = {
@@ -21,6 +24,9 @@ const hcController = {
       });
       res.status(200).json(result);
     } catch (error: unknown) {
+      // Log the error for debugging purposes
+      console.error("App health check error:", error);
+
       const result = new AppHealthCheckResponseDTO({
         code: 500,
         status: "fail",
