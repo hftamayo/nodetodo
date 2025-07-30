@@ -76,7 +76,7 @@ export type DeleteLogoutResponse = ApiResponse<null>;
 
 //interfaces for dependency injection pattern
 export type UserServices = {
-  signUpUser: (params: UserRequest) => Promise<EntityResponse>;
+  signUpUser: (params: SignUpRequest) => Promise<EntityResponse>;
   loginUser: (params: LoginRequest) => Promise<EntityResponse>;
   logoutUser: (
     params: AuthenticatedUserRequest
