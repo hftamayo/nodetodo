@@ -1,21 +1,86 @@
-import { RequestHandler } from "express";
-import { mode } from "@config/envvars";
-import rateLimit from "express-rate-limit";
+// Main export file for the rate limiting system
+// This replaces the old implementation with our new modular structure
 
-const signUpLimiter: RequestHandler = rateLimit({
-  //windowMs : 24 hours : 60 minutes
-  windowMs: mode === "development" ? 24 * 60 * 60 * 1000 : 60 * 60 * 1000,
-  max: mode === "development" ? 10000 : 5,
-  message:
-    "Too many accounts created from this IP, please try again after an hour",
-});
+// Export the main rate limiting aspect (middleware factory)
+export {
+  RateLimitAspect,
+  globalLimiter,
+  loginLimiter,
+  signUpLimiter,
+  apiLimiter,
+  userLimiter,
+  supervisorLimiter,
+  adminLimiter,
+  createUserLimiter,
+  createCustomLimiter,
+  addRateLimitHeadersMiddleware,
+  rateLimitErrorHandler,
+} from "./aspect/rateLimitAspect";
 
-const loginLimiter: RequestHandler = rateLimit({
-  //windowMs : 24 hours : 15 minutes
-  windowMs: mode === "development" ? 24 * 60 * 60 * 1000 : 15 * 60 * 1000,
-  max: mode === "development" ? 10000 : 3,
-  message:
-    "Too many login attempts from this IP, please try again after 15 minutes",
-});
+// Export configuration and types
+export {
+  RateLimitConfigFactory,
+  RateLimitConfig,
+  RateLimitType,
+  AccessLevel,
+} from "./config/rateLimitConfig";
 
-export default { signUpLimiter, loginLimiter };
+// Export error DTOs and types
+export {
+  RateLimitErrorDTO,
+  RateLimitErrorResponse,
+  RATE_LIMIT_ERROR_MESSAGES,
+  RATE_LIMIT_DEBUG_MESSAGES,
+} from "./dto/rateLimitError.dto";
+
+// Export utility functions
+export {
+  IPUtils,
+  HeaderUtils,
+  RateLimitUtils,
+} from "./utils/rateLimitUtils";
+
+// Export types for external use
+export type { RateLimitMiddleware } from "./aspect/rateLimitAspect";
+
+// Default export for backward compatibility
+// This maintains the same interface as the old rateLimiter.ts
+const rateLimiter = {
+  // Legacy exports for backward compatibility
+  signUpLimiter: globalLimiter,
+  loginLimiter: loginLimiter,
+  
+  // New comprehensive exports
+  globalLimiter,
+  apiLimiter,
+  userLimiter,
+  supervisorLimiter,
+  adminLimiter,
+  createUserLimiter,
+  createCustomLimiter,
+  addRateLimitHeadersMiddleware,
+  rateLimitErrorHandler,
+  
+  // Configuration access
+  config: RateLimitConfigFactory,
+  types: {
+    RateLimitType,
+    AccessLevel,
+  },
+  
+  // Utility access
+  utils: {
+    IPUtils,
+    HeaderUtils,
+    RateLimitUtils,
+  },
+  
+  // Error handling
+  errors: {
+    RateLimitErrorDTO,
+    RATE_LIMIT_ERROR_MESSAGES,
+    RATE_LIMIT_DEBUG_MESSAGES,
+  },
+};
+
+export default rateLimiter;
