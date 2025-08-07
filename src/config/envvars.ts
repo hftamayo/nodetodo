@@ -27,6 +27,16 @@ const adminpword = process.env.ADMIN_PWORD;
 const supervisorpword = process.env.SUPERVISOR_PWORD;
 const userpword = process.env.USER1_PWORD;
 
+const rateLimitCapacity = process.env.RATE_LIMIT_CAPACITY;
+const rateLimitRefillRate = process.env.RATE_LIMIT_REFILL_RATE;
+const rateLimitRefillDuration = process.env.RATE_LIMIT_REFILL_DURATION;
+const rateLimitWindow = process.env.RATE_LIMIT_WINDOW_MS;
+
+const rateLimitLoginCapacity = process.env.RATE_LIMIT_LOGIN_CAPACITY;
+const rateLimitSignUpCapacity = process.env.RATE_LIMIT_SIGNUP_CAPACITY;
+const rateLimitApiCapacity =
+  process.env.RATE_LIMIT_API_CAPACITY;
+
 export {
   port,
   masterKey,
@@ -61,4 +71,14 @@ export const DOMAINS = {
   ROLE: "role",
   TODO: "todo",
   SYSTEM: "system",
+};
+
+export const RATE_LIMITS = {
+  capacity: rateLimitCapacity,
+  refillRate: rateLimitRefillRate,
+  refillDuration: rateLimitRefillDuration,
+  window: rateLimitWindow,
+  loginCapacity: rateLimitLoginCapacity,
+  signUpCapacity: rateLimitSignUpCapacity,
+  apiCapacity: rateLimitApiCapacity,
 };
