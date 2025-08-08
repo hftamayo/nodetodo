@@ -29,7 +29,7 @@ function createRateLimitHandler(rateLimitType: RateLimitType) {
       ? getAccessLevelFromRole(req.user.role)
       : undefined;
 
-    // Log the violation
+    // Log the violation (this replaces the deprecated onLimitReached)
     RateLimitUtils.logRateLimitViolation(
       req,
       rateLimitType,
@@ -95,20 +95,7 @@ function createRateLimiter(
       // Skip based on rate limit type
       return !RateLimitUtils.shouldApplyRateLimit(req, rateLimitType);
     },
-    onLimitReached: (req: AuthenticatedUserRequest, res: Response) => {
-      const clientIP = IPUtils.getClientIP(req);
-      const accessLevel = req.user?.role
-        ? getAccessLevelFromRole(req.user.role)
-        : undefined;
-
-      // Log when limit is reached
-      RateLimitUtils.logRateLimitViolation(
-        req,
-        rateLimitType,
-        clientIP,
-        accessLevel
-      );
-    },
+    // Note: onLimitReached is deprecated in v7 - logic moved to handler function
   });
 }
 
