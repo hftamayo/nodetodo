@@ -55,9 +55,17 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
     resetTime?: number;
     customMessage?: string;
   }) {
-    const { rateLimitType, retryAfter, accessLevel, remainingRequests, resetTime, customMessage } = params;
-    
-    this.resultMessage = customMessage || RATE_LIMIT_ERROR_MESSAGES[rateLimitType];
+    const {
+      rateLimitType,
+      retryAfter,
+      accessLevel,
+      remainingRequests,
+      resetTime,
+      customMessage,
+    } = params;
+
+    this.resultMessage =
+      customMessage || RATE_LIMIT_ERROR_MESSAGES[rateLimitType];
     this.debugMessage = RATE_LIMIT_DEBUG_MESSAGES[rateLimitType];
     this.retryAfter = retryAfter;
     this.timestamp = Date.now();
@@ -68,7 +76,11 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
   }
 
   // Factory methods for different rate limit types
-  static createGlobalError(retryAfter: number, remainingRequests?: number, resetTime?: number): RateLimitErrorDTO {
+  static createGlobalError(
+    retryAfter: number,
+    remainingRequests?: number,
+    resetTime?: number
+  ): RateLimitErrorDTO {
     return new RateLimitErrorDTO({
       rateLimitType: RateLimitType.GLOBAL,
       retryAfter,
@@ -77,7 +89,11 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
     });
   }
 
-  static createLoginError(retryAfter: number, remainingRequests?: number, resetTime?: number): RateLimitErrorDTO {
+  static createLoginError(
+    retryAfter: number,
+    remainingRequests?: number,
+    resetTime?: number
+  ): RateLimitErrorDTO {
     return new RateLimitErrorDTO({
       rateLimitType: RateLimitType.LOGIN,
       retryAfter,
@@ -86,7 +102,11 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
     });
   }
 
-  static createSignUpError(retryAfter: number, remainingRequests?: number, resetTime?: number): RateLimitErrorDTO {
+  static createSignUpError(
+    retryAfter: number,
+    remainingRequests?: number,
+    resetTime?: number
+  ): RateLimitErrorDTO {
     return new RateLimitErrorDTO({
       rateLimitType: RateLimitType.SIGNUP,
       retryAfter,
@@ -95,7 +115,11 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
     });
   }
 
-  static createApiError(retryAfter: number, remainingRequests?: number, resetTime?: number): RateLimitErrorDTO {
+  static createApiError(
+    retryAfter: number,
+    remainingRequests?: number,
+    resetTime?: number
+  ): RateLimitErrorDTO {
     return new RateLimitErrorDTO({
       rateLimitType: RateLimitType.API,
       retryAfter,
@@ -105,9 +129,9 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
   }
 
   static createUserError(
-    retryAfter: number, 
+    retryAfter: number,
     accessLevel: AccessLevel = AccessLevel.USER,
-    remainingRequests?: number, 
+    remainingRequests?: number,
     resetTime?: number
   ): RateLimitErrorDTO {
     return new RateLimitErrorDTO({
@@ -119,7 +143,11 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
     });
   }
 
-  static createSupervisorError(retryAfter: number, remainingRequests?: number, resetTime?: number): RateLimitErrorDTO {
+  static createSupervisorError(
+    retryAfter: number,
+    remainingRequests?: number,
+    resetTime?: number
+  ): RateLimitErrorDTO {
     return new RateLimitErrorDTO({
       rateLimitType: RateLimitType.SUPERVISOR,
       retryAfter,
@@ -129,7 +157,11 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
     });
   }
 
-  static createAdminError(retryAfter: number, remainingRequests?: number, resetTime?: number): RateLimitErrorDTO {
+  static createAdminError(
+    retryAfter: number,
+    remainingRequests?: number,
+    resetTime?: number
+  ): RateLimitErrorDTO {
     return new RateLimitErrorDTO({
       rateLimitType: RateLimitType.ADMIN,
       retryAfter,
@@ -148,13 +180,27 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
   ): RateLimitErrorDTO {
     switch (accessLevel) {
       case AccessLevel.USER:
-        return this.createUserError(retryAfter, accessLevel, remainingRequests, resetTime);
+        return this.createUserError(
+          retryAfter,
+          accessLevel,
+          remainingRequests,
+          resetTime
+        );
       case AccessLevel.SUPERVISOR:
-        return this.createSupervisorError(retryAfter, remainingRequests, resetTime);
+        return this.createSupervisorError(
+          retryAfter,
+          remainingRequests,
+          resetTime
+        );
       case AccessLevel.ADMIN:
         return this.createAdminError(retryAfter, remainingRequests, resetTime);
       default:
-        return this.createUserError(retryAfter, AccessLevel.USER, remainingRequests, resetTime);
+        return this.createUserError(
+          retryAfter,
+          AccessLevel.USER,
+          remainingRequests,
+          resetTime
+        );
     }
   }
 
@@ -176,18 +222,16 @@ export class RateLimitErrorDTO implements RateLimitErrorResponse {
   // Get headers for rate limit response
   getHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
-      'Retry-After': this.retryAfter.toString(),
-      'X-RateLimit-Reset': this.resetTime ? new Date(this.resetTime).toISOString() : '',
+      "Retry-After": this.retryAfter.toString(),
+      "X-RateLimit-Reset": this.resetTime
+        ? new Date(this.resetTime).toISOString()
+        : "",
     };
 
     if (this.remainingRequests !== undefined) {
-      headers['X-RateLimit-Remaining'] = this.remainingRequests.toString();
+      headers["X-RateLimit-Remaining"] = this.remainingRequests.toString();
     }
 
     return headers;
   }
 }
-
-// Export types and constants
-export type { RateLimitErrorResponse };
-export { RATE_LIMIT_ERROR_MESSAGES, RATE_LIMIT_DEBUG_MESSAGES };
