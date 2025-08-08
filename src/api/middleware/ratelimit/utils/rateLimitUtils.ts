@@ -9,49 +9,56 @@ export class IPUtils {
    */
   static getClientIP(req: Request): string {
     // Check for forwarded headers (common with proxies/load balancers)
-    const forwardedFor = req.headers['x-forwarded-for'] as string;
+    const forwardedFor = req.headers["x-forwarded-for"] as string;
     if (forwardedFor) {
       // X-Forwarded-For can contain multiple IPs, take the first one
-      const firstIP = forwardedFor.split(',')[0].trim();
+      const firstIP = forwardedFor.split(",")[0].trim();
       if (this.isValidIP(firstIP)) {
         return firstIP;
       }
     }
 
     // Check for real IP header
-    const realIP = req.headers['x-real-ip'] as string;
+    const realIP = req.headers["x-real-ip"] as string;
     if (realIP && this.isValidIP(realIP)) {
       return realIP;
     }
 
     // Check for client IP header
-    const clientIP = req.headers['x-client-ip'] as string;
+    const clientIP = req.headers["x-client-ip"] as string;
     if (clientIP && this.isValidIP(clientIP)) {
       return clientIP;
     }
 
-    // Fallback to connection remote address
-    const remoteAddr = req.connection?.remoteAddress || req.socket?.remoteAddress;
+    // Fallback to socket remote address
+    const remoteAddr = req.socket?.remoteAddress;
     if (remoteAddr && this.isValidIP(remoteAddr)) {
       return remoteAddr;
     }
 
     // Final fallback
-    return req.ip || 'unknown';
+    return req.ip || "unknown";
   }
 
   /**
    * Validate IP address format
    */
   static isValidIP(ip: string): boolean {
-    if (!ip || typeof ip !== 'string') {
+    if (!ip || typeof ip !== "string") {
       return false;
     }
 
-    // IPv4 validation
-    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    // IPv4 validation (simplified, using \d and reduced complexity)
+    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
     if (ipv4Regex.test(ip)) {
-      return true;
+      // Additional check to ensure each octet is between 0 and 255
+      const octets = ip.split(".").map(Number);
+      if (
+        octets.length === 4 &&
+        octets.every((octet) => octet >= 0 && octet <= 255)
+      ) {
+        return true;
+      }
     }
 
     // IPv6 validation (simplified)
@@ -69,16 +76,16 @@ export class IPUtils {
 
     // Private IP ranges
     const privateRanges = [
-      /^10\./,                    // 10.0.0.0/8
-      /^172\.(1[6-9]|2[0-9]|3[0-1])\./, // 172.16.0.0/12
-      /^192\.168\./,              // 192.168.0.0/16
-      /^127\./,                   // 127.0.0.0/8 (localhost)
-      /^169\.254\./,              // 169.254.0.0/16 (link-local)
-      /^::1$/,                    // IPv6 localhost
-      /^fe80:/,                   // IPv6 link-local
+      /^10\./, // 10.0.0.0/8
+      /^172\.(1[6-9]|2\d|3[0-1])\./, // 172.16.0.0/12
+      /^192\.168\./, // 192.168.0.0/16
+      /^127\./, // 127.0.0.0/8 (localhost)
+      /^169\.254\./, // 169.254.0.0/16 (link-local)
+      /^::1$/, // IPv6 localhost
+      /^fe80:/, // IPv6 link-local
     ];
 
-    return privateRanges.some(range => range.test(ip));
+    return privateRanges.some((range) => range.test(ip));
   }
 }
 
@@ -94,13 +101,13 @@ export class HeaderUtils {
     retryAfter?: number
   ): Record<string, string> {
     const headers: Record<string, string> = {
-      'X-RateLimit-Limit': limit.toString(),
-      'X-RateLimit-Remaining': remaining.toString(),
-      'X-RateLimit-Reset': new Date(resetTime).toISOString(),
+      "X-RateLimit-Limit": limit.toString(),
+      "X-RateLimit-Remaining": remaining.toString(),
+      "X-RateLimit-Reset": new Date(resetTime).toISOString(),
     };
 
     if (retryAfter !== undefined) {
-      headers['Retry-After'] = retryAfter.toString();
+      headers["Retry-After"] = retryAfter.toString();
     }
 
     return headers;
@@ -116,8 +123,13 @@ export class HeaderUtils {
     resetTime: number,
     retryAfter?: number
   ): void {
-    const headers = this.generateRateLimitHeaders(limit, remaining, resetTime, retryAfter);
-    
+    const headers = this.generateRateLimitHeaders(
+      limit,
+      remaining,
+      resetTime,
+      retryAfter
+    );
+
     Object.entries(headers).forEach(([key, value]) => {
       res.setHeader(key, value);
     });
@@ -133,10 +145,18 @@ export class HeaderUtils {
     retryAfter?: number;
   } {
     return {
-      limit: headers['x-ratelimit-limit'] ? parseInt(headers['x-ratelimit-limit']) : undefined,
-      remaining: headers['x-ratelimit-remaining'] ? parseInt(headers['x-ratelimit-remaining']) : undefined,
-      reset: headers['x-ratelimit-reset'] ? new Date(headers['x-ratelimit-reset']).getTime() : undefined,
-      retryAfter: headers['retry-after'] ? parseInt(headers['retry-after']) : undefined,
+      limit: headers["x-ratelimit-limit"]
+        ? parseInt(headers["x-ratelimit-limit"])
+        : undefined,
+      remaining: headers["x-ratelimit-remaining"]
+        ? parseInt(headers["x-ratelimit-remaining"])
+        : undefined,
+      reset: headers["x-ratelimit-reset"]
+        ? new Date(headers["x-ratelimit-reset"]).getTime()
+        : undefined,
+      retryAfter: headers["retry-after"]
+        ? parseInt(headers["retry-after"])
+        : undefined,
     };
   }
 }
@@ -160,19 +180,22 @@ export class RateLimitUtils {
   /**
    * Check if rate limit should be applied based on request
    */
-  static shouldApplyRateLimit(req: Request, rateLimitType: RateLimitType): boolean {
+  static shouldApplyRateLimit(
+    req: Request,
+    rateLimitType: RateLimitType
+  ): boolean {
     // Skip rate limiting for health checks
-    if (req.path === '/health' || req.path === '/hc') {
+    if (req.path === "/health" || req.path === "/hc") {
       return false;
     }
 
     // Skip rate limiting for static assets
-    if (req.path.startsWith('/static/') || req.path.includes('.')) {
+    if (req.path.startsWith("/static/") || req.path.includes(".")) {
       return false;
     }
 
     // Skip rate limiting for OPTIONS requests (CORS preflight)
-    if (req.method === 'OPTIONS') {
+    if (req.method === "OPTIONS") {
       return false;
     }
 
@@ -182,34 +205,38 @@ export class RateLimitUtils {
   /**
    * Get rate limit key based on type and request
    */
-  static getRateLimitKey(req: Request, rateLimitType: RateLimitType, accessLevel?: AccessLevel): string {
+  static getRateLimitKey(
+    req: Request,
+    rateLimitType: RateLimitType,
+    accessLevel?: AccessLevel
+  ): string {
     const clientIP = IPUtils.getClientIP(req);
-    
+
     switch (rateLimitType) {
       case RateLimitType.GLOBAL:
         return `rate_limit:global:${clientIP}`;
-      
+
       case RateLimitType.LOGIN:
         return `rate_limit:login:${clientIP}`;
-      
+
       case RateLimitType.SIGNUP:
         return `rate_limit:signup:${clientIP}`;
-      
+
       case RateLimitType.API:
         return `rate_limit:api:${clientIP}`;
-      
+
       case RateLimitType.USER:
-        const userId = req.user?.sub || 'anonymous';
+        const userId = req.user?.sub || "anonymous";
         return `rate_limit:user:${userId}:${accessLevel || AccessLevel.USER}`;
-      
+
       case RateLimitType.SUPERVISOR:
-        const supervisorId = req.user?.sub || 'anonymous';
+        const supervisorId = req.user?.sub || "anonymous";
         return `rate_limit:supervisor:${supervisorId}`;
-      
+
       case RateLimitType.ADMIN:
-        const adminId = req.user?.sub || 'anonymous';
+        const adminId = req.user?.sub || "anonymous";
         return `rate_limit:admin:${adminId}`;
-      
+
       default:
         return `rate_limit:global:${clientIP}`;
     }
@@ -229,28 +256,61 @@ export class RateLimitUtils {
 
     switch (rateLimitType) {
       case RateLimitType.GLOBAL:
-        return RateLimitErrorDTO.createGlobalError(retryAfter, remainingRequests, resetTime);
-      
+        return RateLimitErrorDTO.createGlobalError(
+          retryAfter,
+          remainingRequests,
+          resetTime
+        );
+
       case RateLimitType.LOGIN:
-        return RateLimitErrorDTO.createLoginError(retryAfter, remainingRequests, resetTime);
-      
+        return RateLimitErrorDTO.createLoginError(
+          retryAfter,
+          remainingRequests,
+          resetTime
+        );
+
       case RateLimitType.SIGNUP:
-        return RateLimitErrorDTO.createSignUpError(retryAfter, remainingRequests, resetTime);
-      
+        return RateLimitErrorDTO.createSignUpError(
+          retryAfter,
+          remainingRequests,
+          resetTime
+        );
+
       case RateLimitType.API:
-        return RateLimitErrorDTO.createApiError(retryAfter, remainingRequests, resetTime);
-      
+        return RateLimitErrorDTO.createApiError(
+          retryAfter,
+          remainingRequests,
+          resetTime
+        );
+
       case RateLimitType.USER:
-        return RateLimitErrorDTO.createUserError(retryAfter, accessLevel || AccessLevel.USER, remainingRequests, resetTime);
-      
+        return RateLimitErrorDTO.createUserError(
+          retryAfter,
+          accessLevel || AccessLevel.USER,
+          remainingRequests,
+          resetTime
+        );
+
       case RateLimitType.SUPERVISOR:
-        return RateLimitErrorDTO.createSupervisorError(retryAfter, remainingRequests, resetTime);
-      
+        return RateLimitErrorDTO.createSupervisorError(
+          retryAfter,
+          remainingRequests,
+          resetTime
+        );
+
       case RateLimitType.ADMIN:
-        return RateLimitErrorDTO.createAdminError(retryAfter, remainingRequests, resetTime);
-      
+        return RateLimitErrorDTO.createAdminError(
+          retryAfter,
+          remainingRequests,
+          resetTime
+        );
+
       default:
-        return RateLimitErrorDTO.createGlobalError(retryAfter, remainingRequests, resetTime);
+        return RateLimitErrorDTO.createGlobalError(
+          retryAfter,
+          remainingRequests,
+          resetTime
+        );
     }
   }
 
@@ -267,15 +327,15 @@ export class RateLimitUtils {
       timestamp: new Date().toISOString(),
       rateLimitType,
       clientIP,
-      userAgent: req.headers['user-agent'],
+      userAgent: req.headers["user-agent"],
       method: req.method,
       path: req.path,
       accessLevel,
       userId: req.user?.sub,
     };
 
-    console.warn('Rate limit violation:', JSON.stringify(logData));
-    
+    console.warn("Rate limit violation:", JSON.stringify(logData));
+
     // In production, you might want to send this to a monitoring service
     // or log aggregation system
   }
@@ -285,7 +345,7 @@ export class RateLimitUtils {
    */
   static isTrustedSource(req: Request, trustedIPs: string[] = []): boolean {
     const clientIP = IPUtils.getClientIP(req);
-    
+
     // Check if IP is in trusted list
     if (trustedIPs.includes(clientIP)) {
       return true;
@@ -299,6 +359,3 @@ export class RateLimitUtils {
     return false;
   }
 }
-
-// Export all utilities
-export { IPUtils, HeaderUtils, RateLimitUtils };
