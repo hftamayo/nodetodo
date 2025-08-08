@@ -1,4 +1,4 @@
-import { RequestHandler, Request, Response, NextFunction } from "express";
+import { Response, NextFunction, RequestHandler } from "express";
 import rateLimit from "express-rate-limit";
 import {
   RateLimitConfigFactory,
@@ -6,6 +6,7 @@ import {
   AccessLevel,
 } from "../config/rateLimitConfig";
 import { IPUtils, HeaderUtils, RateLimitUtils } from "../utils/rateLimitUtils";
+import { AuthenticatedUserRequest } from "@/types/user.types";
 
 // Rate limit middleware interface
 export interface RateLimitMiddleware {
@@ -22,7 +23,7 @@ export interface RateLimitMiddleware {
 
 // Custom rate limit handler for 429 responses
 function createRateLimitHandler(rateLimitType: RateLimitType) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: AuthenticatedUserRequest, res: Response, next: NextFunction) => {
     const clientIP = IPUtils.getClientIP(req);
     const accessLevel = req.user?.role
       ? getAccessLevelFromRole(req.user.role)
@@ -78,14 +79,14 @@ function createRateLimiter(
   return rateLimit({
     ...config,
     handler: createRateLimitHandler(rateLimitType),
-    keyGenerator: (req: Request) => {
+    keyGenerator: (req: AuthenticatedUserRequest) => {
       return RateLimitUtils.getRateLimitKey(
         req,
         rateLimitType,
         getAccessLevelFromRole(req.user?.role || "user")
       );
     },
-    skip: (req: Request) => {
+    skip: (req: AuthenticatedUserRequest) => {
       // Skip rate limiting for trusted sources
       if (RateLimitUtils.isTrustedSource(req)) {
         return true;
@@ -94,7 +95,7 @@ function createRateLimiter(
       // Skip based on rate limit type
       return !RateLimitUtils.shouldApplyRateLimit(req, rateLimitType);
     },
-    onLimitReached: (req: Request, res: Response) => {
+    onLimitReached: (req: AuthenticatedUserRequest, res: Response) => {
       const clientIP = IPUtils.getClientIP(req);
       const accessLevel = req.user?.role
         ? getAccessLevelFromRole(req.user.role)
@@ -174,7 +175,7 @@ export const RateLimitAspect: RateLimitMiddleware = {
 
 // Middleware to add rate limit headers to all responses
 export const addRateLimitHeadersMiddleware: RequestHandler = (
-  req: Request,
+  req: AuthenticatedUserRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -206,15 +207,14 @@ export const addRateLimitHeadersMiddleware: RequestHandler = (
 };
 
 // Middleware to handle rate limit errors globally
-export const rateLimitErrorHandler: RequestHandler = (
+export const rateLimitErrorHandler = (
   err: any,
-  req: Request,
+  req: AuthenticatedUserRequest,
   res: Response,
   next: NextFunction
 ) => {
   // Check if this is a rate limit error
   if (err.status === 429 || err.code === 429) {
-    const clientIP = IPUtils.getClientIP(req);
     const accessLevel = req.user?.role
       ? getAccessLevelFromRole(req.user.role)
       : undefined;

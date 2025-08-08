@@ -1,13 +1,14 @@
 import { Request } from "express";
 import { RateLimitType, AccessLevel } from "../config/rateLimitConfig";
 import { RateLimitErrorDTO } from "../dto/rateLimitError.dto";
+import { AuthenticatedUserRequest } from "@/types/user.types";
 
 // IP address extraction and validation
 export class IPUtils {
   /**
    * Extract real IP address from request, handling proxies and load balancers
    */
-  static getClientIP(req: Request): string {
+  static getClientIP(req: Request | AuthenticatedUserRequest): string {
     // Check for forwarded headers (common with proxies/load balancers)
     const forwardedFor = req.headers["x-forwarded-for"] as string;
     if (forwardedFor) {
@@ -181,7 +182,7 @@ export class RateLimitUtils {
    * Check if rate limit should be applied based on request
    */
   static shouldApplyRateLimit(
-    req: Request,
+    req: Request | AuthenticatedUserRequest,
     rateLimitType: RateLimitType
   ): boolean {
     // Skip rate limiting for health checks
@@ -206,7 +207,7 @@ export class RateLimitUtils {
    * Get rate limit key based on type and request
    */
   static getRateLimitKey(
-    req: Request,
+    req: Request | AuthenticatedUserRequest,
     rateLimitType: RateLimitType,
     accessLevel?: AccessLevel
   ): string {
@@ -225,17 +226,23 @@ export class RateLimitUtils {
       case RateLimitType.API:
         return `rate_limit:api:${clientIP}`;
 
-      case RateLimitType.USER:
-        const userId = req.user?.sub || "anonymous";
+      case RateLimitType.USER: {
+        const userId =
+          (req as AuthenticatedUserRequest).user?.sub || "anonymous";
         return `rate_limit:user:${userId}:${accessLevel || AccessLevel.USER}`;
+      }
 
-      case RateLimitType.SUPERVISOR:
-        const supervisorId = req.user?.sub || "anonymous";
+      case RateLimitType.SUPERVISOR: {
+        const supervisorId =
+          (req as AuthenticatedUserRequest).user?.sub || "anonymous";
         return `rate_limit:supervisor:${supervisorId}`;
+      }
 
-      case RateLimitType.ADMIN:
-        const adminId = req.user?.sub || "anonymous";
+      case RateLimitType.ADMIN: {
+        const adminId =
+          (req as AuthenticatedUserRequest).user?.sub || "anonymous";
         return `rate_limit:admin:${adminId}`;
+      }
 
       default:
         return `rate_limit:global:${clientIP}`;
@@ -306,6 +313,10 @@ export class RateLimitUtils {
         );
 
       default:
+        // Fallback: use global error handler for unknown types
+        console.warn(
+          `Unknown rate limit type: ${rateLimitType}. Using global error.`
+        );
         return RateLimitErrorDTO.createGlobalError(
           retryAfter,
           remainingRequests,
@@ -318,7 +329,7 @@ export class RateLimitUtils {
    * Log rate limit violation for monitoring
    */
   static logRateLimitViolation(
-    req: Request,
+    req: Request | AuthenticatedUserRequest,
     rateLimitType: RateLimitType,
     clientIP: string,
     accessLevel?: AccessLevel
@@ -331,7 +342,7 @@ export class RateLimitUtils {
       method: req.method,
       path: req.path,
       accessLevel,
-      userId: req.user?.sub,
+      userId: (req as AuthenticatedUserRequest).user?.sub,
     };
 
     console.warn("Rate limit violation:", JSON.stringify(logData));
@@ -343,7 +354,10 @@ export class RateLimitUtils {
   /**
    * Check if request is from a trusted source (whitelist)
    */
-  static isTrustedSource(req: Request, trustedIPs: string[] = []): boolean {
+  static isTrustedSource(
+    req: Request | AuthenticatedUserRequest,
+    trustedIPs: string[] = []
+  ): boolean {
     const clientIP = IPUtils.getClientIP(req);
 
     // Check if IP is in trusted list
