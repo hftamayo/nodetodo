@@ -25,21 +25,22 @@ export enum RateLimitType {
 // Access levels aligned with your permission system
 export enum AccessLevel {
   USER = "user",
-  SUPERVISOR = "supervisor", 
+  SUPERVISOR = "supervisor",
   ADMIN = "admin",
 }
 
 // Parse ISO 8601 duration to milliseconds
 function parseDuration(duration: string): number {
-  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+  const match = regex.exec(duration);
   if (!match) {
     throw new Error(`Invalid ISO 8601 duration format: ${duration}`);
   }
-  
+
   const hours = parseInt(match[1] || "0");
   const minutes = parseInt(match[2] || "0");
   const seconds = parseInt(match[3] || "0");
-  
+
   return (hours * 3600 + minutes * 60 + seconds) * 1000;
 }
 
@@ -50,7 +51,7 @@ function validateRateLimitConfig() {
   const refillRate = parseInt(RATE_LIMITS.refillRate || "10");
   const refillDuration = RATE_LIMITS.refillDuration || "PT1M";
   const window = parseInt(RATE_LIMITS.window || "60000");
-  
+
   const loginCapacity = parseInt(RATE_LIMITS.loginCapacity || "5");
   const signUpCapacity = parseInt(RATE_LIMITS.signUpCapacity || "3");
   const apiCapacity = parseInt(RATE_LIMITS.apiCapacity || "50");
@@ -60,19 +61,27 @@ function validateRateLimitConfig() {
     throw new Error("Invalid RATE_LIMIT_CAPACITY: must be a positive number");
   }
   if (isNaN(refillRate) || refillRate <= 0) {
-    throw new Error("Invalid RATE_LIMIT_REFILL_RATE: must be a positive number");
+    throw new Error(
+      "Invalid RATE_LIMIT_REFILL_RATE: must be a positive number"
+    );
   }
   if (isNaN(window) || window <= 0) {
     throw new Error("Invalid RATE_LIMIT_WINDOW_MS: must be a positive number");
   }
   if (isNaN(loginCapacity) || loginCapacity <= 0) {
-    throw new Error("Invalid RATE_LIMIT_LOGIN_CAPACITY: must be a positive number");
+    throw new Error(
+      "Invalid RATE_LIMIT_LOGIN_CAPACITY: must be a positive number"
+    );
   }
   if (isNaN(signUpCapacity) || signUpCapacity <= 0) {
-    throw new Error("Invalid RATE_LIMIT_SIGNUP_CAPACITY: must be a positive number");
+    throw new Error(
+      "Invalid RATE_LIMIT_SIGNUP_CAPACITY: must be a positive number"
+    );
   }
   if (isNaN(apiCapacity) || apiCapacity <= 0) {
-    throw new Error("Invalid RATE_LIMIT_API_CAPACITY: must be a positive number");
+    throw new Error(
+      "Invalid RATE_LIMIT_API_CAPACITY: must be a positive number"
+    );
   }
 
   return {
@@ -105,7 +114,7 @@ function generateErrorMessage(type: RateLimitType, retryAfter: number): string {
     [RateLimitType.SUPERVISOR]: `Too many requests for this supervisor, please try again in ${retryAfter} seconds`,
     [RateLimitType.ADMIN]: `Too many admin requests, please try again in ${retryAfter} seconds`,
   };
-  
+
   return messages[type] || messages[RateLimitType.GLOBAL];
 }
 
@@ -116,7 +125,7 @@ function getCapacityByAccessLevel(accessLevel: AccessLevel): number {
     [AccessLevel.SUPERVISOR]: config.capacity * 2, // 2x user capacity
     [AccessLevel.ADMIN]: config.capacity * 5, // 5x user capacity
   };
-  
+
   return capacities[accessLevel] || config.capacity;
 }
 
