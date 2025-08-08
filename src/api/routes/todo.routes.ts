@@ -2,6 +2,7 @@ import express, { Response } from "express";
 import authorize from "@middleware/authorize";
 import validator from "@middleware/validator";
 import validateResult from "@middleware/validationResults";
+import { userLimiter } from "@middleware/ratelimit";
 import todoService from "@services/todoService";
 import todoController from "@controllers/todoController";
 import {
@@ -79,16 +80,19 @@ const deleteTodoHandler = (req: AuthenticatedUserRequest, res: Response) => {
 
 todoRouter.get(
   "/list",
+  userLimiter,
   authorize(DOMAINS.TODO, PERMISSIONS.READ),
   getTodosHandler
 );
 todoRouter.get(
   "/task/:id",
+  userLimiter,
   authorize(DOMAINS.TODO, PERMISSIONS.READ),
   getTodoHandler
 );
 todoRouter.post(
   "/create",
+  userLimiter,
   authorize(DOMAINS.TODO, PERMISSIONS.WRITE),
   validator.createTodoRules,
   validateResult,
@@ -96,6 +100,7 @@ todoRouter.post(
 );
 todoRouter.patch(
   "/update/:id",
+  userLimiter,
   authorize(DOMAINS.TODO, PERMISSIONS.UPDATE),
   validator.updateTodoRules,
   validateResult,
@@ -103,6 +108,7 @@ todoRouter.patch(
 );
 todoRouter.delete(
   "/delete/:id",
+  userLimiter,
   authorize(DOMAINS.TODO, PERMISSIONS.DELETE),
   deleteTodoHandler
 );
