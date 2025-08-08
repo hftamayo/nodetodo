@@ -1,7 +1,44 @@
 // Main export file for the rate limiting system
-// This replaces the old implementation with our new modular structure
+// Clean exports from our modular rate limiting structure
 
-// Export the main rate limiting aspect (middleware factory)
+// Import all modules
+import {
+  RateLimitAspect,
+  globalLimiter,
+  loginLimiter,
+  signUpLimiter,
+  apiLimiter,
+  userLimiter,
+  supervisorLimiter,
+  adminLimiter,
+  createUserLimiter,
+  createCustomLimiter,
+  addRateLimitHeadersMiddleware,
+  rateLimitErrorHandler,
+  RateLimitMiddleware,
+} from "./aspect/rateLimitAspect";
+
+import {
+  RateLimitConfigFactory,
+  RateLimitConfig,
+  RateLimitType,
+  AccessLevel,
+} from "./config/rateLimitConfig";
+
+import {
+  RateLimitErrorDTO,
+  RateLimitErrorResponse,
+  RATE_LIMIT_ERROR_MESSAGES,
+  RATE_LIMIT_DEBUG_MESSAGES,
+} from "./dto/rateLimitError.dto";
+
+import {
+  IPUtils,
+  HeaderUtils,
+  RateLimitUtils,
+} from "./utils/rateLimitUtils";
+
+// Export all middleware
 export {
   RateLimitAspect,
   globalLimiter,
@@ -15,7 +52,7 @@ export {
   createCustomLimiter,
   addRateLimitHeadersMiddleware,
   rateLimitErrorHandler,
-} from "./aspect/rateLimitAspect";
+};
 
 // Export configuration and types
 export {
@@ -23,7 +60,7 @@ export {
   RateLimitConfig,
   RateLimitType,
   AccessLevel,
-} from "./config/rateLimitConfig";
+};
 
 // Export error DTOs and types
 export {
@@ -31,27 +68,24 @@ export {
   RateLimitErrorResponse,
   RATE_LIMIT_ERROR_MESSAGES,
   RATE_LIMIT_DEBUG_MESSAGES,
-} from "./dto/rateLimitError.dto";
+};
 
 // Export utility functions
 export {
   IPUtils,
   HeaderUtils,
   RateLimitUtils,
-} from "./utils/rateLimitUtils";
+};
 
 // Export types for external use
-export type { RateLimitMiddleware } from "./aspect/rateLimitAspect";
+export type { RateLimitMiddleware };
 
-// Default export for backward compatibility
-// This maintains the same interface as the old rateLimiter.ts
+// Default export with clean structure
 const rateLimiter = {
-  // Legacy exports for backward compatibility
-  signUpLimiter: globalLimiter,
-  loginLimiter: loginLimiter,
-  
-  // New comprehensive exports
+  // Main middleware exports
   globalLimiter,
+  loginLimiter,
+  signUpLimiter,
   apiLimiter,
   userLimiter,
   supervisorLimiter,
