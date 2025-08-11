@@ -1,45 +1,52 @@
 import { Response } from "express";
 import {
-  ListRolesRequest,
-  RoleIdRequest,
-  NewRoleRequest,
-  UpdateRoleRequest,
+  ListTodosByOwnerRequest,
+  ListTodoByOwnerRequest,
+  NewTodoRequest,
+  UpdateTodoRequest,
   EntityResponse,
+  EntitiesResponse,
   DeleteResponse,
-  RoleServices,
-} from "@/types/role.types";
-import { RolesResponseDTO } from "@/api/dto/roles/rolesResponse.dto";
+  TodoServices,
+} from "@/types/todo.types";
+import { TodosResponseDTO } from "@/api/v1/dto/todos/todosResponse.dto";
 import {
   successResponse,
   errorResponse,
 } from "@/utils/endpoints/apiMakeResponse";
-import { ErrorResponseDTO } from "@/api/dto/error/ErrorResponse.dto";
-import { EndpointResponseDto } from "@/api/dto/EndpointResponse.dto";
+import { EndpointResponseDto } from "@/api/v1/dto/EndpointResponse.dto";
 
-function isErrorResponse(obj: any): obj is ErrorResponseDTO {
-  return (
-    obj && typeof obj.code === "number" && typeof obj.resultMessage === "string"
-  );
-}
-
-export default function roleController(roleService: RoleServices) {
+export default function todoController(todoService: TodoServices) {
   return {
-    getRolesHandler: async function (req: ListRolesRequest, res: Response) {
+    getTodosHandler: async function (
+      req: ListTodosByOwnerRequest,
+      res: Response
+    ) {
       try {
-        const { page, limit, cursor, sort, order, filters } = req;
-        const listRolesRequest: ListRolesRequest = {
+        const { page, limit, owner, activeOnly } = req;
+        const listTodosByOwnerRequest: ListTodosByOwnerRequest = {
           page,
           limit,
-          cursor,
-          sort,
-          order,
-          filters,
+          owner,
+          activeOnly,
         };
-        const result = await roleService.listRoles(listRolesRequest);
-        if (isErrorResponse(result)) {
-          return res.status(result.code).json(result);
+        const result: EntitiesResponse = await todoService.listTodos(
+          listTodosByOwnerRequest
+        );
+        const { httpStatusCode, message, data } = result;
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          const errorResp = errorResponse(httpStatusCode, message);
+          return res.status(httpStatusCode).json(errorResp);
         }
-        res.status(200).json(result);
+        const shapedDataList = data.map((todo) => new TodosResponseDTO(todo));
+        // Using EndpointResponseDto<TodosResponseDTO> for type safety
+        const response: EndpointResponseDto<TodosResponseDTO> = successResponse(
+          undefined,
+          shapedDataList,
+          httpStatusCode,
+          message
+        );
+        res.status(httpStatusCode).json(response);
       } catch (error: unknown) {
         const errorResp = errorResponse(
           500,
@@ -50,17 +57,20 @@ export default function roleController(roleService: RoleServices) {
       }
     },
 
-    getRoleHandler: async function (req: RoleIdRequest, res: Response) {
+    getTodoHandler: async function (
+      req: ListTodoByOwnerRequest,
+      res: Response
+    ) {
       try {
-        const result: EntityResponse = await roleService.listRoleByID(req);
+        const result: EntityResponse = await todoService.listTodoByID(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
           const errorResp = errorResponse(httpStatusCode, message);
           return res.status(httpStatusCode).json(errorResp);
         }
-        const shapedData = new RolesResponseDTO(data);
-        // Using EndpointResponseDto<RolesResponseDTO> for type safety
-        const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
+        const shapedData = new TodosResponseDTO(data);
+        // Using EndpointResponseDto<TodosResponseDTO> for type safety
+        const response: EndpointResponseDto<TodosResponseDTO> = successResponse(
           shapedData,
           undefined,
           httpStatusCode,
@@ -77,17 +87,17 @@ export default function roleController(roleService: RoleServices) {
       }
     },
 
-    newRoleHandler: async function (req: NewRoleRequest, res: Response) {
+    newTodoHandler: async function (req: NewTodoRequest, res: Response) {
       try {
-        const result: EntityResponse = await roleService.createRole(req);
+        const result: EntityResponse = await todoService.createTodo(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
           const errorResp = errorResponse(httpStatusCode, message);
           return res.status(httpStatusCode).json(errorResp);
         }
-        const shapedData = new RolesResponseDTO(data);
-        // Using EndpointResponseDto<RolesResponseDTO> for type safety
-        const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
+        const shapedData = new TodosResponseDTO(data);
+        // Using EndpointResponseDto<TodosResponseDTO> for type safety
+        const response: EndpointResponseDto<TodosResponseDTO> = successResponse(
           shapedData,
           undefined,
           httpStatusCode,
@@ -104,17 +114,17 @@ export default function roleController(roleService: RoleServices) {
       }
     },
 
-    updateRoleHandler: async function (req: UpdateRoleRequest, res: Response) {
+    updateTodoHandler: async function (req: UpdateTodoRequest, res: Response) {
       try {
-        const result: EntityResponse = await roleService.updateRoleByID(req);
+        const result: EntityResponse = await todoService.updateTodoByID(req);
         const { httpStatusCode, message, data } = result;
         if (!data) {
           const errorResp = errorResponse(httpStatusCode, message);
           return res.status(httpStatusCode).json(errorResp);
         }
-        const shapedData = new RolesResponseDTO(data);
-        // Using EndpointResponseDto<RolesResponseDTO> for type safety
-        const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
+        const shapedData = new TodosResponseDTO(data);
+        // Using EndpointResponseDto<TodosResponseDTO> for type safety
+        const response: EndpointResponseDto<TodosResponseDTO> = successResponse(
           shapedData,
           undefined,
           httpStatusCode,
@@ -131,9 +141,12 @@ export default function roleController(roleService: RoleServices) {
       }
     },
 
-    deleteRoleHandler: async function (req: RoleIdRequest, res: Response) {
+    deleteTodoHandler: async function (
+      req: ListTodoByOwnerRequest,
+      res: Response
+    ) {
       try {
-        const result: DeleteResponse = await roleService.deleteRoleByID(req);
+        const result: DeleteResponse = await todoService.deleteTodoByID(req);
         const { httpStatusCode, message } = result;
         // Using EndpointResponseDto<null> for delete operations (no data returned)
         const response: EndpointResponseDto<null> = successResponse(

@@ -5,14 +5,14 @@ import { dbConnection, setCorsEnviro } from "@config/setup";
 import { port, mode } from "@config/envvars";
 
 import seedDatabase from "@utils/seedDatabase";
-import todosRoutes from "@routes/todo.routes";
-import rolesRoutes from "@routes/role.routes";
-import usersRoutes from "@routes/user.routes";
-import healthCheckRoutes from "@routes/hc.routes";
+import todosRoutes from "@/api/v1/routes/todo.routes";
+import rolesRoutes from "@/api/v1/routes/role.routes";
+import usersRoutes from "@/api/v1/routes/user.routes";
+import healthCheckRoutes from "@/api/v1/routes/hc.routes";
 import {
   addRateLimitHeadersMiddleware,
   rateLimitErrorHandler,
-} from "@middleware/ratelimit";
+} from "@/api/v1/middleware/ratelimit";
 
 const app = express();
 

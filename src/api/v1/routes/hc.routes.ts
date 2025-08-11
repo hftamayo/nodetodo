@@ -1,6 +1,6 @@
 import express from "express";
-import hcController from "@controllers/hcController";
-import { globalLimiter } from "@middleware/ratelimit";
+import hcController from "@/api/v1/controllers/hcController";
+import { globalLimiter } from "@/api/v1/middleware/ratelimit";
 
 const hcRouter = express.Router();
 

@@ -1,6 +1,6 @@
 import mongoose, { Document } from "mongoose";
-import { PaginatedResponseDTO } from "@/api/dto/pagination/pagination.dto";
-import { ErrorResponseDTO } from "@/api/dto/error/ErrorResponse.dto";
+import { PaginatedResponseDTO } from "@/api/v1/dto/pagination/pagination.dto";
+import { ErrorResponseDTO } from "@/api/v1/dto/error/ErrorResponse.dto";
 
 export interface RoleDocument extends Document {
   name: string;

@@ -2,10 +2,10 @@ import { Model, Document, FilterQuery } from "mongoose";
 import {
   PaginationDTO,
   PaginatedResponseDTO,
-} from "@/api/dto/pagination/pagination.dto";
+} from "@/api/v1/dto/pagination/pagination.dto";
 import { encodeCursor, decodeCursor } from "@/utils/pagination/cursor";
 import { generateETag } from "@/utils/pagination/etag";
-import { ErrorResponseDTO } from "@/api/dto/error/ErrorResponse.dto";
+import { ErrorResponseDTO } from "@/api/v1/dto/error/ErrorResponse.dto";
 
 interface PaginationParams {
   cursor?: string;

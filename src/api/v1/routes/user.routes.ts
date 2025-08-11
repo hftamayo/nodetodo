@@ -1,14 +1,14 @@
 import express, { Request, Response } from "express";
-import userController from "@controllers/userController";
+import userController from "@/api/v1/controllers/userController";
 import userService from "@services/userService";
-import authorize from "@middleware/authorize";
-import validator from "@middleware/validator";
-import validateResult from "@middleware/validationResults";
+import authorize from "@/api/v1/middleware/authorize";
+import validator from "@/api/v1/middleware/validator";
+import validateResult from "@/api/v1/middleware/validationResults";
 import {
   signUpLimiter,
   loginLimiter,
   userLimiter,
-} from "@middleware/ratelimit";
+} from "@/api/v1/middleware/ratelimit";
 import {
   AuthenticatedUserRequest,
   SignUpRequest,

@@ -1,5 +1,5 @@
-import { EndpointResponseDto } from "@/api/dto/EndpointResponse.dto";
-import { ErrorResponseDTO } from "@/api/dto/error/ErrorResponse.dto";
+import { EndpointResponseDto } from "@/api/v1/dto/EndpointResponse.dto";
+import { ErrorResponseDTO } from "@/api/v1/dto/error/ErrorResponse.dto";
 
 // Success response utility with generic envelope
 export function successResponse<T>(

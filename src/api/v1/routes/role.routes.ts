@@ -1,10 +1,10 @@
 import express, { Response } from "express";
-import authorize from "@middleware/authorize";
-import validator from "@middleware/validator";
-import validateResult from "@middleware/validationResults";
-import { supervisorLimiter } from "@middleware/ratelimit";
+import authorize from "@/api/v1/middleware/authorize";
+import validator from "@/api/v1/middleware/validator";
+import validateResult from "@/api/v1/middleware/validationResults";
+import { supervisorLimiter } from "@/api/v1/middleware/ratelimit";
 import roleService from "@services/roleService";
-import roleController from "@controllers/roleController";
+import roleController from "@/api/v1/controllers/roleController";
 import {
   ListRolesRequest,
   RoleIdRequest,

@@ -10,12 +10,12 @@ import {
   DeleteLogoutResponse,
   UserServices,
 } from "@/types/user.types";
-import { UsersResponseDTO } from "@/api/dto/users/usersResponse.dto";
+import { UsersResponseDTO } from "@/api/v1/dto/users/usersResponse.dto";
 import {
   successResponse,
   errorResponse,
 } from "@/utils/endpoints/apiMakeResponse";
-import { EndpointResponseDto } from "@/api/dto/EndpointResponse.dto";
+import { EndpointResponseDto } from "@/api/v1/dto/EndpointResponse.dto";
 import { cors_secure, cors_samesite } from "@config/envvars";
 
 export default function userController(userService: UserServices) {
