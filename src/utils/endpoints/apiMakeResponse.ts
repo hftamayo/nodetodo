@@ -1,5 +1,5 @@
-import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
-import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
+import { EndpointResponseDto } from "@/api/dto/EndpointResponse.dto";
+import { ErrorResponseDTO } from "@/api/dto/error/ErrorResponse.dto";
 
 // Success response utility with generic envelope
 export function successResponse<T>(
@@ -34,15 +34,17 @@ export function errorResponse(
 }
 
 // Legacy makeResponse function for backward compatibility
-export function makeResponse(
-  type: string,
-  data?: any
-): any {
+export function makeResponse(type: string, data?: any): any {
   // This maintains backward compatibility with existing services
   // but should be gradually replaced with successResponse/errorResponse
   switch (type) {
     case "SUCCESS":
-      return successResponse(data?.data, data?.dataList, 200, "OPERATION_SUCCESS");
+      return successResponse(
+        data?.data,
+        data?.dataList,
+        200,
+        "OPERATION_SUCCESS"
+      );
     case "CREATED":
       return successResponse(data?.data, undefined, 201, "ENTITY_CREATED");
     case "ERROR":

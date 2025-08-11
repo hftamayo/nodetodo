@@ -9,9 +9,12 @@ import {
   DeleteResponse,
   TodoServices,
 } from "@/types/todo.types";
-import { TodosResponseDTO } from "@/dto/todos/todosResponse.dto";
-import { successResponse, errorResponse } from "@/utils/endpoints/apiMakeResponse";
-import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
+import { TodosResponseDTO } from "@/api/dto/todos/todosResponse.dto";
+import {
+  successResponse,
+  errorResponse,
+} from "@/utils/endpoints/apiMakeResponse";
+import { EndpointResponseDto } from "@/api/dto/EndpointResponse.dto";
 
 export default function todoController(todoService: TodoServices) {
   return {

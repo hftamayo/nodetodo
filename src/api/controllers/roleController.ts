@@ -8,13 +8,18 @@ import {
   DeleteResponse,
   RoleServices,
 } from "@/types/role.types";
-import { RolesResponseDTO } from "@/dto/roles/rolesResponse.dto";
-import { successResponse, errorResponse } from "@/utils/endpoints/apiMakeResponse";
-import { ErrorResponseDTO } from "@/dto/error/ErrorResponse.dto";
-import { EndpointResponseDto } from "@/dto/EndpointResponse.dto";
+import { RolesResponseDTO } from "@/api/dto/roles/rolesResponse.dto";
+import {
+  successResponse,
+  errorResponse,
+} from "@/utils/endpoints/apiMakeResponse";
+import { ErrorResponseDTO } from "@/api/dto/error/ErrorResponse.dto";
+import { EndpointResponseDto } from "@/api/dto/EndpointResponse.dto";
 
 function isErrorResponse(obj: any): obj is ErrorResponseDTO {
-  return obj && typeof obj.code === 'number' && typeof obj.resultMessage === 'string';
+  return (
+    obj && typeof obj.code === "number" && typeof obj.resultMessage === "string"
+  );
 }
 
 export default function roleController(roleService: RoleServices) {
@@ -56,9 +61,9 @@ export default function roleController(roleService: RoleServices) {
         const shapedData = new RolesResponseDTO(data);
         // Using EndpointResponseDto<RolesResponseDTO> for type safety
         const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
-          shapedData, 
-          undefined, 
-          httpStatusCode, 
+          shapedData,
+          undefined,
+          httpStatusCode,
           message
         );
         res.status(httpStatusCode).json(response);
@@ -83,9 +88,9 @@ export default function roleController(roleService: RoleServices) {
         const shapedData = new RolesResponseDTO(data);
         // Using EndpointResponseDto<RolesResponseDTO> for type safety
         const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
-          shapedData, 
-          undefined, 
-          httpStatusCode, 
+          shapedData,
+          undefined,
+          httpStatusCode,
           message
         );
         res.status(httpStatusCode).json(response);
@@ -110,9 +115,9 @@ export default function roleController(roleService: RoleServices) {
         const shapedData = new RolesResponseDTO(data);
         // Using EndpointResponseDto<RolesResponseDTO> for type safety
         const response: EndpointResponseDto<RolesResponseDTO> = successResponse(
-          shapedData, 
-          undefined, 
-          httpStatusCode, 
+          shapedData,
+          undefined,
+          httpStatusCode,
           message
         );
         res.status(httpStatusCode).json(response);
@@ -132,9 +137,9 @@ export default function roleController(roleService: RoleServices) {
         const { httpStatusCode, message } = result;
         // Using EndpointResponseDto<null> for delete operations (no data returned)
         const response: EndpointResponseDto<null> = successResponse(
-          null, 
-          undefined, 
-          httpStatusCode, 
+          null,
+          undefined,
+          httpStatusCode,
           message
         );
         res.status(httpStatusCode).json(response);

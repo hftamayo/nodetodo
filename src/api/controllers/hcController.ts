@@ -3,7 +3,7 @@ import { dbConnection } from "@config/setup";
 import {
   AppHealthCheckResponseDTO,
   DbHealthCheckResponseDTO,
-} from "@/dto/hc/healthCheckResponse.dto";
+} from "@/api/dto/hc/healthCheckResponse.dto";
 import os from "os";
 
 const hcController = {
