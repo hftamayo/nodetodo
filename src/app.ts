@@ -32,10 +32,10 @@ async function startApp() {
 
     await seedDatabase();
 
-    app.use("/nodetodo/healthcheck", healthCheckRoutes);
-    app.use("/nodetodo/roles", rolesRoutes);
-    app.use("/nodetodo/users", usersRoutes);
-    app.use("/nodetodo/todos", todosRoutes);
+    app.use("/nodetodo/v1/healthcheck", healthCheckRoutes);
+    app.use("/nodetodo/v1/roles", rolesRoutes);
+    app.use("/nodetodo/v1/users", usersRoutes);
+    app.use("/nodetodo/v1/todos", todosRoutes);
 
     // Rate limit error handling middleware (must come before general error handler)
     app.use(rateLimitErrorHandler);
