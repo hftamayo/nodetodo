@@ -18,16 +18,16 @@
       "@types/*": ["src/types/*"],
       "@services/*": ["src/services/*"],
       "@models/*": ["src/models/*"],
-      "@controllers/*": ["src/api/controllers/*"],
-      "@routes/*": ["src/api/routes/*"],
-      "@middleware/*": ["src/api/middleware/*"],
+      "@controllers/*": ["src/api/v1/controllers/*"],
+      "@routes/*": ["src/api/v1/routes/*"],
+      "@middleware/*": ["src/api/v1/middleware/*"],
       "@utils/*": ["src/utils/*"],
       "@config/*": ["src/config/*"],
       "@test/*": ["test/*"]
     },
     //"rootDir": "./src",
     "outDir": "./dist",
-    "rootDir": "./src", /* Specify the root folder within your source files. */
+    "rootDir": "./src" /* Specify the root folder within your source files. */,
     "moduleResolution": "node",
     "target": "es2017" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
     // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
