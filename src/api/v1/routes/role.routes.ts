@@ -1,9 +1,10 @@
 import express, { Response } from "express";
-import authorize from "@middleware/authorize";
-import validator from "@middleware/validator";
-import validateResult from "@middleware/validationResults";
+import authorize from "@/api/v1/middleware/authorize";
+import validator from "@/api/v1/middleware/validator";
+import validateResult from "@/api/v1/middleware/validationResults";
+import { supervisorLimiter } from "@/api/v1/middleware/ratelimit";
 import roleService from "@services/roleService";
-import roleController from "@controllers/roleController";
+import roleController from "@/api/v1/controllers/roleController";
 import {
   ListRolesRequest,
   RoleIdRequest,
@@ -17,15 +18,33 @@ import { DOMAINS, PERMISSIONS } from "@config/envvars";
 
 const roleRouter = express.Router();
 
-const controller = roleController(roleService as RoleServices);
+const controller = roleController(roleService as unknown as RoleServices);
 
 const getRolesHandler = (req: AuthenticatedUserRequest, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
+  const cursor = req.query.cursor as string | undefined;
+  const sort = req.query.sort as string | undefined;
+  const order = (req.query.order as "asc" | "desc") || undefined;
+  let filters: Record<string, any> | undefined = undefined;
+  if (req.query.filters) {
+    try {
+      filters =
+        typeof req.query.filters === "string"
+          ? JSON.parse(req.query.filters)
+          : req.query.filters;
+    } catch {
+      filters = undefined;
+    }
+  }
 
   const listRolesRequest: ListRolesRequest = {
     page,
     limit,
+    cursor,
+    sort,
+    order,
+    filters,
   };
 
   controller.getRolesHandler(listRolesRequest, res);
@@ -72,16 +91,19 @@ const deleteRoleHandler = (req: AuthenticatedUserRequest, res: Response) => {
 
 roleRouter.get(
   "/list",
+  supervisorLimiter,
   authorize(DOMAINS.ROLE, PERMISSIONS.READ),
   getRolesHandler
 );
 roleRouter.get(
   "/role/:id",
+  supervisorLimiter,
   authorize(DOMAINS.ROLE, PERMISSIONS.READ),
   getRoleHandler
 );
 roleRouter.post(
   "/create",
+  supervisorLimiter,
   authorize(DOMAINS.ROLE, PERMISSIONS.WRITE),
   validator.createRoleRules,
   validateResult,
@@ -89,6 +111,7 @@ roleRouter.post(
 );
 roleRouter.patch(
   "/update/:id",
+  supervisorLimiter,
   authorize(DOMAINS.ROLE, PERMISSIONS.UPDATE),
   validator.updateRoleRules,
   validateResult,
@@ -96,6 +119,7 @@ roleRouter.patch(
 );
 roleRouter.delete(
   "/delete/:id",
+  supervisorLimiter,
   authorize(DOMAINS.ROLE, PERMISSIONS.DELETE),
   deleteRoleHandler
 );

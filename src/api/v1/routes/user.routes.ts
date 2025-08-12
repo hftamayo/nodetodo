@@ -1,10 +1,14 @@
 import express, { Request, Response } from "express";
-import userController from "@controllers/userController";
+import userController from "@/api/v1/controllers/userController";
 import userService from "@services/userService";
-import authorize from "@middleware/authorize";
-import validator from "@middleware/validator";
-import validateResult from "@middleware/validationResults";
-import rateLimiter from "@middleware/rateLimiter";
+import authorize from "@/api/v1/middleware/authorize";
+import validator from "@/api/v1/middleware/validator";
+import validateResult from "@/api/v1/middleware/validationResults";
+import {
+  signUpLimiter,
+  loginLimiter,
+  userLimiter,
+} from "@/api/v1/middleware/ratelimit";
 import {
   AuthenticatedUserRequest,
   SignUpRequest,
@@ -68,14 +72,14 @@ const deleteUserHandler = (req: AuthenticatedUserRequest, res: Response) => {
 
 userRouter.post(
   "/register",
-  rateLimiter.signUpLimiter,
+  signUpLimiter,
   validator.registerRules,
   validateResult,
   registerHandler
 );
 userRouter.post(
   "/login",
-  rateLimiter.loginLimiter,
+  loginLimiter,
   validator.loginRules,
   validateResult,
   loginHandler
@@ -87,16 +91,19 @@ userRouter.post(
 );
 userRouter.get(
   "/list",
+  userLimiter,
   authorize(DOMAINS.USER, PERMISSIONS.READ),
   listUsersHandler
 );
 userRouter.get(
   "/me",
+  userLimiter,
   authorize(DOMAINS.USER, PERMISSIONS.READ),
   listUserHandler
 );
 userRouter.patch(
   "/updatedetails",
+  userLimiter,
   authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
   validator.updateDetailsRules,
   validateResult,
@@ -104,6 +111,7 @@ userRouter.patch(
 );
 userRouter.put(
   "/updatepassword",
+  userLimiter,
   authorize(DOMAINS.USER, PERMISSIONS.UPDATE),
   validator.updatePasswordRules,
   validateResult,
@@ -111,6 +119,7 @@ userRouter.put(
 );
 userRouter.delete(
   "/delete",
+  userLimiter,
   authorize(DOMAINS.USER, PERMISSIONS.DELETE),
   deleteUserHandler
 );

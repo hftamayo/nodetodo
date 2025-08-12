@@ -13,10 +13,3 @@ export type DbHealthDetails = {
   databaseStatus?: string;
   error?: string;
 };
-
-export type HealthCheckResponse<T> = {
-  code: number;
-  status: "pass" | "warn" | "fail";
-  resultMessage: string;
-  details?: T;
-};
