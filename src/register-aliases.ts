@@ -3,39 +3,23 @@ import path from "path";
 
 const isProduction = process.env.NODE_ENV === "production";
 
-// Register aliases for production (compiled code)
+// In production (Docker), we are in /app/dist/ and need to point to /app/dist/
+// In development, we are in /app/src/ and need to point to /app/src/
+const srcDir = isProduction ? __dirname : path.join(__dirname, "..", "src");
+
+console.log(
+  `Module alias registration - Production: ${isProduction}, Source dir: ${srcDir}`
+);
+
+// Register aliases for both development and production
 moduleAlias.addAliases({
-  "@": path.join(__dirname, isProduction ? "../dist" : "../src"),
-  "@config": path.join(
-    __dirname,
-    isProduction ? "../dist/config" : "../src/config"
-  ),
-  "@types": path.join(
-    __dirname,
-    isProduction ? "../dist/types" : "../src/types"
-  ),
-  "@services": path.join(
-    __dirname,
-    isProduction ? "../dist/services" : "../src/services"
-  ),
-  "@models": path.join(
-    __dirname,
-    isProduction ? "../dist/models" : "../src/models"
-  ),
-  "@controllers": path.join(
-    __dirname,
-    isProduction ? "../dist/api/controllers" : "../src/api/controllers"
-  ),
-  "@routes": path.join(
-    __dirname,
-    isProduction ? "../dist/api/routes" : "../src/api/routes"
-  ),
-  "@middleware": path.join(
-    __dirname,
-    isProduction ? "../dist/api/middleware" : "../src/api/middleware"
-  ),
-  "@utils": path.join(
-    __dirname,
-    isProduction ? "../dist/utils" : "../src/utils"
-  ),
+  "@": srcDir,
+  "@config": path.join(srcDir, "config"),
+  "@types": path.join(srcDir, "types"),
+  "@services": path.join(srcDir, "services"),
+  "@models": path.join(srcDir, "models"),
+  "@controllers": path.join(srcDir, "api", "controllers"),
+  "@routes": path.join(srcDir, "api", "routes"),
+  "@middleware": path.join(srcDir, "api", "middleware"),
+  "@utils": path.join(srcDir, "utils"),
 });
