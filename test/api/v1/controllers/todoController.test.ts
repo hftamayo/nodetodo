@@ -6,9 +6,9 @@ import {
   ListTodosByOwnerRequest,
   ListTodoByOwnerRequest,
 } from "@/types/todo.types";
-import todoController from "../../src/api/v1/controllers/todoController";
-import { mockTodoRoleUser, mockTodoRoleSupervisor } from "../mocks/todo.mock";
-import { mockUserRoleUser } from "../mocks/user.mock";
+import todoController from "@/api/v1/controllers/todoController";
+import { mockTodoRoleUser, mockTodoRoleSupervisor } from "../../../mocks/todo.mock";
+import { mockUserRoleUser } from "../../../mocks/user.mock";
 
 jest.mock("@/services/todoService");
 
@@ -52,7 +52,7 @@ describe("TodoController Unit Tests", () => {
       (mockTodoService.listTodos as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
         message: "TASKS_FOUND",
-        todos: mockTodos,
+        data: mockTodos,
       });
 
       // Act
@@ -67,7 +67,10 @@ describe("TodoController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "TASKS_FOUND",
-        todos: mockTodos,
+        data: undefined,
+        dataList: expect.any(Array),
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -97,6 +100,9 @@ describe("TodoController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "TASKS_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
     });
   });
@@ -113,7 +119,7 @@ describe("TodoController Unit Tests", () => {
       (mockTodoService.listTodoByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
         message: "ENTITY_FOUND",
-        todo: mockTodoRoleUser,
+        data: mockTodoRoleUser,
       });
 
       // Act
@@ -130,7 +136,10 @@ describe("TodoController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "ENTITY_FOUND",
-        todo: mockTodoRoleUser,
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -158,6 +167,9 @@ describe("TodoController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
     });
   });
@@ -185,7 +197,7 @@ describe("TodoController Unit Tests", () => {
       (mockTodoService.createTodo as jest.Mock).mockResolvedValue({
         httpStatusCode: 201,
         message: "TODO_CREATED",
-        todo: newTodo,
+        data: newTodo,
       });
 
       // Act
@@ -200,7 +212,10 @@ describe("TodoController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 201,
         resultMessage: "TODO_CREATED",
-        todo: newTodo,
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -233,6 +248,9 @@ describe("TodoController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 400,
         resultMessage: "MISSING_FIELDS",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
     });
   });
@@ -259,7 +277,7 @@ describe("TodoController Unit Tests", () => {
       (mockTodoService.updateTodoByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
         message: "ENTITY_UPDATED",
-        todo: updatedTodo,
+        data: updatedTodo,
       });
 
       // Act
@@ -274,9 +292,12 @@ describe("TodoController Unit Tests", () => {
       );
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith({
-        httpStatusCode: 200,
+        code: 200,
         resultMessage: "ENTITY_UPDATED",
-        updateTodo: updatedTodo,
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -305,8 +326,11 @@ describe("TodoController Unit Tests", () => {
       // Assert
       expect(mockStatus).toHaveBeenCalledWith(404);
       expect(mockJson).toHaveBeenCalledWith({
-        httpStatusCode: 404,
+        code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
     });
   });
@@ -339,6 +363,10 @@ describe("TodoController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "ENTITY_DELETED",
+        data: null,
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -366,6 +394,10 @@ describe("TodoController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        data: null,
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
   });

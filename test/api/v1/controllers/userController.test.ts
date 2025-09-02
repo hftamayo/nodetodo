@@ -1,7 +1,7 @@
 import { Response } from "express";
-import userController from "../../src/api/v1/controllers/userController";
-import { mockUserRoleUser, mockUserRoleSupervisor } from "../mocks/user.mock";
-import { mockRolesData } from "../mocks/role.mock";
+import userController from "@/api/v1/controllers/userController";
+import { mockUserRoleUser, mockUserRoleSupervisor } from "../../../mocks/user.mock";
+import { mockRolesData } from "../../../mocks/role.mock";
 import {
   AuthenticatedUserRequest,
   UserServices,
@@ -55,7 +55,7 @@ describe("UserController Unit Tests", () => {
       (mockUserService.listUsers as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
         message: "USERS_FOUND",
-        users: mockUsers,
+        data: mockUsers,
       });
 
       // Act
@@ -73,7 +73,10 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "USERS_FOUND",
-        users: mockUsers,
+        data: undefined,
+        dataList: expect.any(Array),
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -104,6 +107,9 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "USERS_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
     });
   });
@@ -119,7 +125,7 @@ describe("UserController Unit Tests", () => {
       (mockUserService.listUserByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
         message: "ENTITY_FOUND",
-        user: mockUserRoleUser,
+        data: mockUserRoleUser,
       });
 
       // Act
@@ -136,7 +142,10 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "ENTITY_FOUND",
-        user: mockUserRoleUser,
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -163,6 +172,9 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
     });
   });
@@ -189,7 +201,7 @@ describe("UserController Unit Tests", () => {
       (mockUserService.signUpUser as jest.Mock).mockResolvedValue({
         httpStatusCode: 201,
         message: "USER_CREATED",
-        user: newUser,
+        data: newUser,
       });
 
       // Act
@@ -204,7 +216,10 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 201,
         resultMessage: "USER_CREATED",
-        user: newUser,
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -235,6 +250,9 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 400,
         resultMessage: "MISSING_FIELDS",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
     });
   });
@@ -260,7 +278,7 @@ describe("UserController Unit Tests", () => {
       (mockUserService.updateUserDetailsByID as jest.Mock).mockResolvedValue({
         httpStatusCode: 200,
         message: "ENTITY_UPDATED",
-        user: updatedUser,
+        data: updatedUser,
       });
 
       // Act
@@ -277,7 +295,10 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "ENTITY_UPDATED",
-        user: updatedUser,
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -307,6 +328,9 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
     });
   });
@@ -345,6 +369,10 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "ENTITY_DELETED",
+        data: null,
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
 
@@ -371,6 +399,10 @@ describe("UserController Unit Tests", () => {
       expect(mockJson).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        data: null,
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
     });
   });

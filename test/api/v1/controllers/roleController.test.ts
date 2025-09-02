@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { RoleServices, ListRolesRequest } from "@/types/role.types";
 import roleController from "@/api/v1/controllers/roleController";
-import { mockRolesData } from "../mocks/role.mock";
+import { mockRolesData } from "../../../mocks/role.mock";
 
 type MockedRoleServices = {
   [K in keyof RoleServices]: jest.Mock<
@@ -25,14 +25,26 @@ const createMockRoleService = (
     listRoles: jest.fn().mockImplementation((params) => {
       if (params.page && params.limit) {
         return Promise.resolve({
-          httpStatusCode: 200,
-          message: "ROLES_FOUND",
-          roles: mockRolesData,
+          data: mockRolesData,
+          pagination: {
+            currentPage: 1,
+            totalPages: 1,
+            totalCount: mockRolesData.length,
+            hasMore: false,
+            hasPrev: false,
+            isFirstPage: true,
+            isLastPage: true,
+          },
+          etag: "W/\"test-etag\"",
+          lastModified: new Date().toISOString(),
         });
       }
       return Promise.resolve({
-        httpStatusCode: 404,
-        message: "ROLES_NOT_FOUND",
+        code: 404,
+        resultMessage: "ROLES_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: new Date().toISOString(),
+        cacheTTL: 0,
       });
     }),
     listRoleByID: jest.fn().mockImplementation((params) => {
@@ -40,7 +52,7 @@ const createMockRoleService = (
         return Promise.resolve({
           httpStatusCode: 200,
           message: "ENTITY_FOUND",
-          role: mockRolesData[0],
+          data: mockRolesData[0],
         });
       }
       return Promise.resolve({
@@ -58,7 +70,7 @@ const createMockRoleService = (
       return Promise.resolve({
         httpStatusCode: 201,
         message: "ROLE_CREATED",
-        role: params.role,
+        data: params.role,
       });
     }),
     updateRoleByID: jest.fn().mockImplementation((params) => {
@@ -66,7 +78,7 @@ const createMockRoleService = (
         return Promise.resolve({
           httpStatusCode: 200,
           message: "ROLE_UPDATED",
-          role: params.role,
+          data: params.role,
         });
       }
       return Promise.resolve({
@@ -121,9 +133,18 @@ describe("Role Controller - Unit Tests", () => {
       // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        code: 200,
-        resultMessage: "ROLES_FOUND",
-        roles: mockRolesData,
+        data: mockRolesData,
+        pagination: expect.objectContaining({
+          currentPage: expect.any(Number),
+          totalPages: expect.any(Number),
+          totalCount: expect.any(Number),
+          hasMore: expect.any(Boolean),
+          hasPrev: expect.any(Boolean),
+          isFirstPage: expect.any(Boolean),
+          isLastPage: expect.any(Boolean),
+        }),
+        etag: expect.any(String),
+        lastModified: expect.any(String),
       });
       expect(mockRoleService.listRoles).toHaveBeenCalledWith(req);
     });
@@ -143,6 +164,9 @@ describe("Role Controller - Unit Tests", () => {
       expect(res.json).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "ROLES_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
       expect(mockRoleService.listRoles).toHaveBeenCalledWith(req);
     });
@@ -154,8 +178,6 @@ describe("Role Controller - Unit Tests", () => {
         limit: 10,
       };
 
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-
       mockRoleService.listRoles.mockRejectedValueOnce(
         new Error("Database error")
       );
@@ -164,10 +186,14 @@ describe("Role Controller - Unit Tests", () => {
       await controller.getRolesHandler(req, res);
 
       // Assert
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("roleController, getRoles:")
-      );
-      consoleErrorSpy.mockRestore();
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 500,
+        resultMessage: "Internal server error",
+        debugMessage: "Database error",
+        timestamp: expect.any(String),
+        cacheTTL: 0,
+      });
     });
   });
 
@@ -186,7 +212,10 @@ describe("Role Controller - Unit Tests", () => {
       expect(res.json).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "ENTITY_FOUND",
-        role: mockRolesData[0],
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
       expect(mockRoleService.listRoleByID).toHaveBeenCalledWith(req);
     });
@@ -205,6 +234,9 @@ describe("Role Controller - Unit Tests", () => {
       expect(res.json).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
       expect(mockRoleService.listRoleByID).toHaveBeenCalledWith(req);
     });
@@ -218,16 +250,18 @@ describe("Role Controller - Unit Tests", () => {
         new Error("Database error")
       );
 
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-
       // Act
       await controller.getRoleHandler(req, res);
 
       // Assert
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("roleController, getRole:")
-      );
-      consoleErrorSpy.mockRestore();
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 500,
+        resultMessage: "Internal server error",
+        debugMessage: "Database error",
+        timestamp: expect.any(String),
+        cacheTTL: 0,
+      });
     });
   });
 
@@ -255,7 +289,10 @@ describe("Role Controller - Unit Tests", () => {
       expect(res.json).toHaveBeenCalledWith({
         code: 201,
         resultMessage: "ROLE_CREATED",
-        role: newRole,
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
       expect(mockRoleService.createRole).toHaveBeenCalledWith(req);
     });
@@ -282,6 +319,9 @@ describe("Role Controller - Unit Tests", () => {
       expect(res.json).toHaveBeenCalledWith({
         code: 400,
         resultMessage: "ROLE_ALREADY_EXISTS",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
       expect(mockRoleService.createRole).toHaveBeenCalledWith(req);
     });
@@ -300,8 +340,6 @@ describe("Role Controller - Unit Tests", () => {
         },
       };
 
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-
       mockRoleService.createRole.mockRejectedValueOnce(
         new Error("Database error")
       );
@@ -310,10 +348,14 @@ describe("Role Controller - Unit Tests", () => {
       await controller.newRoleHandler(req, res);
 
       // Assert
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("roleController, createRole:")
-      );
-      consoleErrorSpy.mockRestore();
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 500,
+        resultMessage: "Internal server error",
+        debugMessage: "Database error",
+        timestamp: expect.any(String),
+        cacheTTL: 0,
+      });
     });
   });
 
@@ -340,9 +382,12 @@ describe("Role Controller - Unit Tests", () => {
       // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        httpStatusCode: 200,
+        code: 200,
         resultMessage: "ROLE_UPDATED",
-        updateRole: updatedRole,
+        data: expect.any(Object),
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
       expect(mockRoleService.updateRoleByID).toHaveBeenCalledWith(req);
     });
@@ -368,8 +413,11 @@ describe("Role Controller - Unit Tests", () => {
       // Assert
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
-        httpStatusCode: 404,
+        code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        debugMessage: undefined,
+        timestamp: expect.any(String),
+        cacheTTL: 0,
       });
       expect(mockRoleService.updateRoleByID).toHaveBeenCalledWith(req);
     });
@@ -389,8 +437,6 @@ describe("Role Controller - Unit Tests", () => {
         },
       };
 
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-
       mockRoleService.updateRoleByID.mockRejectedValueOnce(
         new Error("Database error")
       );
@@ -399,10 +445,14 @@ describe("Role Controller - Unit Tests", () => {
       await controller.updateRoleHandler(req, res);
 
       // Assert
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("roleController, updateRole:")
-      );
-      consoleErrorSpy.mockRestore();
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 500,
+        resultMessage: "Internal server error",
+        debugMessage: "Database error",
+        timestamp: expect.any(String),
+        cacheTTL: 0,
+      });
     });
   });
 
@@ -421,6 +471,10 @@ describe("Role Controller - Unit Tests", () => {
       expect(res.json).toHaveBeenCalledWith({
         code: 200,
         resultMessage: "ENTITY_DELETED",
+        data: null,
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
       expect(mockRoleService.deleteRoleByID).toHaveBeenCalledWith(req);
     });
@@ -439,6 +493,10 @@ describe("Role Controller - Unit Tests", () => {
       expect(res.json).toHaveBeenCalledWith({
         code: 404,
         resultMessage: "ENTITY_NOT_FOUND",
+        data: null,
+        dataList: undefined,
+        timestamp: expect.any(Number),
+        cacheTTL: 0,
       });
       expect(mockRoleService.deleteRoleByID).toHaveBeenCalledWith(req);
     });
@@ -448,7 +506,6 @@ describe("Role Controller - Unit Tests", () => {
       const req = {
         roleId: mockRolesData[0]._id.toString(),
       };
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
 
       mockRoleService.deleteRoleByID.mockRejectedValueOnce(
         new Error("Database error")
@@ -458,11 +515,14 @@ describe("Role Controller - Unit Tests", () => {
       await controller.deleteRoleHandler(req, res);
 
       // Assert
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("roleController, deleteRole:")
-      );
-      consoleErrorSpy.mockRestore();
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        code: 500,
+        resultMessage: "Internal server error",
+        debugMessage: "Database error",
+        timestamp: expect.any(String),
+        cacheTTL: 0,
+      });
     });
   });
 });
