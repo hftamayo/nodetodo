@@ -60,7 +60,7 @@ describe("Role Service - listRoles", () => {
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ROLES_FOUND");
-    expect(result.roles).toBeDefined();
+    expect(result.data).toBeDefined();
     expect(Array.isArray(result.roles)).toBe(true);
     expect(result.roles!.length).toBe(mockRoles.length);
 
@@ -90,7 +90,7 @@ describe("Role Service - listRoles", () => {
     // Assert
     expect(result.httpStatusCode).toBe(404);
     expect(result.message).toBe("ROLES_NOT_FOUND");
-    expect(result.roles).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 500 when database error occurs", async () => {
@@ -104,7 +104,7 @@ describe("Role Service - listRoles", () => {
     // Assert
     expect(result.httpStatusCode).toBe(500);
     expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.roles).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 
@@ -186,7 +186,7 @@ describe("Role Service - listRoleByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(404);
     expect(result.message).toBe("ENTITY_NOT_FOUND");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 500 when database error occurs", async () => {
@@ -204,7 +204,7 @@ describe("Role Service - listRoleByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(500);
     expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 
@@ -241,7 +241,7 @@ describe("Role Service - createRole", () => {
     // Assert
     expect(result.httpStatusCode).toBe(201);
     expect(result.message).toBe("ROLE_CREATED");
-    expect(result.role).toBeDefined();
+    expect(result.data).toBeDefined();
     expect(result.role?.name).toBe(params.role.name);
     expect(Role.findOne).toHaveBeenCalledWith({ name: params.role.name });
     expect(mockFindOneExec).toHaveBeenCalled();
@@ -266,7 +266,7 @@ describe("Role Service - createRole", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("ROLE_ALREADY_EXISTS");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 400 when missing required fields", async () => {
@@ -283,7 +283,7 @@ describe("Role Service - createRole", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("MISSING_FIELDS");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 500 when database error occurs", async () => {
@@ -308,7 +308,7 @@ describe("Role Service - createRole", () => {
     // Assert
     expect(result.httpStatusCode).toBe(500);
     expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 
@@ -345,7 +345,7 @@ describe("Role Service - updateRoleByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ROLE_UPDATED");
-    expect(result.role).toBeDefined();
+    expect(result.data).toBeDefined();
     expect(result.role?.name).toBe(params.role.name);
     expect(Role.findById).toHaveBeenCalledWith(params.role._id);
     expect(mockExec).toHaveBeenCalled();
@@ -369,7 +369,7 @@ describe("Role Service - updateRoleByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(404);
     expect(result.message).toBe("ENTITY_NOT_FOUND");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 400 when missing required fields", async () => {
@@ -386,7 +386,7 @@ describe("Role Service - updateRoleByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("MISSING_FIELDS");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 400 when _id is missing", async () => {
@@ -404,7 +404,7 @@ describe("Role Service - updateRoleByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("MISSING_FIELDS");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 500 when database error occurs", async () => {
@@ -425,7 +425,7 @@ describe("Role Service - updateRoleByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(500);
     expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.role).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should update only provided fields", async () => {

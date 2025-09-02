@@ -85,9 +85,9 @@ describe("User Service - signUpUser", () => {
     // Assert
     expect(result.httpStatusCode).toBe(201);
     expect(result.message).toBe("USER_CREATED");
-    expect(result.user).toBeDefined();
-    expect(result.user?.name).toBe(params.name);
-    expect(result.user?.email).toBe(params.email);
+    expect(result.data).toBeDefined();
+    expect(result.data?.name).toBe(params.name);
+    expect(result.data?.email).toBe(params.email);
     expect(User.findOne).toHaveBeenCalledWith({ email: params.email });
     expect(Role.findOne).toHaveBeenCalledWith({ name: "finaluser" });
     expect(bcrypt.genSalt).toHaveBeenCalledWith(10);
@@ -114,7 +114,7 @@ describe("User Service - signUpUser", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("EMAIL_EXISTS");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 400 when passwords do not match", async () => {
@@ -133,7 +133,7 @@ describe("User Service - signUpUser", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("PASSWORD_MISMATCH");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 400 when required fields are missing", async () => {
@@ -152,7 +152,7 @@ describe("User Service - signUpUser", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("MISSING_FIELDS");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 500 when role is not found", async () => {
@@ -177,7 +177,7 @@ describe("User Service - signUpUser", () => {
     // Assert
     expect(result.httpStatusCode).toBe(500);
     expect(result.message).toBe("ROLE_NOT_FOUND");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 
@@ -220,7 +220,7 @@ describe("User Service - loginUser", () => {
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("LOGIN_SUCCESS");
     expect(result.tokenCreated).toBe("jwt-token");
-    expect(result.user).toBeDefined();
+    expect(result.data).toBeDefined();
     expect(User.findOne).toHaveBeenCalledWith({ email: params.email });
     expect(bcrypt.compare).toHaveBeenCalledWith(
       params.password,
@@ -246,7 +246,7 @@ describe("User Service - loginUser", () => {
     expect(result.httpStatusCode).toBe(401);
     expect(result.message).toBe("BAD_CREDENTIALS");
     expect(result.tokenCreated).toBeUndefined();
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 401 when account is disabled", async () => {
@@ -271,7 +271,7 @@ describe("User Service - loginUser", () => {
     expect(result.httpStatusCode).toBe(401);
     expect(result.message).toBe("ACCOUNT_DISABLED");
     expect(result.tokenCreated).toBeUndefined();
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 402 when password is incorrect", async () => {
@@ -298,7 +298,7 @@ describe("User Service - loginUser", () => {
     expect(result.httpStatusCode).toBe(402);
     expect(result.message).toBe("BAD_CREDENTIALS");
     expect(result.tokenCreated).toBeUndefined();
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 
@@ -321,8 +321,8 @@ describe("User Service - listUsers", () => {
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("USERS_FOUND");
-    expect(result.users).toBeDefined();
-    expect(result.users).toHaveLength(2);
+    expect(result.data).toBeDefined();
+    expect(result.data).toHaveLength(2);
     expect(User.find).toHaveBeenCalled();
     expect(mockExec).toHaveBeenCalled();
   });
@@ -340,7 +340,7 @@ describe("User Service - listUsers", () => {
     // Assert
     expect(result.httpStatusCode).toBe(500);
     expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.users).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 
@@ -360,8 +360,8 @@ describe("User Service - listUserByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ENTITY_FOUND");
-    expect(result.user).toBeDefined();
-    expect(result.user?._id).toBe(mockUserRoleUser._id);
+    expect(result.data).toBeDefined();
+    expect(result.data?._id).toBe(mockUserRoleUser._id);
     expect(User.findById).toHaveBeenCalledWith(TEST_USER_ID);
   });
 
@@ -376,7 +376,7 @@ describe("User Service - listUserByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(404);
     expect(result.message).toBe("ENTITY_NOT_FOUND");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 500 when database error occurs", async () => {
@@ -390,7 +390,7 @@ describe("User Service - listUserByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(500);
     expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 
@@ -427,7 +427,7 @@ describe("User Service - updateUserDetailsByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ENTITY_UPDATED");
-    expect(result.user).toBeDefined();
+    expect(result.data).toBeDefined();
     expect(User.findById).toHaveBeenCalledWith(params.userId);
     expect(mockUser.save).toHaveBeenCalled();
   });
@@ -450,7 +450,7 @@ describe("User Service - updateUserDetailsByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(404);
     expect(result.message).toBe("ENTITY_NOT_FOUND");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 400 when email already exists", async () => {
@@ -479,7 +479,7 @@ describe("User Service - updateUserDetailsByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("EMAIL_EXISTS");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 
@@ -523,7 +523,7 @@ describe("User Service - updateUserPasswordByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(200);
     expect(result.message).toBe("ENTITY UPDATED");
-    expect(result.user).toBeDefined();
+    expect(result.data).toBeDefined();
     expect(User.findById).toHaveBeenCalledWith(params.userId);
     expect(bcrypt.compare).toHaveBeenCalledWith(
       params.user.password,
@@ -556,7 +556,7 @@ describe("User Service - updateUserPasswordByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(404);
     expect(result.message).toBe("ENTITY_NOT_FOUND");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 
   it("should return 400 when current password is incorrect", async () => {
@@ -585,7 +585,7 @@ describe("User Service - updateUserPasswordByID", () => {
     // Assert
     expect(result.httpStatusCode).toBe(400);
     expect(result.message).toBe("BAD_CREDENTIALS");
-    expect(result.user).toBeUndefined();
+    expect(result.data).toBeUndefined();
   });
 });
 

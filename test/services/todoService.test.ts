@@ -43,7 +43,7 @@ describe("TodoService Unit Tests", () => {
       // Assert
       expect(result.httpStatusCode).toBe(200);
       expect(result.message).toBe("TASKS_FOUND");
-      expect(result.todos).toHaveLength(2);
+      expect(result.data).toHaveLength(2);
       expect(mockTodoModel.find).toHaveBeenCalledWith({
         owner: mockRequest.owner,
       });
@@ -120,7 +120,7 @@ describe("TodoService Unit Tests", () => {
       // Assert
       expect(result.httpStatusCode).toBe(200);
       expect(result.message).toBe("ENTITY_FOUND");
-      expect(result.todo).toBeDefined();
+      expect(result.data).toBeDefined();
       expect(result.todo!._id).toEqual(mockTodoRoleUser._id);
     });
 
@@ -204,7 +204,7 @@ describe("TodoService Unit Tests", () => {
       // Assert
       expect(result.httpStatusCode).toBe(200);
       expect(result.message).toBe("TODO_CREATED");
-      expect(result.todo).toBeDefined();
+      expect(result.data).toBeDefined();
 
       if (result.todo) {
         result.todo = savedTodo;
@@ -287,7 +287,7 @@ describe("TodoService Unit Tests", () => {
       // Assert
       expect(result.httpStatusCode).toBe(200);
       expect(result.message).toBe("ENTITY_UPDATED");
-      expect(result.todo).toBeDefined();
+      expect(result.data).toBeDefined();
       expect(result.todo!.title).toBe(mockRequest.todo.title);
     });
 
