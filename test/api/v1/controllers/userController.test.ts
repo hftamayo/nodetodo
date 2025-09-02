@@ -1,7 +1,7 @@
 import { Response } from "express";
-import userController from "../../../../src/api/v1/controllers/userController";
-import { mockUserRoleUser, mockUserRoleSupervisor } from "../../../mocks/user.mock";
-import { mockRolesData } from "../../../mocks/role.mock";
+import userController from "../../src/api/v1/controllers/userController";
+import { mockUserRoleUser, mockUserRoleSupervisor } from "../mocks/user.mock";
+import { mockRolesData } from "../mocks/role.mock";
 import {
   AuthenticatedUserRequest,
   UserServices,

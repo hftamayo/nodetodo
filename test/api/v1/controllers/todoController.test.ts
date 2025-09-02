@@ -6,9 +6,9 @@ import {
   ListTodosByOwnerRequest,
   ListTodoByOwnerRequest,
 } from "@/types/todo.types";
-import todoController from "../../../../src/api/v1/controllers/todoController";
-import { mockTodoRoleUser, mockTodoRoleSupervisor } from "../../../mocks/todo.mock";
-import { mockUserRoleUser } from "../../../mocks/user.mock";
+import todoController from "../../src/api/v1/controllers/todoController";
+import { mockTodoRoleUser, mockTodoRoleSupervisor } from "../mocks/todo.mock";
+import { mockUserRoleUser } from "../mocks/user.mock";
 
 jest.mock("@/services/todoService");
 
