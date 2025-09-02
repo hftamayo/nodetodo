@@ -1,4 +1,4 @@
-import { ErrorResponseDto } from '../../src/dto/errorResponseDto';
+import { ErrorResponseDto } from '../../../../src/api/v1/dto/error/ErrorResponse.dto';
 
 describe('ErrorResponseDto', () => {
   describe('constructor', () => {

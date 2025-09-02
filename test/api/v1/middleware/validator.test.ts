@@ -1,7 +1,7 @@
 import { validationResult, ValidationChain } from "express-validator";
 import request from "supertest";
 import express, { Request, Response } from "express";
-import validator from "../../src/api/middleware/validator";
+import validator from "../../../../src/api/v1/middleware/validator";
 
 const app = express();
 app.use(express.json());

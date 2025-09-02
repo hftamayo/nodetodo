@@ -1,9 +1,9 @@
 import request from "supertest";
 import express from "express";
-import hcController from "../../src/api/controllers/hcController";
-import hcRouter from "@/api/routes/hc.routes";
+import hcController from "../../../../src/api/v1/controllers/hcController";
+import hcRouter from "@/api/v1/routes/hc.routes";
 
-jest.mock("../../src/api/controllers/hcController");
+jest.mock("../../../../src/api/v1/controllers/hcController");
 
 const app = express();
 app.use("/healthcheck", hcRouter);

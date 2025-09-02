@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { RoleServices, ListRolesRequest } from "@/types/role.types";
 import roleController from "@/api/v1/controllers/roleController";
-import { mockRolesData } from "../mocks/role.mock";
+import { mockRolesData } from "../../../mocks/role.mock";
 
 type MockedRoleServices = {
   [K in keyof RoleServices]: jest.Mock<

@@ -1,5 +1,5 @@
-import { PaginationDto } from '../../src/dto/paginationDto';
-import { examplePagination } from '../mocks/pagination.mock';
+import { PaginationDto } from '../../../../src/api/v1/dto/pagination/pagination.dto';
+import { examplePagination } from '../../../mocks/pagination.mock';
 
 describe('PaginationDto', () => {
   it('should create a PaginationDto with all required fields', () => {
