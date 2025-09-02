@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { RoleServices, ListRolesRequest } from "@/types/role.types";
-import roleController from "@/api/controllers/roleController";
+import roleController from "@/api/v1/controllers/roleController";
 import { mockRolesData } from "../mocks/role.mock";
 
 type MockedRoleServices = {

@@ -6,7 +6,7 @@ import {
   ListTodosByOwnerRequest,
   ListTodoByOwnerRequest,
 } from "@/types/todo.types";
-import todoController from "../../src/api/controllers/todoController";
+import todoController from "../../src/api/v1/controllers/todoController";
 import { mockTodoRoleUser, mockTodoRoleSupervisor } from "../mocks/todo.mock";
 import { mockUserRoleUser } from "../mocks/user.mock";
 
