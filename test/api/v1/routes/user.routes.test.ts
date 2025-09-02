@@ -2,17 +2,18 @@ import request from "supertest";
 import express from "express";
 
 // Mock middleware
-jest.mock("@middleware/authorize", () => () => (req: any, res: any, next: any) => next());
-jest.mock("@middleware/validator", () => ({
+jest.mock("@/api/v1/middleware/authorize", () => () => (req: any, res: any, next: any) => next());
+jest.mock("@/api/v1/middleware/validator", () => ({
   registerRules: [(req: any, res: any, next: any) => next()],
   loginRules: [(req: any, res: any, next: any) => next()],
   updateDetailsRules: [(req: any, res: any, next: any) => next()],
   updatePasswordRules: [(req: any, res: any, next: any) => next()],
 }));
-jest.mock("@middleware/validationResults", () => (req: any, res: any, next: any) => next());
-jest.mock("@middleware/rateLimiter", () => ({
+jest.mock("@/api/v1/middleware/validationResults", () => (req: any, res: any, next: any) => next());
+jest.mock("@/api/v1/middleware/ratelimit", () => ({
   signUpLimiter: (req: any, res: any, next: any) => next(),
   loginLimiter: (req: any, res: any, next: any) => next(),
+  userLimiter: (req: any, res: any, next: any) => next(),
 }));
 
 // Mock controller factory and its methods
@@ -25,7 +26,7 @@ const mockUpdateUserDetailsHandler = jest.fn((req: any, res: any) => res.status(
 const mockUpdateUserPasswordHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "updateUserPasswordHandler called" }));
 const mockDeleteUserHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "deleteUserHandler called" }));
 
-jest.mock("@controllers/userController", () => () => ({
+jest.mock("@/api/v1/controllers/userController", () => () => ({
   signUpHandler: mockSignUpHandler,
   loginHandler: mockLoginHandler,
   logoutHandler: mockLogoutHandler,
@@ -36,7 +37,7 @@ jest.mock("@controllers/userController", () => () => ({
   deleteUserHandler: mockDeleteUserHandler,
 }));
 
-import userRouter from "@/api/routes/user.routes";
+import userRouter from "@/api/v1/routes/user.routes";
 
 const app = express();
 app.use(express.json());

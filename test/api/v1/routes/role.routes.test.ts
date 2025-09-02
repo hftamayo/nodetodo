@@ -2,12 +2,15 @@ import request from "supertest";
 import express from "express";
 
 // Mock middleware
-jest.mock("@middleware/authorize", () => () => (req: any, res: any, next: any) => next());
-jest.mock("@middleware/validator", () => ({
+jest.mock("@/api/v1/middleware/authorize", () => () => (req: any, res: any, next: any) => next());
+jest.mock("@/api/v1/middleware/validator", () => ({
   createRoleRules: [(req: any, res: any, next: any) => next()],
   updateRoleRules: [(req: any, res: any, next: any) => next()],
 }));
-jest.mock("@middleware/validationResults", () => (req: any, res: any, next: any) => next());
+jest.mock("@/api/v1/middleware/validationResults", () => (req: any, res: any, next: any) => next());
+jest.mock("@/api/v1/middleware/ratelimit", () => ({
+  supervisorLimiter: (req: any, res: any, next: any) => next(),
+}));
 
 // Mock controller factory and its methods
 const mockGetRolesHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "getRolesHandler called" }));
@@ -16,7 +19,7 @@ const mockNewRoleHandler = jest.fn((req: any, res: any) => res.status(201).json(
 const mockUpdateRoleHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "updateRoleHandler called" }));
 const mockDeleteRoleHandler = jest.fn((req: any, res: any) => res.status(200).json({ message: "deleteRoleHandler called" }));
 
-jest.mock("@controllers/roleController", () => () => ({
+jest.mock("@/api/v1/controllers/roleController", () => () => ({
   getRolesHandler: mockGetRolesHandler,
   getRoleHandler: mockGetRoleHandler,
   newRoleHandler: mockNewRoleHandler,
@@ -24,7 +27,7 @@ jest.mock("@controllers/roleController", () => () => ({
   deleteRoleHandler: mockDeleteRoleHandler,
 }));
 
-import roleRouter from "@/api/routes/role.routes";
+import roleRouter from "@/api/v1/routes/role.routes";
 
 const app = express();
 app.use(express.json());

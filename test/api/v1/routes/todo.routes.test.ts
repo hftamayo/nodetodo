@@ -3,20 +3,23 @@ import express from "express";
 
 // Mock middleware
 jest.mock(
-  "@middleware/authorize",
+  "@/api/v1/middleware/authorize",
   () => () => (req: any, res: any, next: any) => {
     req.user = { sub: "test-user-id" };
     next();
   }
 );
-jest.mock("@middleware/validator", () => ({
+jest.mock("@/api/v1/middleware/validator", () => ({
   createTodoRules: [(req: any, res: any, next: any) => next()],
   updateTodoRules: [(req: any, res: any, next: any) => next()],
 }));
 jest.mock(
-  "@middleware/validationResults",
+  "@/api/v1/middleware/validationResults",
   () => (req: any, res: any, next: any) => next()
 );
+jest.mock("@/api/v1/middleware/ratelimit", () => ({
+  userLimiter: (req: any, res: any, next: any) => next(),
+}));
 
 // Mock todoService
 jest.mock("@services/todoService", () => ({
@@ -44,7 +47,7 @@ const mockDeleteTodoHandler = jest.fn((req: any, res: any) =>
   res.status(200).json({ message: "deleteTodoHandler called" })
 );
 
-jest.mock("@controllers/todoController", () => () => ({
+jest.mock("@/api/v1/controllers/todoController", () => () => ({
   getTodosHandler: mockGetTodosHandler,
   getTodoHandler: mockGetTodoHandler,
   newTodoHandler: mockNewTodoHandler,
@@ -52,7 +55,7 @@ jest.mock("@controllers/todoController", () => () => ({
   deleteTodoHandler: mockDeleteTodoHandler,
 }));
 
-import todoRouter from "@/api/routes/todo.routes";
+import todoRouter from "@/api/v1/routes/todo.routes";
 
 const app = express();
 app.use(express.json());
@@ -63,13 +66,6 @@ afterEach(() => {
 });
 
 describe("Todo Router", () => {
-  it("DEBUG: should see what error we're getting", async () => {
-    const response = await request(app).get("/todos/list");
-    console.log("Status:", response.status);
-    console.log("Body:", response.body);
-    console.log("Headers:", response.headers);
-  });
-
   it("should call getTodosHandler on GET /todos/list", async () => {
     const response = await request(app).get("/todos/list");
     expect(response.status).toBe(200);
