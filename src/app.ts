@@ -1,14 +1,18 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { dbConnection, setCorsEnviro } from "@config/setup";
 import { port, mode } from "@config/envvars";
 
 import seedDatabase from "@utils/seedDatabase";
-import todosRoutes from "@routes/todo.routes";
-import rolesRoutes from "@routes/role.routes";
-import usersRoutes from "@routes/user.routes";
-import healthCheckRoutes from "@routes/hc.routes";
+import todosRoutes from "@/api/v1/routes/todo.routes";
+import rolesRoutes from "@/api/v1/routes/role.routes";
+import usersRoutes from "@/api/v1/routes/user.routes";
+import healthCheckRoutes from "@/api/v1/routes/hc.routes";
+import {
+  addRateLimitHeadersMiddleware,
+  rateLimitErrorHandler,
+} from "@/api/v1/middleware/ratelimit";
 
 const app = express();
 
@@ -23,19 +27,19 @@ async function startApp() {
     app.use(express.urlencoded({ extended: true })); //cuando false?
     app.use(cookieParser()); //parsea cookie headers y populate req.cookies
 
-    //I live this method in case of request monitoring
-    app.use((req: Request, res: Response, next: NextFunction) => {
-      console.log("Request received: ", req.method, req.url);
-      console.log("Request headers: ", req.headers);
-      next();
-    });
+    // Add rate limiting headers to all responses
+    app.use(addRateLimitHeadersMiddleware);
 
     await seedDatabase();
 
-    app.use("/nodetodo/healthcheck", healthCheckRoutes);
-    app.use("/nodetodo/roles", rolesRoutes);
-    app.use("/nodetodo/users", usersRoutes);
-    app.use("/nodetodo/todos", todosRoutes);
+    app.use("/nodetodo/v1/healthcheck", healthCheckRoutes);
+    app.use("/nodetodo/v1/roles", rolesRoutes);
+    app.use("/nodetodo/v1/users", usersRoutes);
+    app.use("/nodetodo/v1/todos", todosRoutes);
+
+    // Rate limit error handling middleware (must come before general error handler)
+    app.use(rateLimitErrorHandler);
+
     // Error handling middleware
     app.use((error: any, res: Response) => {
       console.error("Error middleware: ", error.message);

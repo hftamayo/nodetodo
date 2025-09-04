@@ -1,4 +1,6 @@
 import mongoose, { Document } from "mongoose";
+import { PaginatedResponseDTO } from "@/api/v1/dto/pagination/pagination.dto";
+import { ErrorResponseDTO } from "@/api/v1/dto/error/ErrorResponse.dto";
 
 export interface RoleDocument extends Document {
   name: string;
@@ -36,8 +38,12 @@ export type NewRoleRequest = {
 };
 
 export type ListRolesRequest = {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
+  cursor?: string;
+  sort?: string;
+  order?: "asc" | "desc";
+  filters?: Record<string, any>;
 };
 
 export type RoleIdRequest = {
@@ -50,39 +56,21 @@ export type UpdateRoleRequest = {
 
 export type FilteredRole = Omit<FullRole, "createdAt" | "updatedAt">;
 
-export type CreateRoleResponse = {
+export type ApiResponse<T> = {
   httpStatusCode: number;
   message: string;
-  role?: FilteredRole;
+  data?: T;
 };
 
-export type ListRolesResponse = {
-  httpStatusCode: number;
-  message: string;
-  roles?: FilteredRole[];
-};
-
-export type ListRoleResponse = {
-  httpStatusCode: number;
-  message: string;
-  role?: FilteredRole;
-};
-
-export type UpdateRoleResponse = {
-  httpStatusCode: number;
-  message: string;
-  role?: FilteredRole;
-};
-
-export type DeleteRoleResponse = {
-  httpStatusCode: number;
-  message: string;
-};
+export type EntityResponse = ApiResponse<FilteredRole>;
+export type DeleteResponse = ApiResponse<null>;
 
 export type RoleServices = {
-  createRole: (params: NewRoleRequest) => Promise<CreateRoleResponse>;
-  listRoles: (params: ListRolesRequest) => Promise<ListRolesResponse>;
-  listRoleByID: (params: RoleIdRequest) => Promise<ListRoleResponse>;
-  updateRoleByID: (params: UpdateRoleRequest) => Promise<UpdateRoleResponse>;
-  deleteRoleByID: (params: RoleIdRequest) => Promise<DeleteRoleResponse>;
+  createRole: (params: NewRoleRequest) => Promise<EntityResponse>;
+  listRoles: (
+    params: ListRolesRequest
+  ) => Promise<PaginatedResponseDTO<FilteredRole> | ErrorResponseDTO>;
+  listRoleByID: (params: RoleIdRequest) => Promise<EntityResponse>;
+  updateRoleByID: (params: UpdateRoleRequest) => Promise<EntityResponse>;
+  deleteRoleByID: (params: RoleIdRequest) => Promise<DeleteResponse>;
 };

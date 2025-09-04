@@ -43,45 +43,20 @@ export type ListTodoByOwnerRequest = {
 
 export type FilteredTodo = Omit<FullTodo, "createdAt" | "updatedAt">;
 
-export type CreateTodoResponse = {
+export type ApiResponse<T> = {
   httpStatusCode: number;
   message: string;
-  todo?: FilteredTodo;
+  data?: T;
 };
 
-export type ListTodosByOwnerResponse = {
-  httpStatusCode: number;
-  message: string;
-  todos?: FilteredTodo[];
-};
-
-export type ListTodoByOwnerResponse = {
-  httpStatusCode: number;
-  message: string;
-  todo?: FilteredTodo;
-};
-
-export type UpdateTodoResponse = {
-  httpStatusCode: number;
-  message: string;
-  todo?: FilteredTodo;
-};
-
-export type DeleteTodoByIdResponse = {
-  httpStatusCode: number;
-  message: string;
-};
+export type EntityResponse = ApiResponse<FilteredTodo>;
+export type EntitiesResponse = ApiResponse<FilteredTodo[]>;
+export type DeleteResponse = ApiResponse<null>;
 
 export type TodoServices = {
-  listTodos: (
-    params: ListTodosByOwnerRequest
-  ) => Promise<ListTodosByOwnerResponse>;
-  listTodoByID: (
-    params: ListTodoByOwnerRequest
-  ) => Promise<ListTodoByOwnerResponse>;
-  createTodo: (params: NewTodoRequest) => Promise<CreateTodoResponse>;
-  updateTodoByID: (params: UpdateTodoRequest) => Promise<UpdateTodoResponse>;
-  deleteTodoByID: (
-    params: ListTodoByOwnerRequest
-  ) => Promise<DeleteTodoByIdResponse>;
+  listTodos: (params: ListTodosByOwnerRequest) => Promise<EntitiesResponse>;
+  listTodoByID: (params: ListTodoByOwnerRequest) => Promise<EntityResponse>;
+  createTodo: (params: NewTodoRequest) => Promise<EntityResponse>;
+  updateTodoByID: (params: UpdateTodoRequest) => Promise<EntityResponse>;
+  deleteTodoByID: (params: ListTodoByOwnerRequest) => Promise<DeleteResponse>;
 };
