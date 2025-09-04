@@ -2,16 +2,19 @@ import roleService from "@/services/roleService";
 import Role from "@/models/Role";
 import { RoleIdRequest, UpdateRoleRequest } from "@/types/role.types";
 import { mockRolesData } from "../mocks/role.mock";
+import { paginate } from "@/services/paginationService";
+import { 
+  singlePagePagination, 
+  emptyResultPagination,
+  mockPaginatedResponse,
+  mockEmptyPaginatedResponse
+} from "../mocks/pagination.mock";
+import { 
+  mockInternalServerErrorResponse 
+} from "../mocks/dto.mock";
 
 jest.mock("@/models/Role");
-
-// Helper functions for test setup
-const createMockMongooseChain = (mockExec: jest.Mock) => {
-  const mockLimit = jest.fn().mockReturnValue({ exec: mockExec });
-  const mockSkip = jest.fn().mockReturnValue({ limit: mockLimit });
-  const mockSort = jest.fn().mockReturnValue({ skip: mockSkip });
-  return { sort: mockSort };
-};
+jest.mock("@/services/paginationService");
 
 const createTestRole = (overrides = {}) => ({
   name: "Test Role",
@@ -51,21 +54,29 @@ describe("Role Service - listRoles", () => {
         role.name === "admin" ? { users: 7, roles: 7 } : { users: 1, roles: 1 },
     }));
 
-    const mockExec = jest.fn().mockResolvedValue(mockRoles);
-    (Role.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
+    const mockPaginatedResponseData = {
+      ...mockPaginatedResponse,
+      data: mockRoles,
+    };
+
+    (paginate as jest.Mock).mockResolvedValue(mockPaginatedResponseData);
 
     // Act
     const result = await roleService.listRoles(TEST_PAGINATION);
 
-    // Assert
-    expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ROLES_FOUND");
-    expect(result.data).toBeDefined();
-    expect(Array.isArray(result.roles)).toBe(true);
-    expect(result.roles!.length).toBe(mockRoles.length);
+    // Assert - listRoles returns PaginatedResponseDTO format
+    expect("data" in result).toBe(true);
+    expect("pagination" in result).toBe(true);
+    
+    const paginatedResult = result as any; // Type assertion after type guard
+    expect(Array.isArray(paginatedResult.data)).toBe(true);
+    expect(paginatedResult.data!.length).toBe(mockRoles.length);
+    expect(paginatedResult.pagination).toBeDefined();
+    expect(paginatedResult.etag).toBeDefined();
+    expect(paginatedResult.lastModified).toBeDefined();
 
     // Check individual roles and their permissions
-    result.roles?.forEach((role: any, index: number) => {
+    paginatedResult.data?.forEach((role: any, index: number) => {
       const expectedRole = mockRoles[index];
       expect(role._id).toBe(expectedRole._id);
       expect(role.name).toBe(expectedRole.name);
@@ -74,37 +85,50 @@ describe("Role Service - listRoles", () => {
       expect(role.permissions).toEqual(expectedRole.permissions);
     });
 
-    // Verify mongoose chain calls
-    expect(Role.find).toHaveBeenCalled();
-    expect(mockExec).toHaveBeenCalled();
+    // Verify paginate service was called
+    expect(paginate).toHaveBeenCalledWith(Role, {
+      page: 1,
+      limit: 10,
+      cursor: undefined,
+      sort: "createdAt",
+      order: "desc",
+      filters: {},
+    });
   });
 
   it("should return 404 when no roles are found", async () => {
     // Arrange
-    const mockExec = jest.fn().mockResolvedValue([]);
-    (Role.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
+    (paginate as jest.Mock).mockResolvedValue(mockEmptyPaginatedResponse);
 
     // Act
     const result = await roleService.listRoles(TEST_PAGINATION);
 
-    // Assert
-    expect(result.httpStatusCode).toBe(404);
-    expect(result.message).toBe("ROLES_NOT_FOUND");
-    expect(result.data).toBeUndefined();
+    // Assert - listRoles returns PaginatedResponseDTO format
+    expect("data" in result).toBe(true);
+    expect("pagination" in result).toBe(true);
+    
+    const paginatedResult = result as any; // Type assertion after type guard
+    expect(Array.isArray(paginatedResult.data)).toBe(true);
+    expect(paginatedResult.data!.length).toBe(0);
+    expect(paginatedResult.pagination).toBeDefined();
+    expect(paginatedResult.etag).toBeDefined();
   });
 
   it("should return 500 when database error occurs", async () => {
     // Arrange
-    const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
-    (Role.find as jest.Mock).mockReturnValue(createMockMongooseChain(mockExec));
+    (paginate as jest.Mock).mockResolvedValue(mockInternalServerErrorResponse);
 
     // Act
     const result = await roleService.listRoles(TEST_PAGINATION);
 
-    // Assert
-    expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.data).toBeUndefined();
+    // Assert - listRoles returns ErrorResponseDTO format on error
+    expect("code" in result).toBe(true);
+    expect("resultMessage" in result).toBe(true);
+    
+    const errorResult = result as any; // Type assertion after type guard
+    expect(errorResult.code).toBe(500);
+    expect(errorResult.resultMessage).toBe("UNKNOWN_SERVER_ERROR");
+    expect("data" in result).toBe(false);
   });
 });
 
@@ -161,10 +185,10 @@ describe("Role Service - listRoleByID", () => {
     const result = await roleService.listRoleByID(params);
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ENTITY_FOUND");
-    expect(result.role?._id).toBe(mockRole._id);
-    expect(result.role?.name).toBe(mockRole.name);
-    expect(result.role?.permissions).toEqual({
+    expect(result.message).toBe("Role retrieved successfully");
+    expect(result.data?._id).toBe(mockRole._id);
+    expect(result.data?.name).toBe(mockRole.name);
+    expect(result.data?.permissions).toEqual({
       users: 7,
       roles: 7,
     });
@@ -185,11 +209,11 @@ describe("Role Service - listRoleByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(404);
-    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.message).toBe("Role not found");
     expect(result.data).toBeUndefined();
   });
 
-  it("should return 500 when database error occurs", async () => {
+  it("should throw error when database error occurs", async () => {
     // Arrange
     const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
     (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
@@ -198,13 +222,8 @@ describe("Role Service - listRoleByID", () => {
       roleId: TEST_ROLE_ID,
     };
 
-    // Act
-    const result = await roleService.listRoleByID(params);
-
-    // Assert
-    expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.data).toBeUndefined();
+    // Act & Assert
+    await expect(roleService.listRoleByID(params)).rejects.toThrow("Database error");
   });
 });
 
@@ -240,9 +259,9 @@ describe("Role Service - createRole", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(201);
-    expect(result.message).toBe("ROLE_CREATED");
+    expect(result.message).toBe("Role created successfully");
     expect(result.data).toBeDefined();
-    expect(result.role?.name).toBe(params.role.name);
+    expect(result.data?.name).toBe(params.role.name);
     expect(Role.findOne).toHaveBeenCalledWith({ name: params.role.name });
     expect(mockFindOneExec).toHaveBeenCalled();
     expect(mockRole.save).toHaveBeenCalled();
@@ -264,8 +283,8 @@ describe("Role Service - createRole", () => {
     const result = await roleService.createRole(params);
 
     // Assert
-    expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("ROLE_ALREADY_EXISTS");
+    expect(result.httpStatusCode).toBe(409);
+    expect(result.message).toBe("Role with this name already exists");
     expect(result.data).toBeUndefined();
   });
 
@@ -282,11 +301,11 @@ describe("Role Service - createRole", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("MISSING_FIELDS");
+    expect(result.message).toBe("Missing required fields");
     expect(result.data).toBeUndefined();
   });
 
-  it("should return 500 when database error occurs", async () => {
+  it("should throw error when database error occurs", async () => {
     // Arrange
     const mockFindOneExec = jest.fn().mockResolvedValue(null);
     (Role.findOne as jest.Mock).mockReturnValue({ exec: mockFindOneExec });
@@ -302,13 +321,8 @@ describe("Role Service - createRole", () => {
       permissions: Object.fromEntries(mockRolesData[0].permissions),
     });
 
-    // Act
-    const result = await roleService.createRole(params);
-
-    // Assert
-    expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.data).toBeUndefined();
+    // Act & Assert
+    await expect(roleService.createRole(params)).rejects.toThrow("Database error");
   });
 });
 
@@ -344,9 +358,9 @@ describe("Role Service - updateRoleByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ROLE_UPDATED");
+    expect(result.message).toBe("Role updated successfully");
     expect(result.data).toBeDefined();
-    expect(result.role?.name).toBe(params.role.name);
+    expect(result.data?.name).toBe(params.role.name);
     expect(Role.findById).toHaveBeenCalledWith(params.role._id);
     expect(mockExec).toHaveBeenCalled();
   });
@@ -368,7 +382,7 @@ describe("Role Service - updateRoleByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(404);
-    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.message).toBe("Role not found");
     expect(result.data).toBeUndefined();
   });
 
@@ -385,7 +399,7 @@ describe("Role Service - updateRoleByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("MISSING_FIELDS");
+    expect(result.message).toBe("Missing required fields");
     expect(result.data).toBeUndefined();
   });
 
@@ -403,11 +417,11 @@ describe("Role Service - updateRoleByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("MISSING_FIELDS");
+    expect(result.message).toBe("Missing required fields");
     expect(result.data).toBeUndefined();
   });
 
-  it("should return 500 when database error occurs", async () => {
+  it("should throw error when database error occurs", async () => {
     // Arrange
     const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
     (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
@@ -419,13 +433,8 @@ describe("Role Service - updateRoleByID", () => {
       },
     };
 
-    // Act
-    const result = await roleService.updateRoleByID(params);
-
-    // Assert
-    expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("UNKNOWN_ERROR");
-    expect(result.data).toBeUndefined();
+    // Act & Assert
+    await expect(roleService.updateRoleByID(params)).rejects.toThrow("Database error");
   });
 
   it("should update only provided fields", async () => {
@@ -450,10 +459,10 @@ describe("Role Service - updateRoleByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ROLE_UPDATED");
-    expect(result.role?.name).toBe("Updated Role");
-    expect(result.role?.description).toBe(existingRole.description);
-    expect(result.role?.status).toBe(existingRole.status);
+    expect(result.message).toBe("Role updated successfully");
+    expect(result.data?.name).toBe("Updated Role");
+    expect(result.data?.description).toBe(existingRole.description);
+    expect(result.data?.status).toBe(existingRole.status);
   });
 });
 
@@ -480,7 +489,7 @@ describe("Role Service - deleteRoleByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ENTITY_DELETED");
+    expect(result.message).toBe("Role deleted successfully");
     expect(Role.findById).toHaveBeenCalledWith(params.roleId);
     expect(existingRole.deleteOne).toHaveBeenCalled();
   });
@@ -499,11 +508,11 @@ describe("Role Service - deleteRoleByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(404);
-    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.message).toBe("Role not found");
     expect(Role.findById).toHaveBeenCalledWith(params.roleId);
   });
 
-  it("should return 500 when database error occurs", async () => {
+  it("should throw error when database error occurs", async () => {
     // Arrange
     const mockExec = jest.fn().mockRejectedValue(new Error("Database error"));
     (Role.findById as jest.Mock).mockReturnValue({ exec: mockExec });
@@ -512,11 +521,7 @@ describe("Role Service - deleteRoleByID", () => {
       roleId: mockRolesData[0]._id.toString(),
     };
 
-    // Act
-    const result = await roleService.deleteRoleByID(params);
-
-    // Assert
-    expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("UNKNOWN_ERROR");
+    // Act & Assert
+    await expect(roleService.deleteRoleByID(params)).rejects.toThrow("Database error");
   });
 });

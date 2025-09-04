@@ -42,7 +42,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(200);
-      expect(result.message).toBe("TASKS_FOUND");
+      expect(result.message).toBe("Todos retrieved successfully");
       expect(result.data).toHaveLength(2);
       expect(mockTodoModel.find).toHaveBeenCalledWith({
         owner: mockRequest.owner,
@@ -70,7 +70,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(200);
-      expect(result.message).toBe("TASKS_FOUND");
+      expect(result.message).toBe("Todos retrieved successfully");
       expect(mockTodoModel.find).toHaveBeenCalledWith({
         owner: mockRequest.owner,
         completed: false,
@@ -98,7 +98,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(404);
-      expect(result.message).toBe("TASKS_NOT_FOUND");
+      expect(result.message).toBe("No todos found");
     });
   });
 
@@ -119,9 +119,9 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(200);
-      expect(result.message).toBe("ENTITY_FOUND");
+      expect(result.message).toBe("Todo retrieved successfully");
       expect(result.data).toBeDefined();
-      expect(result.todo!._id).toEqual(mockTodoRoleUser._id);
+      expect(result.data!._id).toEqual(mockTodoRoleUser._id);
     });
 
     it("should return 404 when todo is not found", async () => {
@@ -140,7 +140,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(404);
-      expect(result.message).toBe("ENTITY_NOT_FOUND");
+      expect(result.message).toBe("Todo not found");
     });
 
     it("should return 401 when todo is not owned by the user", async () => {
@@ -158,8 +158,8 @@ describe("TodoService Unit Tests", () => {
       const result = await todoService.listTodoByID(mockRequest);
 
       // Assert
-      expect(result.httpStatusCode).toBe(401);
-      expect(result.message).toBe("FORBIDDEN");
+      expect(result.httpStatusCode).toBe(403);
+      expect(result.message).toBe("Unauthorized access to todo");
     });
   });
 
@@ -188,9 +188,17 @@ describe("TodoService Unit Tests", () => {
       };
 
       const mockTodoInstance = {
+        _id: savedTodo._id,
+        title: savedTodo.title,
+        description: savedTodo.description,
+        completed: savedTodo.completed,
+        owner: savedTodo.owner,
         save: jest.fn().mockResolvedValue({
-          ...savedTodo,
-          toObject: () => savedTodo,
+          _id: savedTodo._id,
+          title: savedTodo.title,
+          description: savedTodo.description,
+          completed: savedTodo.completed,
+          owner: savedTodo.owner,
         }),
       };
 
@@ -202,16 +210,15 @@ describe("TodoService Unit Tests", () => {
       const result = await todoService.createTodo(mockRequest);
 
       // Assert
-      expect(result.httpStatusCode).toBe(200);
-      expect(result.message).toBe("TODO_CREATED");
+      expect(result.httpStatusCode).toBe(201);
+      expect(result.message).toBe("Todo created successfully");
       expect(result.data).toBeDefined();
 
-      if (result.todo) {
-        result.todo = savedTodo;
-        expect(result.todo.title).toBe(mockTodoRoleUser.title);
-        expect(result.todo.description).toBe(mockTodoRoleUser.description);
-        expect(result.todo.completed).toBe(mockTodoRoleUser.completed);
-        expect(result.todo.owner).toBe(mockTodoRoleUser.owner);
+      if (result.data) {
+        expect(result.data.title).toBe(mockTodoRoleUser.title);
+        expect(result.data.description).toBe(mockTodoRoleUser.description);
+        expect(result.data.completed).toBe(mockTodoRoleUser.completed);
+        expect(result.data.owner).toBe(mockTodoRoleUser.owner);
       }
     });
 
@@ -231,7 +238,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(400);
-      expect(result.message).toBe("MISSING_FIELDS");
+      expect(result.message).toBe("Missing required fields");
     });
 
     it("should return 400 when title is already taken", async () => {
@@ -253,8 +260,8 @@ describe("TodoService Unit Tests", () => {
       const result = await todoService.createTodo(mockRequest);
 
       // Assert
-      expect(result.httpStatusCode).toBe(400);
-      expect(result.message).toBe("TITLE_ALREADY_TAKEN");
+      expect(result.httpStatusCode).toBe(409);
+      expect(result.message).toBe("Todo with this title already exists");
     });
   });
 
@@ -286,9 +293,9 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(200);
-      expect(result.message).toBe("ENTITY_UPDATED");
+      expect(result.message).toBe("Todo updated successfully");
       expect(result.data).toBeDefined();
-      expect(result.todo!.title).toBe(mockRequest.todo.title);
+      expect(result.data!.title).toBe(mockRequest.todo.title);
     });
 
     it("should return 400 when required fields are missing", async () => {
@@ -305,7 +312,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(400);
-      expect(result.message).toBe("MISSING_FIELDS");
+      expect(result.message).toBe("Missing required fields or no updates provided");
     });
 
     it("should return 404 when todo is not found", async () => {
@@ -328,7 +335,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(404);
-      expect(result.message).toBe("ENTITY_NOT_FOUND");
+      expect(result.message).toBe("Todo not found");
     });
 
     it("should return 401 when todo is not owned by the user", async () => {
@@ -350,8 +357,8 @@ describe("TodoService Unit Tests", () => {
       const result = await todoService.updateTodoByID(mockRequest);
 
       // Assert
-      expect(result.httpStatusCode).toBe(401);
-      expect(result.message).toBe("FORBIDDEN");
+      expect(result.httpStatusCode).toBe(403);
+      expect(result.message).toBe("Unauthorized access to todo");
     });
   });
 
@@ -375,7 +382,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(200);
-      expect(result.message).toBe("ENTITY_DELETED");
+      expect(result.message).toBe("Todo deleted successfully");
     });
 
     it("should return 404 when todo is not found", async () => {
@@ -394,7 +401,7 @@ describe("TodoService Unit Tests", () => {
 
       // Assert
       expect(result.httpStatusCode).toBe(404);
-      expect(result.message).toBe("ENTITY_NOT_FOUND");
+      expect(result.message).toBe("Todo not found");
     });
 
     it("should return 401 when todo is not owned by the user", async () => {
@@ -412,8 +419,8 @@ describe("TodoService Unit Tests", () => {
       const result = await todoService.deleteTodoByID(mockRequest);
 
       // Assert
-      expect(result.httpStatusCode).toBe(401);
-      expect(result.message).toBe("FORBIDDEN");
+      expect(result.httpStatusCode).toBe(403);
+      expect(result.message).toBe("Unauthorized access to todo");
     });
   });
 });

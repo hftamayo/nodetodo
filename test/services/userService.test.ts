@@ -84,7 +84,7 @@ describe("User Service - signUpUser", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(201);
-    expect(result.message).toBe("USER_CREATED");
+    expect(result.message).toBe("User created successfully");
     expect(result.data).toBeDefined();
     expect(result.data?.name).toBe(params.name);
     expect(result.data?.email).toBe(params.email);
@@ -112,8 +112,8 @@ describe("User Service - signUpUser", () => {
     const result = await userService.signUpUser(params);
 
     // Assert
-    expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("EMAIL_EXISTS");
+    expect(result.httpStatusCode).toBe(409);
+    expect(result.message).toBe("User with this email already exists");
     expect(result.data).toBeUndefined();
   });
 
@@ -132,7 +132,7 @@ describe("User Service - signUpUser", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("PASSWORD_MISMATCH");
+    expect(result.message).toBe("Passwords do not match");
     expect(result.data).toBeUndefined();
   });
 
@@ -151,7 +151,7 @@ describe("User Service - signUpUser", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("MISSING_FIELDS");
+    expect(result.message).toBe("Missing required fields");
     expect(result.data).toBeUndefined();
   });
 
@@ -176,7 +176,7 @@ describe("User Service - signUpUser", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("ROLE_NOT_FOUND");
+    expect(result.message).toBe("Default user role not found");
     expect(result.data).toBeUndefined();
   });
 });
@@ -218,7 +218,7 @@ describe("User Service - loginUser", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("LOGIN_SUCCESS");
+    expect(result.message).toBe("Login successful");
     expect(result.tokenCreated).toBe("jwt-token");
     expect(result.data).toBeDefined();
     expect(User.findOne).toHaveBeenCalledWith({ email: params.email });
@@ -244,7 +244,7 @@ describe("User Service - loginUser", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(401);
-    expect(result.message).toBe("BAD_CREDENTIALS");
+    expect(result.message).toBe("Invalid credentials");
     expect(result.tokenCreated).toBeUndefined();
     expect(result.data).toBeUndefined();
   });
@@ -268,8 +268,8 @@ describe("User Service - loginUser", () => {
     const result = await userService.loginUser(params);
 
     // Assert
-    expect(result.httpStatusCode).toBe(401);
-    expect(result.message).toBe("ACCOUNT_DISABLED");
+    expect(result.httpStatusCode).toBe(403);
+    expect(result.message).toBe("Account is disabled");
     expect(result.tokenCreated).toBeUndefined();
     expect(result.data).toBeUndefined();
   });
@@ -295,8 +295,8 @@ describe("User Service - loginUser", () => {
     const result = await userService.loginUser(params);
 
     // Assert
-    expect(result.httpStatusCode).toBe(402);
-    expect(result.message).toBe("BAD_CREDENTIALS");
+    expect(result.httpStatusCode).toBe(401);
+    expect(result.message).toBe("Invalid credentials");
     expect(result.tokenCreated).toBeUndefined();
     expect(result.data).toBeUndefined();
   });
@@ -320,7 +320,7 @@ describe("User Service - listUsers", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("USERS_FOUND");
+    expect(result.message).toBe("Users retrieved successfully");
     expect(result.data).toBeDefined();
     expect(result.data).toHaveLength(2);
     expect(User.find).toHaveBeenCalled();
@@ -339,7 +339,7 @@ describe("User Service - listUsers", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("UNKNOWN_ERROR");
+    expect(result.message).toBe("Internal server error");
     expect(result.data).toBeUndefined();
   });
 });
@@ -359,7 +359,7 @@ describe("User Service - listUserByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ENTITY_FOUND");
+    expect(result.message).toBe("User retrieved successfully");
     expect(result.data).toBeDefined();
     expect(result.data?._id).toBe(mockUserRoleUser._id);
     expect(User.findById).toHaveBeenCalledWith(TEST_USER_ID);
@@ -375,7 +375,7 @@ describe("User Service - listUserByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(404);
-    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.message).toBe("User not found");
     expect(result.data).toBeUndefined();
   });
 
@@ -389,7 +389,7 @@ describe("User Service - listUserByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("UNKNOWN_ERROR");
+    expect(result.message).toBe("Internal server error");
     expect(result.data).toBeUndefined();
   });
 });
@@ -426,7 +426,7 @@ describe("User Service - updateUserDetailsByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ENTITY_UPDATED");
+    expect(result.message).toBe("User updated successfully");
     expect(result.data).toBeDefined();
     expect(User.findById).toHaveBeenCalledWith(params.userId);
     expect(mockUser.save).toHaveBeenCalled();
@@ -449,7 +449,7 @@ describe("User Service - updateUserDetailsByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(404);
-    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.message).toBe("User not found");
     expect(result.data).toBeUndefined();
   });
 
@@ -477,8 +477,8 @@ describe("User Service - updateUserDetailsByID", () => {
     const result = await userService.updateUserDetailsByID(params);
 
     // Assert
-    expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("EMAIL_EXISTS");
+    expect(result.httpStatusCode).toBe(409);
+    expect(result.message).toBe("Email already exists");
     expect(result.data).toBeUndefined();
   });
 });
@@ -522,7 +522,7 @@ describe("User Service - updateUserPasswordByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ENTITY UPDATED");
+    expect(result.message).toBe("Password updated successfully");
     expect(result.data).toBeDefined();
     expect(User.findById).toHaveBeenCalledWith(params.userId);
     expect(bcrypt.compare).toHaveBeenCalledWith(
@@ -555,7 +555,7 @@ describe("User Service - updateUserPasswordByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(404);
-    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.message).toBe("User not found");
     expect(result.data).toBeUndefined();
   });
 
@@ -583,8 +583,8 @@ describe("User Service - updateUserPasswordByID", () => {
     const result = await userService.updateUserPasswordByID(params);
 
     // Assert
-    expect(result.httpStatusCode).toBe(400);
-    expect(result.message).toBe("BAD_CREDENTIALS");
+    expect(result.httpStatusCode).toBe(401);
+    expect(result.message).toBe("Invalid current password");
     expect(result.data).toBeUndefined();
   });
 });
@@ -617,7 +617,7 @@ describe("User Service - deleteUserByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(200);
-    expect(result.message).toBe("ENTITY_DELETED");
+    expect(result.message).toBe("User deleted successfully");
     expect(User.findById).toHaveBeenCalledWith(TEST_USER_ID);
     expect(Todo.find).toHaveBeenCalledWith({ owner: mockUser });
     expect(Todo.deleteMany).toHaveBeenCalledWith({ owner: mockUser });
@@ -634,7 +634,7 @@ describe("User Service - deleteUserByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(404);
-    expect(result.message).toBe("ENTITY_NOT_FOUND");
+    expect(result.message).toBe("User not found");
   });
 
   it("should return 500 when database error occurs", async () => {
@@ -647,6 +647,6 @@ describe("User Service - deleteUserByID", () => {
 
     // Assert
     expect(result.httpStatusCode).toBe(500);
-    expect(result.message).toBe("UNKNOWN_ERROR");
+    expect(result.message).toBe("Internal server error");
   });
 });
