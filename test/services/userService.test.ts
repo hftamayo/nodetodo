@@ -21,6 +21,16 @@ jest.mock("bcrypt");
 jest.mock("jsonwebtoken");
 jest.mock("crypto");
 
+// Mock console.error to suppress expected error messages during testing
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
+
 // Helper functions for test setup
 const createMockMongooseChain = (mockExec: jest.Mock) => {
   const mockLimit = jest.fn().mockReturnValue({ exec: mockExec });

@@ -16,6 +16,16 @@ import {
 jest.mock("@/models/Role");
 jest.mock("@/services/paginationService");
 
+// Mock console.error to suppress expected error messages during testing
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
+
 const createTestRole = (overrides = {}) => ({
   name: "Test Role",
   description: "Test Description",

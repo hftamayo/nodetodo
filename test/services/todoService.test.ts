@@ -12,6 +12,16 @@ import todoService from "@/services/todoService";
 
 jest.mock("@/models/Todo");
 
+// Mock console.error to suppress expected error messages during testing
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
+
 describe("TodoService Unit Tests", () => {
   const mockTodoModel = Todo as jest.Mocked<typeof Todo>;
 
