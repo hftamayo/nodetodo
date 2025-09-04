@@ -1,6 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import authorize, { isAuthenticated } from "../../../../src/api/v1/middleware/authorize";
+import authorize, {
+  isAuthenticated,
+} from "../../../../src/api/v1/middleware/authorize";
 import { AuthenticatedUserRequest, JwtActiveSession } from "@/types/user.types";
 import User from "@models/User";
 import Role from "@models/Role";
@@ -37,7 +39,7 @@ describe("Authorize Middleware", () => {
 
     // Reset mocks
     jest.clearAllMocks();
-    
+
     // Mock masterKey
     (masterKey as any) = "test-master-key";
   });
@@ -45,7 +47,7 @@ describe("Authorize Middleware", () => {
   describe("isAuthenticated", () => {
     it("should return true when user has sub property", () => {
       const req = {
-        user: { sub: "123", role: "456" }
+        user: { sub: "123", role: "456" },
       } as AuthenticatedUserRequest;
 
       expect(isAuthenticated(req)).toBe(true);
@@ -59,7 +61,7 @@ describe("Authorize Middleware", () => {
 
     it("should return false when user.sub is undefined", () => {
       const req = {
-        user: { role: "456" }
+        user: { role: "456" },
       } as AuthenticatedUserRequest;
 
       expect(isAuthenticated(req)).toBe(false);
@@ -70,7 +72,7 @@ describe("Authorize Middleware", () => {
     describe("Token validation", () => {
       it("should return 401 when no token is provided", async () => {
         const middleware = authorize();
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -80,7 +82,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "malformed request: no token found"
+          resultMessage: "malformed request: no token found",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -88,9 +90,9 @@ describe("Authorize Middleware", () => {
       it("should return 401 when masterKey is not available", async () => {
         (masterKey as any) = undefined;
         mockRequest.cookies = { nodetodo: "valid-token" };
-        
+
         const middleware = authorize();
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -100,7 +102,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "malformed request: no masterKey present"
+          resultMessage: "malformed request: no masterKey present",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -110,9 +112,9 @@ describe("Authorize Middleware", () => {
         mockJwt.verify.mockImplementation(() => {
           throw new Error("Invalid token");
         });
-        
+
         const middleware = authorize();
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -122,7 +124,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "authentication verification failed"
+          resultMessage: "authentication verification failed",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -131,9 +133,9 @@ describe("Authorize Middleware", () => {
         mockRequest.cookies = { nodetodo: "valid-token" };
         const invalidDecoded = { sub: "123" }; // Missing role and sessionId
         mockJwt.verify.mockReturnValue(invalidDecoded as any);
-        
+
         const middleware = authorize();
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -143,7 +145,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "malformed request: missing fields in token"
+          resultMessage: "malformed request: missing fields in token",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -151,9 +153,9 @@ describe("Authorize Middleware", () => {
       it("should return 401 when decoded token is null", async () => {
         mockRequest.cookies = { nodetodo: "valid-token" };
         mockJwt.verify.mockReturnValue(null as any);
-        
+
         const middleware = authorize();
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -163,7 +165,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "malformed request: missing fields in token"
+          resultMessage: "malformed request: missing fields in token",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -178,17 +180,17 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(null)
-          })
+            exec: jest.fn().mockResolvedValue(null),
+          }),
         } as any);
-        
+
         const middleware = authorize();
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -198,7 +200,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "invalid request: user not found"
+          resultMessage: "invalid request: user not found",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -211,19 +213,19 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
-        
+
         const middleware = authorize();
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -232,7 +234,7 @@ describe("Authorize Middleware", () => {
 
         expect(mockRequest.user).toEqual({
           sub: "123",
-          role: "456"
+          role: "456",
         });
         expect(mockNext).toHaveBeenCalled();
         expect(mockStatus).not.toHaveBeenCalled();
@@ -248,19 +250,19 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
-        
+
         const middleware = authorize(); // No domain/permission
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -279,22 +281,22 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
         mockRole.findById.mockReturnValue({
-          exec: jest.fn().mockResolvedValue(null)
+          exec: jest.fn().mockResolvedValue(null),
         } as any);
-        
+
         const middleware = authorize("users", 1); // READ permission
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -304,7 +306,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "insufficient permissions: role not found"
+          resultMessage: "insufficient permissions: role not found",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -317,26 +319,26 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
         const mockRoleDoc = {
           _id: "456",
-          permissions: new Map([["users", 1]]) // Only READ permission
+          permissions: new Map([["users", 1]]), // Only READ permission
         };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
         mockRole.findById.mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockRoleDoc)
+          exec: jest.fn().mockResolvedValue(mockRoleDoc),
         } as any);
-        
+
         const middleware = authorize("users", 2); // WRITE permission (requires 2)
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -346,7 +348,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "insufficient permissions"
+          resultMessage: "insufficient permissions",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -359,26 +361,26 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
         const mockRoleDoc = {
           _id: "456",
-          permissions: new Map([["users", 7]]) // READ(1) + WRITE(2) + UPDATE(4) = 7
+          permissions: new Map([["users", 7]]), // READ(1) + WRITE(2) + UPDATE(4) = 7
         };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
         mockRole.findById.mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockRoleDoc)
+          exec: jest.fn().mockResolvedValue(mockRoleDoc),
         } as any);
-        
+
         const middleware = authorize("users", 2); // WRITE permission
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -397,26 +399,26 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
         const mockRoleDoc = {
           _id: "456",
-          permissions: new Map([["users", 7]]) // No "todos" domain
+          permissions: new Map([["users", 7]]), // No "todos" domain
         };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
         mockRole.findById.mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockRoleDoc)
+          exec: jest.fn().mockResolvedValue(mockRoleDoc),
         } as any);
-        
+
         const middleware = authorize("todos", 1); // READ permission on todos domain
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -426,7 +428,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "insufficient permissions"
+          resultMessage: "insufficient permissions",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -441,26 +443,26 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
         const mockRoleDoc = {
           _id: "456",
-          permissions: new Map([["users", 1]]) // Only READ
+          permissions: new Map([["users", 1]]), // Only READ
         };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
         mockRole.findById.mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockRoleDoc)
+          exec: jest.fn().mockResolvedValue(mockRoleDoc),
         } as any);
-        
+
         const middleware = authorize("users", 1); // READ permission
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -478,26 +480,26 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
         const mockRoleDoc = {
           _id: "456",
-          permissions: new Map([["users", 3]]) // READ(1) + WRITE(2) = 3
+          permissions: new Map([["users", 3]]), // READ(1) + WRITE(2) = 3
         };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
         mockRole.findById.mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockRoleDoc)
+          exec: jest.fn().mockResolvedValue(mockRoleDoc),
         } as any);
-        
+
         const middleware = authorize("users", 2); // WRITE permission
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -515,26 +517,26 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
         const mockRoleDoc = {
           _id: "456",
-          permissions: new Map([["users", 15]]) // ALL permissions
+          permissions: new Map([["users", 15]]), // ALL permissions
         };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
         mockRole.findById.mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockRoleDoc)
+          exec: jest.fn().mockResolvedValue(mockRoleDoc),
         } as any);
-        
+
         const middleware = authorize("users", 8); // DELETE permission
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -554,18 +556,18 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockRejectedValue(new Error("Database error"))
-          })
+            exec: jest.fn().mockRejectedValue(new Error("Database error")),
+          }),
         } as any);
-        
+
         const middleware = authorize();
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -575,7 +577,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "authentication verification failed"
+          resultMessage: "authentication verification failed",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });
@@ -588,22 +590,22 @@ describe("Authorize Middleware", () => {
           sessionId: "session-123",
           ver: "1.0",
           iat: 1234567890,
-          exp: 1234567890
+          exp: 1234567890,
         };
         const mockUserDoc = { _id: "123", name: "Test User" };
-        
+
         mockJwt.verify.mockReturnValue(validDecoded as any);
         mockUser.findById.mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockUserDoc)
-          })
+            exec: jest.fn().mockResolvedValue(mockUserDoc),
+          }),
         } as any);
         mockRole.findById.mockReturnValue({
-          exec: jest.fn().mockRejectedValue(new Error("Database error"))
+          exec: jest.fn().mockRejectedValue(new Error("Database error")),
         } as any);
-        
+
         const middleware = authorize("users", 1);
-        
+
         await middleware(
           mockRequest as AuthenticatedUserRequest,
           mockResponse as Response,
@@ -613,7 +615,7 @@ describe("Authorize Middleware", () => {
         expect(mockStatus).toHaveBeenCalledWith(401);
         expect(mockJson).toHaveBeenCalledWith({
           code: 401,
-          resultMessage: "authentication verification failed"
+          resultMessage: "authentication verification failed",
         });
         expect(mockNext).not.toHaveBeenCalled();
       });

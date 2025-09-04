@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { AuthenticatedUserRequest } from "@/types/user.types";
 
 // Mock the rate limit modules
@@ -52,13 +52,19 @@ describe("Rate Limiting Middleware", () => {
       // Simulate adding rate limit headers
       if (mockReq.rateLimit) {
         mockResponse.set?.("X-RateLimit-Limit", mockReq.rateLimit.limit);
-        mockResponse.set?.("X-RateLimit-Remaining", mockReq.rateLimit.remaining);
+        mockResponse.set?.(
+          "X-RateLimit-Remaining",
+          mockReq.rateLimit.remaining
+        );
         mockResponse.set?.("X-RateLimit-Reset", mockReq.rateLimit.reset);
       }
 
       expect(mockSet).toHaveBeenCalledWith("X-RateLimit-Limit", 100);
       expect(mockSet).toHaveBeenCalledWith("X-RateLimit-Remaining", 95);
-      expect(mockSet).toHaveBeenCalledWith("X-RateLimit-Reset", expect.any(Number));
+      expect(mockSet).toHaveBeenCalledWith(
+        "X-RateLimit-Reset",
+        expect.any(Number)
+      );
     });
 
     it("should handle rate limit exceeded scenario", () => {
@@ -111,17 +117,25 @@ describe("Rate Limiting Middleware", () => {
   describe("Rate Limit Configuration", () => {
     it("should have different access levels", () => {
       const accessLevels = ["user", "supervisor", "admin"];
-      
-      accessLevels.forEach(level => {
+
+      accessLevels.forEach((level) => {
         expect(level).toBeDefined();
         expect(typeof level).toBe("string");
       });
     });
 
     it("should have different rate limit types", () => {
-      const rateLimitTypes = ["global", "login", "signup", "api", "user", "supervisor", "admin"];
-      
-      rateLimitTypes.forEach(type => {
+      const rateLimitTypes = [
+        "global",
+        "login",
+        "signup",
+        "api",
+        "user",
+        "supervisor",
+        "admin",
+      ];
+
+      rateLimitTypes.forEach((type) => {
         expect(type).toBeDefined();
         expect(typeof type).toBe("string");
       });
@@ -153,7 +167,7 @@ describe("Rate Limiting Middleware", () => {
         { limit: 10, remaining: 0, shouldPass: false },
       ];
 
-      scenarios.forEach(scenario => {
+      scenarios.forEach((scenario) => {
         if (scenario.shouldPass) {
           expect(scenario.remaining).toBeGreaterThan(0);
         } else {
@@ -254,7 +268,10 @@ describe("Rate Limiting Middleware", () => {
 
       expect(mockSet).toHaveBeenCalledWith("X-RateLimit-Limit", "100");
       expect(mockSet).toHaveBeenCalledWith("X-RateLimit-Remaining", "95");
-      expect(mockSet).toHaveBeenCalledWith("X-RateLimit-Reset", expect.any(String));
+      expect(mockSet).toHaveBeenCalledWith(
+        "X-RateLimit-Reset",
+        expect.any(String)
+      );
     });
 
     it("should handle header setting errors gracefully", () => {
