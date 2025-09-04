@@ -1,5 +1,4 @@
 import { generateETag } from "@/utils/pagination/etag";
-import crypto from 'crypto';
 
 describe("ETag Generation Utils", () => {
   describe("generateETag", () => {
@@ -96,14 +95,20 @@ describe("ETag Generation Utils", () => {
     });
 
     it("should handle empty array", () => {
-      const data: Array<{ id: string | number; title: string; updatedAt: string }> = [];
+      const data: Array<{
+        id: string | number;
+        title: string;
+        updatedAt: string;
+      }> = [];
 
       const etag = generateETag(data);
 
       expect(etag).toBeDefined();
       expect(typeof etag).toBe("string");
       expect(etag).toMatch(/^W\/".*"$/);
-      expect(etag).toBe('W/"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"'); // SHA256 of empty string
+      expect(etag).toBe(
+        'W/"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"'
+      ); // SHA256 of empty string
     });
 
     it("should handle special characters in title", () => {
@@ -173,7 +178,7 @@ describe("ETag Generation Utils", () => {
       const etags = Array.from({ length: 10 }, () => generateETag(data));
 
       // All should be identical
-      etags.forEach(etag => {
+      etags.forEach((etag) => {
         expect(etag).toBe(etags[0]);
       });
     });
@@ -228,11 +233,14 @@ describe("ETag Generation Utils", () => {
     it("should always produce weak ETag format", () => {
       const testCases = [
         [{ id: "1", title: "A", updatedAt: "2024-01-01T00:00:00.000Z" }],
-        [{ id: "1", title: "A", updatedAt: "2024-01-01T00:00:00.000Z" }, { id: "2", title: "B", updatedAt: "2024-01-02T00:00:00.000Z" }],
+        [
+          { id: "1", title: "A", updatedAt: "2024-01-01T00:00:00.000Z" },
+          { id: "2", title: "B", updatedAt: "2024-01-02T00:00:00.000Z" },
+        ],
         [],
       ];
 
-      testCases.forEach(data => {
+      testCases.forEach((data) => {
         const etag = generateETag(data);
         expect(etag).toMatch(/^W\/".*"$/);
       });
@@ -301,7 +309,7 @@ describe("ETag Generation Utils", () => {
       const data = Array.from({ length: 1000 }, (_, i) => ({
         id: `item-${i}`,
         title: `Title ${i}`,
-        updatedAt: `2024-01-01T00:00:${i.toString().padStart(2, '0')}.000Z`,
+        updatedAt: `2024-01-01T00:00:${i.toString().padStart(2, "0")}.000Z`,
       }));
 
       const etag = generateETag(data);
