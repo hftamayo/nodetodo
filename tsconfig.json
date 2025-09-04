@@ -27,7 +27,7 @@
     },
     //"rootDir": "./src",
     "outDir": "./dist",
-    "rootDir": "./src" /* Specify the root folder within your source files. */,
+    // "rootDir": "./src" /* Specify the root folder within your source files. */,
     "moduleResolution": "node",
     "target": "es2017" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
     // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
