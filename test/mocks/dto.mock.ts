@@ -14,7 +14,6 @@ export const mockUsersResponseDTO = new UsersResponseDTO({
   _id: mockUserRoleUser._id,
   name: mockUserRoleUser.name,
   email: mockUserRoleUser.email,
-  age: mockUserRoleUser.age,
   role: mockUserRoleUser._id,
   status: true,
 });
@@ -33,7 +32,6 @@ export const mockTodosResponseDTO = new TodosResponseDTO({
   description: mockTodos[0].description,
   completed: mockTodos[0].completed,
   owner: mockTodos[0].owner,
-  updatedAt: mockTodos[0].updatedAt,
 });
 
 // Health Check Response Mocks
@@ -163,7 +161,6 @@ export const mockMultipleUsersResponseDTO = [
     _id: mockUserRoleUser._id,
     name: mockUserRoleUser.name,
     email: mockUserRoleUser.email,
-    age: mockUserRoleUser.age,
     role: mockUserRoleUser._id,
     status: true,
   }),
@@ -171,7 +168,6 @@ export const mockMultipleUsersResponseDTO = [
     _id: mockUserRoleSupervisor._id,
     name: mockUserRoleSupervisor.name,
     email: mockUserRoleSupervisor.email,
-    age: mockUserRoleSupervisor.age,
     role: mockUserRoleSupervisor._id,
     status: true,
   }),
@@ -194,7 +190,6 @@ export const mockMultipleTodosResponseDTO = mockTodos.map(todo =>
     description: todo.description,
     completed: todo.completed,
     owner: todo.owner,
-    updatedAt: todo.updatedAt,
   })
 );
 
