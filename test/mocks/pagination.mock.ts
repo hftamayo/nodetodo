@@ -127,6 +127,21 @@ export const emptyResultPagination = {
   isLastPage: true
 };
 
+// Paginated Response Mocks
+export const mockPaginatedResponse = {
+  data: [],
+  pagination: singlePagePagination,
+  etag: 'W/"test-etag"',
+  lastModified: "2023-01-01T00:00:00.000Z",
+};
+
+export const mockEmptyPaginatedResponse = {
+  data: [],
+  pagination: emptyResultPagination,
+  etag: 'W/"empty-etag"',
+  lastModified: undefined,
+};
+
 // Collection of all pagination scenarios
 export const paginationScenarios = {
   example: examplePagination,
