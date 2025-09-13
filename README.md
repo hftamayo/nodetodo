@@ -1,66 +1,262 @@
-# Tasks and Reminders Application #
+# 1. Overview
 
-Application which help the user to manage tasks and reminders. This repo belongs to the BackEnd of the Application
+Restful API for managing tasks assigned to users.
 
-## Concept ##
-- Categorize tasks and reminders 
-- Add a new Task / Reminder
-- Update status (finished / ongoing)
-- Delete permanently a task / reminder
+---
 
+# 2. Level of complexity
 
-## Technical Details ##
+==BEGINNER==: this version is properly for developer technical skills in the use of the technical stack, it is the foundational part for building projects of more complexity.
 
-### Technical Stack ###
-* Data storage: MongoDB
-* FrontEnd: React JS, [please check this repo](https://github.com/hftamayo/reacttodo) 
-* BackEnd: NodeJS
-* Render Framework: Express
-* Architecture: To be defined 
-* Rate Limiting: express-rate-limit (for enterprise project please check "rate-limiter-flexible")
-* Testing: on Oldstable branch you can find unit and integration testing routines using Mocha and Chai, one key 
-  element was to use the dependency injection pattern on the controller and routes modules. After the migration to
-  Typescript the test framework is Jest, please refer to the branch jestunstable. If in a near future I decide to 
-  try playwright a branch will be created for this purpose.
+---
 
-### Available Functions ###
-* Add a new task
-* Display tasks
-* Update status
-* Delete a Task
+# 3. Major Releases Timeline
 
+## 0.2.0
 
-## Branches ##
-* Oldmain : deprecated versions of the project
-* main: current or latest official version
-* Unstable: sourcecode that is in progress of testing
-* oldstable: testing routines using deprecated test frameworks
-* Experimental: sourcecode in progress
+- Released on September 2025
+- Unit tested
+- Spec coverage of 55%
 
-## Proof of Concept ##
-[Todo]
+## 0.1.5
 
+- Special features such as rate limiting
 
-## Bugs ##
-Please refer to the Issues section in this repository
+---
 
-## References ##
-* Testing [Test a Restful API with Mocha and Chai](https://www.digitalocean.com/community/tutorials/test-a-node-restful-api-with-mocha-and-chai)
+# 4. Architectural Diagram
 
+## Technology Stack
 
-## Log releases ##
-### 0.0.1 Version ###
-- Released on: Feb 6th 2024
-- CommonJS modules
-- Unit and integration testing written in Chai + Mocha
-- Commit ID: [f98ec2b](https://github.com/hftamayo/nodetodo/commit/f98ec2b594dfc93271d52d34ffca0ced4fcf1d59)
+| Category           | Technologies                                             |
+| ------------------ | -------------------------------------------------------- |
+| **Core Runtime**   | Node.js ≥20.11.0                                         |
+| **Language**       | TypeScript                                               |
+| **Framework**      | Express.js                                               |
+| **Database**       | MongoDB with Mongoose                                    |
+| **Authentication** | JWT-based auth with role-based access control            |
+| **Testing**        | Jest with comprehensive unit, integration, and E2E tests |
+| **API Design**     | RESTful API with structured response formatting          |
 
-### 0.0.2 Version ###
-- Released on: Jun 10th 2024
-- ES Modules
-- Full Typescript support
-- Commit ID: [70e6186](https://github.com/hftamayo/nodetodo/commit/70e6186b89ff4912a3c17745403db35685aa824a): typescript -> experimental -> main
+## Complete System Architecture
 
-### 0.1.2 Version ###
-- Released on:
-- Unit and Integration testing written in Jest
+```mermaid
+    class Docker,Gin infrastructure
+```
+
+## Data Flow Diagram
+
+```mermaid
+sequenceDiagram
+```
+
+## Cache Strategy Diagram
+
+```mermaid
+
+    end
+```
+
+## Rate Limiting Flow
+
+```mermaid
+    M --> O[Client Waits]
+```
+
+---
+
+# 5. Technical Specs
+
+## 5.1 Architectural Pattern: MVC
+
+### Core Principles in This Project
+
+- **Modular Design**: Clear separation of routes, controllers, and services
+- **Path Aliasing**: Type-safe import aliases for better code organization
+- **Comprehensive Testing**: Unit, integration, and E2E test suites
+- **Environment Support**: Development and production environment configurations
+- **Error Handling**: Consistent error management across the application
+- **Database Seeding**: Automated data seeding for development and testing
+
+### Security Features
+
+- CORS protection
+- Cookie parsing and security
+- Secure authentication flow
+- Role-based access control
+- Input validation
+- Proper error handling without leaking sensitive information
+
+### Architectural Layers
+
+1.  **MVC Pattern**: Clear separation of Models (data), Controllers (request handling), and Views (response formatting)
+
+2.  **Repository Pattern**: Service layer abstracts database operations from business logic
+
+3.  **Dependency Injection**: Controllers receive services as dependencies for better testability
+
+4.  **Factory Pattern**: Used for creating test mocks and configuration objects
+
+5.  **Middleware Pattern**: Composable request processing pipeline for authentication, logging, and error handling
+
+6.  **Singleton Pattern**: Single database connection shared across the application
+
+7.  **Strategy Pattern**: Different response strategies based on HTTP status codes
+
+8.  **Adapter Pattern**: Standardized response format across different API endpoints
+
+9.  **Observer Pattern**: Event-based error logging and request monitoring
+
+### Flow of Control
+
+External requests → Primary Adapters → Primary Ports → Domain Logic → Secondary Ports → Secondary Adapters → External systems
+
+### Core Domain Features
+
+- **Todo Management**: Create, retrieve, update, and delete todos
+
+- **User Management**: User authentication and authorization
+
+- **Role Management**: Role-based access control with granular permissions
+
+- **Health Checks**: API self-monitoring endpoints
+
+---
+
+# 6. API Endpoints (Primary Adapters)
+
+| Endpoint                | Method | Hexagonal Role                     | Cache Strategy                 | Rate Limit |
+| ----------------------- | ------ | ---------------------------------- | ------------------------------ | ---------- |
+| `/tasks/task`           | GET    | Primary adapter → TaskService port | 30s with ETag                  | 100/min    |
+| `/tasks/task/list/page` | GET    | Primary adapter → TaskService port | 30s with ETag                  | 100/min    |
+| `/tasks/task/:id`       | GET    | Primary adapter → TaskService port | 30s with ETag                  | 100/min    |
+| `/tasks/task`           | POST   | Primary adapter → TaskService port | Invalidates list caches        | 30/min     |
+| `/tasks/task/:id`       | PUT    | Primary adapter → TaskService port | Invalidates specific caches    | 30/min     |
+| `/tasks/task/:id/done`  | PUT    | Primary adapter → TaskService port | Invalidates specific caches    | 30/min     |
+| `/tasks/task/:id`       | DELETE | Primary adapter → TaskService port | Invalidates all related caches | 30/min     |
+
+---
+
+# 7. Request/Response Format (Domain Translation)
+
+### Task DTO (Data Transfer Object)
+
+```json
+{
+  "id": 1,
+  "title": "Task title",
+  "description": "Task description",
+  "done": false,
+  "owner": 1,
+  "created_at": "2023-06-05T10:15:30Z",
+  "updated_at": "2023-06-05T10:15:30Z"
+}
+```
+
+### Success Response (Adapter Translation Layer)
+
+```json
+{
+  "code": 200,
+  "resultMessage": "SUCCESS",
+  "data": {
+    /* domain object converted to DTO */
+  },
+  "timestamp": 1686061234,
+  "cacheTTL": 30
+}
+```
+
+### Error Response (Adapter Translation Layer)
+
+```json
+{
+  "code": 400,
+  "resultMessage": "OPERATION_FAILED",
+  "error": "Error description"
+}
+```
+
+# 8. Special features:
+
+## Rate Limiting in Hexagonal Context
+
+- **Cross-cutting Concern**: Implemented as middleware (outside the hexagon)
+- **Primary Adapter Extension**: Enhances HTTP handling without touching domain
+- **Redis Adapter**: Secondary adapter for distributed rate limiting
+
+## Testing Strategy for Hexagonal Architecture
+
+- **Domain Tests**: Unit tests for core business logic
+- **Port Tests**: Tests ensuring port contracts are fulfilled
+- **Adapter Tests**: Tests for adapter implementations
+- **Mock Ports**: For testing adapters in isolation
+- **Integration Tests**: Test full flows through the hexagon
+
+## Benefits of Hexagonal Architecture in This Project
+
+1. **Testability**: Domain logic can be tested without infrastructure
+2. **Maintainability**: Clear separation of concerns and dependencies
+3. **Flexibility**: Ability to swap out adapters (e.g., change from Redis to another cache)
+4. **Focus on Domain**: Business rules are centralized and explicit
+5. **Technological Agnosticism**: Core business logic is independent of frameworks
+
+---
+
+# 9. Future Architectural Improvements
+
+- **Domain Events**: Expand event-driven architecture for better decoupling
+- **Anti-corruption Layer**: For integrating with external systems
+- **Command Query Responsibility Segregation (CQRS)**: Separate read and write models
+- **Bounded Contexts**: Define clear boundaries between different domain areas
+- Testing strategy needs to be implemented
+- Monitoring and observability are missing
+- Documentation could be enhanced
+
+---
+
+# 10. Branches
+
+1. ==Main==: it contains the latest deployed and published codebase, this one has been tested against unit, integration and end 2 end, also, there are special directories related to developer such as: devops (CI/CD pipelines), sshots (images for README file) and developer (diagrams, postman yaml files, documentation)
+
+2. ==Stage==: target branch for test the execution of the CI/CD pipelines, includes the interaction with the CI tools and cloud providers, the use of this branch is suggested for QA and DevOps teams. Pre-release version management, this one should be the only one merged with main branch.
+
+3. ==Unstable==: it containts the test codebase (unit, integration, end 2 end), it interacts with experimental and stage branches, must not merge with main.
+
+4. ==Experimental==: alpha version of the codebase, all features are built here, it interacts with unstable and stage, must not be merged directly with main branch.
+
+5. ==Refactor==: special feature requires by Experimental branch, the intention is to not affect the latest run version of the codebase contained in Experimental, if must be merged just with experimental branch.
+
+---
+
+# 11. Leftovers:
+
+- **GraphQL Integration** - Implement GraphQL alongside REST to enable more flexible querying capabilities, reduce over-fetching, and provide a more efficient API interface for complex data requirements.
+
+- **Microservices Architecture** - Consider breaking down the monolithic application into domain-specific microservices (users, todos, roles) for better scalability, team autonomy, and maintainability.
+
+- **Caching Layer** - Implement Redis or another caching solution to improve performance for frequently accessed data and reduce database load.
+
+- **Event-Driven Architecture** - Introduce message queues (RabbitMQ, Kafka) for asynchronous processing and better service decoupling.
+
+- **Observability Stack** - Integrate Prometheus, Grafana, and distributed tracing to gain deeper insights into application performance and behavior.
+
+- **Enhanced Authentication** - Extend the authentication system to support OAuth/OpenID Connect for third-party authentication providers.
+
+- **API Gateway** - Implement an API gateway to handle cross-cutting concerns like rate limiting, request routing, and API versioning.
+
+- **CQRS Pattern** - Separate read and write operations for more complex domains, potentially with different data models optimized for each purpose.
+
+- **Containerization** - Dockerize the application and implement Kubernetes for orchestration to improve deployment consistency and scalability.
+
+- **Domain-Driven Design** - Refactor the code structure to align more closely with business domains, emphasizing ubiquitous language and bounded contexts.
+
+- **Improved Error Handling** - Implement a more robust error handling framework with custom error classes and centralized logging.
+
+- **CI/CD Pipeline** - Establish a comprehensive CI/CD workflow with automated testing, quality gates, and deployment across environments.
+
+- **Serverless Functions** - Consider moving appropriate parts of the application to serverless architecture for improved scalability and cost efficiency.
+
+- Deployment strategy
+
+- **result pattern** - for better error handling
