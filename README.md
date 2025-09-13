@@ -41,29 +41,199 @@ Restful API for managing tasks assigned to users.
 ## Complete System Architecture
 
 ```mermaid
-    class Docker,Gin infrastructure
-```
+graph TB
+    %% Client Layer
+    Client[📱 Client Applications<br/>Frontend/Mobile/API Consumers]
 
-## Data Flow Diagram
-
-```mermaid
-sequenceDiagram
-```
-
-## Cache Strategy Diagram
-
-```mermaid
-
+    %% API Gateway & Rate Limiting
+    subgraph "🔒 Security & Rate Limiting Layer"
+        RL[Rate Limiters<br/>Global/Login/SignUp/User/Supervisor]
+        CORS[CORS Middleware]
+        Auth[Authorization Middleware]
+        Valid[Validation Middleware]
     end
+
+    %% Express Application
+    subgraph "🚀 Express Application Layer"
+        App[app.ts<br/>Express App Setup]
+        Server[server.ts<br/>Application Entry Point]
+
+        subgraph "📍 Route Handlers"
+            HCRoutes[Health Check Routes<br/>/healthcheck]
+            UserRoutes[User Routes<br/>/users]
+            RoleRoutes[Role Routes<br/>/roles]
+            TodoRoutes[Todo Routes<br/>/todos]
+        end
+    end
+
+    %% Controllers Layer
+    subgraph "🎮 Controller Layer"
+        HCController[Health Check Controller<br/>App & DB Health]
+        UserController[User Controller<br/>Auth & User Management]
+        RoleController[Role Controller<br/>Role Management]
+        TodoController[Todo Controller<br/>Todo Management]
+    end
+
+    %% DTO Layer
+    subgraph "📦 Data Transfer Objects"
+        EndpointDTO[EndpointResponseDto<br/>Standardized API Response]
+
+        subgraph "Response DTOs"
+            UserDTO[UsersResponseDTO]
+            RoleDTO[RolesResponseDTO]
+            TodoDTO[TodosResponseDTO]
+            HCDTO[HealthCheckResponseDTO]
+            ErrorDTO[ErrorResponseDTO]
+        end
+
+        subgraph "Pagination DTOs"
+            PaginatedDTO[PaginatedResponseDTO]
+        end
+    end
+
+    %% Service Layer
+    subgraph "⚙️ Business Logic Layer"
+        UserService[User Service<br/>Authentication & User Logic]
+        RoleService[Role Service<br/>Permission Management]
+        TodoService[Todo Service<br/>Todo Operations]
+        PaginationService[Pagination Service<br/>Cursor-based Pagination]
+    end
+
+    %% Models Layer
+    subgraph "🗄️ Data Models Layer"
+        UserModel[User Model<br/>Mongoose Schema]
+        RoleModel[Role Model<br/>Mongoose Schema]
+        TodoModel[Todo Model<br/>Mongoose Schema]
+    end
+
+    %% Database
+    subgraph "💾 Database Layer"
+        MongoDB[(MongoDB<br/>Document Database)]
+    end
+
+    %% Utilities
+    subgraph "🛠️ Utility Layer"
+        Config[Configuration<br/>Environment Variables]
+        Seeder[Database Seeder<br/>Initial Data Setup]
+        ApiUtils[API Response Utils<br/>Success/Error Helpers]
+        JWTUtils[JWT Utilities<br/>Token Management]
+    end
+
+    %% Data Flow Connections
+    Client -->|HTTP Requests| RL
+    RL --> CORS
+    CORS --> Auth
+    Auth --> Valid
+    Valid --> App
+
+    App --> HCRoutes
+    App --> UserRoutes
+    App --> RoleRoutes
+    App --> TodoRoutes
+
+    HCRoutes --> HCController
+    UserRoutes --> UserController
+    RoleRoutes --> RoleController
+    TodoRoutes --> TodoController
+
+    HCController --> HCDTO
+    UserController --> UserDTO
+    UserController --> EndpointDTO
+    RoleController --> RoleDTO
+    RoleController --> PaginatedDTO
+    RoleController --> EndpointDTO
+    TodoController --> TodoDTO
+    TodoController --> EndpointDTO
+
+    UserController --> UserService
+    RoleController --> RoleService
+    TodoController --> TodoService
+
+    UserService --> UserModel
+    UserService --> RoleModel
+    RoleService --> RoleModel
+    TodoService --> TodoModel
+    TodoService --> UserModel
+
+    RoleService --> PaginationService
+
+    UserModel --> MongoDB
+    RoleModel --> MongoDB
+    TodoModel --> MongoDB
+
+    %% Configuration Dependencies
+    Config --> App
+    Config --> UserService
+    Config --> Auth
+    Config --> RL
+
+    Seeder --> UserModel
+    Seeder --> RoleModel
+    Seeder --> TodoModel
+
+    ApiUtils --> UserController
+    ApiUtils --> RoleController
+    ApiUtils --> TodoController
+
+    JWTUtils --> UserService
+    JWTUtils --> Auth
+
+    %% Error Handling
+    ErrorDTO --> UserController
+    ErrorDTO --> RoleController
+    ErrorDTO --> TodoController
+
+    %% Server Setup
+    Server --> App
+
+    %% Style definitions
+    classDef clientStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef securityStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef appStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef controllerStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef serviceStyle fill:#fff8e1,stroke:#f57f17,stroke-width:2px
+    classDef modelStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef databaseStyle fill:#e0f2f1,stroke:#004d40,stroke-width:2px
+    classDef utilityStyle fill:#f5f5f5,stroke:#424242,stroke-width:2px
+    classDef dtoStyle fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px
+
+    class Client clientStyle
+    class RL,CORS,Auth,Valid securityStyle
+    class App,Server,HCRoutes,UserRoutes,RoleRoutes,TodoRoutes appStyle
+    class HCController,UserController,RoleController,TodoController controllerStyle
+    class UserService,RoleService,TodoService,PaginationService serviceStyle
+    class UserModel,RoleModel,TodoModel modelStyle
+    class MongoDB databaseStyle
+    class Config,Seeder,ApiUtils,JWTUtils utilityStyle
+    class EndpointDTO,UserDTO,RoleDTO,TodoDTO,HCDTO,ErrorDTO,PaginatedDTO dtoStyle
 ```
 
-## Rate Limiting Flow
+## Data Flow Patterns
 
-```mermaid
-    M --> O[Client Waits]
+### 1. Request Processing Flow
+
+```
+Client Request → Rate Limiting → CORS → Authorization → Validation → Routes → Controllers → Services → Models → Database
 ```
 
----
+### 2. Response Transformation Flow
+
+```
+Database → Models → Services → Controllers → DTOs → EndpointResponseDto → Client
+```
+
+### 3. Authentication Flow
+
+```
+Login Request → UserController → UserService → JWT Creation → Cookie Setting → Response
+Protected Route → JWT Verification → Authorization Check → Route Handler
+```
+
+### 4. Error Handling Flow
+
+```
+Error Occurrence → Service/Controller → ErrorResponseDTO → Standardized Error Response → Client
+```
 
 # 5. Technical Specs
 
@@ -123,17 +293,39 @@ External requests → Primary Adapters → Primary Ports → Domain Logic → Se
 
 ---
 
-# 6. API Endpoints (Primary Adapters)
+# 6. API Endpoints
 
-| Endpoint                | Method | Hexagonal Role                     | Cache Strategy                 | Rate Limit |
-| ----------------------- | ------ | ---------------------------------- | ------------------------------ | ---------- |
-| `/tasks/task`           | GET    | Primary adapter → TaskService port | 30s with ETag                  | 100/min    |
-| `/tasks/task/list/page` | GET    | Primary adapter → TaskService port | 30s with ETag                  | 100/min    |
-| `/tasks/task/:id`       | GET    | Primary adapter → TaskService port | 30s with ETag                  | 100/min    |
-| `/tasks/task`           | POST   | Primary adapter → TaskService port | Invalidates list caches        | 30/min     |
-| `/tasks/task/:id`       | PUT    | Primary adapter → TaskService port | Invalidates specific caches    | 30/min     |
-| `/tasks/task/:id/done`  | PUT    | Primary adapter → TaskService port | Invalidates specific caches    | 30/min     |
-| `/tasks/task/:id`       | DELETE | Primary adapter → TaskService port | Invalidates all related caches | 30/min     |
+### Health Check Endpoints
+
+- `GET /nodetodo/v1/healthcheck/app` - Application health status
+- `GET /nodetodo/v1/healthcheck/db` - Database connectivity check
+
+### User Management Endpoints
+
+- `POST /nodetodo/v1/users/register` - User registration
+- `POST /nodetodo/v1/users/login` - User authentication
+- `POST /nodetodo/v1/users/logout` - User logout
+- `GET /nodetodo/v1/users/list` - List all users (admin)
+- `GET /nodetodo/v1/users/me` - Get current user profile
+- `PATCH /nodetodo/v1/users/updatedetails` - Update user details
+- `PUT /nodetodo/v1/users/updatepassword` - Update user password
+- `DELETE /nodetodo/v1/users/delete` - Delete user account
+
+### Role Management Endpoints
+
+- `GET /nodetodo/v1/roles/list` - List roles (paginated)
+- `GET /nodetodo/v1/roles/:roleId` - Get specific role
+- `POST /nodetodo/v1/roles/new` - Create new role
+- `PATCH /nodetodo/v1/roles/:roleId` - Update role
+- `DELETE /nodetodo/v1/roles/:roleId` - Delete role
+
+### Todo Management Endpoints
+
+- `GET /nodetodo/v1/todos/list` - List user's todos
+- `GET /nodetodo/v1/todos/:todoId` - Get specific todo
+- `POST /nodetodo/v1/todos/new` - Create new todo
+- `PATCH /nodetodo/v1/todos/:todoId` - Update todo
+- `DELETE /nodetodo/v1/todos/:todoId` - Delete todo
 
 ---
 
